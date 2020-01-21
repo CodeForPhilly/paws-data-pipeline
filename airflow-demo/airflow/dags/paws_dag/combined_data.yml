@@ -1,0 +1,9 @@
+operator: MaterializedPostgresOperator
+fields:
+    - some_name: this is proof that you can document a column
+query: |-
+    SELECT animalid as some_name FROM views.petpoint_raw LIMIT 1
+    
+    UNION ALL
+
+    SELECT opportunityowner as some_name FROM views.salesforce_donations_raw LIMIT 1

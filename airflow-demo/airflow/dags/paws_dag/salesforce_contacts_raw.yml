@@ -1,0 +1,2 @@
+operator: CSVtoPostgresOperator
+csv_file: CfP_PDP_salesforceContacts_deidentified.csv
