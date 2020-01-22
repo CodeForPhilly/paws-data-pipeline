@@ -1,5 +1,5 @@
-- install docker
-    - https://docs.docker.com/install
+Install docker
+    https://docs.docker.com/install
 
 run:
 `docker build -t ngnix_paws_image .`
