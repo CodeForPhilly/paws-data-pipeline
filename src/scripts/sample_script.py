@@ -1,3 +1,3 @@
 def run():
-    f = open('../api_server/test.txt', 'w')
+    f = open('./output_data/test.txt', 'w')
     f.write('test script')
