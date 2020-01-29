@@ -8,7 +8,7 @@ run:
 
 API:  
 run http GET request like:    
-- http://localhost:5555
+- http://localhost:5555/listFiles
 - http://localhost:5555/file/{fileName}
 - http://localhost:5555/executeScript/{scriptName}
 - http://localhost:5555/allFiles

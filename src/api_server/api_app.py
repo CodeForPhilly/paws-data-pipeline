@@ -2,9 +2,13 @@ import os
 import flask
 from flask import send_file
 import shutil
+import sys
 
-from ..scripts import sample_script
+# get scripts folder to relative path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from scripts import sample_script
 
+sys.path.insert(1, '../scripts')
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 SCRIPT_PATH = dir_path + '/../scripts'

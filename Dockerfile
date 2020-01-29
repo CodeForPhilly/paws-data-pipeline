@@ -7,10 +7,10 @@ EXPOSE 5555
 ENV UWSGI_INI uwsgi.ini
 
 # Set the folder where uwsgi looks for the app
-WORKDIR /paws-data-pipeline
+WORKDIR /paws-data-pipeline/
 
 # Copy the app contents to the image
-COPY . /paws-data-pipeline
+COPY . /paws-data-pipeline/
 
 RUN chmod 777 /paws-data-pipeline
 
