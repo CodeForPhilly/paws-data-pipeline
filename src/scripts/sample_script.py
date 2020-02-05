@@ -1,3 +1,3 @@
 def run():
-    f = open('test.txt', 'w')
+    f = open('./output_data/test.txt', 'w')
     f.write('test script')
