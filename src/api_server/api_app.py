@@ -18,11 +18,13 @@ TEMPLATE_PATH = dir_path + '/../templates'
 UPLOAD_FOLDER = '/app/static/uploads'
 ALLOWED_EXTENSIONS = {'csv'}
 
+SUCCESS_MSG = ' uploaded successfully! '
+
 #TODO: this might not be enough as not all browsers properly detect file size
 app = flask.Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = '1u9L#*&I3Ntc'
-app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024 #500 Megs
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -36,18 +38,34 @@ def showIndexPage():
 @app.route('/', methods=['POST'])
 def uploadCSV():
     if 'file' not in request.files:
-        flash('no file part')
+        flash('no file part', 'error')
         return redirect(request.url)
     
-    file = request.files['file']
-    if not allowed_file(file.filename):
-        flash('not a csv')
-        return redirect(request.url)
-    #TODO: validate that it is from a correct source (Pet Point, Volgistics, Salesforce)
-    file = request.files['file']
-    filename = secure_filename(file.filename)
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    flash('csv successfully uploaded')
+    for file in request.files.getlist('file'):
+        if not allowed_file(file.filename):
+            flash('not a csv: ' + file.filename, 'error')
+            continue
+        try:
+            header = file.stream.readline().decode('utf-8').split(',')[1]
+            cleaned = header.strip()
+            valid_src = True
+            if cleaned == 'Account.Name':
+                flash('Salesforce' + SUCCESS_MSG  + file.filename, 'info')
+            elif cleaned == 'Last.name..First.name':
+                flash('Volgistics' + SUCCESS_MSG +  file.filename, 'info')
+            elif cleaned == 'Animal.ID':
+                flash('Pet Point' + SUCCESS_MSG + file.filename, 'info')
+            elif cleaned == 'Recurring.donor':
+                flash('Salesforce' + SUCCESS_MSG + file.filename, 'info')
+            else:
+                flash('Unrecognized data extract: ' + file.filename, 'error')
+                valid_src = False
+            if valid_src:
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        except:
+            flash('can\'t parse upload: ' + file.filename, 'error')
+            print(sys.exc_info()[0])
     
     return redirect('/')
 

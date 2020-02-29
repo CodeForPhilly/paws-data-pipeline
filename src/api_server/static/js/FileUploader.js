@@ -1,6 +1,7 @@
 let MAX_FILE_SIZE = 1073741824 //1 GB
 
 $(function(){
+    //TODO: implement client side validation
     $('#file-select').change(function(e){
         //run logic to veryify
         //1. it is a CSV
