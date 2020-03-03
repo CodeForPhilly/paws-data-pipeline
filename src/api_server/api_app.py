@@ -7,22 +7,21 @@ import sys
 
 # get scripts folder to relative path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-#from scripts import sample_script
+from scripts import sample_script
 
 sys.path.insert(1, '../scripts')
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 SCRIPT_PATH = dir_path + '/../scripts'
-DATA_FILES_PATH = dir_path + '/../../sample_data'
+DATA_FILES_PATH = '/app/static/uploads'
 TEMPLATE_PATH = dir_path + '/../templates'
-UPLOAD_FOLDER = '/app/static/uploads'
 ALLOWED_EXTENSIONS = {'csv'}
 
 SUCCESS_MSG = ' uploaded successfully! '
 
 #TODO: this might not be enough as not all browsers properly detect file size
 app = flask.Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = DATA_FILES_PATH
 app.secret_key = '1u9L#*&I3Ntc'
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024 #500 Megs
 
@@ -46,16 +45,15 @@ def uploadCSV():
             flash('not a csv: ' + file.filename, 'error')
             continue
         try:
-            header = file.stream.readline().decode('utf-8').split(',')[1]
-            cleaned = header.strip()
+            column_header = file.stream.readline().decode('utf-8').split(',')[1].strip()
             valid_src = True
-            if cleaned == 'Account.Name':
+            if column_header == 'Account.Name':
                 flash('Salesforce' + SUCCESS_MSG  + file.filename, 'info')
-            elif cleaned == 'Last.name..First.name':
+            elif column_header == 'Last.name..First.name':
                 flash('Volgistics' + SUCCESS_MSG +  file.filename, 'info')
-            elif cleaned == 'Animal.ID':
+            elif column_header == 'Animal.ID':
                 flash('Pet Point' + SUCCESS_MSG + file.filename, 'info')
-            elif cleaned == 'Recurring.donor':
+            elif column_header == 'Recurring.donor':
                 flash('Salesforce' + SUCCESS_MSG + file.filename, 'info')
             else:
                 flash('Unrecognized data extract: ' + file.filename, 'error')
@@ -79,7 +77,7 @@ def listFiles():
 def executeScript(scriptName):
     print('Start executing script: ' + scriptName)
     try:
-        #sample_script.run()
+        sample_script.run()
         return str(scriptName)
 
     except Exception as e:
@@ -99,8 +97,8 @@ def file(fileName):
 def allFiles():
     print('Start returning zip of all data')
     try:
-        shutil.make_archive('data_out', 'zip', DATA_FILES_PATH)
-        return send_file('data_out.zip', attachment_filename='data_out.zip')
+        print(shutil.make_archive('data_out', 'zip', DATA_FILES_PATH, 'uploads'))
+        return send_file('/paws-data-pipeline/data_out.zip', attachment_filename='data_out.zip')
     except Exception as e:
         return str(e)
 
