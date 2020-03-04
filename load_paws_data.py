@@ -1,4 +1,5 @@
 import sqlite3
+import sqlalchemy as db
 import pandas as pd
 import numpy as np
 import re
@@ -6,11 +7,11 @@ from fuzzywuzzy import fuzz
 
 # connect to or create database
 
-conn = sqlite3.connect("./sample_data/paws.db")
-
+engine = db.create_engine('postgresql://postgres:thispasswordisverysecure@paws-compose-db/postgres')
+conn = engine.raw_connection()
 # function for loading a csv into a database table or "updating" the table by dropping it and recreating it with the csv
 
-def load_to_sqlite(csv_name, table_name, connection, drop_first_col=False):
+def load_to_sqlite(csv_name, table_name, connection, engine, drop_first_col=False):
     
     # load csv into a dataframe
     df = pd.read_csv(csv_name, encoding='cp1252')
@@ -26,14 +27,18 @@ def load_to_sqlite(csv_name, table_name, connection, drop_first_col=False):
     
     # create a cursor object, and use it to drop the table if it exists
     cursor = connection.cursor()
-    cursor.execute(f'DROP TABLE {table_name}')
+    try:
+        cursor.execute(f'DROP TABLE {table_name}')
+    except:
+        # Petpoint DB does not already exist
+        pass
     connection.commit()
     cursor.close()
     
     # load dataframe into database table
-    df.to_sql(table_name, connection, index=False,)
+    df.to_sql(table_name, engine, index=False,)
 
-load_to_sqlite('./sample_data/CfP_PDP_petpoint_deidentified.csv', 'petpoint', conn, True)
-load_to_sqlite('./sample_data/CfP_PDP_volgistics_deidentified.csv', 'volgistics', conn, True)
-load_to_sqlite('./sample_data/CfP_PDP_salesforceContacts_deidentified.csv', 'salesforcecontacts', conn, True)
-load_to_sqlite('./sample_data/CfP_PDP_salesforceDonations_deidentified.csv', 'salesforcedonations', conn, True)
+load_to_sqlite('./sample_data/CfP_PDP_petpoint_deidentified.csv', 'petpoint', conn, engine, True)
+load_to_sqlite('./sample_data/CfP_PDP_volgistics_deidentified.csv', 'volgistics', conn, engine, True)
+load_to_sqlite('./sample_data/CfP_PDP_salesforceContacts_deidentified.csv', 'salesforcecontacts', conn, engine, True)
+load_to_sqlite('./sample_data/CfP_PDP_salesforceDonations_deidentified.csv', 'salesforcedonations', conn, engine, True)
