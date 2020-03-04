@@ -1,0 +1,21 @@
+version: '3'
+services:
+  db:
+    container_name: paws-compose-db
+    image: postgres:11.3-alpine
+    volumes:
+      - ./db_data/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: thispasswordisverysecure
+  web:
+    build: .
+    # Unfortunately docker-compose doesn't let us do much
+    # with regard to retroactively running commands, so we have 
+    # to run a startup script, which loads paws db and then
+    # starts our service
+    command: bash /paws-data-pipeline/ops_data/runserver.sh
+    ports:
+      - "5555:5555"
+    depends_on:
+      - db
+    container_name: paws-compose-web
