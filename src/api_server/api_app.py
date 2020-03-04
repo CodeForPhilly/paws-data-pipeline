@@ -37,12 +37,12 @@ def showIndexPage():
 @app.route('/', methods=['POST'])
 def uploadCSV():
     if 'file' not in request.files:
-        flash('no file part', 'error')
+        flash('ERROR no file part', 'error')
         return redirect(request.url)
     
     for file in request.files.getlist('file'):
         if not allowed_file(file.filename):
-            flash('not a csv: ' + file.filename, 'error')
+            flash('ERROR not a csv: ' + file.filename, 'error')
             continue
         try:
             column_header = file.stream.readline().decode('utf-8').split(',')[1].strip()
@@ -56,13 +56,13 @@ def uploadCSV():
             elif column_header == 'Recurring.donor':
                 flash('Salesforce' + SUCCESS_MSG + file.filename, 'info')
             else:
-                flash('Unrecognized data extract: ' + file.filename, 'error')
+                flash('ERROR Unrecognized data extract: ' + file.filename, 'error')
                 valid_src = False
             if valid_src:
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         except:
-            flash('can\'t parse upload: ' + file.filename, 'error')
+            flash('ERROR can\'t parse upload: ' + file.filename, 'error')
             print(sys.exc_info()[0])
     
     return redirect('/')
@@ -97,8 +97,8 @@ def file(fileName):
 def allFiles():
     print('Start returning zip of all data')
     try:
-        print(shutil.make_archive('data_out', 'zip', DATA_FILES_PATH, 'uploads'))
-        return send_file('/paws-data-pipeline/data_out.zip', attachment_filename='data_out.zip')
+        print(shutil.make_archive('data_out', 'zip', DATA_FILES_PATH, DATA_FILES_PATH))
+        return send_file('/paws-data-pipeline/data_out.zip', as_attachment=True, attachment_filename='data_out.zip')
     except Exception as e:
         return str(e)
 
