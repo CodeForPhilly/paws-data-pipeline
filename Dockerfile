@@ -14,7 +14,6 @@ COPY . /paws-data-pipeline/
 
 RUN chmod 777 /paws-data-pipeline
 RUN apt-get update
-RUN apt-get install -y sqlite3 libsqlite3-dev
 
 # If you have additional requirements beyond Flask (which is included in the
 # base image), generate a requirements.txt file with pip freeze and uncomment
