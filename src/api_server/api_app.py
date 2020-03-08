@@ -8,6 +8,9 @@ import sys
 # get scripts folder to relative path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from scripts import sample_script
+#need to use below import statement in windows environment
+#import sample_script
+import time
 
 sys.path.insert(1, '../scripts')
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -24,6 +27,7 @@ app = flask.Flask(__name__)
 app.config['UPLOAD_FOLDER'] = DATA_FILES_PATH
 app.secret_key = '1u9L#*&I3Ntc'
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024 #500 Megs
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -60,7 +64,9 @@ def uploadCSV():
                 valid_src = False
             if valid_src:
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                prefix = filename.rpartition('.')[0]
+                file_extension = filename.rpartition('.')[2]
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], prefix + '-' + str(round(time.time())) + '.' + file_extension))
         except:
             flash('ERROR can\'t parse upload: ' + file.filename, 'error')
             print(sys.exc_info()[0])
@@ -97,11 +103,10 @@ def file(fileName):
 def allFiles():
     print('Start returning zip of all data')
     try:
-        print(shutil.make_archive('data_out', 'zip', DATA_FILES_PATH, DATA_FILES_PATH))
+        print(shutil.make_archive('data_out', 'zip', DATA_FILES_PATH))
         return send_file('/paws-data-pipeline/data_out.zip', as_attachment=True, attachment_filename='data_out.zip')
     except Exception as e:
         return str(e)
-
 
 if __name__ == "__main__":
     app.run(debug = True)
