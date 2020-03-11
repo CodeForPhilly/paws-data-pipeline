@@ -11,8 +11,12 @@ WORKDIR /paws-data-pipeline/
 
 # Copy the app contents to the image
 COPY . /paws-data-pipeline/
-
 RUN chmod 777 /paws-data-pipeline
+RUN chmod 777 -R /paws-data-pipeline/output_data
+COPY src/api_server/static/ /app/static/
+RUN mkdir /app/static/uploads
+RUN chmod -R 777 /app/static
+
 RUN apt-get update
 RUN apt-get install -y sqlite3 libsqlite3-dev
 
