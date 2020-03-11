@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <link rel="stylesheet" type="text/css" href="/static/css/app.css">
+        <title>PAWS Uploader</title>
+        <script
+			src="https://code.jquery.com/jquery-3.4.1.min.js"
+			integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+        </script>
+        <script src="/static/js/FileUploader.js"></script>
+    </head>
+    <body>
+        <h1>Welcome to the PAWS data uploader</h1>
+        <img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fwww.dfordog.co.uk%2Fuser%2Fimages%2Ffunnies%2Fthe-cat-diary.jpg&f=1&nofb=1" />
+        <form method="post" action="/" enctype="multipart/form-data">
+            <input id="file-select" type="file" name="file" multiple>
+            <input id="upload" type="submit" name="upload-btn" value="Upload" disabled>
+        </form>
+        <a href="/listFiles">List Files</a> | <a href="/allFiles">Download</a>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul id="messages">
+                    {% for category, message in messages %}
+                        <li class={{ category }}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </body>
+</html>
