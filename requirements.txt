@@ -3,4 +3,4 @@ numpy==1.18.1
 fuzzywuzzy==0.17.0
 python-Levenshtein
 sqlalchemy
-psycopg2
+psycopg2-binary==2.8.4
