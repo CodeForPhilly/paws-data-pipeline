@@ -30,17 +30,16 @@ If you signed the confidentiality agreement document and want access to the serv
 Deploy:
 ---------------------------------------
 From local machine:
-1. zip project folder: tar -czvf paws-data-pipeline.tar.gz /path/to/paws-data-pipeline
+1. zip project folder: `tar -czvf paws-data-pipeline.tar.gz /path/to/paws-data-pipeline`
 
-*** you will need to get access from chris (Owner of Code for Philly) for the next steps ***
+** you will need to get access from chris (Owner of Code for Philly) for the next steps
 
-2. scp project to server: scp paws-data-pipeline.tar.gz [usrmname]@paws-data-pipeline.team-machine.phl.io
-
-3. ssh to server: ssh [usrmname]@paws-data-pipeline.team-machine.phl.io::/home/[usrmname]
+2. scp project to server: `scp paws-data-pipeline.tar.gz [usrmname]@paws-data-pipeline.team-machine.phl.io`
+3. ssh to server: `ssh [usrmname]@paws-data-pipeline.team-machine.phl.io::/home/[usrmname]`
 
 In server:
-4. unzip project folder: tar -czvf paws-data-pipeline paws-data-pipeline.tar.gz
-
-5. build image: docker image build -t paws-data-pipeline.
-
-6. run image: docker container run --publish 5000:5555 --name pdp -d paws-data-pipeline
+4. unzip project folder: `tar -xzvf  paws-data-pipeline.tar.gz`
+5. build image: `docker image build -t paws-data-pipeline .`
+6. clean previous build: `docker container kill pdp`
+7. clean previous build: `docker container rm pdp`
+8. run image: `docker container run --publish 5000:5555 --name pdp -d paws-data-pipeline`
