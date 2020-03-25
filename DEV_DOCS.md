@@ -38,8 +38,8 @@ you will need to get access from chris (Owner of Code for Philly) for the next s
 3. ssh to server: `ssh [usrmname]@paws-data-pipeline.team-machine.phl.io::/home/[usrmname]`
 
 In server:
-4. unzip project folder: `tar -xzvf  paws-data-pipeline.tar.gz`. 
-5. build image: `docker image build -t paws-data-pipeline .`. 
-6. clean previous build: `docker container kill pdp`. 
-7. clean previous build: `docker container rm pdp`. 
-8. run image: `docker container run --publish 5000:5555 --name pdp -d paws-data-pipeline`. 
+4. unzip project folder: `tar -xzvf  paws-data-pipeline.tar.gz`<br/>
+5. build image: `docker image build -t paws-data-pipeline .`<br/>
+6. clean previous build: `docker container kill pdp`<br/>
+7. clean previous build: `docker container rm pdp`<br/>
+8. run image: `docker container run --publish 5000:5555 --name pdp -d paws-data-pipeline`
