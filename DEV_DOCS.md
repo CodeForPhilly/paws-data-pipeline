@@ -35,9 +35,12 @@ From local machine:
 *** you will need to get access from chris (Owner of Code for Philly) for the next steps ***
 
 2. scp project to server: scp paws-data-pipeline.tar.gz [usrmname]@paws-data-pipeline.team-machine.phl.io
-3. ssh to server: ssh [usrmname]@paws-data-pipeline.team-machine.phl.io
+
+3. ssh to server: ssh [usrmname]@paws-data-pipeline.team-machine.phl.io::/home/[usrmname]
 
 In server:
 4. unzip project folder: tar -czvf paws-data-pipeline paws-data-pipeline.tar.gz
-5. build image: docker image build -t paws-data-pipeline .
+
+5. build image: docker image build -t paws-data-pipeline.
+
 6. run image: docker container run --publish 5000:5555 --name pdp -d paws-data-pipeline
