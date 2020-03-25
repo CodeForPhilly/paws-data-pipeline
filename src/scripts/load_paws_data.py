@@ -1,8 +1,6 @@
 import sqlite3
 import pandas as pd
-import numpy as np
 import re
-from fuzzywuzzy import fuzz
 
 # function for loading a csv into a database table or "updating" the table by dropping it and recreating it with the csv
 OUTPUT_PATH = "/app/static/output/"
@@ -10,7 +8,7 @@ OUTPUT_PATH = "/app/static/output/"
 def load_to_sqlite(csv_name, table_name, drop_first_col=False):
     # connect to or create database
     connection = sqlite3.connect(OUTPUT_PATH + "paws.db")
-    print('here')
+
     # load csv into a dataframe
     df = pd.read_csv(csv_name, encoding='cp1252')
     
@@ -25,7 +23,6 @@ def load_to_sqlite(csv_name, table_name, drop_first_col=False):
     
     # create a cursor object, and use it to drop the table if it exists
     cursor = connection.cursor()
-    print('here')
     cursor.execute(f'DROP TABLE {table_name}')
     connection.commit()
     cursor.close()
