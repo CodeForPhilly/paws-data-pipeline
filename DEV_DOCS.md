@@ -32,7 +32,7 @@ Deploy:
 From local machine:
 1. zip project folder: `tar -czvf src.tar.gz src`
 2. scp project to server: `scp src.tar.gz [usrmname]@paws-data-pipeline.team-machine.phl.io:/home/[usrmname]/paws-data-pipeline`
-3. ssh to server: `ssh [usrmname]@paws-data-pipeline.team-machine.phl.io
+3. ssh to server: `ssh [usrmname]@paws-data-pipeline.team-machine.phl.io`
 
 In server:
 1. `cd paws-data-pipeline`
