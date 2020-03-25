@@ -34,7 +34,7 @@ From local machine:
 
 *** you will need to get access from chris (Owner of Code for Philly) for the next steps ***
 
-2. scp project to server: scp paws-data-pipeline.tar.gz /[usrname]/home/ [usrmname]@paws-data-pipeline.team-machine.phl.io
+2. scp project to server: scp paws-data-pipeline.tar.gz [usrmname]@paws-data-pipeline.team-machine.phl.io
 3. ssh to server: ssh [usrmname]@paws-data-pipeline.team-machine.phl.io
 
 In server:
