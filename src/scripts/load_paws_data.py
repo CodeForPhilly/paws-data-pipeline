@@ -1,17 +1,14 @@
 import sqlite3
 import pandas as pd
-import numpy as np
 import re
-from fuzzywuzzy import fuzz
-
-# connect to or create database
-
-conn = sqlite3.connect("../../sample_data/paws.db")
 
 # function for loading a csv into a database table or "updating" the table by dropping it and recreating it with the csv
+OUTPUT_PATH = "/app/static/output/"
 
-def load_to_sqlite(csv_name, table_name, connection, drop_first_col=False):
-    
+def load_to_sqlite(csv_name, table_name, drop_first_col=False):
+    # connect to or create database
+    connection = sqlite3.connect(OUTPUT_PATH + "paws.db")
+
     # load csv into a dataframe
     df = pd.read_csv(csv_name, encoding='cp1252')
     
@@ -26,7 +23,6 @@ def load_to_sqlite(csv_name, table_name, connection, drop_first_col=False):
     
     # create a cursor object, and use it to drop the table if it exists
     cursor = connection.cursor()
-
     cursor.execute(f'DROP TABLE {table_name}')
     connection.commit()
     cursor.close()
@@ -34,7 +30,9 @@ def load_to_sqlite(csv_name, table_name, connection, drop_first_col=False):
     # load dataframe into database table
     df.to_sql(table_name, connection, index=False,)
 
-load_to_sqlite('../../sample_data/CfP_PDP_petpoint_deidentified.csv', 'petpoint', conn, True)
-load_to_sqlite('../../sample_data/CfP_PDP_volgistics_deidentified.csv', 'volgistics', conn, True)
-load_to_sqlite('../../sample_data/CfP_PDP_salesforceContacts_deidentified.csv', 'salesforcecontacts', conn, True)
-load_to_sqlite('../../sample_data/CfP_PDP_salesforceDonations_deidentified.csv', 'salesforcedonations', conn, True)
+
+
+#load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_petpoint_deidentified.csv', 'petpoint', conn, True)
+#load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_volgistics_deidentified.csv', 'volgistics', conn, True)
+#load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_salesforceContacts_deidentified.csv', 'salesforcecontacts', conn, True)
+#load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_salesforceDonations_deidentified.csv', 'salesforcedonations', conn, True)
