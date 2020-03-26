@@ -3,6 +3,8 @@
 
 PAWS uses multiple software (cloud-based) systems to support its various operating needs.  Information on PAWS constituents is spread across these **Operational Systems** with varying levels of consistency (/inconsistency) in how they are represented.
 
+!(PAWS_Digital_Ecosystem_V3_for_C4P.jpg)
+
 Two objectives are:
 
 1.  A 360-degree view of constituents is important for PAWS to be able
@@ -113,7 +115,7 @@ Volgistics does not have API capabilities.
 
 Volgistics does offer csv-based export triggered via it's web-based adminsitrative user interface.  For shifts worked, the file export is two files:  One file lists the volunteer identifying information (name, email address, etc, along with an ID number); the other file lists each shift worked with each shift record referencing the volunteer's ID number.  
 
-Volgistics is a source system for this project.  By exporting Volunteer Shifts worked it is possible to add these to Salesforce, matching to existing Contacts or adding Contacts (and associated Household) as required.  By doing this, a summary (and some detail) of Volunteer Shifts and Hours worked is visible on constituent Contact recrods.   At a high level, presence of Volunteer Hours worked indicates that the constituent has been (and/or is currently) a PAWS Volunteer.  
+Volgistics is a source system for this project.  By exporting volunteer shifts worked data it is possible to add these to Salesforce, matching to existing Contacts or adding Contacts (and associated Household) as required.  By doing this, a summary (and some detail) of Volunteer Shifts and Hours Worked is visible on constituent Contact recrods.   At a high level, presence of Volunteer Hours worked indicates that the constituent has been (and/or is currently) a PAWS Volunteer.  
 
 It's envisoned that a PAWS staff member or a designated Volunteer would export new shifts-worked data from Volgistics for loading into the PAWS Data Pipeline, with these records ending up in the Data Lake in a format for analysis over time and into Salesforce as Volunteer Shifts worked associated with appropriately-matched Contacts via the *Matching Process*.    The file export may be scriptable via UI automation (simulating screen interactions) as a future innovation.   In any case, a location to upload the CSV files to is required, as is a way to trigger an import process.  
 
