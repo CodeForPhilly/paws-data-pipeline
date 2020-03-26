@@ -42,7 +42,7 @@ Each of these **Operational Systems** is ideally suited to what it does.  There 
 a single system that can meet all various operating needs.  Thus we are in a
 **multi-system** situation. 
 
-##Envisioned Repositories
+## Envisioned Repositories
 1. Salesforce's built-for purpose is as a constituent management system.  PAWS should use it in this
 way.
 Namely, all aspects of a constituent's relationship with PAWS should be **visible** in Salesforce to
@@ -55,7 +55,8 @@ to develop analyses and perhaps by PAWS staff running pre-developed scripts to u
 analyses.  This would not be an end-user reference system.   That reference would be Salesforce along 
 with the Operational Systems.   
   
-> Use Case - PAWS Staff Member or Administrative Volunteeer
+## Use Cases
+### Use Case: PAWS Staff Member or Administrative Volunteeer
 - PAWS could pull up a constituent
 in Salesforce and see thier contact information, their donation activity,
 their volunteer activity, their adoption and fostering activity,
@@ -68,7 +69,7 @@ look at other Operational systems for extended detail.
 - Where possible, hyperlinking to 
 other Operational systems should be included in Salesforce to ease finding more details information.
 
-> Use Case - Data Scientist
+### Use Case: Data Scientist
 - The data scientist and PAWS engage on the analysis needed
 - The data scientist inspects the Data Lake for relevant data for the study at hand based upon source Operational
 systems and analysis required
