@@ -3,7 +3,7 @@
 
 PAWS uses multiple software (cloud-based) systems to support its various operating needs.  Information on PAWS constituents is spread across these **Operational Systems** with varying levels of consistency (/inconsistency) in how they are represented.
 
-!(PAWS_Digital_Ecosystem_V3_for_C4P.jpg)
+!PAWS_Digital_Ecosystem_V3_for_C4P.jpg
 
 Two objectives are:
 
@@ -53,8 +53,7 @@ strictly duplicating **all** information in the various other Operational System
 2. It seems like a "Data Lake" would be valuable to hold detail information from all Operational Systems in
 a way that makes it readily available for ongoing analysis.   This would be used by data scientists
 to develop analyses and perhaps by PAWS staff running pre-developed scripts to update existing
-analyses.  This would not be an end-user reference system.   That reference would be Salesforce along 
-with the Operational Systems.   
+analyses.  This would not be an end-user reference system.   End-user access is via the Operational Systems, with Salesforce focused on constituent information. 
   
 ## Use Cases
 ### Use Case: PAWS Staff Member or Administrative Volunteeer
