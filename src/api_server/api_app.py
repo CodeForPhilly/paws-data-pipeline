@@ -61,9 +61,9 @@ def uploadCSV():
                 file_extension = filename.rpartition('.')[2]
                 file.stream.seek(0)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], prefix + '-' + str(round(time.time())) + '.' + file_extension))
-        except:
+        except Exception as e:
             flash('ERROR can\'t parse upload: ' + file.filename, 'error')
-            print(sys.exc_info()[0])
+            print(e)
         finally:
             file.close()
     
