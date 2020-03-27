@@ -3,7 +3,7 @@
 
 PAWS uses multiple software (cloud-based) systems to support its various operating needs.  Information on PAWS constituents is spread across these **Operational Systems** with varying levels of consistency (/inconsistency) in how they are represented.
 
-!PAWS_Digital_Ecosystem_V3_for_C4P.jpg
+![alt text](https://github.com/CodeForPhilly/paws-data-pipeline.git/documentation/PAWS_Digital_Ecosystem_v3_for_C4P.jpg "Diagram")
 
 Two objectives are:
 
@@ -118,8 +118,65 @@ Volgistics is a source system for this project.  By exporting volunteer shifts w
 
 It's envisoned that a PAWS staff member or a designated Volunteer would export new shifts-worked data from Volgistics for loading into the PAWS Data Pipeline, with these records ending up in the Data Lake in a format for analysis over time and into Salesforce as Volunteer Shifts worked associated with appropriately-matched Contacts via the *Matching Process*.    The file export may be scriptable via UI automation (simulating screen interactions) as a future innovation.   In any case, a location to upload the CSV files to is required, as is a way to trigger an import process.  
 
-Donations happen every day.   Volunteers work shifts every day.   Animals are fostered and adopted out every day.
-At given intervals, PAWS staff or an empowered volunteer will 
+### Petpoint
+Petpoint is used to track animals.   It is used by Philadelphia ACCT, the open-intake animal shelter and thus is also used by animal rescue organizations in the area since, through use of this common system, all demographic and health record information follows the animal through it's rescue-foster-adoption cycle.   An animal transfer between participating organizations is reflected via simple reassignment in Petpoint without the need for cross-system data transcription.  
+
+Petpoint is used by animal welfare staff in all organizations that an animal passes through.   At PAWS, it is used by kennel, medical, foster, and adoption staffs for inquiry and logging of new information during the animal's time with PAWS. 
+
+Animals in Petpoint have a unique "A" number (animal numbers start with an "A" followed by a string of numbers).  
+
+Petpoint data must be better understood as part of this project.  Current thinking is below.
+
+**The intent** is to use Petpoint data to show fostering and adopting history as part of a constituent's Contact record in Salesforce.   
+
+Contact processing is fairly straightforward.  Extracting foster-parenting and adopting contact information from Petpoint, taking it through the *Matching Process*, and loading it into Salesforce would ensure that we have awareness of every fostering or adoptive person.   
+
+Animals processing and associating them appropriately with contacts is more complex.  Animals can move between people.  A given animal can be fostered sequentially by multiple different people, an animal can be adopted, an adopted animal can be returned, and then that same animal can be fostered and/or adopted again.   Thus, merely listing the animal on a contact record won't show accurate information.   It is not a 1:1 person:animal relationship.
+
+Current thinking is:
+ - an "Animal" custom object would be configured within Salesforce.   
+ - An extract from Petpoint would be processed to identify animals as a list of "A" numbers and cursory demographics on each animal (such as A12345 is Brutus and he's a Pit Mix dog). 
+ - Animal data would be loaded into Salesforce.   
+ - The extract from Petpoint would also be processed to identify who currently has the animal.   
+ - That contact would be run through the *Matching Process* and when the corresponding Salesforce contact is identified (or a new one added if no match) a link record would be created to connect the animal and contact at this point in time with datetime stamping start-of-connection and eventual end of connection (for fosters or adoption returns).  
+ - By viewing a contact in Salesforce you would see each animal that this contact has had a relationship with - both fostering and adopting.  This is valuable information to further understand how a constituent interacts with PAWS. 
+ 
+ ### ClinicHQ
+ ClinicHQ is used by PAWS low-cost clinic to track visits to the clinic and vet doctor notes. 
+ 
+ Very little work has been done with ClinicHQ data.   
+ 
+ It is envisioned that occurrences of clinic visits (not details, but logging that someone visited the clinic) could be pulled from ClinicHQ exports and loaded into Salesforce to further elaborate the relational contacts with that constituent.   
+ 
+ More work must be done here.
+ 
+ ### Trello
+ Trello is used to manage many workflows at PAWS.   It's very easy to use and has been embraced by the adoption and fostering application vetting and animal/person matching process.  
+ 
+ Unfortunately data in this system lacks precision when it comes to names, spellings, email addresses, etc.    Also, extracting the data and processing through the JSON output is complex.  
+ 
+ This data has been used to analyze time-to-place animals including time-to-complete each step and overall touches.   It would be useful to format this data for easier ongoing analysis in the Data Lake.   There **does not** appear to be data here that would have utility as part of the Salesforce contact record.  
+
+## The Matching Process
+
+The Code for Philly PAWS team has spent considerable time on how best to match contacts across the various systems.    
+
+Constituents each may be known differently in the various **Operational Systems** at PAWS.  Instead of insisting that PAWS refer to people consistently across all systems, we feel the more practical approach is to create a *Matching Table* that will contain the known identities of each constituent in every PAWS systems they appear in (Salesforce, Volgistics, Petpoint, ClinicHQ).  It would also contain a unique PAWS Data Pipeline identifier (number) for each constituent.
+
+A matching routine can be run on contacts appearing on transactional records (donations, volunteer shifts, fostering, adopting, ...) from PAWS' **Operational Systems** as those records come into the PAWS Data Pipeline, identify whether the contact is clearly known already, clearly new, or that further inspection is needed to determine known or new.   
+
+Contacts without matching certainty will require human review.   The best people to help resolve these is PAWS staff.  **Therefore, some report or online screen-based display of these must be made available.**  It will be important to show the underlying data and any possible matches that our process is contemplating.  For instance, if the contact's source is a donation the donation detail should be readily reviewable.   Likewise if it's a volunteer shift then the shift detail would help understand who it really is.  
+ 
+The *Matching Table* would be maintained and curated over time.  Contacts may change (marry, divorce, move, change emails, etc) over time.   Continuity is required in these cases.  
+
+## Downstream Processing
+
+As discussed prior, transactional data coming into the PAWS Data Pipeline will be used for two purposes:  (a) creating a 360-degree constituent view in Salesforce and (b) populating a Data Lake for ongoing analytical work.   
+
+### Salesforce 360-Degree View
+A processing routine will be needed for each type of transactional record (donation, volunteer shift, adoption/foster, etc).   Data would originate through the outloads from source systems.   
+
+
 
 
 
