@@ -1,4 +1,4 @@
-#PAWS Data Pipeline Narrative
+# PAWS Data Pipeline Narrative
 
 ## Overall Description
 
