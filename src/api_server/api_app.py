@@ -82,7 +82,7 @@ def execute(fileName):
     try:
         flow_script.start_flow(fileName)
         flash('Successfully executed!', 'info')
-        return
+        return('Successfully executed flow script with file: ' + fileName)
 
     except Exception as e:
         return str(e)
