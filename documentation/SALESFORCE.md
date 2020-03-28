@@ -12,5 +12,36 @@ sign in as chris@brave-fox-riktj8.com    Password is code1234
 
 You will come to a screen like this:  
 
-!
+![Pic1](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-pic-1)
 
+Click on that rubics cube looking thing to bring up the app chooser
+
+![Pic2](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic2)
+
+Then pick View All   (click where circled)
+
+![Pic3](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic3)
+
+Scroll Down (by scrolling up if you use a mac)
+
+![Pic4](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic4)
+
+Pick the Non Profit Success Pack NPSP - the one in the middle (it's the one with the Lightening Experience.. .cooler)
+
+![Pic5](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic5)
+
+And then 
+
+![Pic6](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic6)
+
+And then 
+
+![Pic7](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic7)
+
+And then 
+
+![Pic8](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic8)
+
+And then 
+
+![Pic3](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic3)
