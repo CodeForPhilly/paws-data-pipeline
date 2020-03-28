@@ -27,7 +27,7 @@ Scroll Down (by scrolling up if you use a mac)
 
 ![Pic4](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic4)
 
-Pick the Non Profit Success Pack NPSP - the one in the middle (it's the one with the Lightening Experience.. .cooler)
+Pick the Non Profit Success Pack NPSP - the one in the middle (it's the one with the Lightning Experience.. .cooler)
 
 ![Pic5](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic5)
 
@@ -45,4 +45,8 @@ If you hover over Volunteer Hours, it will pop up a list (it's a subset) of the 
 
 ![Pic8](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic8)
 
-This should get you started.  Poke around.  
+If you go back and scroll around the Contact record, you'll see all sorts of good info.  Donation History (which I haven't loaded any of), and the Volunteer info is at the bottom.   This is a POC to show what it might look like for PAWS to see not only donation info but also Volunteer activity.   And we can add Animals to this as well.  Weston has a mock-up of that done, although he doesn't have the Volunteer hours.   We can pull this together over time to get a real solid POC.   
+
+I loaded all data via file import wizard available in Salesforce.  API in and out of this Saleforce instance also works.  It's a full developer edition.  I set up the key etc and proved connection via Python.  That code is in the SFDC-Playground folder
+
+There's also a bit of Saleforce screen and form modification I did to pull the Volunteer info in.   Most of it happened automatically when I did it two years ago.  Not sure of the differences. 
