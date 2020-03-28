@@ -30,11 +30,13 @@ Pick the Non Profit Success Pack NPSP - the one in the middle (it's the one with
 
 ![Pic5](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic5)
 
-This is a two part step.   First click on the Contacts tab at the top.   That should bring up recently used Contacts.  If not, click around to bring up recent contacts.  It should be an option under the Contacts tab if you hover or click for the pull-down menu
+This is a two part step.   First click on the Contacts tab at the top.   That should bring up recently used Contacts.  If not, click around to bring up recent contacts.  It should be an option under the Contacts tab if you hover or click for the pull-down menu.
+
+Then click on our buddy Aaron.   Fake name and address
 
 ![Pic6](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic6)
 
-Now click on our buddy Aaron.  Fake name and address.  
+This is Aaron's contact record.  Note two two "Related" pieces of information.   Volunteer info especially.  
 
 ![Pic7](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic7)
 
