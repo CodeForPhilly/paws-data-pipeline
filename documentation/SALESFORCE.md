@@ -9,8 +9,7 @@ This gets you into that sandbox.
 The Non-Profit Success Pack (NPSP) is a set of Salesforce customizations intended to better serve Non-Profits.  
 Installation of that seems to be 50/50 in this sandbox (which is all done in an automated fashion by SFDC automation), but it serves the purpose until we revive the Saleforce thread of this project and spend quality time with Weston getting a correct standbox in place.
 
-The rest of this is showing the results of my proof-of-concept this time around.  
-I have some screenshots here to help you get in and look around.  Follow along.   I don't think you can mess anything up but please try not to anyway.
+The rest of this is showing the results of my proof-of-concept this time around.  I have some screenshots here to help you get in and look around.  Follow along.   I don't think you can mess anything up but please try not to anyway.
 
 Go to www.salesforce.com
 sign in as chris@brave-fox-riktj8.com    Password is code1234
