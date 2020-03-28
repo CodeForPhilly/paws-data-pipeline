@@ -39,6 +39,8 @@ Then click on our buddy Aaron.   Fake name and address
 
 This is Aaron's contact record.  Note two two "Related" pieces of information.   Volunteer info especially.  
 
+In PAWS' real Salesforce instance, you'd see a ton of valuable info, including donation history, addresses, family relationships, etc.  
+
 ![Pic7](https://github.com/CodeForPhilly/paws-data-pipeline/blob/cck-doc/documentation/documentation-images/SF-Pic7)
 
 If you hover over Volunteer Hours, it will pop up a list (it's a subset) of the shifts he's worked.   These are Volunteer Shift instances which I pulled from REAL Volgistics data (but just associated it with "Aaron").    There is some background work to do be done to set up the shift types.   But it can be done once and in the very rare instances where a new shift shows up we can have a maintenance step to load the new Volunteer Shifts (and if needed Volunteer Campaigns). 
