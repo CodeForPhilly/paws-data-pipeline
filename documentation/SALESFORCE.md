@@ -1,11 +1,15 @@
 # Getting into Chris's Salesforce Trailhead Sandbox
 
-Two years ago I mocked up a bunch of stuff in a Salesforce training (Trailhead) instance.   They lasted 30 days back then.  So it's gone.
-My purpose was to see how non-SFDC data from other PAWS systems can be imported and associated with constituents (Salesforce Contacts) in SFDC.   Call it a Proof-of-Concept.  
+Two years ago I mocked up a bunch of stuff in a Salesforce training (Trailhead) instance.   They lasted 30 days back then.  So it's gone. My purpose was to see how non-SFDC data from other PAWS systems can be imported and associated with constituents (Salesforce Contacts) in SFDC.   Call it a Proof-of-Concept.  
+
+I started another sandbox up a few months ago, and reloaded some of the data I used back then.  I also re-applied a number of customizations / configurations (although I did not take very good notes back then!).   
+
+This gets you into that sandbox.   
+
 The Non-Profit Success Pack (NPSP) is a set of Salesforce customizations intended to better serve Non-Profits.  
 Installation of that seems to be 50/50 in this sandbox (which is all done in an automated fashion by SFDC automation), but it serves the purpose until we revive the Saleforce thread of this project and spend quality time with Weston getting a correct standbox in place.
 
-The rest of this is showing the results of my proof-of-concept 
+The rest of this is showing the results of my proof-of-concept this time around.  
 I have some screenshots here to help you get in and look around.  Follow along.   I don't think you can mess anything up but please try not to anyway.
 
 Go to www.salesforce.com
