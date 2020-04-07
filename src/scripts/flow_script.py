@@ -10,14 +10,17 @@ import os
 #print(__file__)
 #import scripts
 #print(dir(scripts))
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from scripts import load_paws_data, match_data
 
-UPLOADED_FILES_PATH = '../../../../full_names/Original'
-# UPLOADED_FILES_PATH = '/app/static/uploads/'
+UPLOADED_FILES_PATH = '/app/static/uploads/'
 
 SALESFORCE_FIELDS = {'_label': 'salesforce', 'table_id': 'contact_id', 'table_email': 'email', '_table_name': ['first_name', 'last_name']}
 VOLGISTICS_FIELDS = {'_label': 'volgistics', 'table_id': 'outcome_person_#', 'table_email': 'out_email', '_table_name': ['outcome_person_name']}
 # TODO: consider other important fields, such as phone number
+
 
 def start_flow(fileName):
     # FIXME: need some logic to determine the table type, such as salesforce/volgistics/petpoint
@@ -37,4 +40,4 @@ def start_flow(fileName):
     matched_df.to_csv(os.path.join(match_data.LOG_PATH, 'matches.csv'), index=False)
 
 
-start_flow('Salesforce - Accounts and Contacts.csv')
+#start_flow('Salesforce - Accounts and Contacts.csv')

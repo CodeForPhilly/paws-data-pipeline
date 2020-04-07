@@ -1,12 +1,13 @@
 import sqlite3
 import pandas as pd
 import os
+import sys
 
 from fuzzywuzzy import fuzz
 
-
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from scripts.load_paws_data import OUTPUT_PATH
+
 LOG_PATH = os.path.join(OUTPUT_PATH, 'logs/')
 TRANSFORM_EMAIL_NAME = 'lower_email'
 MATCH_COLUMNS_TO_KEEP=['table_id', TRANSFORM_EMAIL_NAME, 'table_name']
@@ -33,18 +34,18 @@ class MismatchLogger:
         self.errors = pd.DataFrame()
         self.reason_column = reason_column
         
-    def log_rows(error_df, reason_code='Reason not specified'):
+    def log_rows(self, error_df, reason_code='Reason not specified'):
         error_with_reason = error_df.copy()
         error_with_reason[self.reason_column] = reason_code
         self.errors = self.errors.append(error_with_reason)
     
-    def write_log(file_basename, dir=LOG_PATH):
+    def write_log(self, file_basename, dir=LOG_PATH):
         # Currently writing to a csv, but we could also consider a DB table
         # convention for logging, e.g. log_mismatch_salesforce_and_volgistics
         self.errors.to_csv(os.path.join(dir, file_basename), index=False)
 
 
-def read_from_sqlite(csv_name, table_name):
+def read_from_sqlite(table_name):
     # Extracting pandas tables out from load_paws_data.load_to_sqlite
     connection = sqlite3.connect(os.path.join(OUTPUT_PATH, "paws.db"))
     df = pd.read_sql_query("SELECT * FROM ?;", connection, params=(table_name))
@@ -54,7 +55,7 @@ def read_from_sqlite(csv_name, table_name):
 
 def remove_duplicates(df, field):
     duplicate_ids = df.groupby(field).count().reset_index().query("table_id > 1")[field]
-    volgistics[volgistics['lower_email'].isin(duplicate_volgistics_emails['lower_email'])]
+    #volgistics[volgistics['lower_email'].isin(duplicate_volgistics_emails['lower_email'])]
     unique_rows = df[~df[field].isin(duplicate_ids)]
     duplicate_rows = df[df[field].isin(duplicate_ids)]
     return (unique_rows, duplicate_rows)
