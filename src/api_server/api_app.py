@@ -1,29 +1,22 @@
 import os
-import flask
-from flask import send_file, render_template, request, redirect, url_for, flash
+from flask import Flask, send_file, render_template, request, redirect, url_for, flash
 from werkzeug.utils import secure_filename
 import shutil
 import sys
 
 # get scripts folder to relative path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from scripts import sample_script
-#need to use below import statement in windows environment
-#import sample_script
+from scripts import flow_script
 import time
 
 sys.path.insert(1, '../scripts')
-dir_path = os.path.dirname(os.path.realpath(__file__))
-
-SCRIPT_PATH = dir_path + '/../scripts'
 DATA_FILES_PATH = '/app/static/uploads'
-TEMPLATE_PATH = dir_path + '/../templates'
 ALLOWED_EXTENSIONS = {'csv'}
 
 SUCCESS_MSG = ' uploaded successfully! '
 
 #TODO: this might not be enough as not all browsers properly detect file size
-app = flask.Flask(__name__)
+app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = DATA_FILES_PATH
 app.secret_key = '1u9L#*&I3Ntc'
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024 #500 Megs
@@ -66,12 +59,16 @@ def uploadCSV():
                 filename = secure_filename(file.filename)
                 prefix = filename.rpartition('.')[0]
                 file_extension = filename.rpartition('.')[2]
+                file.stream.seek(0)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], prefix + '-' + str(round(time.time())) + '.' + file_extension))
-        except:
+        except Exception as e:
             flash('ERROR can\'t parse upload: ' + file.filename, 'error')
-            print(sys.exc_info()[0])
+            print(e)
+        finally:
+            file.close()
     
     return redirect('/')
+
 
 @app.route('/listFiles', methods=['GET'])
 def listFiles():
@@ -79,12 +76,13 @@ def listFiles():
     return str(os.listdir(DATA_FILES_PATH))
 
 
-@app.route('/executeScript/<scriptName>', methods=['GET'])
-def executeScript(scriptName):
-    print('Start executing script: ' + scriptName)
+@app.route('/execute/<fileName>', methods=['GET'])
+def execute(fileName):
+    print('Execute flow')
     try:
-        sample_script.run()
-        return str(scriptName)
+        flow_script.start_flow(fileName)
+        flash('Successfully executed!', 'info')
+        return('Successfully executed flow script with file: ' + fileName)
 
     except Exception as e:
         return str(e)

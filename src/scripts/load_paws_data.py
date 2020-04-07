@@ -10,6 +10,7 @@ from fuzzywuzzy import fuzz
 engine = db.create_engine('postgresql://postgres:thispasswordisverysecure@paws-compose-db/postgres')
 conn = engine.raw_connection()
 # function for loading a csv into a database table or "updating" the table by dropping it and recreating it with the csv
+OUTPUT_PATH = "/app/static/output/"
 
 def load_to_sqlite(csv_name, table_name, connection, engine, drop_first_col=False):
     
@@ -38,7 +39,7 @@ def load_to_sqlite(csv_name, table_name, connection, engine, drop_first_col=Fals
     # load dataframe into database table
     df.to_sql(table_name, engine, index=False,)
 
-load_to_sqlite('./sample_data/CfP_PDP_petpoint_deidentified.csv', 'petpoint', conn, engine, True)
-load_to_sqlite('./sample_data/CfP_PDP_volgistics_deidentified.csv', 'volgistics', conn, engine, True)
-load_to_sqlite('./sample_data/CfP_PDP_salesforceContacts_deidentified.csv', 'salesforcecontacts', conn, engine, True)
-load_to_sqlite('./sample_data/CfP_PDP_salesforceDonations_deidentified.csv', 'salesforcedonations', conn, engine, True)
+#load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_petpoint_deidentified.csv', 'petpoint', conn, True)
+#load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_volgistics_deidentified.csv', 'volgistics', conn, True)
+#load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_salesforceContacts_deidentified.csv', 'salesforcecontacts', conn, True)
+#load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_salesforceDonations_deidentified.csv', 'salesforcedonations', conn, True)
