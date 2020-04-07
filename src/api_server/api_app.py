@@ -1,5 +1,5 @@
 import os
-from flask import Flask, send_file, render_template, request, redirect, flash
+from flask import Flask, send_file, render_template, request, redirect, flash, jsonify
 import shutil
 import sys
 
@@ -9,24 +9,27 @@ from scripts import flow_script
 from api_server.file_uploader import validate_and_arrange_upload
 
 sys.path.insert(1, '../scripts')
-DATA_FILES_PATH = '/app/static/uploads'
+SOURCE_FILES_PATH = '/app/static/uploads'
+OUTPUT_FILES_PATH = '/app/static/output'
 ALLOWED_EXTENSIONS = {'csv'}
 
 # TODO: this might not be enough as not all browsers properly detect file size
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = DATA_FILES_PATH
+app.config['UPLOAD_FOLDER'] = SOURCE_FILES_PATH
 app.secret_key = '1u9L#*&I3Ntc'
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 Megs
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
 @app.route('/', methods=['GET'])
 def showIndexPage():
-    return render_template('index.html')
+    current_file_list = listCurrentFiles().json
+    output_files_exist = os.listdir(OUTPUT_FILES_PATH) == None
+    return render_template('index.html', current_file_list=current_file_list)
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # file upload tutorial
@@ -54,39 +57,47 @@ def uploadCSV():
     return redirect('/')
 
 
-@app.route('/listFiles', methods=['GET'])
-def listFiles():
+@app.route('/files/<destination>', methods=['GET'])
+def files(destination):
+    print('Start returning zip of all data')
+    if request.args.get('download_current_btn'):
+        source = SOURCE_FILES_PATH + '/' + destination
+    if request.args.get('download_archived_btn'):
+        source = SOURCE_FILES_PATH
+    if request.args.get('download_output_btn'):
+        source = OUTPUT_FILES_PATH
+
+    zip_name = destination + '_data_out'
+
+    try:
+        print(shutil.make_archive(zip_name, 'zip', source))
+        return send_file('/paws-data-pipeline/' + zip_name + '.zip', as_attachment=True,
+                         attachment_filename=zip_name + '.zip')
+    except Exception as e:
+        return str(e)
+
+
+@app.route('/listCurrentFiles', methods=['GET'])
+def listCurrentFiles():
+    result = None
+
     print('Start returning file list')
-    return str(os.listdir(DATA_FILES_PATH))
+    file_list_result = os.listdir(SOURCE_FILES_PATH + '/current')
+
+    if len(file_list_result) > 0:
+        result = file_list_result
+
+    return jsonify(result)
 
 
-@app.route('/execute/<fileName>', methods=['GET'])
-def execute(fileName):
+@app.route('/execute', methods=['GET'])
+def execute():
     print('Execute flow')
     try:
-        flow_script.start_flow(fileName)
+        flow_script.start_flow()
         flash('Successfully executed!', 'info')
-        return ('Successfully executed flow script with file: ' + fileName)
+        return redirect('/')
 
-    except Exception as e:
-        return str(e)
-
-
-@app.route('/file/<fileName>', methods=['GET'])
-def file(fileName):
-    print('Start returning file: ' + fileName)
-    try:
-        return send_file(DATA_FILES_PATH + '/' + fileName, attachment_filename=fileName)
-    except Exception as e:
-        return str(e)
-
-
-@app.route('/allFiles', methods=['GET'])
-def allFiles():
-    print('Start returning zip of all data')
-    try:
-        print(shutil.make_archive('data_out', 'zip', DATA_FILES_PATH))
-        return send_file('/paws-data-pipeline/data_out.zip', as_attachment=True, attachment_filename='data_out.zip')
     except Exception as e:
         return str(e)
 

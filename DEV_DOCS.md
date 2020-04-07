@@ -13,7 +13,7 @@ docker container run --publish 5000:5555 --name pdp -d paws-data-pipeline
 API:  
 ---------------------------------------
 Run http GET request like:    
-- http://localhost:5555/listFiles
+- http://localhost:5555/listCurrentFiles
 - http://localhost:5555/file/{fileName}
 - http://localhost:5555/execute/{scriptName}
 - http://localhost:5555/allFiles 
