@@ -21,7 +21,7 @@ def validate_and_arrange_upload(file, destination_path):
 
     if src_type:
         now = time.gmtime()
-        now_date = time.strftime("%Y-%m-%d--%H:%M:%S", now)
+        now_date = time.strftime("%Y-%m-%d--%H-%M-%S", now)
         filename = secure_filename(file.filename)
         print("  -" + filename)
 
