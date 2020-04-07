@@ -24,6 +24,7 @@ def load_to_sqlite(csv_path, table_name, drop_first_col=False):
     
     # create a cursor object, and use it to drop the table if it exists
     cursor = connection.cursor()
+
     try:
         cursor.execute(f'DROP TABLE {table_name}')
         connection.commit()
@@ -31,6 +32,7 @@ def load_to_sqlite(csv_path, table_name, drop_first_col=False):
     except Exception as e:
         print(e)
 
+    print('starting to create table' + table_name)
     # load dataframe into database table
     df.to_sql(table_name, connection, index=False,)
 
