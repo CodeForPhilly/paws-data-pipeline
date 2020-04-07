@@ -12,7 +12,7 @@ services:
   web:
     build: .
     # Unfortunately docker-compose doesn't let us do much
-    # with regard to retroactively running commands, so we have 
+    # with regard to retroactively running commands, so we have
     # to run a startup script, which loads paws db and then
     # starts our service
     #command: bash /paws-data-pipeline/ops_data/runserver.sh

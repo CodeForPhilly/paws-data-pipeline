@@ -1,6 +1,6 @@
 FROM tiangolo/uwsgi-nginx-flask:python3.7
 
-ENV FLASK_APP src/api_server/api_app.py
+ENV FLASK_APP api_server/api_app.py
 ENV FLASK_RUN_HOST 0.0.0.0
 
 # Indicate where uwsgi.ini lives
