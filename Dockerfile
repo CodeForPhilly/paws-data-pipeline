@@ -1,7 +1,7 @@
 FROM tiangolo/uwsgi-nginx-flask:python3.7
 
-ENV LISTEN_PORT=5555
-EXPOSE 5555
+ENV FLASK_APP src/api_server/api_app.py
+ENV FLASK_RUN_HOST 0.0.0.0
 
 # Indicate where uwsgi.ini lives
 ENV UWSGI_INI uwsgi.ini
@@ -25,3 +25,4 @@ RUN apt-get update
 
 COPY requirements.txt /
 RUN pip install --no-cache-dir -r /requirements.txt
+CMD ["flask", "run"]
