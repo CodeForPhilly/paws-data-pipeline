@@ -20,4 +20,6 @@ services:
       - "5000:5000"
     depends_on:
       - db
+    environment: 
+      FLASK_ENV: development
     container_name: paws-compose-web
