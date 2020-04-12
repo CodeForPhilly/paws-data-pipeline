@@ -32,9 +32,10 @@ def load_to_sqlite(csv_path, table_name, drop_first_col=False):
     except Exception as e:
         print(e)
 
-    print('starting to create table' + table_name)
+    print('Creating table: ' + table_name)
     # load dataframe into database table
     df.to_sql(table_name, connection, index=False,)
+    print('Finished creating generic table for: ' + table_name)
 
 
 

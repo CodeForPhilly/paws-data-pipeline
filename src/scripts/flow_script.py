@@ -33,7 +33,9 @@ def start_flow():
         for uploaded_file in os.listdir(CURRENT_SOURCE_FILES_PATH):
             file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
             file_name_striped = file_path.split('-')[0].split('/')[-1]
+
             print('running load_paws_data on: ' + uploaded_file)
+
             load_paws_data.load_to_sqlite(file_path, file_name_striped, True)
             pandas_tables[file_name_striped] = match_data.read_from_sqlite(file_name_striped)
             pandas_tables[file_name_striped] = match_data.cleanup_and_log_table(pandas_tables[file_name_striped],

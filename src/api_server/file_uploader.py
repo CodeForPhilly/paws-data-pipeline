@@ -15,34 +15,34 @@ SUCCESS_MSG = 'Uploaded Successfully!'
 
 
 def validate_and_arrange_upload(file, destination_path):
-    src_type = determine_upload_type(file)
     print("Start uploading file")
+    src_type = determine_upload_type(file)
 
     if src_type:
         now = time.gmtime()
         now_date = time.strftime("%Y-%m-%d--%H-%M-%S", now)
         filename = secure_filename(file.filename)
-        print("  -" + filename)
+        print("  -File: " + filename + " Matches files type: " + src_type)
 
         file_extension = filename.rpartition('.')[2]
         file.stream.seek(0)
         file.save(os.path.join(destination_path, src_type + '-' + now_date + '.' + file_extension))
 
-        print('Checking if file of type: ' + src_type + ' already exists')
+        print('  -Checking if file of type: ' + src_type + ' already exists')
         clean_current_folder(destination_path + '/current', src_type)
         file.stream.seek(0)
         file.save(os.path.join(destination_path + '/current', src_type + '-' + now_date + '.' + file_extension))
 
         flash(src_type + " {0} ".format(SUCCESS_MSG), 'info')
-        print("  -Uploaded successfully!")
+        print("  -Uploaded successfully as : " + src_type + '-' + now_date + '.' + file_extension)
 
     else:
         flash('ERROR Unrecognized data extract: ' + file.filename, 'error')
 
 
 def determine_upload_type(file):
-    column_header = file.stream.readline().decode('utf-8').split(',')[1].strip()
-    str('column_header is: ' + column_header)
+    column_header = file.stream.readline().decode('utf-8').split(',')[1].strip().replace('"', '')
+    print(str('  -Found file with column header: ' + column_header))
     src_type = SRC_TYPES_BY_HEADER[column_header]
 
     return src_type
@@ -55,6 +55,6 @@ def clean_current_folder(destination_path, src_type):
             file_name_striped = file_path.split('-')[0].split('/')[-1]
 
             if file_name_striped == src_type:
-                print('file to remove: ' + file_path)
+                print('File to remove: ' + file_path)
                 os.remove(file_path)
                 print("  -Removed file: " + file_name + " from Current files folder")
