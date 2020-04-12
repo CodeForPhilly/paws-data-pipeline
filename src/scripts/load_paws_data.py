@@ -8,11 +8,11 @@ from fuzzywuzzy import fuzz
 # connect to or create database
 
 engine = db.create_engine('postgresql://postgres:thispasswordisverysecure@paws-compose-db/postgres')
-conn = engine.raw_connection()
+connection = engine.raw_connection()
 # function for loading a csv into a database table or "updating" the table by dropping it and recreating it with the csv
 OUTPUT_PATH = "/app/static/output/"
 
-def load_to_sqlite(csv_name, table_name, connection, engine, drop_first_col=False):
+def load_to_sqlite(csv_name, table_name, drop_first_col=False):
     
     # load csv into a dataframe
     df = pd.read_csv(csv_name, encoding='cp1252')
@@ -28,6 +28,7 @@ def load_to_sqlite(csv_name, table_name, connection, engine, drop_first_col=Fals
     
     # create a cursor object, and use it to drop the table if it exists
     cursor = connection.cursor()
+
     try:
         cursor.execute(f'DROP TABLE {table_name}')
     except:
