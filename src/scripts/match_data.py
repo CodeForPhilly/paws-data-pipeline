@@ -10,7 +10,6 @@ from scripts.load_paws_data import OUTPUT_PATH
 
 LOG_PATH = os.path.join(OUTPUT_PATH, 'logs/')
 TRANSFORM_EMAIL_NAME = 'lower_email'
-MATCH_COLUMNS_TO_KEEP=['table_id', TRANSFORM_EMAIL_NAME, 'table_name']
 
 
 def single_fuzzy_score(record1, record2):
@@ -48,14 +47,18 @@ class MismatchLogger:
 def read_from_sqlite(table_name):
     # Extracting pandas tables out from load_paws_data.load_to_sqlite
     connection = sqlite3.connect(os.path.join(OUTPUT_PATH, "paws.db"))
-    df = pd.read_sql_query("SELECT * FROM ?;", connection, params=(table_name))
+    #df = pd.read_sql_query("SELECT * FROM ?;", connection, params=(table_name))
+    # Most SQL engines can only parameterize on literal values, not table names, so
+    # let's format the SQL query another way for this internal API.
+    # https://stackoverflow.com/questions/1274432/sqlite-parameters-not-allowing-tablename-as-parameter
+    df = pd.read_sql_query("SELECT * FROM {};".format(table_name), connection)
     connection.close()
     return df
 
 
 def remove_duplicates(df, field):
-    duplicate_ids = df.groupby(field).count().reset_index().query("table_id > 1")[field]
-    #volgistics[volgistics['lower_email'].isin(duplicate_volgistics_emails['lower_email'])]
+    duplicate_counts = df[field].value_counts()
+    duplicate_ids = duplicate_counts[duplicate_counts.values > 1].index
     unique_rows = df[~df[field].isin(duplicate_ids)]
     duplicate_rows = df[df[field].isin(duplicate_ids)]
     return (unique_rows, duplicate_rows)
@@ -77,17 +80,17 @@ def cleanup_and_log_table(df, important_fields, log_name='mismatches.csv'):
     # Reconstructing names, allowing for it to be split across multiple fields
     cleaned_df['table_name'] = cleaned_df[important_fields['_table_name'][0]]
     for i in range(1, len(important_fields['_table_name'])):
-        cleaned_df['table_name'] = cleaned_df['table_name'] + ' ' + cleaned_df['_table_name'][i]
+        cleaned_df['table_name'] = cleaned_df['table_name'] + ' ' + cleaned_df[important_fields['_table_name'][i]]
     
     # Applying a lowercase filter to email for matching purposes, since the case is usually
     # inconsistent, and logging potential issues for matching (as well as duplicate/null ID's,
     # which would also be unexpected in a clean data source)
-    cleaned_df[TRANSFORM_EMAIL_NAME] == cleaned_df['table_email'].str.lower()
+    cleaned_df[TRANSFORM_EMAIL_NAME] = cleaned_df['table_email'].str.lower()
     mismatches = MismatchLogger()
     for cleanup_field in [TRANSFORM_EMAIL_NAME, 'table_id']:
         cleaned_df, null_df = remove_null_rows(cleaned_df, cleanup_field)
         mismatches.log_rows(null_df, 'Null {}'.format(cleanup_field))
-        cleaned_df, duplicate_df = remove_duplicates(df, cleanup_field)
+        cleaned_df, duplicate_df = remove_duplicates(cleaned_df, cleanup_field)
         mismatches.log_rows(duplicate_df, 'Multiple {}'.format(cleanup_field))
     mismatches.write_log(log_name)
 
@@ -113,14 +116,20 @@ def match_cleaned_table(salesforce_df, table_df, table_name, log_name='unmatched
 
     # Match by email
     matched, unmatched_salesforce, unmatched_table = match_by_field(
-        salesforce_df[MATCH_COLUMNS_TO_KEEP].rename(columns={'table_name': salesforce_name_field}),
-        table_df[MATCH_COLUMNS_TO_KEEP].rename(columns={'table_name': table_name_field}),
-        output_id=[salesforce_id_field, table_id_field],
-        match_field=TRANSFORM_EMAIL_NAME,
-        id_field='table_id'
+            salesforce_df[['table_id', TRANSFORM_EMAIL_NAME]],
+            table_df[['table_id', TRANSFORM_EMAIL_NAME]],
+            output_ids=[salesforce_id_field, table_id_field],
+            match_field=TRANSFORM_EMAIL_NAME,
+            id_field='table_id'
     )
     # Apply fuzzy matching on names
-    matched['name_fuzzy_score'] = df_fuzzy_score(matched, table_name_field, salesforce_name_field)
+    matched = (
+        matched
+        .merge(salesforce_df[['table_id', 'table_name']].rename(columns={'table_name': salesforce_name_field, 'table_id': salesforce_id_field}))
+        .merge(table_df[['table_id', 'table_name']].rename(columns={'table_name': table_name_field, 'table_id': table_id_field}))
+    )
+    unmatched_table = unmatched_table.merge(table_df[['table_id', 'table_name']].rename(columns={'table_name': table_name_field, 'table_id': table_id_field}))
+    matched['fuzzy_name_score'] = df_fuzzy_score(matched, table_name_field, salesforce_name_field)
     unmatched_by_name = matched[matched['fuzzy_name_score'] != 100].copy()
     matched = matched[matched['fuzzy_name_score'] == 100]
 
