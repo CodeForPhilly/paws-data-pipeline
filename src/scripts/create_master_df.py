@@ -74,47 +74,20 @@ load_to_sqlite('./sample_data/CfP_PDP_salesforceContacts_deidentified.csv', 'sal
 # load salesforce donations
 load_to_sqlite('./sample_data/CfP_PDP_salesforceDonations_deidentified.csv', 'salesforcedonations', conn, True)
 
-# merge PetPoint data into the master dataframe here
-#petpoint = pd.read_sql('select * from petpoint', conn)
-#pd.options.display.max_columns = 999
-
-
 # Create a simple table with the following values:
 # ------------> master_db_key, petpoint_id, volgistics_id, salesforce_id
-#petpoint[[outcome_person_]]
+#petpoint[[outcome_person_id]]
 #volgistics[[volgistics_id]]
 #salesforcecontacts[[account_id]]
 
 # Create a new master_df table
-master_df = create_user_master_df(conn, 'master_df', '(master_id INT PRIMARY KEY NOT NULL, petpoint_id text, volgistics_id text, salesforce_id text )')
+master_df = create_user_master_df(conn, 'master_df', '(master_id INT PRIMARY KEY NOT NULL, petpoint_id text, volgistics_id text, salesforce_id text, email_address text )')
 
-
-
-
-
-
-# TODO: Match accounts based on email addresses
-
-# create a dataframe with links to all other tables
-master_with_petpoint = (
-    master_df.drop(['petpoint_id'], axis=1).merge( petpoint[['outcome_person_']].rename(columns={'outcome_person_': 'petpoint_id'}), how='left' ).assign(petpoint_name=lambda df: df['petpoint_id'].map(clean_entry))
-)
-#master_with_petpoint.head()
+# Merge petpoint data to the master_df
+master_df = petpoint[['outcome_person_id']].rename(columns={'outcome_person_id': 'petpoint_id', 'out_email' : 'email_address'}).merge(master_df, how='left')
         
-# merge Volgistics data into the master dataframe here
+# Merge Salesforce data to the master_df
+master_df.merge(salesforcecontacts[['account_id', 'email']].rename(columns={'account_id' : 'salesforce_id' }), how='left')
 
-volgistics = pd.read_sql('select * from volgistics', conn)
-pd.options.display.max_columns = 999
-master_with_petpoint_and_volgistics = (
-    volgistics[['volgistics_id']].merge(master_df, how='inner')
-)
-
-salesforcecontacts = pd.read_sql('select * from salesforcecontacts', conn)
-pd.options.display.max_columns = 999
-
-master_with_petpoint_and_volgistics_and_salesforce = (
-    master_df.drop(['salesforce_id'].merge(salesforcecontacts[['account_id']].rename(columns={'account_id' : 'salesforce_id' }), how='left').assign(salesforce_name=lambda df: df['salesforce_id'].map(clean_entry))
-)
-#master_with_petpoint.head()
-
-# TODO: now save?
+# merge Volgistics data into the master dataframe
+master_df = volgistics[['volgistics_id', 'email']].rename(columns={'email' : 'email_address'}).merge(master_df, how='left')
