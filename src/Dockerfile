@@ -14,7 +14,9 @@ COPY . /paws-data-pipeline/
 RUN chmod 777 /paws-data-pipeline
 COPY api_server/static/ /app/static/
 RUN mkdir /app/static/uploads
+RUN mkdir /app/static/uploads/current
 RUN mkdir /app/static/output
+RUN mkdir /app/static/logs
 RUN chmod -R 777 /app/static
 
 RUN apt-get update

@@ -1,111 +1,109 @@
 import os
-from flask import Flask, send_file, render_template, request, redirect, url_for, flash
-from werkzeug.utils import secure_filename
+from flask import Flask, send_file, render_template, request, redirect, flash, jsonify
 import shutil
 import sys
 
 # get scripts folder to relative path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from scripts import flow_script
-import time
+from api_server.file_uploader import validate_and_arrange_upload
 
 sys.path.insert(1, '../scripts')
-DATA_FILES_PATH = '/app/static/uploads'
+SOURCE_FILES_PATH = '/app/static/uploads'
+OUTPUT_FILES_PATH = '/app/static/output'
 ALLOWED_EXTENSIONS = {'csv'}
 
-SUCCESS_MSG = ' uploaded successfully! '
-
-#TODO: this might not be enough as not all browsers properly detect file size
+# TODO: this might not be enough as not all browsers properly detect file size
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = DATA_FILES_PATH
+app.config['UPLOAD_FOLDER'] = SOURCE_FILES_PATH
 app.secret_key = '1u9L#*&I3Ntc'
-app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024 #500 Megs
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 Megs
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+
+@app.route('/', methods=['GET'])
+def showIndexPage():
+    current_file_list = listCurrentFiles().json
+    output_files_exist = len(os.listdir(OUTPUT_FILES_PATH)) > 0
+
+    return render_template('index.html', current_file_list=current_file_list, output_files_exist=output_files_exist)
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/', methods=['GET'])
-def showIndexPage():
-    return render_template('index.html')
 
-#file upload tutorial
-#https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
-@app.route('/', methods=['POST'])
+# file upload tutorial
+# https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
+@app.route('/file', methods=['POST'])
 def uploadCSV():
     if 'file' not in request.files:
         flash('ERROR no file part', 'error')
         return redirect(request.url)
-    
+
     for file in request.files.getlist('file'):
         if not allowed_file(file.filename):
             flash('ERROR not a csv: ' + file.filename, 'error')
-            continue
-        try:
-            column_header = file.stream.readline().decode('utf-8').split(',')[1].strip()
-            valid_src = True
-            if column_header == 'Account.Name':
-                flash('Salesforce' + SUCCESS_MSG  + file.filename, 'info')
-            elif column_header == 'Last.name..First.name':
-                flash('Volgistics' + SUCCESS_MSG +  file.filename, 'info')
-            elif column_header == 'Animal.ID':
-                flash('Pet Point' + SUCCESS_MSG + file.filename, 'info')
-            elif column_header == 'Recurring.donor':
-                flash('Salesforce' + SUCCESS_MSG + file.filename, 'info')
-            else:
-                flash('ERROR Unrecognized data extract: ' + file.filename, 'error')
-                valid_src = False
-            if valid_src:
-                filename = secure_filename(file.filename)
-                prefix = filename.rpartition('.')[0]
-                file_extension = filename.rpartition('.')[2]
-                file.stream.seek(0)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], prefix + '-' + str(round(time.time())) + '.' + file_extension))
-        except Exception as e:
-            flash('ERROR can\'t parse upload: ' + file.filename, 'error')
-            print(e)
-        finally:
-            file.close()
-    
+
+        else:
+            try:
+                validate_and_arrange_upload(file, app.config['UPLOAD_FOLDER'])
+            except Exception as e:
+                flash("ERROR can't parse upload: " + file.filename, 'error')
+                print(e)
+
+            finally:
+                file.close()
+
     return redirect('/')
 
 
-@app.route('/listFiles', methods=['GET'])
-def listFiles():
+@app.route('/files/<destination>', methods=['GET'])
+def files(destination):
+    print('Start returning zip of all data')
+    if request.args.get('download_current_btn'):
+        source = SOURCE_FILES_PATH + '/' + destination
+    if request.args.get('download_archived_btn'):
+        source = SOURCE_FILES_PATH
+    if request.args.get('download_output_btn'):
+        source = OUTPUT_FILES_PATH
+
+    zip_name = destination + '_data_out'
+
+    try:
+        print(shutil.make_archive(zip_name, 'zip', source))
+        return send_file('/paws-data-pipeline/' + zip_name + '.zip', as_attachment=True,
+                         attachment_filename=zip_name + '.zip')
+    except Exception as e:
+        return str(e)
+
+
+@app.route('/listCurrentFiles', methods=['GET'])
+def listCurrentFiles():
+    result = None
+
     print('Start returning file list')
-    return str(os.listdir(DATA_FILES_PATH))
+    file_list_result = os.listdir(SOURCE_FILES_PATH + '/current')
+
+    if len(file_list_result) > 0:
+        result = file_list_result
+
+    return jsonify(result)
 
 
-@app.route('/execute/<fileName>', methods=['GET'])
-def execute(fileName):
+@app.route('/execute', methods=['GET'])
+def execute():
     print('Execute flow')
     try:
-        flow_script.start_flow(fileName)
+        flow_script.start_flow()
         flash('Successfully executed!', 'info')
-        return('Successfully executed flow script with file: ' + fileName)
 
     except Exception as e:
-        return str(e)
+        flash('Error!' + str(e), 'error')
+        print(str(e))
 
+    return redirect('/')
 
-@app.route('/file/<fileName>', methods=['GET'])
-def file(fileName):
-    print('Start returning file: ' + fileName)
-    try:
-        return send_file(DATA_FILES_PATH + '/' + fileName, attachment_filename=fileName)
-    except Exception as e:
-        return str(e)
-
-
-@app.route('/allFiles', methods=['GET'])
-def allFiles():
-    print('Start returning zip of all data')
-    try:
-        print(shutil.make_archive('data_out', 'zip', DATA_FILES_PATH))
-        return send_file('/paws-data-pipeline/data_out.zip', as_attachment=True, attachment_filename='data_out.zip')
-    except Exception as e:
-        return str(e)
 
 if __name__ == "__main__":
-    app.run(debug = True)
-
+    app.run(debug=True)

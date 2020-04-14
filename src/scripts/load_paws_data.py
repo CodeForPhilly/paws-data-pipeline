@@ -6,12 +6,12 @@ import re
 OUTPUT_PATH = "/app/static/output/"
 
 
-def load_to_sqlite(csv_name, table_name, drop_first_col=False):
+def load_to_sqlite(csv_path, table_name, drop_first_col=False):
     # connect to or create database
     connection = sqlite3.connect(OUTPUT_PATH + "paws.db")
 
     # load csv into a dataframe
-    df = pd.read_csv(csv_name, encoding='cp1252')
+    df = pd.read_csv(csv_path, encoding='cp1252')
     
     # drop the first column - so far all csvs have had a first column that's an index and doesn't have a name
     if drop_first_col:
@@ -24,6 +24,7 @@ def load_to_sqlite(csv_name, table_name, drop_first_col=False):
     
     # create a cursor object, and use it to drop the table if it exists
     cursor = connection.cursor()
+
     try:
         cursor.execute(f'DROP TABLE {table_name}')
         connection.commit()
@@ -31,8 +32,10 @@ def load_to_sqlite(csv_name, table_name, drop_first_col=False):
     except Exception as e:
         print(e)
 
+    print('Creating table: ' + table_name)
     # load dataframe into database table
     df.to_sql(table_name, connection, index=False,)
+    print('Finished creating generic table for: ' + table_name)
 
 
 
