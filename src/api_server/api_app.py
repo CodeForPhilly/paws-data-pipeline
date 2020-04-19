@@ -24,8 +24,9 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 @app.route('/', methods=['GET'])
 def showIndexPage():
     current_file_list = listCurrentFiles().json
-    output_files_exist = os.listdir(OUTPUT_FILES_PATH) == None
-    return render_template('index.html', current_file_list=current_file_list)
+    output_files_exist = len(os.listdir(OUTPUT_FILES_PATH)) > 0
+
+    return render_template('index.html', current_file_list=current_file_list, output_files_exist=output_files_exist)
 
 
 def allowed_file(filename):
@@ -96,10 +97,12 @@ def execute():
     try:
         flow_script.start_flow()
         flash('Successfully executed!', 'info')
-        return redirect('/')
 
     except Exception as e:
-        return str(e)
+        flash('Error!' + str(e), 'error')
+        print(str(e))
+
+    return redirect('/')
 
 
 if __name__ == "__main__":
