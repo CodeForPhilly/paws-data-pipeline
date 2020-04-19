@@ -4,7 +4,7 @@ services:
     container_name: paws-compose-db
     image: postgres:11.3-alpine
     volumes:
-      - ./db_data/db:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: thispasswordisverysecure
     ports:
@@ -23,3 +23,7 @@ services:
     environment: 
       FLASK_ENV: development
     container_name: paws-compose-web
+#using named volumes fixs a windows docker bug relating to container permissions
+#https://stackoverflow.com/questions/49148754/docker-container-shuts-down-giving-data-directory-has-wrong-ownership-error-wh
+volumes:
+  postgres:
