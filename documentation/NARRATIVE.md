@@ -65,6 +65,24 @@ systems and analysis required
 the Data Lake
 - If data is present, the Data Scientist uses Python, R, or other tools of choice to extract data and perform analysis
 
+## MVP's / Proof Points
+
+Along the way to functional releases of production solution components, development will be through a series of MVP's leading to Proof Points of functionality.  In this way we can iteratively build toward the solution without requiring all surrounding pieces (including to-be-developed pieces!) to be in place during the development cycle.
+
+### MVP:  Loading Files In/Out of Code-for-Philly (C4P) Infrastructure
+- Web interface to select and load files, view file list on server, pull down files as needed
+- Underlying database to hold files that survives container restart
+
+### MVP:  Identifying Contacts in Imported Files
+- Run matching routine
+- For known contacts, enrich uploaded dataset with PAWS Data Pipeline (PDP) identifiers
+- For new contacts, populate the master table
+- Log all above activity for tracking.  Consider creating master log with various record types for each type of event 
+- For ambiguous contacts (uncertain if known or unknown), gather possible matches or, in general, what the matching routine tell us (**team closest to matching routine to advise**)
+- Provide easy-to-read report (or web interface) to review and resolve ambiguous records.  Resolution actions include:  (1) we know this person, and their PDP ID is xxxxx; (2) we don't know this person so create it as new in PDP master table. 
+- Provide easy-to-read report (or web interface) to review log of activity
+
+
 ## Operational System Details
 
 Each of the Operational Systems in use at PAWS is a source for data regarding constituents.   Each is explored below
