@@ -65,24 +65,49 @@ systems and analysis required
 the Data Lake
 - If data is present, the Data Scientist uses Python, R, or other tools of choice to extract data and perform analysis
 
-## MVP's / Proof Points
+## Requirements for a Minimum Viable Product (MVP) 
 
-Along the way to functional releases of production solution components, development will be through a series of MVP's leading to Proof Points of functionality.  In this way we can iteratively build toward the solution without requiring all surrounding pieces (including to-be-developed pieces!) to be in place during the development cycle.
+The MVP is what will be presented to PAWS. Along the way to functional releases of production solution components, development will be through a series of requirements leading to Proof Points of functionality.  In this way we can iteratively build toward the solution without requiring all surrounding pieces (including to-be-developed pieces!) to be in place during the development cycle.
 
-### MVP 1:  Loading Files In/Out of Code-for-Philly (C4P) Infrastructure [NEARLY DONE]
-- Web interface to select and load files, view file list on server, pull down files as needed
-- Underlying database to hold files that survives container restart
 
-### MVP 2:  Identifying & Enriching Contacts in Imported Files [IN EARLY STAGES]
-- Prerequisites:  MVP1, Schema for Master Table
-- Run matching routine
-- For known contacts, enrich uploaded dataset with PAWS Data Pipeline (PDP) identifiers
-- For new contacts, populate the master table and enrich records with PDP identifiers.  
-- For ambiguous contacts (uncertain if known or unknown), gather possible matches or, in general, what the matching routine tell us (**team closest to matching routine to advise**)
-- Provide web interface to review and resolve ambiguous records.  Resolution actions include:  (1) we know this person, and their PDP ID is xxxxx; (2) we don't know this person so create it as new in PDP master table. 
-- As contacts are matched (and resolved), create staging table in database of enriched records ready for further processing
-- Log all above activity for tracking.  Consider creating master log with various record types for each type of event 
-- Provide easy-to-read report (or web interface) to review log of activity
+### Requirement 1 (R1):  Loading Files In/Out of Code-for-Philly (C4P) Infrastructure [NEARLY DONE]
+
+The desired output is a **web interface** that allows PAWS Staff to 
+
+1. Upload, download, and view a list of *unprocessed* data files in csv format; the following data sources are within scope: 
+  a) Donor contact info (Salesforce)
+  b) Volunteer contact info (Volgistics)
+  b) Adopter contact info (PetPoint)
+2. Download a variable set of *processed* datafiles (without doing the actual processing). 
+
+### Requirement 2 (R2):  Creating a persistent database
+
+The desired output is a **database** that 
+
+1. Stores raw data from files uploaded in R1
+2. Stores processed data to be used in subsequent requirements in the following tables
+    2.1 Processed tables for all files in R1
+    2.2 A Master Table to be used in R3, with PAWS Data Pipeline (PDP) identifiers and tags to quickly identify entries as ambiguous or unambiguous
+    2.3 A Master Log (?) for all PAWS Staff resolution actions
+3. Survives container restart
+
+### Requirement 3 (R3):  Identifying & Updating Contacts in Database [IN EARLY STAGES]
+
+The desired output is a set of **scripts** that 
+
+1. Process raw data into standardized formats to be stored in R2, 2.1 
+2. Identify which individuals are the same across processed data sets
+3. Create and update entries in the Master Table following a set of business rules, including
+3.1 For ambiguous contacts (uncertain if known or unknown), attach to Master Table entry a list of possible matches and/or matching issue
+
+### Requirement 4 (R4):  Create a web interface to review and resolve ambiguous records
+
+The desired output is **a web interface** that will allow PAWS staff to 
+1. Review ambiguous records on-line
+2. Record a resolution ("Accept PDP suggested match" OR "Provide Salesforce ID for true match") and log all activity
+3. Review log of activity
+
+- As contacts are matched (and resolved), create staging table in database of enriched records ready for further processing --> KF note: what is this staging table used for?
 
 ### MVP 3:  Data Lake Imports from Staging Tables
 - Prerequisites:  MVP 1, MVP 2
