@@ -74,6 +74,7 @@ Along the way to functional releases of production solution components, developm
 - Underlying database to hold files that survives container restart
 
 ### MVP 2:  Identifying & Enriching Contacts in Imported Files [IN EARLY STAGES]
+- Prerequisites:  MVP1, Schema for Master Table
 - Run matching routine
 - For known contacts, enrich uploaded dataset with PAWS Data Pipeline (PDP) identifiers
 - For new contacts, populate the master table and enrich records with PDP identifiers.  
@@ -84,21 +85,25 @@ Along the way to functional releases of production solution components, developm
 - Provide easy-to-read report (or web interface) to review log of activity
 
 ### MVP 3:  Data Lake Imports from Staging Tables
+- Prerequisites:  MVP 1, MVP 2
 - Create schema for Data Lake tables - one per data source (perhaps more)
 - From staging tables, identify the data source and information being loaded
 - Load into data lake area for that data source (i.e. Volgistics, Petpoint, ...) 
 - Provide web interface to examine data in the Data Lake - simple canned queries
 
 ### MVP 4:  Run Iterative Data Loads (Simulate Real Use)
+- Prerequisites:  MVP's 1 - 3
 - Get data from PAWS systems from multiple time periods
 - For each given time period, run solutions from MVP 1, MVP 2, and MVP 3 as they are envisioned to be run in production use.  Evaluate user experience, process integrity, results.  
 - Cycle back on any issues and work to resolution.    
 
 ### MVP 5:  Simulate Connected Data
+- Prerequisites: MVP's 1-4
 - Develop queries to combine data from sources into a constituent view (all records associated with a given contact)
 - Provide simple rudimentary web interface to show 360-degree view based upon data collected so far.  
 
 ### MVP 6:  Salesforce Prototyping
+- Prerequisites: MVP's 1-5
 - To be defined.   When we've done 1-5 we will know how our data relates and that we have a good constituent view.  
 
 ## Operational System Details
