@@ -1,4 +1,4 @@
-# PAWS Data Pipeline Narrative
+# PAWS Data Pipeline Narrative (updated 4/20/20)
 
 ## Overall Description
 
@@ -120,7 +120,18 @@ Contact processing is fairly straightforward.  Extracting foster-parenting and a
 
 Animals processing and associating them appropriately with contacts is more complex.  Animals can move between people.  A given animal can be fostered sequentially by multiple different people, an animal can be adopted, an adopted animal can be returned, and then that same animal can be fostered and/or adopted again.   Thus, merely listing the animal on a contact record won't show accurate information.   It is not a 1:1 person:animal relationship.
 
-Current thinking is:
+Updated Solution April 2020:
+ - Animal adoption and fostering instances would be identified from Petpoint.  
+ - Each adoption/fostering instance would be associated with the corresponding human contact from PAWS Data Pipeline master table (and thus linking to contact instances in Salesforce and other repositories)
+ - A set of fields will be set up on the Salesforce Contact object for instances of adoptions/fosters
+ - Adoption/Foster instances will be added to the appropriate contacts in Salesforce, listing the date of placement.
+
+Notes on this approach:
+ - a given animal can be associated with different people across time.  This is fine.
+ - this solution shows animal placement events.  It does not show animal lifecycle nor does it assert currency of relationship between animal and contact.  It only asserts that an adoption/fostering placement occurred between animal and contact. 
+ - this information is useful to show adoption/fostering HISTORY for contacts.   This is useful to profile the contact's relationship with PAWS.   
+
+Elegant Solution (Future):
  - an "Animal" custom object would be configured within Salesforce.   
  - An extract from Petpoint would be processed to identify animals as a list of "A" numbers and cursory demographics on each animal (such as A12345 is Brutus and he's a Pit Mix dog). 
  - Animal data would be loaded into Salesforce.   
