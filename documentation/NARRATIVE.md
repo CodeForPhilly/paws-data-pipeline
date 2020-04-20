@@ -69,19 +69,37 @@ the Data Lake
 
 Along the way to functional releases of production solution components, development will be through a series of MVP's leading to Proof Points of functionality.  In this way we can iteratively build toward the solution without requiring all surrounding pieces (including to-be-developed pieces!) to be in place during the development cycle.
 
-### MVP:  Loading Files In/Out of Code-for-Philly (C4P) Infrastructure
+### MVP 1:  Loading Files In/Out of Code-for-Philly (C4P) Infrastructure [NEARLY DONE]
 - Web interface to select and load files, view file list on server, pull down files as needed
 - Underlying database to hold files that survives container restart
 
-### MVP:  Identifying Contacts in Imported Files
+### MVP 2:  Identifying & Enriching Contacts in Imported Files [IN EARLY STAGES]
 - Run matching routine
 - For known contacts, enrich uploaded dataset with PAWS Data Pipeline (PDP) identifiers
-- For new contacts, populate the master table
-- Log all above activity for tracking.  Consider creating master log with various record types for each type of event 
+- For new contacts, populate the master table and enrich records with PDP identifiers.  
 - For ambiguous contacts (uncertain if known or unknown), gather possible matches or, in general, what the matching routine tell us (**team closest to matching routine to advise**)
-- Provide easy-to-read report (or web interface) to review and resolve ambiguous records.  Resolution actions include:  (1) we know this person, and their PDP ID is xxxxx; (2) we don't know this person so create it as new in PDP master table. 
+- Provide web interface to review and resolve ambiguous records.  Resolution actions include:  (1) we know this person, and their PDP ID is xxxxx; (2) we don't know this person so create it as new in PDP master table. 
+- As contacts are matched (and resolved), create staging table in database of enriched records ready for further processing
+- Log all above activity for tracking.  Consider creating master log with various record types for each type of event 
 - Provide easy-to-read report (or web interface) to review log of activity
 
+### MVP 3:  Data Lake Imports from Staging Tables
+- Create schema for Data Lake tables - one per data source (perhaps more)
+- From staging tables, identify the data source and information being loaded
+- Load into data lake area for that data source (i.e. Volgistics, Petpoint, ...) 
+- Provide web interface to examine data in the Data Lake - simple canned queries
+
+### MVP 4:  Run Iterative Data Loads (Simulate Real Use)
+- Get data from PAWS systems from multiple time periods
+- For each given time period, run solutions from MVP 1, MVP 2, and MVP 3 as they are envisioned to be run in production use.  Evaluate user experience, process integrity, results.  
+- Cycle back on any issues and work to resolution.    
+
+### MVP 5:  Simulate Connected Data
+- Develop queries to combine data from sources into a constituent view (all records associated with a given contact)
+- Provide simple rudimentary web interface to show 360-degree view based upon data collected so far.  
+
+### MVP 6:  Salesforce Prototyping
+- To be defined.   When we've done 1-5 we will know how our data relates and that we have a good constituent view.  
 
 ## Operational System Details
 
