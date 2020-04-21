@@ -91,45 +91,64 @@ The desired output is a **database** that
     2.3 A Master Log (?) for all PAWS Staff resolution actions
 3. Survives container restart
 
-### Requirement 3 (R3):  Identifying & Updating Contacts in Database [IN EARLY STAGES]
+TODO:
 
-The desired output is a set of **scripts** that 
+- Create schema for Data Lake tables - one per data source (perhaps more)
 
-1. Process raw data into standardized formats to be stored in R2, 2.1 
-2. Identify which individuals are the same across processed data sets
-3. Create and update entries in the Master Table following a set of business rules, including
-3.1 For ambiguous contacts (uncertain if known or unknown), attach to Master Table entry a list of possible matches and/or matching issue
+### Requirement 3 (R3):  Data Lake Imports into Staging Tables
 
-### Requirement 4 (R4):  Create a web interface to review and resolve ambiguous records
+The desired output is a **script** that 
+
+1. From uploaded datasets, identifies the data source and information being loaded
+2. Processes raw data into standardized formats to be stored in R2, 2.1 
+3. Makes decisions about how to handle iterative data loads
+4. Load into data lake area for that data source (i.e. Volgistics, Petpoint, ...) 
+
+### Requirement 4 (R4):  Identifying & Updating Contacts in Database [IN EARLY STAGES]
+
+The desired output is a **script** that 
+
+1. Identifies which individuals are the same across processed data sets from R3
+2. Creates and updates entries in the Master Table following a set of business rules, including
+2.1 For ambiguous contacts (uncertain if known or unknown), attach to Master Table entry a list of possible matches and/or matching issue
+
+### Requirement 5 (R5):  Create a web interface to review and resolve ambiguous records
 
 The desired output is **a web interface** that will allow PAWS staff to 
+
 1. Review ambiguous records on-line
 2. Record a resolution ("Accept PDP suggested match" OR "Provide Salesforce ID for true match") and log all activity
 3. Review log of activity
 
 - As contacts are matched (and resolved), create staging table in database of enriched records ready for further processing --> KF note: what is this staging table used for?
 
-### MVP 3:  Data Lake Imports from Staging Tables
-- Prerequisites:  MVP 1, MVP 2
-- Create schema for Data Lake tables - one per data source (perhaps more)
-- From staging tables, identify the data source and information being loaded
-- Load into data lake area for that data source (i.e. Volgistics, Petpoint, ...) 
-- Provide web interface to examine data in the Data Lake - simple canned queries
+### Requirement 6 (R6): Create a web interface to examine data
 
-### MVP 4:  Run Iterative Data Loads (Simulate Real Use)
-- Prerequisites:  MVP's 1 - 3
-- Get data from PAWS systems from multiple time periods
-- For each given time period, run solutions from MVP 1, MVP 2, and MVP 3 as they are envisioned to be run in production use.  Evaluate user experience, process integrity, results.  
+The desired output is **a web interface** that will allow PAWS staff to 
+
+1. Examine data stored in the Data Lake
+2. Perform simple canned queries
+
+### Requirement 7 (R7):  Create a web interface to view 360-degree view of a person
+
+The desired output is **a web interface** that will allow PAWS staff to 
+
+1. Run a set of pre-defined simple queries that combine data from sources into a constituent view (all records associated with a given contact)
+2. View 360-degree view based upon data collected so far for a given person
+
+### Test 1 (T1):  Run Iterative Data Loads (Simulate Real Use)
+
+- Export data from PAWS systems at a lag of a few days
+- For each export, run through Requirements R1-6 as they are envisioned to be run in production use.  Evaluate user experience, process integrity, results.  
 - Cycle back on any issues and work to resolution.    
 
-### MVP 5:  Simulate Connected Data
-- Prerequisites: MVP's 1-4
-- Develop queries to combine data from sources into a constituent view (all records associated with a given contact)
-- Provide simple rudimentary web interface to show 360-degree view based upon data collected so far.  
+### Test 2 (T2):  Simulate Connected Data
 
-### MVP 6:  Salesforce Prototyping
-- Prerequisites: MVP's 1-5
-- To be defined.   When we've done 1-5 we will know how our data relates and that we have a good constituent view.  
+- Develop set of test scenarios for 360-degree view
+- Evaluate R7 based on these test scenarios
+
+### MVP:  Salesforce Prototyping
+- To be defined. When we've done the steps above we will know how our data relates and that we have a good constituent view. The final MVP will either require one additional step for sending these reports back to Salesforce, or it may be ready to be demo-ed to PAWS via the web interfaces created in the process. 
 
 ## Operational System Details
 
