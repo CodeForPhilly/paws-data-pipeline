@@ -1,4 +1,3 @@
-import sqlite3
 import pandas as pd
 import os
 import sys
@@ -44,9 +43,9 @@ class MismatchLogger:
         self.errors.to_csv(os.path.join(dir, file_basename), index=False)
 
 
-def read_from_sqlite(table_name):
+def read_from_postgres(connection, table_name):
     # Extracting pandas tables out from load_paws_data.load_to_sqlite
-    connection = sqlite3.connect(os.path.join(OUTPUT_PATH, "paws.db"))
+    #connection = sqlite3.connect(os.path.join(OUTPUT_PATH, "paws.db"))
     #df = pd.read_sql_query("SELECT * FROM ?;", connection, params=(table_name))
     # Most SQL engines can only parameterize on literal values, not table names, so
     # let's format the SQL query another way for this internal API.

@@ -2,6 +2,7 @@ import os
 from flask import Flask, send_file, render_template, request, redirect, flash, jsonify
 import shutil
 import sys
+import traceback
 
 # get scripts folder to relative path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -99,9 +100,9 @@ def execute():
         flash('Successfully executed!', 'info')
 
     except Exception as e:
-        flash('Error!' + str(e), 'error')
-        print(str(e))
-
+        tb = traceback.format_exc()
+        flash('Error!' + tb, 'error')
+        print(tb)
     return redirect('/')
 
 
