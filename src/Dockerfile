@@ -16,6 +16,7 @@ COPY api_server/static/ /app/static/
 RUN mkdir /app/static/uploads
 RUN mkdir /app/static/uploads/current
 RUN mkdir /app/static/output
+RUN mkdir /app/static/output/logs
 RUN mkdir /app/static/logs
 RUN chmod -R 777 /app/static
 

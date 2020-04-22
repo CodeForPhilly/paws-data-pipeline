@@ -10,18 +10,18 @@ UPLOADED_FILES_PATH = '/app/static/uploads/'
 
 MAPPING_FIELDS = {
     'salesforcecontacts': {
-        '_label':      'salesforce',
-        'table_id':    'contact_id',
+        '_label': 'salesforce',
+        'table_id': 'contact_id',
         'table_email': 'email',
         '_table_name': ['first_name', 'last_name']
     },
-    #'petpoint': {
-    #    '_label':      'petpoint',
-    #    'table_id':    'outcome_person_#',
-    #    'table_email': 'out_email',
-    #    '_table_name': ['outcome_person_name']
-    #},
-    'volgistics':        {
+    'petpoint': {
+        '_label': 'petpoint',
+        'table_id': 'outcome_person_#',
+        'table_email': 'out_email',
+        '_table_name': ['outcome_person_name']
+    },
+    'volgistics': {
         '_label': 'volgistics',
         'table_id': 'Number'.lower(),
         'table_email': 'Email'.lower(),
@@ -44,9 +44,12 @@ def start_flow():
             pandas_tables[file_name_striped] = match_data.cleanup_and_log_table(pandas_tables[file_name_striped],
                                                                                 MAPPING_FIELDS[file_name_striped],
                                                                                 'excluded_' + file_name_striped + '.csv')
+
+
         matched_df = (
             pandas_tables['salesforcecontacts']
                 .pipe(match_data.match_cleaned_table, pandas_tables['volgistics'], 'volgistics',
                       'unmatched_volgistics.csv')
         )
         matched_df.to_csv(os.path.join(match_data.LOG_PATH, 'matches.csv'), index=False)
+
