@@ -10,18 +10,18 @@ UPLOADED_FILES_PATH = '/app/static/uploads/'
 
 MAPPING_FIELDS = {
     'salesforcecontacts': {
-        '_label':      'salesforce',
-        'table_id':    'contact_id',
+        '_label': 'salesforce',
+        'table_id': 'contact_id',
         'table_email': 'email',
         '_table_name': ['first_name', 'last_name']
     },
-    #'petpoint': {
-    #    '_label':      'petpoint',
-    #    'table_id':    'outcome_person_#',
-    #    'table_email': 'out_email',
-    #    '_table_name': ['outcome_person_name']
-    #},
-    'volgistics':        {
+    'petpoint': {
+        '_label': 'petpoint',
+        'table_id': 'outcome_person_#',
+        'table_email': 'out_email',
+        '_table_name': ['outcome_person_name']
+    },
+    'volgistics': {
         '_label': 'volgistics',
         'table_id': 'Number'.lower(),
         'table_email': 'Email'.lower(),
