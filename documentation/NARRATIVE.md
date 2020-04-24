@@ -1,4 +1,4 @@
-# PAWS Data Pipeline Narrative
+# PAWS Data Pipeline Narrative (updated 4/20/20)
 
 ## Overall Description
 
@@ -65,6 +65,91 @@ systems and analysis required
 the Data Lake
 - If data is present, the Data Scientist uses Python, R, or other tools of choice to extract data and perform analysis
 
+## Requirements for a Minimum Viable Product (MVP) 
+
+The MVP is what will be presented to PAWS. Along the way to functional releases of production solution components, development will be through a series of requirements leading to Proof Points of functionality.  In this way we can iteratively build toward the solution without requiring all surrounding pieces (including to-be-developed pieces!) to be in place during the development cycle.
+
+
+### Requirement 1 (R1):  Loading Files In/Out of Code-for-Philly (C4P) Infrastructure [NEARLY DONE]
+
+The desired output is a **web interface** that allows PAWS Staff to 
+
+1. Upload, download, and view a list of *unprocessed* data files in csv format; the following data sources are within scope: 
+  a) Donor contact info (Salesforce)
+  b) Volunteer contact info (Volgistics)
+  b) Adopter contact info (PetPoint)
+2. Download a variable set of *processed* datafiles (without doing the actual processing). 
+
+### Requirement 2 (R2):  Creating a persistent database
+
+The desired output is a **database** that 
+
+1. Stores raw data from files uploaded in R1
+2. Stores processed data to be used in subsequent requirements in the following tables
+    2.1 Processed tables for all files in R1
+    2.2 A Master Table to be used in R3, with PAWS Data Pipeline (PDP) identifiers and tags to quickly identify entries as ambiguous or unambiguous
+    2.3 A Master Log (?) for all PAWS Staff resolution actions
+3. Survives container restart
+
+TODO:
+
+- Create schema for Data Lake tables - one per data source (perhaps more)
+
+### Requirement 3 (R3):  Data Lake Imports into Staging Tables
+
+The desired output is a **script** that 
+
+1. From uploaded datasets, identifies the data source and information being loaded
+2. Processes raw data into standardized formats to be stored in R2, 2.1 
+3. Makes decisions about how to handle iterative data loads
+4. Load into data lake area for that data source (i.e. Volgistics, Petpoint, ...) 
+
+### Requirement 4 (R4):  Identifying & Updating Contacts in Database [IN EARLY STAGES]
+
+The desired output is a **script** that 
+
+1. Identifies which individuals are the same across processed data sets from R3
+2. Creates and updates entries in the Master Table following a set of business rules, including
+2.1 For ambiguous contacts (uncertain if known or unknown), attach to Master Table entry a list of possible matches and/or matching issue
+
+### Requirement 5 (R5):  Create a web interface to review and resolve ambiguous records
+
+The desired output is **a web interface** that will allow PAWS staff to 
+
+1. Review ambiguous records on-line
+2. Record a resolution ("Accept PDP suggested match" OR "Provide Salesforce ID for true match") and log all activity
+3. Review log of activity
+
+- As contacts are matched (and resolved), create staging table in database of enriched records ready for further processing --> KF note: what is this staging table used for?
+
+### Requirement 6 (R6): Create a web interface to examine data
+
+The desired output is **a web interface** that will allow PAWS staff to 
+
+1. Examine data stored in the Data Lake
+2. Perform simple canned queries
+
+### Requirement 7 (R7):  Create a web interface to view 360-degree view of a person
+
+The desired output is **a web interface** that will allow PAWS staff to 
+
+1. Run a set of pre-defined simple queries that combine data from sources into a constituent view (all records associated with a given contact)
+2. View 360-degree view based upon data collected so far for a given person
+
+### Test 1 (T1):  Run Iterative Data Loads (Simulate Real Use)
+
+- Export data from PAWS systems at a lag of a few days
+- For each export, run through Requirements R1-6 as they are envisioned to be run in production use.  Evaluate user experience, process integrity, results.  
+- Cycle back on any issues and work to resolution.    
+
+### Test 2 (T2):  Simulate Connected Data
+
+- Develop set of test scenarios for 360-degree view
+- Evaluate R7 based on these test scenarios
+
+### MVP:  Salesforce Prototyping
+- To be defined. When we've done the steps above we will know how our data relates and that we have a good constituent view. The final MVP will either require one additional step for sending these reports back to Salesforce, or it may be ready to be demo-ed to PAWS via the web interfaces created in the process. 
+
 ## Operational System Details
 
 Each of the Operational Systems in use at PAWS is a source for data regarding constituents.   Each is explored below
@@ -120,7 +205,18 @@ Contact processing is fairly straightforward.  Extracting foster-parenting and a
 
 Animals processing and associating them appropriately with contacts is more complex.  Animals can move between people.  A given animal can be fostered sequentially by multiple different people, an animal can be adopted, an adopted animal can be returned, and then that same animal can be fostered and/or adopted again.   Thus, merely listing the animal on a contact record won't show accurate information.   It is not a 1:1 person:animal relationship.
 
-Current thinking is:
+Updated Solution April 2020:
+ - Animal adoption and fostering instances would be identified from Petpoint.  
+ - Each adoption/fostering instance would be associated with the corresponding human contact from PAWS Data Pipeline master table (and thus linking to contact instances in Salesforce and other repositories)
+ - A set of fields will be set up on the Salesforce Contact object for instances of adoptions/fosters
+ - Adoption/Foster instances will be added to the appropriate contacts in Salesforce, listing the date of placement.
+
+Notes on this approach:
+ - a given animal can be associated with different people across time.  This is fine.
+ - this solution shows animal placement events.  It does not show animal lifecycle nor does it assert currency of relationship between animal and contact.  It only asserts that an adoption/fostering placement occurred between animal and contact. 
+ - this information is useful to show adoption/fostering HISTORY for contacts.   This is useful to profile the contact's relationship with PAWS.   
+
+Elegant Solution (Future):
  - an "Animal" custom object would be configured within Salesforce.   
  - An extract from Petpoint would be processed to identify animals as a list of "A" numbers and cursory demographics on each animal (such as A12345 is Brutus and he's a Pit Mix dog). 
  - Animal data would be loaded into Salesforce.   
