@@ -40,7 +40,7 @@ def load_to_sqlite(csv_name, table_name, connection, drop_first_col=False, manua
     df.to_sql(table_name, connection, index=False, )
 
 
-def create_user_master_df(connection, query):
+def create_user_master_df(connection, table_name, query):
     """
     Creates a pandas dataframe placeholder with key meta-data to fuzzy-match
     the users from different datasets.
@@ -86,10 +86,13 @@ load_to_sqlite('./sample_data/CfP_PDP_salesforceDonations_deidentified.csv', 'sa
 master_df = create_user_master_df(conn, 'master_df', '(master_id INT PRIMARY KEY NOT NULL, petpoint_id text, volgistics_id text, salesforce_id text, email_address text )')
 
 # Merge Petpoint data to the master_df
+petpoint = pd.read_sql('select * from petpoint', conn)
 master_df = petpoint[['outcome_person_id']].rename(columns={'outcome_person_id': 'petpoint_id', 'out_email' : 'email_address'}).merge(master_df, how='left')
         
 # Merge Salesforce data to the master_df
+salesforcecontacts = pd.read_sql('select * from salesforcecontacts', conn)
 master_df.merge(salesforcecontacts[['account_id', 'email']].rename(columns={'account_id' : 'salesforce_id' }), how='left')
 
 # Merge Volgistics data into the master dataframe
+volgistics = pd.read_sql('select * from volgistics', conn)
 master_df = volgistics[['volgistics_id', 'email']].rename(columns={'email' : 'email_address'}).merge(master_df, how='left')
