@@ -51,7 +51,7 @@ def uploadCSV():
                 validate_and_arrange_upload(file, app.config['UPLOAD_FOLDER'])
             except Exception as e:
                 flash("ERROR can't parse upload: " + file.filename, 'error')
-                print(e)
+                app.logger.info(e)
 
             finally:
                 file.close()
@@ -61,7 +61,7 @@ def uploadCSV():
 
 @app.route('/files/<destination>', methods=['GET'])
 def files(destination):
-    print('Start returning zip of all data')
+    app.logger.info('Start returning zip of all data')
     if request.args.get('download_current_btn'):
         source = SOURCE_FILES_PATH + '/' + destination
     if request.args.get('download_archived_btn'):
@@ -72,7 +72,7 @@ def files(destination):
     zip_name = destination + '_data_out'
 
     try:
-        print(shutil.make_archive(zip_name, 'zip', source))
+        app.logger.info(shutil.make_archive(zip_name, 'zip', source))
         return send_file('/paws-data-pipeline/' + zip_name + '.zip', as_attachment=True,
                          attachment_filename=zip_name + '.zip')
     except Exception as e:
@@ -83,7 +83,7 @@ def files(destination):
 def listCurrentFiles():
     result = None
 
-    print('Start returning file list')
+    app.logger.info('Start returning file list')
     file_list_result = os.listdir(SOURCE_FILES_PATH + '/current')
 
     if len(file_list_result) > 0:
@@ -94,15 +94,9 @@ def listCurrentFiles():
 
 @app.route('/execute', methods=['GET'])
 def execute():
-    print('Execute flow')
-    try:
-        flow_script.start_flow()
-        flash('Successfully executed!', 'info')
-
-    except Exception as e:
-        tb = traceback.format_exc()
-        flash('Error!' + tb, 'error')
-        print(tb)
+    app.logger.info('Execute flow')
+    flow_script.start_flow()
+    flash('Successfully executed!', 'info')
     return redirect('/')
 
 

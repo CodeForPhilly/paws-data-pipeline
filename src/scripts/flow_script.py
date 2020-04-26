@@ -45,7 +45,6 @@ def start_flow():
                                                                                 'excluded_' + file_name_striped + '.csv')
         matched_df = (
             pandas_tables['salesforcecontacts']
-                .pipe(match_data.match_cleaned_table, pandas_tables['volgistics'], 'volgistics',
-                    'unmatched_volgistics.csv')
+                .pipe(match_data.match_cleaned_table, pandas_tables['volgistics'], 'volgistics', 'unmatched_volgistics.csv')
         )
         matched_df.to_csv(os.path.join(match_data.LOG_PATH, 'matches.csv'), index=False)
