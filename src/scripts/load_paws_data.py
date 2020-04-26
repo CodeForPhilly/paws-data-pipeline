@@ -1,15 +1,8 @@
-import sqlite3
 import pandas as pd
 import re
 
 # function for loading a csv into a database table or "updating" the table by dropping it and recreating it with the csv
-OUTPUT_PATH = "/app/static/output/"
-
-
-def load_to_sqlite(csv_path, table_name, drop_first_col=False):
-    # connect to or create database
-    connection = sqlite3.connect(OUTPUT_PATH + "paws.db")
-
+def load_to_sqlite(csv_path, table_name, connection, drop_first_col=False):
     # load csv into a dataframe
     df = pd.read_csv(csv_path, encoding='cp1252')
     

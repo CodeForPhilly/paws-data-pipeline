@@ -1,12 +1,14 @@
 import sys
 import os
+import sqlite3
 
 # get scripts folder to relative path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from scripts import load_paws_data, match_data
+from scripts import load_paws_data, match_data, create_master_df
 
 CURRENT_SOURCE_FILES_PATH = '/app/static/uploads/current'
 UPLOADED_FILES_PATH = '/app/static/uploads/'
+OUTPUT_PATH = "/app/static/output/"
 
 MAPPING_FIELDS = {
     'salesforcecontacts': {
@@ -31,6 +33,8 @@ MAPPING_FIELDS = {
 
 
 def start_flow():
+    connection = sqlite3.connect(os.path.join(OUTPUT_PATH, "paws.db"))
+
     if os.listdir(CURRENT_SOURCE_FILES_PATH):
         pandas_tables = dict()
         for uploaded_file in os.listdir(CURRENT_SOURCE_FILES_PATH):
@@ -39,11 +43,13 @@ def start_flow():
 
             print('running load_paws_data on: ' + uploaded_file)
 
-            load_paws_data.load_to_sqlite(file_path, file_name_striped, True)
-            pandas_tables[file_name_striped] = match_data.read_from_sqlite(file_name_striped)
+            load_paws_data.load_to_sqlite(file_path, file_name_striped, connection, True)
+            pandas_tables[file_name_striped] = match_data.read_from_sqlite(file_name_striped, connection)
             pandas_tables[file_name_striped] = match_data.cleanup_and_log_table(pandas_tables[file_name_striped],
                                                                                 MAPPING_FIELDS[file_name_striped],
                                                                                 'excluded_' + file_name_striped + '.csv')
+
+        create_master_df.main(connection)
 
 
         matched_df = (
@@ -51,5 +57,8 @@ def start_flow():
                 .pipe(match_data.match_cleaned_table, pandas_tables['volgistics'], 'volgistics',
                       'unmatched_volgistics.csv')
         )
+
         matched_df.to_csv(os.path.join(match_data.LOG_PATH, 'matches.csv'), index=False)
+
+        connection.close()
 
