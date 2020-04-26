@@ -1,13 +1,9 @@
 import pandas as pd
 import os
-import sys
 
 from fuzzywuzzy import fuzz
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from scripts.load_paws_data import OUTPUT_PATH
-
-LOG_PATH = os.path.join(OUTPUT_PATH, 'logs/')
+LOG_PATH = "/app/static/output/reports"
 TRANSFORM_EMAIL_NAME = 'lower_email'
 
 
@@ -45,13 +41,12 @@ class MismatchLogger:
 
 def read_from_postgres(connection, table_name):
     # Extracting pandas tables out from load_paws_data.load_to_sqlite
-    #connection = sqlite3.connect(os.path.join(OUTPUT_PATH, "paws.db"))
     #df = pd.read_sql_query("SELECT * FROM ?;", connection, params=(table_name))
     # Most SQL engines can only parameterize on literal values, not table names, so
     # let's format the SQL query another way for this internal API.
     # https://stackoverflow.com/questions/1274432/sqlite-parameters-not-allowing-tablename-as-parameter
     df = pd.read_sql_query("SELECT * FROM {};".format(table_name), connection)
-    connection.close()
+
     return df
 
 

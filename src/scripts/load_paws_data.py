@@ -1,10 +1,6 @@
 import sqlalchemy as db
 import pandas as pd
-import numpy as np
 import re
-from fuzzywuzzy import fuzz
-
-# connect to or create database
 
 engine = db.create_engine('postgresql://postgres:thispasswordisverysecure@paws-compose-db/postgres')
 
