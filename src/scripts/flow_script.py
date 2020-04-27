@@ -42,6 +42,7 @@ def start_flow():
             # TODO: debug this
             pandas_tables[file_name_striped] = match_data.read_from_postgres(connection, file_name_striped)
             pandas_tables[file_name_striped] = match_data.cleanup_and_log_table(pandas_tables[file_name_striped],
+                MAPPING_FIELDS[file_name_striped],
                                                                                 'excluded_' + file_name_striped + '.csv')
 
 

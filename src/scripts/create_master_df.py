@@ -18,6 +18,7 @@ def create_user_master_df(conn, table_name, query):
 
     # pull the dataframe from SQL database, call cleaning function, 
     # and add empty columns for the datasets that will be merged
+    conn.execute(f'DROP TABLE IF EXISTS {table_name}')
     conn.execute('create table ' + table_name + ' ' + query)
     df = pd.read_sql('select * from ' + table_name, conn)
 

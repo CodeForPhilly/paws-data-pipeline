@@ -25,19 +25,15 @@ def load_to_postgres(csv_path, table_name, drop_first_col=False):
     
     # create a cursor object, and use it to drop the table if it exists
     cursor = connection.cursor()
-
-    try:
-        cursor.execute(f'DROP TABLE {table_name}')
-        connection.commit()
-        cursor.close()
-    except Exception as e:
-        print(e)
+    cursor.execute(f'DROP TABLE IF EXISTS {table_name}')
+    connection.commit()
+    cursor.close()
     
     # load dataframe into database table
     print('Creating table: ' + table_name)
     df.to_sql(table_name, engine, index=False,)
     print('Finished creating generic table for: ' + table_name)
-    return connection
+    return engine  # pandas is expecting a db.Engine object instead of the raw_connection
 
 #load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_petpoint_deidentified.csv', 'petpoint', conn, True)
 #load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_volgistics_deidentified.csv', 'volgistics', conn, True)
