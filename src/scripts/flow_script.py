@@ -38,16 +38,16 @@ def start_flow():
             file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
             file_name_striped = file_path.split('/')[-1].split('-')[0]
             print('running load_paws_data on: ' + uploaded_file)
-            connection = load_paws_data.load_to_postgres(file_path, file_name_striped, True)
-            # TODO: debug this
-            pandas_tables[file_name_striped] = match_data.read_from_postgres(connection, file_name_striped)
+            db_engine = load_paws_data.load_to_postgres(file_path, file_name_striped, True)
+            pandas_tables[file_name_striped] = match_data.read_from_postgres(db_engine, file_name_striped)
             pandas_tables[file_name_striped] = match_data.cleanup_and_log_table(pandas_tables[file_name_striped],
                 MAPPING_FIELDS[file_name_striped],
                                                                                 'excluded_' + file_name_striped + '.csv')
 
 
 
-        create_master_df.main(connection)
+        with db_engine.connect() as connection:
+            create_master_df.main(connection)
 
 
         matched_df = (
@@ -57,5 +57,5 @@ def start_flow():
 
         matched_df.to_csv(os.path.join(match_data.LOG_PATH, 'matches.csv'), index=False)
 
-        # connection.close()  # FIXME: how do you clean up a postgresql engine??  Automatic if you're not using the raw_connection?
-
+        # db_engine.dispose()  # we could close the db engine here once we're done with everything, but then it will be completely closed
+        # See https://docs.sqlalchemy.org/en/13/core/connections.html#engine-disposal for design considerations.
