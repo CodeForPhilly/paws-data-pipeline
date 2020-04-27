@@ -57,5 +57,5 @@ def start_flow():
 
         matched_df.to_csv(os.path.join(match_data.LOG_PATH, 'matches.csv'), index=False)
 
-        connection.close()
+        # connection.close()  # FIXME: how do you clean up a postgresql engine??  Automatic if you're not using the raw_connection?
 

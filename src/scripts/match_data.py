@@ -20,7 +20,10 @@ def single_fuzzy_score(record1, record2):
 def df_fuzzy_score(df, column1_name, column2_name):
     # Calculates a new column of fuzzy scores from two columns of strings.
     # Slow in part due to a nonvectorized loop over rows
-    return df.apply(lambda row: single_fuzzy_score(row[column1_name], row[column2_name]), axis=1)
+    if df.empty:
+        return []
+    else:
+        return df.apply(lambda row: single_fuzzy_score(row[column1_name], row[column2_name]), axis=1)
 
 
 class MismatchLogger:
