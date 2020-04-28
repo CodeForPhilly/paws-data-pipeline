@@ -37,4 +37,4 @@ From local machine:
 
 In server:
 1. `cd paws-data-pipeline`
-2. run `sh run.sh`
+2. run `sh deploy_from_tar_docker-compose.sh`
