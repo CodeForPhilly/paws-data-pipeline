@@ -7,23 +7,26 @@ LOG_PATH = "/app/static/output/reports"
 TRANSFORM_EMAIL_NAME = 'lower_email'
 
 
-def single_fuzzy_score(record1, record2):
+def single_fuzzy_score(record1, record2, case_sensitive=False):
     # Calculate a fuzzy matching score between two strings.
     # Uses a modified Levenshtein distance from the fuzzywuzzy package.
     # Update this function if a new fuzzy matching algorithm is selected.
     # Similar to the example of "New York Yankees" vs. "Yankees" in the documentation, we 
     # should use fuzz.partial_ratio instead of fuzz.ratio to more gracefully handle nicknames.
     # https://chairnerd.seatgeek.com/fuzzywuzzy-fuzzy-string-matching-in-python/
+    if not case_sensitive:
+        record1 = record1.lower()
+        record2 = record2.lower()
     return fuzz.partial_ratio(record1, record2)
 
 
-def df_fuzzy_score(df, column1_name, column2_name):
+def df_fuzzy_score(df, column1_name, column2_name, **kwargs):
     # Calculates a new column of fuzzy scores from two columns of strings.
     # Slow in part due to a nonvectorized loop over rows
     if df.empty:
         return []
     else:
-        return df.apply(lambda row: single_fuzzy_score(row[column1_name], row[column2_name]), axis=1)
+        return df.apply(lambda row: single_fuzzy_score(row[column1_name], row[column2_name], **kwargs), axis=1)
 
 
 class MismatchLogger:
