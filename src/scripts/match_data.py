@@ -113,6 +113,7 @@ def match_cleaned_table(salesforce_df, table_df, table_name, log_name='unmatched
     table_id_field = table_name + '_id'
     salesforce_name_field = 'salesforce_name'
     table_name_field = table_name + '_name'
+    fuzzy_output_field = table_name + '_fuzzy_name_score'
 
     # Match by email
     matched, unmatched_salesforce, unmatched_table = match_by_field(
@@ -129,9 +130,9 @@ def match_cleaned_table(salesforce_df, table_df, table_name, log_name='unmatched
         .merge(table_df[['table_id', 'table_name']].rename(columns={'table_name': table_name_field, 'table_id': table_id_field}))
     )
     unmatched_table = unmatched_table.merge(table_df[['table_id', 'table_name']].rename(columns={'table_name': table_name_field, 'table_id': table_id_field}))
-    matched['fuzzy_name_score'] = df_fuzzy_score(matched, table_name_field, salesforce_name_field)
-    unmatched_by_name = matched[matched['fuzzy_name_score'] != 100].copy()
-    matched = matched[matched['fuzzy_name_score'] == 100]
+    matched[fuzzy_output_field] = df_fuzzy_score(matched, table_name_field, salesforce_name_field)
+    unmatched_by_name = matched[matched[fuzzy_output_field] != 100].copy()
+    matched = matched[matched[fuzzy_output_field] == 100]
 
     # TODO: ANY OTHER MATCH DOCUMENTATION TO ADD OR MODIFY FROM MEG, CHRIS, AND KARLA?
 

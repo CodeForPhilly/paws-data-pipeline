@@ -18,7 +18,7 @@ MAPPING_FIELDS = {
     },
     'petpoint': {
         '_label': 'petpoint',
-        'table_id': 'outcome_person_#',
+        'table_id': 'outcome_person_',  # "Outcome.Person.."
         'table_email': 'out_email',
         '_table_name': ['outcome_person_name']
     },
@@ -54,6 +54,12 @@ def start_flow():
             pandas_tables['salesforcecontacts']
                 .pipe(match_data.match_cleaned_table, pandas_tables['volgistics'], 'volgistics', 'unmatched_volgistics.csv')
         )
+        
+        # As a proof-of-concept, let's also match petpoint here against salesforce.
+        # But the data flow logic needs to be revised before we can clean up these couple lines of code
+        if 'petpoint' in pandas_tables.keys():  # for now, handling as a special case as an optional input file
+            petpoint_matches = match_data.match_cleaned_table(pandas_tables['salesforcecontacts'], pandas_tables['petpoint'], 'petpoint', 'unmatched_petpoint.csv')
+            matched_df = matched_df.merge(petpoint_matches, how='outer')
 
         matched_df.to_csv(os.path.join(match_data.LOG_PATH, 'matches.csv'), index=False)
 
