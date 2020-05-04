@@ -6,6 +6,7 @@ Run the PAWS data pipeline locally
 - Run docker compose (as explained below) in order to have the postgres docker running.
 - Set environment variable: `export IS_LOCAL=True`
 - Set environment variable: `export FLASK_PORT=3333` we need it to be a different port then the one in the docker-compose
+- Run app.py
 #### Run docker - before pushing your code
 - Install docker - `https://docs.docker.com/install`  
 
