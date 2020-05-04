@@ -6,4 +6,4 @@ cd /paws-data-pipeline/
 echo "Importing database data"
 python load_paws_data.py
 echo "Loading API app"
-python ./src/api_server/api_app.py
+python ./src/server/app.py

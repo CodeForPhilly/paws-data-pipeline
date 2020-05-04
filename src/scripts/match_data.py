@@ -2,8 +2,8 @@ import pandas as pd
 import os
 
 from fuzzywuzzy import fuzz
+from config import REPORT_PATH
 
-LOG_PATH = "/app/static/output/reports"
 TRANSFORM_EMAIL_NAME = 'lower_email'
 
 
@@ -36,7 +36,7 @@ class MismatchLogger:
         error_with_reason[self.reason_column] = reason_code
         self.errors = self.errors.append(error_with_reason)
     
-    def write_log(self, file_basename, dir=LOG_PATH):
+    def write_log(self, file_basename, dir=REPORT_PATH):
         # Currently writing to a csv, but we could also consider a DB table
         # convention for logging, e.g. log_mismatch_salesforce_and_volgistics
         self.errors.to_csv(os.path.join(dir, file_basename), index=False)
