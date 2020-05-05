@@ -5,6 +5,8 @@ Run the PAWS data pipeline locally
 - Install dependencies: `pip install -r requirements.txt`
 - Run docker compose (as explained below) in order to have the postgres docker running.
 - Set environment variable: `export IS_LOCAL=True`
+- If your docker IP is not localhost or you want to run postgres with a different user name etc  
+  - Set environment variable: `export LOCAL_DB_IP=postgresql://postgres:thispasswordisverysecure@[your_docker_ip]/postgres`
 - Set environment variable: `export FLASK_PORT=3333` we need it to be a different port then the one in the docker-compose
 - Run app.py
 #### Run docker - before pushing your code
@@ -13,7 +15,7 @@ Run the PAWS data pipeline locally
 _Compose instructions_  
 - Install Docker Compose - `https://docs.docker.com/compose/install/`      
 - Most package managers have it as `docker-compose` and it's largely just a shell script.    
-- `docker compose -d up` to bring up the database and the server.
+- `docker-compose -d up` tso bring up the database and the server.
 
 _Non-compose instructions_  (not being used anymore)  
 - Build the Docker image, preparing it for execution:  `docker build -t paws-data-pipeline .`  
