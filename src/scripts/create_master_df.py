@@ -1,5 +1,5 @@
 import pandas as pd
-
+from flask import current_app
 
 def create_user_master_df(conn, table_name, query):
     """
@@ -33,7 +33,7 @@ def main(conn):
     # salesforcecontacts[[account_id]]
 
     # Create a new master_df table
-    print('Start Creating master_df')
+    current_app.logger.info('Start Creating master_df')
     master_df = create_user_master_df(
         conn, 'master_df',
         '(master_id INT PRIMARY KEY NOT NULL, petpoint_id text, volgistics_id text, salesforce_id text, email_address text )'
@@ -49,9 +49,9 @@ def main(conn):
     salesforcecontacts = pd.read_sql('select * from salesforcecontacts', conn)
     master_df.merge(salesforcecontacts[['account_id', 'email']].rename(
         columns={'account_id': 'salesforce_id'}), how='left')
-    print('  -Successfully created salesforcecontact (Primary key) in master_df')
+    current_app.logger.info('  -Successfully created salesforcecontact (Primary key) in master_df')
 
     # Merge Volgistics data into the master dataframe
     volgistics = pd.read_sql('select * from volgistics', conn)
     master_df.merge(volgistics[['number', 'email']].rename(columns={'email': 'email_address'}), how='left')
-    print('  -Successfully created volgistics row in master_df')
+    current_app.logger.info('  -Successfully created volgistics row in master_df')

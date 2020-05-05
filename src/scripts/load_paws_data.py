@@ -2,12 +2,13 @@ import sqlalchemy as db
 import pandas as pd
 import re
 
-engine = db.create_engine('postgresql://postgres:thispasswordisverysecure@paws-compose-db/postgres')
+from config import DB
+from flask import current_app
+
+engine = db.create_engine(DB)
+
 
 # function for loading a csv into a database table or "updating" the table by dropping it and recreating it with the csv
-OUTPUT_PATH = "/app/static/output/"
-
-
 def load_to_postgres(csv_path, table_name, drop_first_col=False):
     # connect to or create database
     connection = engine.raw_connection()
@@ -30,12 +31,7 @@ def load_to_postgres(csv_path, table_name, drop_first_col=False):
     cursor.close()
     
     # load dataframe into database table
-    print('Creating table: ' + table_name)
+    current_app.logger.info('Creating table: ' + table_name)
     df.to_sql(table_name, engine, index=False,)
-    print('Finished creating generic table for: ' + table_name)
+    current_app.logger.info('Finished creating generic table for: ' + table_name)
     return engine  # pandas is expecting a db.Engine object instead of the raw_connection
-
-#load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_petpoint_deidentified.csv', 'petpoint', conn, True)
-#load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_volgistics_deidentified.csv', 'volgistics', conn, True)
-#load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_salesforceContacts_deidentified.csv', 'salesforcecontacts', conn, True)
-#load_to_sqlite(UPLOADED_FILES_PATH + '/CfP_PDP_salesforceDonations_deidentified.csv', 'salesforcedonations', conn, True)

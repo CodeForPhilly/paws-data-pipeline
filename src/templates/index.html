@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <link rel="stylesheet" type="text/css" href="/static/css/app.css">
+        <link rel="icon" href="data:,">
+        <title>PAWS Uploader</title>
+        <script
+			src="https://code.jquery.com/jquery-3.4.1.min.js"
+			integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+        </script>
+        <script src="/static/js/FileUploader.js"></script>
+
+    </head>
+    <body>
+        <h1>Welcome to the PAWS data uploader</h1>
+        <img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fwww.dfordog.co.uk%2Fuser%2Fimages%2Ffunnies%2Fthe-cat-diary.jpg&f=1&nofb=1" />
+
+        <h3>Upload files:</h3>
+        <form method="post" action="/file" enctype="multipart/form-data">
+            <input id="file-select" type="file" name="file" multiple>
+            <input id="upload" type="submit" name="upload-btn" value="Upload" disabled>
+        </form>
+
+        <h3>Current Source Files on Server:</h3>
+        {% if current_file_list is not none %}
+            <ul>
+                {% for file_name in current_file_list %}
+                    <li>{{file_name}}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <h3>Download files:</h3>
+        <form method="get" action="/files/current">
+            {% if current_file_list is not none %}
+                <input id="currentFiles" type="submit" name="download_current_btn" value="Current Sources">
+            {% endif %}
+        </form>
+        <form method="get" action="/files/archived">
+            {% if current_file_list is not none %}
+                <input id="archivedFiles" type="submit" name="download_archived_btn" value="Archived Sources">
+            {% endif %}
+        </form>
+        <form method="get" action="/files/output">
+            {% if output_files_exist == True  %}
+                <input id="outputFiles" type="submit" name="download_output_btn" value="Output files">
+            {% endif %}
+        </form>
+
+        <h3>Execute flow for current sources:</h3>
+        <form method="get" action="/execute">
+            {% if current_file_list is not none %}
+                <input id="execute" type="submit" name="execute_btn" value="Execute Current Sources">
+            {% endif %}
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul id="messages">
+                    {% for category, message in messages %}
+                        <li class={{ category }}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </body>
+</html>
