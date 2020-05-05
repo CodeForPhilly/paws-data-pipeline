@@ -13,7 +13,7 @@ Run the PAWS data pipeline locally
 _Compose instructions_  
 - Install Docker Compose - `https://docs.docker.com/compose/install/`      
 - Most package managers have it as `docker-compose` and it's largely just a shell script.    
-- `docker compose -d up` to bring up the database and the server.
+- `docker compose up -d` to bring up the database and the server.
 
 _Non-compose instructions_  (not being used anymore)  
 - Build the Docker image, preparing it for execution:  `docker build -t paws-data-pipeline .`  
