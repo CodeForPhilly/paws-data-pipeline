@@ -8,7 +8,9 @@ IS_LOCAL = os.getenv('IS_LOCAL', False)
 
 if IS_LOCAL:
     BASE_PATH = '../local_files/'
-    DB = 'postgresql://postgres:thispasswordisverysecure@localhost:5432/postgres'
+    DB = os.getenv('LOCAL_DB_IP',
+                   'postgresql://postgres:thispasswordisverysecure@localhost:5432/postgres')
+
 
 
 # Define global reusable paths
