@@ -21,7 +21,8 @@ MAPPING_FIELDS = {
         '_label': 'petpoint',
         'table_id': 'outcome_person_',  # "Outcome.Person.."
         'table_email': 'out_email',
-        '_table_name': ['outcome_person_name']
+        '_table_name': ['outcome_person_name'],
+        '_preprocess': lambda df: match_data.group_concat(df, ['outcome_person_', 'out_email', 'outcome_person_name'])
     },
     'volgistics': {
         '_label': 'volgistics',
@@ -41,6 +42,8 @@ def start_flow():
             print('running load_paws_data on: ' + uploaded_file)
             db_engine = load_paws_data.load_to_postgres(file_path, file_name_striped, True)
             pandas_tables[file_name_striped] = match_data.read_from_postgres(db_engine, file_name_striped)
+            if '_preprocess' in MAPPING_FIELDS[file_name_striped]:
+                pandas_tables[file_name_striped] = MAPPING_FIELDS[file_name_striped]['_preprocess'](pandas_tables[file_name_striped])
             pandas_tables[file_name_striped] = match_data.cleanup_and_log_table(pandas_tables[file_name_striped],
                 MAPPING_FIELDS[file_name_striped],
                                                                                 'excluded_' + file_name_striped + '.csv')

@@ -63,6 +63,9 @@ def remove_duplicates(df, field):
     duplicate_rows = df[df[field].isin(duplicate_ids)]
     return (unique_rows, duplicate_rows)
 
+def group_concat(df, fields):
+    # operates like the group_concat operator in SQL
+    return df.groupby(fields).agg(list).reset_index()
 
 def remove_null_rows(df, field):
     nonnull_rows = df[~df[field].isnull()]
