@@ -1,5 +1,6 @@
 import sys
 import os
+import pandas as pd
 
 # get scripts folder to relative path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -50,16 +51,13 @@ def start_flow():
             create_master_df.main(connection)
 
 
-        matched_df = (
-            pandas_tables['salesforcecontacts']
-                .pipe(match_data.match_cleaned_table, pandas_tables['volgistics'], 'volgistics', 'unmatched_volgistics.csv')
-        )
-        
-        # As a proof-of-concept, let's also match petpoint here against salesforce.
-        # But the data flow logic needs to be revised before we can clean up these couple lines of code
-        if 'petpoint' in pandas_tables.keys():  # for now, handling as a special case as an optional input file
-            petpoint_matches = match_data.match_cleaned_table(pandas_tables['salesforcecontacts'], pandas_tables['petpoint'], 'petpoint', 'unmatched_petpoint.csv')
-            matched_df = matched_df.merge(petpoint_matches, how='outer')
+        # Match available data sources against salesforce
+        matched_df = pd.DataFrame({'salesforce_id': []})  # init an empty dataframe for joining data from other sources
+        for source in pandas_tables.keys():
+            if source == 'salesforcecontacts':
+                continue
+            source_matches = match_data.match_cleaned_table(pandas_tables['salesforcecontacts'], pandas_tables[source], source, f'unmatched_{source}.csv')
+            matched_df = matched_df.merge(source_matches, how='outer')
 
         matched_df.to_csv(os.path.join(match_data.LOG_PATH, 'matches.csv'), index=False)
 
