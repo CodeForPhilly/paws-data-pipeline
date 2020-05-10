@@ -7,23 +7,26 @@ from config import REPORT_PATH
 TRANSFORM_EMAIL_NAME = 'lower_email'
 
 
-def single_fuzzy_score(record1, record2):
+def single_fuzzy_score(record1, record2, case_sensitive=False):
     # Calculate a fuzzy matching score between two strings.
     # Uses a modified Levenshtein distance from the fuzzywuzzy package.
     # Update this function if a new fuzzy matching algorithm is selected.
     # Similar to the example of "New York Yankees" vs. "Yankees" in the documentation, we 
     # should use fuzz.partial_ratio instead of fuzz.ratio to more gracefully handle nicknames.
     # https://chairnerd.seatgeek.com/fuzzywuzzy-fuzzy-string-matching-in-python/
+    if not case_sensitive:
+        record1 = record1.lower()
+        record2 = record2.lower()
     return fuzz.partial_ratio(record1, record2)
 
 
-def df_fuzzy_score(df, column1_name, column2_name):
+def df_fuzzy_score(df, column1_name, column2_name, **kwargs):
     # Calculates a new column of fuzzy scores from two columns of strings.
     # Slow in part due to a nonvectorized loop over rows
     if df.empty:
         return []
     else:
-        return df.apply(lambda row: single_fuzzy_score(row[column1_name], row[column2_name]), axis=1)
+        return df.apply(lambda row: single_fuzzy_score(row[column1_name], row[column2_name], **kwargs), axis=1)
 
 
 class MismatchLogger:
@@ -60,6 +63,9 @@ def remove_duplicates(df, field):
     duplicate_rows = df[df[field].isin(duplicate_ids)]
     return (unique_rows, duplicate_rows)
 
+def group_concat(df, fields):
+    # operates like the group_concat operator in SQL
+    return df.groupby(fields).agg(list).reset_index()
 
 def remove_null_rows(df, field):
     nonnull_rows = df[~df[field].isnull()]
@@ -110,6 +116,7 @@ def match_cleaned_table(salesforce_df, table_df, table_name, log_name='unmatched
     table_id_field = table_name + '_id'
     salesforce_name_field = 'salesforce_name'
     table_name_field = table_name + '_name'
+    fuzzy_output_field = table_name + '_fuzzy_name_score'
 
     # Match by email
     matched, unmatched_salesforce, unmatched_table = match_by_field(
@@ -126,9 +133,9 @@ def match_cleaned_table(salesforce_df, table_df, table_name, log_name='unmatched
         .merge(table_df[['table_id', 'table_name']].rename(columns={'table_name': table_name_field, 'table_id': table_id_field}))
     )
     unmatched_table = unmatched_table.merge(table_df[['table_id', 'table_name']].rename(columns={'table_name': table_name_field, 'table_id': table_id_field}))
-    matched['fuzzy_name_score'] = df_fuzzy_score(matched, table_name_field, salesforce_name_field)
-    unmatched_by_name = matched[matched['fuzzy_name_score'] != 100].copy()
-    matched = matched[matched['fuzzy_name_score'] == 100]
+    matched[fuzzy_output_field] = df_fuzzy_score(matched, table_name_field, salesforce_name_field)
+    unmatched_by_name = matched[matched[fuzzy_output_field] != 100].copy()
+    matched = matched[matched[fuzzy_output_field] == 100]
 
     # TODO: ANY OTHER MATCH DOCUMENTATION TO ADD OR MODIFY FROM MEG, CHRIS, AND KARLA?
 
