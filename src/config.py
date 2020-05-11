@@ -1,4 +1,5 @@
 import os
+import sqlalchemy as db
 
 # Determine if app is ran from docker or local by env var IS_LOCAL
 BASE_PATH = '/app/static/'
@@ -11,7 +12,9 @@ if IS_LOCAL:
     DB = os.getenv('LOCAL_DB_IP',
                    'postgresql://postgres:thispasswordisverysecure@localhost:5432/postgres')
 
-
+#best practices is to have only one engine per application process
+#https://docs.sqlalchemy.org/en/13/core/connections.html
+engine = db.create_engine(DB)
 
 # Define global reusable paths
 UPLOAD_PATH = BASE_PATH + 'uploads/'

@@ -3,9 +3,10 @@ import time
 
 from werkzeug.utils import secure_filename
 from flask import flash, current_app
+import pandas as pd
 
 SRC_TYPES_BY_HEADER = {
-    'Account.Name':          'salesforcecontacts',
+    'Account Name':          'salesforcecontacts',
     'Last.name..First.name': 'volgistics',
     'Animal.ID':             'petpoint',
     'Recurring.donor':       'salesforcedonations'
@@ -41,10 +42,13 @@ def validate_and_arrange_upload(file, destination_path):
 
 
 def determine_upload_type(file):
-    column_header = file.stream.readline().decode('utf-8').split(',')[1].strip().replace('"', '')
-    current_app.logger.info(str('  -Found file with column header: ' + column_header))
-    src_type = SRC_TYPES_BY_HEADER[column_header]
-
+    df = pd.read_csv(file.stream)
+    for key in SRC_TYPES_BY_HEADER:
+        if key in df.columns:
+            column_header = key
+            current_app.logger.info(str('  -Found file with column header: ' + column_header))
+            src_type = SRC_TYPES_BY_HEADER[key]
+    
     return src_type
 
 
