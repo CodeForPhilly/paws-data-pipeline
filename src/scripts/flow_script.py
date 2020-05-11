@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 
 from scripts import load_paws_data, match_data, create_master_df
 from config import CURRENT_SOURCE_FILES_PATH, LOGS_PATH, engine
@@ -13,9 +14,10 @@ MAPPING_FIELDS = {
     },
     'petpoint': {
         '_label': 'petpoint',
-        'table_id': 'outcome_person_#',
+        'table_id': 'outcome_person_',  # "Outcome.Person.."
         'table_email': 'out_email',
-        '_table_name': ['outcome_person_name']
+        '_table_name': ['outcome_person_name'],
+        '_preprocess': lambda df: match_data.group_concat(df, ['outcome_person_', 'out_email', 'outcome_person_name'])
     },
     'volgistics': {
         '_label': 'volgistics',
@@ -35,6 +37,8 @@ def start_flow():
             current_app.logger.info('running load_paws_data on: ' + uploaded_file)
             load_paws_data.load_to_postgres(file_path, file_name_striped, True)
             pandas_tables[file_name_striped] = match_data.read_from_postgres(file_name_striped)
+            if '_preprocess' in MAPPING_FIELDS[file_name_striped]:
+                pandas_tables[file_name_striped] = MAPPING_FIELDS[file_name_striped]['_preprocess'](pandas_tables[file_name_striped])
             pandas_tables[file_name_striped] = match_data.cleanup_and_log_table(pandas_tables[file_name_striped],
                 MAPPING_FIELDS[file_name_striped],
                                                                                 'excluded_' + file_name_striped + '.csv')
@@ -43,10 +47,14 @@ def start_flow():
             create_master_df.main(connection)
 
 
-        matched_df = (
-            pandas_tables['salesforcecontacts']
-                .pipe(match_data.match_cleaned_table, pandas_tables['volgistics'], 'volgistics', 'unmatched_volgistics.csv')
-        )
+        # Match available data sources against salesforce
+        matched_df = pd.DataFrame({'salesforce_id': []})  # init an empty dataframe for joining data from other sources
+        for source in pandas_tables.keys():
+            if source == 'salesforcecontacts':
+                continue
+            source_matches = match_data.match_cleaned_table(pandas_tables['salesforcecontacts'], pandas_tables[source], source, f'unmatched_{source}.csv')
+            matched_df = matched_df.merge(source_matches, how='outer')
+
         matched_df.to_csv(os.path.join(LOGS_PATH, 'matches.csv'), index=False)
 
         # db_engine.dispose()  # we could close the db engine here once we're done with everything, but then it will be completely closed
