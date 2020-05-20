@@ -4,3 +4,6 @@ db_data/
 /local_files/
 node_modules
 .vscode/
+
+.cache/
+venv
