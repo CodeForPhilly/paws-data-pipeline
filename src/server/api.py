@@ -1,5 +1,6 @@
 import shutil
 import os
+import time
 
 from flask import send_file, render_template, request, redirect, flash, jsonify, Blueprint, current_app
 from scripts import flow_script
@@ -9,6 +10,7 @@ from config import UPLOAD_PATH, OUTPUT_PATH, CURRENT_SOURCE_FILES_PATH, ZIPPED_F
 ALLOWED_EXTENSIONS = {'csv'}
 
 admin_api = Blueprint('admin_api', __name__)
+common_api = Blueprint('common_api', __name__)
 
 
 @admin_api.route('/', methods=['GET'])
@@ -90,3 +92,8 @@ def execute():
     flash('Successfully executed!', 'info')
 
     return showIndexPage()
+
+
+@common_api.route('/time')
+def get_current_time():
+    return {'time': time.time()}
