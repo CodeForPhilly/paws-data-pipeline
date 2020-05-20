@@ -1,5 +1,9 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Proxy Setting 
+
+The proxy setting in Package.JSON must be set to the the port the Flask App is running on for API calls to work. If you're running a local development enviornment, it may need to be this port, not the docker port.
+
 ## Available Scripts
 
 In the project directory, you can run:
