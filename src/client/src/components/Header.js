@@ -1,5 +1,5 @@
-import  React, { useState, useEffect } from "react";
-import {AppBar, IconButton, Menu, MenuItem, Toolbar, Container } from "@material-ui/core";
+import  React, { useState } from "react";
+import {AppBar, IconButton, Menu, MenuItem, Toolbar } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 
 export default function Header(props){
