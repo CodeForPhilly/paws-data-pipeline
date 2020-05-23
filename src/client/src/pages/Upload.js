@@ -1,10 +1,11 @@
 import  React, { useState, useEffect } from "react";
-import {Tabs, Tab, Container } from "@material-ui/core";
+import {Tabs, Tab, Container, Paper } from "@material-ui/core";
 import Skeleton from "@material-ui/lab/Skeleton";
 import { makeStyles } from "@material-ui/core/styles";
 
 import TabPanel from '../components/TabPanel';
 import { UploadForm, DownloadForm } from '../components/Forms';
+import useFetch from "../components/scripts/useFetch";
 
 const useStyles = makeStyles({
     content:{
@@ -12,7 +13,6 @@ const useStyles = makeStyles({
     },
     paper:{
       minHeight: '95vh',
-      backgroundImage: '../../../public/background.jpg'
     }
 
 });
@@ -22,8 +22,15 @@ function Content(props){
     const classes = useStyles();
 
     const handleChange = (event, newIndex) => {
-        setActiveIndex(newIndex)
+        setActiveIndex(newIndex);
+        setUrl("/listCurrentFiles");
     };
+
+    const [{data, isLoading, isError}, setUrl] = useFetch("/listCurrentFiles", null);
+
+  const files = data ? 
+      <div><ul>{data.map((i)=><li>{i}</li>)}</ul></div> :
+      <Skeleton variant="rect" width={400} height={400}>No Files Found</Skeleton> ;
 
     return (
       <Container classes={classes.content}>
@@ -33,11 +40,11 @@ function Content(props){
           <Tab label="Reports" />
         </Tabs>
         <TabPanel value={activeIndex} index={0}> 
-          <Skeleton variant="rect" width={400} height={400}> Select File to Load</Skeleton>
+          {files} 
           <UploadForm />
         </TabPanel>
         <TabPanel value={activeIndex} index={1}>
-          <Skeleton variant="rect" width={400} height={400}>Select File to Load</Skeleton>
+          {files}
           <DownloadForm />
         </TabPanel>
         <TabPanel value={activeIndex} index={2}>
