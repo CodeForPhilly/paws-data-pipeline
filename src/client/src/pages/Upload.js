@@ -27,6 +27,7 @@ function Content(props){
     };
 
     const [{data, isLoading, isError}, setUrl] = useFetch("/listCurrentFiles", null);
+    
 
   const files = data ? 
       <div><ul>{data.map((i)=><li>{i}</li>)}</ul></div> :

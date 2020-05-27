@@ -19,7 +19,12 @@ function DownloadForm(props) {
   return (
     <form onSubmit={handleChange}>
     <FormControl>
->
+      <Select>
+        <InputLabel>Select Item to Download</InputLabel>
+        <MenuItem>Current</MenuItem>
+        <MenuItem>Archived</MenuItem>
+        <MenuItem>Output</MenuItem>
+      </Select>
       <button type="submit">Download</button>
     </FormControl>
     </form>
@@ -47,16 +52,31 @@ function UploadForm(props) {
     });
 
     fetch("/file", { method:'POST', body:formData })
-      .then(resp => resp.text())
-      .then(resp => console.log(resp))
+      .then(response => response.text())
+      .then(text => console.log(text))
+      .catch(error => console.log(error));
+  }
+
+  const execute = (event)=>{
+    event.preventDefault();
+
+    fetch("/execute")
+      .then(response => response.json())
+      .then(data => console.log(data))
       .catch(error => console.log(error));
   }
 
   return (
+    <div>
     <form onSubmit={handleSubmit}>
         <input type="file" ref={fileInput} multiple />
         <button type="submit">Submit</button>
     </form>
+    <break />
+    <form onSubmit={execute}>
+      <input type="submit" />
+    </form>
+    </div>
   );
 
 }

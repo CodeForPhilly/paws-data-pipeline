@@ -32,7 +32,7 @@ export default function Header(props){
 
                 <MenuItem onClick={handleClose}><a href="/upload">Upload</a></MenuItem>
                 <MenuItem><a href="/">R5</a></MenuItem>
-                <MenuItem>360 View</MenuItem>
+                <MenuItem><a href="/dataview">360 View</a></MenuItem>
                 <MenuItem>R7</MenuItem>
                 <MenuItem><a href="/about">About</a></MenuItem>
             </Menu>
