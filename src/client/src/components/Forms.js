@@ -38,9 +38,9 @@ function DownloadForm(props) {
 // https://reactjs.org/docs/uncontrolled-components.html#the-file-input-tag
 
 function UploadForm(props) {
-  const fileInput = React.createRef();
   const [{response, isLoading, isError}, setUrl] = useFetch(null, null);
 
+  /*
   const handleSubmit = (event)=>{
     //Prevent default reload on submit
     event.preventDefault();
@@ -55,7 +55,7 @@ function UploadForm(props) {
       .then(response => response.text())
       .then(text => console.log(text))
       .catch(error => console.log(error));
-  }
+  }; */
 
   const execute = (event)=>{
     event.preventDefault();
@@ -64,12 +64,12 @@ function UploadForm(props) {
       .then(response => response.json())
       .then(data => console.log(data))
       .catch(error => console.log(error));
-  }
+  };
 
   return (
     <div>
-    <form onSubmit={handleSubmit}>
-        <input type="file" ref={fileInput} multiple />
+    <form onSubmit={props.handleSubmit}>
+        <input type="file" ref={props.fileInput} multiple />
         <button type="submit">Submit</button>
     </form>
     <break />

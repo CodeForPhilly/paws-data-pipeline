@@ -20,6 +20,7 @@ const useStyles = makeStyles({
 function Content(props){
     const [activeIndex, setActiveIndex] = React.useState(0);
     const classes = useStyles();
+    const fileInput = React.createRef();
 
     const handleChange = (event, newIndex) => {
         setActiveIndex(newIndex);
@@ -28,6 +29,25 @@ function Content(props){
 
     const [{data, isLoading, isError}, setUrl] = useFetch("/listCurrentFiles", null);
     
+    const handleSubmit = (event)=>{
+      //Prevent default reload on submit
+      event.preventDefault();
+
+      // Use FormData element for each file in fileInput
+      var formData = new FormData();
+      Array.from(fileInput.current.files).forEach(element => {
+        formData.append('file', element, element.name)
+      });
+
+      fetch("/file", { method:'POST', body:formData })
+        .then(response => response.text())
+        .then(text => console.log(text))
+        .catch(error => console.log(error));
+
+      setUrl("/listCurrentFiles");
+    };
+
+
 
   const files = data ? 
       <div><ul>{data.map((i)=><li>{i}</li>)}</ul></div> :
@@ -42,7 +62,7 @@ function Content(props){
         </Tabs>
         <TabPanel value={activeIndex} index={0}> 
           {files} 
-          <UploadForm />
+          <UploadForm fileInput={fileInput} handleSubmit={handleSubmit} />
         </TabPanel>
         <TabPanel value={activeIndex} index={1}>
           {files}
