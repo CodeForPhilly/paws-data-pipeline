@@ -31,7 +31,7 @@ def start(file_path_list, should_drop_first_col=False):
 
         is_table_exist = __create_table(df, engine, table_name)
 
-        if not is_table_exist:
+        if is_table_exist:
             current_app.logger.info('   - table exists. looking for new rows')
             df.to_sql(table_name + '_temp', engine, index=False, if_exists='replace')
             __find_and_add_new_rows(result, table_name)
