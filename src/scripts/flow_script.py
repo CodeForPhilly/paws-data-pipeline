@@ -1,9 +1,8 @@
 import os
-import pandas as pd
 
 from scripts import load_paws_data, match_data, create_master_df
-from config import CURRENT_SOURCE_FILES_PATH, LOGS_PATH, engine
-from flask import current_app
+from config import CURRENT_SOURCE_FILES_PATH
+
 
 MAPPING_FIELDS = {
     'salesforcecontacts': {
@@ -29,33 +28,11 @@ MAPPING_FIELDS = {
 
 
 def start_flow():
-    if os.listdir(CURRENT_SOURCE_FILES_PATH):
-        pandas_tables = dict()
-        for uploaded_file in os.listdir(CURRENT_SOURCE_FILES_PATH):
-            file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
-            file_name_striped = file_path.split('/')[-1].split('-')[0]
-            current_app.logger.info('running load_paws_data on: ' + uploaded_file)
-            load_paws_data.load_to_postgres(file_path, file_name_striped, True)
-            pandas_tables[file_name_striped] = match_data.read_from_postgres(file_name_striped)
-            if '_preprocess' in MAPPING_FIELDS[file_name_striped]:
-                pandas_tables[file_name_striped] = MAPPING_FIELDS[file_name_striped]['_preprocess'](pandas_tables[file_name_striped])
-            pandas_tables[file_name_striped] = match_data.cleanup_and_log_table(pandas_tables[file_name_striped],
-                MAPPING_FIELDS[file_name_striped],
-                                                                                'excluded_' + file_name_striped + '.csv')
+    file_path_list = os.listdir(CURRENT_SOURCE_FILES_PATH)
 
-        with engine.connect() as connection:
-            create_master_df.main(connection)
+    if file_path_list:
+        rows_to_add_or_updated = load_paws_data.start(file_path_list, True)
 
+        #rows_for_master_df = match_data.start(rows_to_add_or_updated)
 
-        # Match available data sources against salesforce
-        matched_df = pd.DataFrame({'salesforce_id': []})  # init an empty dataframe for joining data from other sources
-        for source in pandas_tables.keys():
-            if source == 'salesforcecontacts':
-                continue
-            source_matches = match_data.match_cleaned_table(pandas_tables['salesforcecontacts'], pandas_tables[source], source, f'unmatched_{source}.csv')
-            matched_df = matched_df.merge(source_matches, how='outer')
-
-        matched_df.to_csv(os.path.join(LOGS_PATH, 'matches.csv'), index=False)
-
-        # db_engine.dispose()  # we could close the db engine here once we're done with everything, but then it will be completely closed
-        # See https://docs.sqlalchemy.org/en/13/core/connections.html#engine-disposal for design considerations.
+        #create_master_df.start(rows_for_master_df)
