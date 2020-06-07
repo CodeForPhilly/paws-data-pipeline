@@ -1,4 +1,4 @@
-#Run mock data for 360
+# Run mock data for 360
 
 ##Populate data:
 1. run the project
