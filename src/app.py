@@ -10,7 +10,7 @@ def create_app():
     app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 Megs
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     from server.api import admin_api
-    from server.api import common_api
+    from server.common_api import common_api
     app.register_blueprint(admin_api)
     app.register_blueprint(common_api)
 
