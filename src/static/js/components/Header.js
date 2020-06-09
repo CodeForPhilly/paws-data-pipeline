@@ -1,13 +1,13 @@
 import  React, { useState } from "react";
-import {AppBar, IconButton, Menu, MenuItem, Toolbar } from "@material-ui/core";
+import {AppBar, IconButton, Menu, MenuItem, Toolbar, Container } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 
 export default function Header(props){
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleMenuClick = (e) => {
-   setAnchorEl(e.target);
+  const handleMenuClick = () => {
+    setAnchorEl(event.target);
   }
 
   const handleClose = () => {
@@ -32,7 +32,7 @@ export default function Header(props){
 
                 <MenuItem onClick={handleClose}><a href="/upload">Upload</a></MenuItem>
                 <MenuItem><a href="/">R5</a></MenuItem>
-                <MenuItem><a href="/dataview">360 View</a></MenuItem>
+                <MenuItem>360 View</MenuItem>
                 <MenuItem>R7</MenuItem>
                 <MenuItem><a href="/about">About</a></MenuItem>
             </Menu>

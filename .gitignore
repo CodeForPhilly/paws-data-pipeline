@@ -4,7 +4,8 @@ db_data/
 /local_files/
 node_modules
 .vscode/
-
+*.pyc
+__pycache__
 .cache/
 venv
 /dist/
