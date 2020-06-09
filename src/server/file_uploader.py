@@ -5,11 +5,11 @@ from werkzeug.utils import secure_filename
 from flask import flash, current_app
 import pandas as pd
 
-SRC_TYPES_BY_HEADER = {
-    'Account Name':          'salesforcecontacts',
-    'Last.name..First.name': 'volgistics',
-    'Animal.ID':             'petpoint',
-    'Recurring.donor':       'salesforcedonations'
+#TODO: Could we add sources dynamically?
+TRACKED_COLUMNS = {
+    'petpoint': ['Outcome Person #', 'Outcome Person Name', 'Out Street Address', 'Out Unit Number', 'Out City', 'Out Province', 'Out Postal Code', 'Out Email', 'Out Home Phone', 'Out Cell Phone'],
+    'volgistics': ['Last name', 'First name', 'Middle name', 'Number', 'Complete address', 'Street 1', 'Street 2', 'Street 3', 'City', 'State', 'Zip', 'All phone numbers', 'Home', 'Work', 'Cell', 'Email'],
+    'salesforcecontacts': ['Contact ID', 'First Name', 'Last Name', 'Mailing Street', 'Mailing City', 'Mailing State/Province', 'Mailing Zip/Postal Code', 'Mailing Country', 'Phone', 'Mobile', 'Email']
 }
 
 SUCCESS_MSG = 'Uploaded Successfully!'
@@ -43,13 +43,9 @@ def validate_and_arrange_upload(file, destination_path):
 
 def determine_upload_type(file):
     df = pd.read_csv(file.stream)
-    for key in SRC_TYPES_BY_HEADER:
-        if key in df.columns:
-            column_header = key
-            current_app.logger.info(str('  -Found file with column header: ' + column_header))
-            src_type = SRC_TYPES_BY_HEADER[key]
-    
-    return src_type
+    for key in TRACKED_COLUMNS:
+        if set(TRACKED_COLUMNS[key]).issubset(df.columns):
+            return key
 
 
 def clean_current_folder(destination_path, src_type):
