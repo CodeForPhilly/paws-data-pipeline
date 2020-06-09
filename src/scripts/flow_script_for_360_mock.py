@@ -15,15 +15,15 @@ MAPPING_FIELDS = {
     },
     'petpoint': {
         '_label': 'petpoint',
-        'table_id': 'outcome_person_',  # "Outcome.Person.."
+        'table_id': 'outcome_person_#',  # "Outcome.Person.."
         'table_email': 'out_email',
         '_table_name': ['outcome_person_name'],
         '_preprocess': lambda df: match_data.group_concat(df, ['outcome_person_', 'out_email', 'outcome_person_name'])
     },
     'volgistics': {
         '_label': 'volgistics',
-        'table_id': 'Number'.lower(),
-        'table_email': 'Email'.lower(),
+        'table_id': 'number',
+        'table_email': 'email',
         '_table_name': ['first_name_last_name']
     }
 }  # TODO: consider other important fields, such as phone number

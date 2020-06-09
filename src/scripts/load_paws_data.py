@@ -128,6 +128,7 @@ def __clean_raw_data(df, should_drop_first_col):
     # strip whitespace and periods from headers, convert to lowercase
     df.columns = df.columns.str.lower().str.strip()
     df.columns = df.columns.str.replace(' ', '_')
+    df.columns = df.columns.str.replace('#', '')
     df.columns = df.columns.map(lambda x: re.sub(r'\.+', '_', x))
 
     return df
