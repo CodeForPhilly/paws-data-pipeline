@@ -2,7 +2,9 @@ import pandas as pd
 import os
 
 from fuzzywuzzy import fuzz
-from config import REPORT_PATH, engine
+#from config import REPORT_PATH, engine
+REPORT_PATH='fake'
+engine='fake'  # TODO: removing these and restoring the module import
 
 TRANSFORM_EMAIL_NAME = 'lower_email'
 
@@ -75,6 +77,7 @@ def remove_null_rows(df, field):
 
 
 def start(TODO_ARG):
+    return {'added': 'todo'}
     # Revised matching workflow for flow script, based on discussion from 2020-06-02
     # TODO: need to merge the updated conventions from the new_pipeline branch, get an
     # end-to-end pipeline operational, and test it.
@@ -139,6 +142,16 @@ def start(TODO_ARG):
     # Then pass updated_master_rows and new_master_rows to the next step in the data flow.
     ### end of new data flow ###
     return 'TODO'
+
+
+def test_start():
+    # From GitHub: { "new_rows": { "petpoint": [ { "id": 123, "all other petpoint rows": "etc" }, { "id": 122, "all other petpoint rows": "more fields here" } ], "volgistics": [ { "id": 1234, "all other volgistics rows": "all_of_them" } ], "all other sources like salesforce": [ { "all fields": "etc" } ] }, "updated_rows": { "old_id": "new_id", "old_id2": "new_id2", "old_id_n": "new_id_n" } }
+    # To start, let's use a simpler example with just the new_rows logic to get going
+
+    assert True
+
+if __name__ == '__main__':
+    test_start()
 
 
 def cleanup_and_log_table(df, important_fields, log_name='mismatches.csv'):
