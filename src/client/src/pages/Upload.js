@@ -21,13 +21,14 @@ function Content(props){
     const [activeIndex, setActiveIndex] = React.useState(0);
     const classes = useStyles();
     const fileInput = React.createRef();
+    const [data, setData] = useState(null);
+    const [reload, setReload] = useState(false);
 
     const handleChange = (event, newIndex) => {
         setActiveIndex(newIndex);
-        setUrl("/listCurrentFiles");
     };
 
-    const [{data, isLoading, isError}, setUrl] = useFetch("/listCurrentFiles", null);
+    //const [{data, isLoading, isError}, setUrl] = useFetch("/listCurrentFiles", null);
     
     const handleSubmit = (event)=>{
       //Prevent default reload on submit
@@ -37,21 +38,29 @@ function Content(props){
       var formData = new FormData();
       Array.from(fileInput.current.files).forEach(element => {
         formData.append('file', element, element.name)
-      });
+      })
 
       fetch("/file", { method:'POST', body:formData })
         .then(response => response.text())
         .then(text => console.log(text))
         .catch(error => console.log(error));
-
-      setUrl("/listCurrentFiles");
+      
+      setReload(!reload);
     };
 
+    // May need to submit twice to refresh,
+    // need to figure out why?
+    useEffect(()=>{
+      fetch("/listCurrentFiles")
+        .then(response=>response.json())
+        .then(data => setData(data))
+        .catch(error=>console.log(error));
+    },[reload]);
 
-
-  const files = data ? 
+    const files = data ? 
       <div><ul>{data.map((i)=><li>{i}</li>)}</ul></div> :
       <Skeleton variant="rect" width={400} height={400}>No Files Found</Skeleton> ;
+
 
     return (
       <Container classes={classes.content}>
