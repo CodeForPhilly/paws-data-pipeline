@@ -10,7 +10,13 @@ from config import CURRENT_SOURCE_FILES_PATH
 TABLE_ID_MAPPING = {
     "volgistics": "number",
     "salesforcecontacts": "contact_id",
-    "petpoint": "outcome_person_"
+    "petpoint": "outcome_person_#"
+}
+
+TABLE_ID_MAPPING_V2 = {
+    'volgistics': {'primary_key': 'number', 'tracked_columns': []},
+    'salesforcecontacts': {'prmary_key': 'contact_id', 'tracked_columns': []},
+    'petpoint': {'primary_key': 'outcome_person_', 'tracked_columns': []}
 }
 
 
@@ -60,11 +66,11 @@ def __add_rows_for_new_table(found_rows, table_name):
 
 def __find_and_add_new_rows(found_rows, table_name):
     source_id = TABLE_ID_MAPPING[table_name]
-
+    current_app.logger.info(table_name + ' ' + source_id)
     with engine.connect() as connection:
         # find new rows
         rows = connection.execute(
-            'select * from {} t left join {} v on v.{} = t.{} where v.{} is null'.format(
+            'select * from {} t left join {} v on v."{}" = t."{}" where v."{}" is null'.format(
                 table_name + "_temp", table_name, source_id, source_id, source_id))
 
         rows_data = []
@@ -76,9 +82,32 @@ def __find_and_add_new_rows(found_rows, table_name):
         # add new rows to data table
         connection.execute(
             'insert into {} \
-             (select t.*, now() as created_date from {} t left join {} v on v.{} = t.{} where v.{} is null)'.format(
-                table_name, table_name + "_temp", table_name, source_id, source_id, source_id))
+             (select t.*, now() as created_date from {} t left join {} v on v."{}" = t."{}" where v."{}" is null)'.format(
+                table_name, table_name + '_temp', table_name, source_id, source_id, source_id))
 
+def __find_and_update_rows(found_rows, table_name):
+    table_name_temp = table_name + '_temp'
+    primary_key = ''
+    tracked_columns = ''
+    with engine.connect() as connection:
+        updated_query = '''
+            select * from {} where {} in (
+                select {} from (
+                    select {} 
+                    from {} t 
+                    where exists (select 1 from {} c where c.{} = t.{} and c.deleted_date is null)
+                    except 
+                    select {} 
+                    from {} where deleted_date is null
+            	) a
+        )
+        '''.format(table_name_temp, primary_key, primary_key, tracked_columns, table_name_temp, table_name, primary_key, primary_key, tracked_columns, table_name)
+        #variables primary_key, tracked_columns[],
+        rows = connection.execute(updated_query)
+        row_data = []
+        for row in rows:
+            row_data.append(row)
+        found_rows['updated_rows'] = {table_name: row_data}
 
 def __create_table(df, engine, table_name):
     result = engine.dialect.has_table(engine, table_name)
