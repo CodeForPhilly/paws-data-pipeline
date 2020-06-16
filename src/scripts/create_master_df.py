@@ -26,7 +26,7 @@ def create_user_master_df(conn, table_name, query):
     return df
 
 
-def main(conn):
+def start(conn):
     # Create a simple table with the following values:
     # ------------> master_db (primary key), petpoint_id, volgistics_id, salesforce_id, email_address
     # petpoint[[outcome_person_id]]
