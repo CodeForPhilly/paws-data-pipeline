@@ -9,3 +9,5 @@ node_modules
 venv
 /dist/
 /src/scripts/__pycache__
+/src/client/.idea
+/.idea
