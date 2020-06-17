@@ -1,13 +1,16 @@
 from config import engine
 from server.api import common_api
 from flask import jsonify
+from sqlalchemy.sql import text
 
 
-@common_api.route('/salesforcecontacts', methods=['GET'])
-def get_contacts():
+@common_api.route('/contacts/<search_text>', methods=['GET'])
+def get_contacts(search_text):
     with engine.connect() as connection:
-        query_result = connection.execute(
-            "select concat(first_name,' ',last_name) as name, email, contact_id from salesforcecontacts")
+        query = text("select concat(first_name,' ',last_name) as name, email, contact_id from salesforcecontacts \
+            WHERE lower(first_name) like :search_text \
+            OR lower(last_name) like :search_text")
+        query_result = connection.execute(query, search_text='%{}%'.format(search_text))
 
         results = jsonify({'result': [dict(row) for row in query_result]})
 
