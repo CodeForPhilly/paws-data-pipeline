@@ -5,4 +5,4 @@ sudo docker-compose up -d
 source venv/bin/activate
 export IS_LOCAL=True
 export FLASK_PORT=3333
-python src/app.py
+/bin/python3 src/app.py

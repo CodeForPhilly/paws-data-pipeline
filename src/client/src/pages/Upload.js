@@ -42,10 +42,12 @@ function Content(props){
 
       fetch("/file", { method:'POST', body:formData })
         .then(response => response.text())
-        .then(text => console.log(text))
+        .then(text=>console.log(text))
         .catch(error => console.log(error));
-      
+    
+      console.log(reload);     
       setReload(!reload);
+      console.log(reload);
     };
 
     // May need to submit twice to refresh,
@@ -64,6 +66,7 @@ function Content(props){
 
     return (
       <Container classes={classes.content}>
+        <Paper elevation={2} style={{"marginTop":"1em", "padding":"2em"}}>
         <Tabs value={activeIndex} onChange={handleChange} aria-label="upload-download-reports-tabs">
           <Tab label="Upload" />
           <Tab label="Download" />
@@ -80,6 +83,7 @@ function Content(props){
         <TabPanel value={activeIndex} index={2}>
           <Skeleton variant="rect" width={400} height={400}>Select File to Load</Skeleton>
         </TabPanel>
+        </Paper>
       </Container>
     );
 }

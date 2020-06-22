@@ -1,6 +1,5 @@
 import  React from "react";
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { Grid } from "@material-ui/core";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -21,8 +20,6 @@ https://material-ui.com/customization/components/
 export default function App(props){
   return (
     <Router>
-      <Grid direction="row" spacing={2}>
-          <Grid direction="row">
             <Header />
             <Switch>
               <Route exact path="/">
@@ -38,9 +35,7 @@ export default function App(props){
                 <Dataview />
               </Route>
             </Switch>
-            <Footer id="footer" />
-          </Grid>
-        </Grid>
+            <Footer />
     </Router>
   );
 }

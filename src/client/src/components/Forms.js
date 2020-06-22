@@ -40,23 +40,6 @@ function DownloadForm(props) {
 function UploadForm(props) {
   const [{response, isLoading, isError}, setUrl] = useFetch(null, null);
 
-  /*
-  const handleSubmit = (event)=>{
-    //Prevent default reload on submit
-    event.preventDefault();
-
-    // Use FormData element for each file in fileInput
-    var formData = new FormData();
-    Array.from(fileInput.current.files).forEach(element => {
-      formData.append('file', element, element.name)
-    });
-
-    fetch("/file", { method:'POST', body:formData })
-      .then(response => response.text())
-      .then(text => console.log(text))
-      .catch(error => console.log(error));
-  }; */
-
   const execute = (event)=>{
     event.preventDefault();
 

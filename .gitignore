@@ -10,3 +10,5 @@ __pycache__
 venv
 /dist/
 /.idea
+start_env.sh
+
