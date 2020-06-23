@@ -110,7 +110,11 @@ def start(added_or_updated_rows):
 
     matches, left_only, right_only = join_on_all_columns(master_df[master_df_matching_cols], new_df[new_df_matching_cols])
     new_master_rows = new_df[new_df['_temp_new_id'] in right_only['_temp_new_id']][master_fields]
-    updated_master_rows = new_df['_temp_new_id' in matches['_temp_new_id']][master_fields]
-    # and could get the former versions of those rows via a similar merge step or filter for master_df
+    updated_master_rows = coalesce_fields_by_id(
+        master_df[master_fields],  # TODO: still need to figure out this field
+        new_df['_temp_new_id' in matches['_temp_new_id']][master_fields]
+    )
+    # and could get the former versions of those rows via a similar merge step or filter for the old versions of the fields in master_df
+    # TODO: we should figure out that matching logic because it would be necessary to keep any existing matches, too
 
     return {'new_matches': new_master_rows.to_dict(), 'updated_matches': updated_master_rows.to_dict()}
