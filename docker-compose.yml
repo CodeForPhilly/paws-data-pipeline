@@ -16,6 +16,8 @@ services:
       - "5000:5000"
     depends_on:
       - db
+    volumes:
+      - src_archive:/app/static/uploads
     environment: 
       FLASK_ENV: development
     container_name: paws-compose-web
@@ -24,3 +26,4 @@ services:
 #https://stackoverflow.com/questions/49148754/docker-container-shuts-down-giving-data-directory-has-wrong-ownership-error-wh
 volumes:
   postgres:
+  src_archive:
