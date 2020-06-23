@@ -1,7 +1,26 @@
-import React, {useState} from 'react';
-import { Paper, Typography, Select, InputLabel, MenuItem, FormControl, TextField, IconButton, Button, Container} from '@material-ui/core';
+import React, {useState, useEffect} from 'react';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
+import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container} from '@material-ui/core';
 import Skeleton from '@material-ui/lab/Skeleton';
-import SearchIcon from '@material-ui/icons/Search';
+
+import SearchBar from '../components/SearchBar';
+
+
+const StyledTableCell = withStyles((theme)=>({
+    head:{
+        backgroundColor: theme.palette.grey.A100,
+        fontWeight: 600,
+    }
+}))(TableCell);
+
+const StyledTableRow = withStyles((theme)=>({
+    root:{
+        '&:nth-of-type(even)':{
+            backgroundColor: theme.palette.action.hover,
+        }
+    }
+}))(TableRow);
+
 
 
 /* --------------------------------------------------------/
@@ -14,93 +33,21 @@ function ContactInfo(props){
     <Container>
         <Typography align='center' gutterBottom='true' variant='h4'>Contact Info</Typography>
         <div style={{"display":"flex", "justifyContent":"space-between"}}>
-            <Typography>Name: {props.name}</Typography>
-            <Typography>Phone: {props.phone}</Typography>
-            <Typography>Email: {props.email}</Typography>
+            <Typography>Name: 
+                        {props.participant.first_name}{', '}
+                        {props.participant.last_name}
+            </Typography>
+            <Typography>Phone: {props.participant.phone}</Typography>
+            <Typography>Email: {props.participant.email}</Typography>
         </div>
-        <Typography>Address: {props.address}</Typography>
+        <Typography>Address: 
+                    {props.participant.mailing_street}{'\t'}
+                    {props.participant.mailing_city}{',\t'}
+        </Typography>
         <Typography>Summary: {props.summary}</Typography>
     </Container>
     );
 }
-
-/*---------------------------------------------------------/ 
-    Returns most recent donations [Date, Amount, Campaign]
-    Top 5 Button, and More buttons for extended info
-/---------------------------------------------------------*/
-function Donations(props){
-
-    const donations = props.donation ? 
-        (<tbody>
-            {props.donation.map((i)=>
-                <tr>
-                    <td>{i.name}</td>
-                    <td>{i.amount}</td>
-                    <td>{i.campaign}</td>
-                </tr>
-            )}
-        </tbody>) :
-        <tbody>
-            <tr>
-                <td><Skeleton height={100} width={100} > Not Found </Skeleton></td>
-                <td><Skeleton height={100} width={100} > Not Found </Skeleton></td>
-                <td><Skeleton height={100} width={100} > Not Found </Skeleton></td>
-            </tr>
-        </tbody>;
-
-    return (
-        <Container style={{"marginTop":"1em"}}>
-        <Typography align='center' gutterBottom='true' variant='h4'>Donation Records</Typography> 
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th>Campaign</th>
-                </tr>
-            </thead>
-            {donations}
-        </table>
-        </Container>
-
-    );
-}
-
-
-/*----------------------------------------------------------/
-    This will need to transform to a seach bar.
-
-    Search substring match.
-
-    Drop down is for the substring match
-
-/---------------------------------------------------------*/
-function SelectParticipant(props){
-
-    const participants = props.participantList && 
-        props.participantList.map(person =>
-        <MenuItem value={person.contact_id}>
-            {person.name}
-            {" "}
-            ({person.email})
-        </MenuItem>)
-
-    return (
-        <Container style={{"marginTop":"1em"}}>
-            <FormControl style={{"minWidth":"20em"}}>
-                <InputLabel id="paws-participant-label">Select Participant</InputLabel>
-                <Select
-                    labelId="paws-participant-label"
-                    id="paws-participant-select"
-                    onChange={props.handleChange}
-                    >
-                        {participants}
-                    </Select>
-            </FormControl>
-        </Container>
-    );
-}
-
 
 /*--------------------------------------------------------/
     Returns the foster/adoption records for viewing and a hyperlink
@@ -112,71 +59,135 @@ function SelectParticipant(props){
 /-------------------------------------------------------*/
 function Adoption(props){
     
+    function createRow(pet){
+        return( <StyledTableRow>
+                    <TableCell align="center">{pet.animal_name}</TableCell>
+                    <TableCell align="center">{pet.animal_type}</TableCell>
+                    <TableCell align="center">{pet.primary_breed}</TableCell>
+                    <TableCell align="center">{pet.animal_id}</TableCell>
+                    <TableCell align="center">{pet.outcome_date}</TableCell>
+                    <TableCell align="center">{pet.age_group}</TableCell>
+                </StyledTableRow>);
+    }
     return (
         <Container style={{"marginTop":"1em"}}>
             <Typography align='center' gutterBottom='true' variant='h4'>Adoption/Foster Records</Typography> 
-            <Typography>Name: {props.name}</Typography>
-            <Typography>Type/Species: {props.type}</Typography>
-            <Typography>Primary Breed: {props.breed}</Typography>
-            <Typography>Animal-Number: {props.number}</Typography>
-            <Typography>Date of Adoption: {props.adoptionDate}</Typography>
-            <Typography>Current Age: {props.age}</Typography>
+            <TableContainer style={{"marginTop":"1em"}}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <StyledTableCell align="center">Name</StyledTableCell>
+                            <StyledTableCell align="center">Type/Species</StyledTableCell>
+                            <StyledTableCell align="center">Primary Breed</StyledTableCell>
+                            <StyledTableCell align="center">Animal-Number</StyledTableCell>
+                            <StyledTableCell align="center">Date of Adoption</StyledTableCell>
+                            <StyledTableCell align="center">Current Age</StyledTableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        { props.adoptions && createRow(props.adoptions) }
+                    </TableBody>
+                </Table>
+           </TableContainer>
         </Container>
     );
 }
 
-// Add scoll list of contacts endpoint "/salesforcecontacts"
-//Need to add clinic and volunteer info too
-function Dataview(args){
+/*---------------------------------------------------------/ 
+    Returns most recent donations [Date, Amount, Campaign]
+    Top 5 Button, and More buttons for extended info
+/---------------------------------------------------------*/
+function Donations(props){
 
-    const [participant, setParticipant] = useState(null);
-    const [participantList, setParticipantList] = useState(null);
-    const [participantSearch, setParticipantSearch] = useState(null);
-
-    const handleParticipantChange = (event)=>{
-        event.preventDefault();
-        setParticipant(event.target.value);
-        console.log(participant);
+    function createRow(item){
+        return( <StyledTableRow>
+                    <TableCell align="center">{item.date}</TableCell>
+                    <TableCell align="center">{item.amount}</TableCell>
+                    <TableCell align="center">{item.type}</TableCell>
+                </StyledTableRow>);
     }
 
-    const handleSubmit = (event)=>{
-        event.preventDefault();
-        console.log(participantSearch);
-        // add search bar and submit text from search bar to endpoint
-        fetch('/contacts/'+participantSearch)
-            .then(response => response.json())
-            .then(response => setParticipantList(response.result))
-            .catch(error => console.log(error));
-    };
+    return (
+        <Container style={{"marginTop":"1em"}}>
+            <Typography align='center' gutterBottom='true' variant='h4'>Donation Records</Typography> 
+            <TableContainer style={{"marginTop":"1em"}}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <StyledTableCell align="center">Date of Donation</StyledTableCell>
+                            <StyledTableCell align="center">Amount</StyledTableCell>
+                            <StyledTableCell align="center">Campaign Type</StyledTableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        { props.donations && props.donations.map(i=>createRow(i)) }
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Container>
+    );
+}
 
-    
+function Volunteer(props){
+
+    function createRow(item){
+        return( <StyledTableRow>
+                    <TableCell align="center">{item.start_date}</TableCell>
+                    <TableCell align="center">{item.hours}</TableCell>
+                    <TableCell align="center">{item.ytd}</TableCell>
+                </StyledTableRow>);
+    }
+
+    return (
+        <Container style={{"marginTop":"1em"}}>
+            <Typography align='center' gutterBottom='true' variant='h4'>Volunteer Records</Typography> 
+            <TableContainer style={{"marginTop":"1em"}}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <StyledTableCell align="center">Volunteer activity start</StyledTableCell>
+                            <StyledTableCell align="center">Life hours</StyledTableCell>
+                            <StyledTableCell align="center">YTD hours</StyledTableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        { props.volunteer && createRow(props.volunteer) }
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Container>
+    );
+}
+
+// Add scoll list of contacts endpoint "/contacts/<search_sub_string>"
+//Need to add clinic and volunteer info too
+function Dataview(props){
+
+    const [participant, setParticipant] = useState(null);
+    const handleParticipantChange = (event)=>{
+        event.preventDefault();
+        //setParticipant(event.target.value);
+
+        fetch('/360/'+event.target.value)
+            .then(response => response.json())
+            .then(response => setParticipant(response))
+            .catch(error => console.log(error))
+    }
+
+    useEffect(()=>{
+        console.log(participant);
+    },[participant]);
 
     return(
     <Container>
-        <Paper elevation={2} style={{"padding":"1em","marginTop":"1em","marginBottom":"1em", "minWidth":"100"}}>
-            <div style={{"display":"flex", "minWidth":"100", "justifyContent":"space-between"}}>
-                <Typography>Participant Lookup:</Typography>
-                <form onSubmit={handleSubmit} style={{"display":"flex"}}>
-                    <TextField 
-                        id="participant-search" 
-                        label="search name"
-                        value={participantSearch}
-                        variant="outlined"
-                        onChange={ (event)=>{setParticipantSearch(event.target.value)}} />
-                    <button type="submit">
-                        <IconButton component="span">
-                            <SearchIcon />
-                        </IconButton>
-                    </button>
-                </form>
-                <SelectParticipant handleChange={handleParticipantChange} participantList={participantList} />
-            </div>
-        </Paper>
-        <Paper elevation={2} style={{"padding":"1em"}}>
-            <ContactInfo name="mike" address="123 Fake Blvd, Philadelphia, PA" phone="(123) 456-7890" email="a@a.com" summary="ss"/> 
-            <Donations donation={[{"name":"mike", "amount":"$1M", "campaign":"Paws4life"}]} />
-            <Adoption name="Lola" type="feline" breed="short-hair" number="8675309" adoptionDate="5/1/20" age="2 months" /> 
-        </Paper>
+        <SearchBar handleParticipantChange={handleParticipantChange}/>
+        {participant &&
+        <Paper elevation={1} style={{"padding":"1em"}}>
+            <ContactInfo participant={participant.salesforcecontacts} /> 
+            <Donations donations={[{date:"June 01, 1900", amount:"123", type:"FAKE-DONATION"}]} /> 
+            <Adoption adoptions={participant.petpoint} />
+            <Volunteer />
+        </Paper>}
     </Container>
     
     );
