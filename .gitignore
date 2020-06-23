@@ -8,4 +8,7 @@ node_modules
 .cache/
 venv
 /dist/
+src/scripts/__pycache__
+src/server/__pycache__
+/src/client/.idea
 /.idea
