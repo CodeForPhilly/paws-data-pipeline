@@ -7,7 +7,7 @@ from scripts import flow_script
 from server.file_uploader import validate_and_arrange_upload
 from config import UPLOAD_PATH, OUTPUT_PATH, CURRENT_SOURCE_FILES_PATH, ZIPPED_FILES, REPORT_PATH
 
-ALLOWED_EXTENSIONS = {'csv'}
+ALLOWED_EXTENSIONS = {'csv', 'xlsx'}
 
 admin_api = Blueprint('admin_api', __name__)
 common_api = Blueprint('common_api', __name__)
@@ -44,8 +44,7 @@ def uploadCSV():
                 validate_and_arrange_upload(file, UPLOAD_PATH)
             except Exception as e:
                 flash("ERROR can't parse upload: " + file.filename, 'error')
-                current_app.logger.info(e)
-
+                current_app.logger.exception(e)
             finally:
                 file.close()
 
