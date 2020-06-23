@@ -83,7 +83,7 @@ function SearchBar(props){
        <Paper elevation={1} style={{
                 "display":"flex",
                 "padding":"1em",
-                "margin":"1em",
+                "margin":"1em 0 1em 0",
                 "minWidth":"100",
                 "justifyContent":"space-around"
             }}>
