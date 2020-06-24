@@ -3,22 +3,11 @@ import re
 import os
 import datetime
 
+from datasource_manager import DATASOURCE_MAPPING
 from config import engine
 from flask import current_app
 from config import CURRENT_SOURCE_FILES_PATH
-
-TABLE_ID_MAPPING = {
-    "volgistics": "number",
-    "salesforcecontacts": "contact_id",
-    "petpoint": "outcome_person_#"
-}
-
-TABLE_ID_MAPPING_V2 = {
-    'volgistics': {'primary_key': 'number', 'tracked_columns': []},
-    'salesforcecontacts': {'prmary_key': 'contact_id', 'tracked_columns': []},
-    'petpoint': {'primary_key': 'outcome_person_', 'tracked_columns': []}
-}
-
+from sqlalchemy import MetaData
 
 def start(file_path_list, should_drop_first_col=False):
     result = {
@@ -41,11 +30,10 @@ def start(file_path_list, should_drop_first_col=False):
             current_app.logger.info('   - table exists. looking for new rows')
             df.to_sql(table_name + '_temp', engine, index=False, if_exists='replace')
             __find_and_add_new_rows(result, table_name)
+            __find_and_update_rows(result, table_name)
         else:
             current_app.logger.info('   - creating new table')
             __add_rows_for_new_table(result, table_name)
-
-        #todo: add logic for update - based on specific fields (list(df.columns.values))
 
         current_app.logger.info('   - finish load_paws_data on: ' + uploaded_file)
 
@@ -65,7 +53,7 @@ def __add_rows_for_new_table(found_rows, table_name):
 
 
 def __find_and_add_new_rows(found_rows, table_name):
-    source_id = TABLE_ID_MAPPING[table_name]
+    source_id = DATASOURCE_MAPPING[table_name]['id']
     current_app.logger.info(table_name + ' ' + source_id)
     with engine.connect() as connection:
         # find new rows
@@ -87,27 +75,50 @@ def __find_and_add_new_rows(found_rows, table_name):
 
 def __find_and_update_rows(found_rows, table_name):
     table_name_temp = table_name + '_temp'
-    primary_key = ''
-    tracked_columns = ''
+    primary_key = DATASOURCE_MAPPING[table_name]['id']
+    tracked_columns = DATASOURCE_MAPPING[table_name]['tracked_columns']
+    tracked_column_str = ''
+    for column in tracked_columns:
+        tracked_column_str += '"' + column + '", '
+    tracked_column_str = tracked_column_str[:-2]
+
     with engine.connect() as connection:
+        #find updated rows
         updated_query = '''
-            select * from {} where {} in (
-                select {} from (
+            select * from {} where "{}" in (
+                select "{}" from (
                     select {} 
                     from {} t 
-                    where exists (select 1 from {} c where c.{} = t.{} and c.deleted_date is null)
+                    where exists (select 1 from {} c where c."{}" = t."{}" and c.deleted_date is null)
                     except 
                     select {} 
                     from {} where deleted_date is null
             	) a
         )
-        '''.format(table_name_temp, primary_key, primary_key, tracked_columns, table_name_temp, table_name, primary_key, primary_key, tracked_columns, table_name)
-        #variables primary_key, tracked_columns[],
+        '''.format(table_name_temp, primary_key, primary_key, tracked_column_str, table_name_temp, table_name, primary_key, primary_key, tracked_column_str, table_name)
         rows = connection.execute(updated_query)
         row_data = []
         for row in rows:
-            row_data.append(row)
-        found_rows['updated_rows'] = {table_name: row_data}
+            row_data.append(row.items())
+        updates = {table_name: row_data}
+        found_rows['updated_rows'] = updates
+        
+        #mark old version of updated rows as deleted
+        mark_deleted = '''
+        update {} set deleted_date = now() where "{}" in (
+	        select "{}" from (
+			    select {}
+			    from {} t 
+			    where exists (select 1 from {} c where c."{}" = t."{}" and c.deleted_date is null)
+			    except 
+			    select {}
+			    from {} where deleted_date is null
+	        ) a
+        ) and deleted_date is null
+        '''.format(table_name, primary_key, primary_key, tracked_column_str, table_name_temp, table_name, primary_key, primary_key, tracked_column_str, table_name)
+        connection.execute(mark_deleted)
+        
+        #insert new updated rows
 
 def __create_table(df, engine, table_name):
     result = engine.dialect.has_table(engine, table_name)
