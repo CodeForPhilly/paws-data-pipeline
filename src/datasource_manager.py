@@ -2,11 +2,11 @@
 import re
 
 def __clean_csv_headers(header):
-    return re.sub(r'\.+', '_', header.lower().strip().replace(' ', '_'))
-
+    header =  re.sub(r'\.+', '_', header.lower().strip().replace(' ', '_'))
+    return header.replace('#','num')
 
 CSV_HEADERS = {
-    'petpoint': ['Outcome Person #', 'Outcome Person Name', 'Out Street Address', 'Out Unit Number', 'Out City', 'Out Province', 'Out Postal Code', 'Out Email', 'Out Home Phone', 'Out Cell Phone'],
+    'petpoint': ['Animal #', 'Outcome Person #', 'Outcome Person Name', 'Out Street Address', 'Out Unit Number', 'Out City', 'Out Province', 'Out Postal Code', 'Out Email', 'Out Home Phone', 'Out Cell Phone'],
     'volgistics': ['Last name', 'First name', 'Middle name', 'Number', 'Complete address', 'Street 1', 'Street 2', 'Street 3', 'City', 'State', 'Zip', 'All phone numbers', 'Home', 'Work', 'Cell', 'Email'],
     'salesforcecontacts': ['Contact ID', 'First Name', 'Last Name', 'Mailing Street', 'Mailing City', 'Mailing State/Province', 'Mailing Zip/Postal Code', 'Mailing Country', 'Phone', 'Mobile', 'Email']
 }
@@ -25,7 +25,7 @@ DATASOURCE_MAPPING = {
         'identifying_criteria': []
     },
     'petpoint': {
-        'id': 'animal_#',
+        'id': 'animal_num',
         'csv_names': CSV_HEADERS['petpoint'],
         'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['petpoint'])),
         'identifying_criteria': []
