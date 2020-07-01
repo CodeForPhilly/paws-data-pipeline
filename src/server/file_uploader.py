@@ -11,7 +11,7 @@ SUCCESS_MSG = 'Uploaded Successfully!'
 lock = threading.Lock()
 
 def validate_and_arrange_upload(file, destination_path):
-    current_app.logger.info("Start uploading file")
+    current_app.logger.info("Start uploading file: " + file.filename)
     filename = secure_filename(file.filename)
     file_extension = filename.rpartition('.')[2]
     determine_upload_type(file, file_extension, destination_path)
