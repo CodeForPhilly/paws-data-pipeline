@@ -7,6 +7,7 @@ from sqlalchemy.sql import text
 @common_api.route('/contacts/<search_text>', methods=['GET'])
 def get_contacts(search_text):
     with engine.connect() as connection:
+        #todo: add logic to grab names from all sources - 1.salesforce 2.volgistics 3.petpoint once you find one, return all unique names and email
         query = text("select concat(first_name,' ',last_name) as name, email, contact_id from salesforcecontacts \
             WHERE lower(first_name) like :search_text \
             OR lower(last_name) like :search_text")
@@ -34,7 +35,7 @@ def get_360(salesforce_id):
         result['salesforcecontacts'] = [dict(row) for row in query_result][0]
 
         query_result = connection.execute(
-            "select * from petpoint where outcome_person_='{}'".format(master_row['result'][0]['petpoint_id']))
+            "select * from petpoint where outcome_person_num='{}'".format(master_row['result'][0]['petpoint_id']))
         result['petpoint'] = [dict(row) for row in query_result][0]
 
         query_result = connection.execute(

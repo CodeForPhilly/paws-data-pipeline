@@ -15,10 +15,10 @@ MAPPING_FIELDS = {
     },
     'petpoint': {
         '_label': 'petpoint',
-        'table_id': 'outcome_person_#',  # "Outcome.Person.."
+        'table_id': 'outcome_person_num#',  # "Outcome.Person.."
         'table_email': 'out_email',
         '_table_name': ['outcome_person_name'],
-        '_preprocess': lambda df: match_data.group_concat(df, ['outcome_person_', 'out_email', 'outcome_person_name'])
+        '_preprocess': lambda df: match_data.group_concat(df, ['outcome_person_num', 'out_email', 'outcome_person_name'])
     },
     'volgistics': {
         '_label': 'volgistics',
@@ -45,9 +45,9 @@ def start_flow():
         for i in range(len(rows_to_add_or_updated['new_rows']['salesforcecontacts'])):
             master_table_rows_array.append({
                 'id': i,
-                'salesforce_id': str(rows_to_add_or_updated['new_rows']['salesforcecontacts'][i].contact_id),
-                'volgistics_id': str(rows_to_add_or_updated['new_rows']['volgistics'][i].number),
-                'petpoint_id': str(rows_to_add_or_updated['new_rows']['petpoint'][i].outcome_person_)
+                'salesforce_id': rows_to_add_or_updated['new_rows']['salesforcecontacts'][i]['contact_id'],
+                'volgistics_id': rows_to_add_or_updated['new_rows']['volgistics'][i]['number'],
+                'petpoint_id': rows_to_add_or_updated['new_rows']['petpoint'][i]['outcome_person_num']
             })
 
         df = pd.DataFrame(master_table_rows_array)
