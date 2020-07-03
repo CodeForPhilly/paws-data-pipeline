@@ -8,6 +8,7 @@ from fuzzywuzzy import fuzz
 from config import REPORT_PATH, engine
 import datetime
 
+from flask import current_app
 from config import engine
 from datasource_manager import DATASOURCE_MAPPING
 
@@ -37,11 +38,11 @@ def df_fuzzy_score(df, column1_name, column2_name, **kwargs):
 def join_on_all_columns(master_df, table_to_join):
     # attempts to join based on all columns
     left_right_indicator='_merge'
-    join_results = master_df.merge(table_to_join, indicator=left_right_indicator)
+    join_results = master_df.merge(table_to_join, how='outer', indicator=left_right_indicator)
     return (
+        join_results[join_results[left_right_indicator]=='both'].drop(columns=left_right_indicator),
         join_results[join_results[left_right_indicator]=='left_only'].drop(columns=left_right_indicator),
-        join_results[join_results[left_right_indicator]=='right_only'].drop(columns=left_right_indicator),
-        join_results[join_results[left_right_indicator]=='both'].drop(columns=left_right_indicator)
+        join_results[join_results[left_right_indicator]=='right_only'].drop(columns=left_right_indicator)
     )
 
 
@@ -67,7 +68,7 @@ def normalize_table_for_comparison(df, cols):
 
 
 # Big questions/TODOs
-# 1. When is master_df initialized?
+# 1. When is master_df initialized?  Need to load master_df and report changes to existing rows
 # 2. What schema will master_df take?  petpoint_id, salesforcecontacts_id, etc.?
 # 3. Can we include the name/email of-record in master_df to simplify matching?
 #    If not, the matching script will need to recreate these values and do some extra accounting to match everything back.
@@ -80,7 +81,7 @@ def normalize_table_for_comparison(df, cols):
 def _get_master_df():
     # FIXME: stub which should be replaced by load_paws_data, create_master_df, or another database-aware file
     # Gets the full master dataframe from postgres so we can identify new vs. old matches
-    return pd.DataFrame(columns=['email', 'name', 'salesforcecontacts_id', 'volgistics_id', 'petpoint_id'])
+    return pd.DataFrame(columns=['email', 'name', 'salesforcecontacts_id', 'volgistics_id', 'petpoint_id'])  # currently an empty placeholder
 
 def _get_most_recent_table_records_from_postgres(table_name):
     select_query = f'select * from {table_name} where archived_date is null'
@@ -97,12 +98,6 @@ def _get_master_primary_key(source_name):
 
 def start(added_or_updated_rows):
     # Match newly identified records to each other and existing master data
-    # FIXME: not yet operational: see function stubs below to refactor
-
-    # TODO: Still need to replace a few functions that have placeholder names:
-    # Define _get_most_recent_table_records_from_postgres with help from Steve to extract the new names (SELECT * FROM X WHERE _MOST_RECENT)
-    # def _get_primary_key(source_name): return source_name+'_id' (?)
-    # FIXME: added_or_updated_rows json has an irregular tuple input format instead of key:value or similar
 
     # TODO: cleaning up the comments above and throughout
     # TODO: handling empty json within added_or_updated rows
@@ -113,11 +108,9 @@ def start(added_or_updated_rows):
     # Matching columns and table order priority as established by
     # https://github.com/CodeForPhilly/paws-data-pipeline/blob/master/documentation/matching_rules.md
     # TODO: refactor out into a settings import from ../datasource_manager.py
+    # Should also fix some of the other hardcoded field names or logic below
     match_criteria = ['email', 'name']
     table_mapping = {
-        #'salesforcecontacts': {'full_name': 'name', 'email': 'email'},
-        #'volgistics': {'full_name': 'name', 'email': 'email'},
-        #'petpoint': {'outcome_person_name': 'name', 'out_email': 'email'}
         'salesforcecontacts': {'email': 'email', 'name': ['first_name', 'last_name']},
         'volgistics': {'email': 'email', 'name': ['first_name', 'last_name']},
         'petpoint': {'email': 'out_email', 'name': ['outcome_person_name']}
@@ -163,10 +156,23 @@ def start(added_or_updated_rows):
     matches, left_only, right_only = join_on_all_columns(master_df[match_criteria], new_df[match_criteria])
     #new_master_rows = new_df[new_df['_temp_new_id'] in right_only['_temp_new_id']][master_fields]
     new_master_rows = right_only.merge(new_df, how='inner')  # associate name+email back to the IDs
+
     # TODO LATER, after getting the new fields working, first.  Also should report the old version of the row.
     #updated_master_rows = coalesce_fields_by_id(
     #    master_df[master_fields],  # TODO: still need to figure out this field
     #    new_df['_temp_new_id' in matches['_temp_new_id']][master_fields]
     #)
 
-    return {'new_matches': new_master_rows.to_dict(), 'updated_matches': ['empty_for_now']}
+    if False:
+        current_app.logger.info('****BEGIN MATCHING DEBUG****')
+        current_app.logger.info('input data: {}'.format(str(added_or_updated_rows)))
+        
+        current_app.logger.info('new_df: {}'.format(str(new_df.to_dict(orient='records'))))
+
+        current_app.logger.info('matches: {}'.format(str(matches.to_dict(orient='records'))))
+        current_app.logger.info('left_only: {}'.format(str(left_only.to_dict(orient='records'))))
+        current_app.logger.info('right_only: {}'.format(str(right_only.to_dict(orient='records'))))
+        
+        current_app.logger.info('Returning new master rows: {}'.format(str(new_master_rows.to_dict(orient='records'))))
+        current_app.logger.info('****END MATCHING DEBUG****')
+    return {'new_matches': new_master_rows.to_dict(orient='records'), 'updated_matches': ['empty_for_now']}
