@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function useFetch (initialUrl, initialData){
 
@@ -11,16 +11,13 @@ export default function useFetch (initialUrl, initialData){
         const fetchData = async ()=>{
             setIsLoading(true);
             setIsError(false);
-            
-            try{
-                fetch(url)
-                    .then(res => res.json())
-                    .then(d => {setData(d)});
-            }
-            catch(error){
-                setIsError(true);
-            }
-        setIsLoading(false);
+        
+            fetch(url)
+                .then(res => res.json())
+                .then(d => {setData(d)})
+                .catch(e => setIsError(true));
+
+            setIsLoading(false);
         };
         fetchData();
     }, [url]);

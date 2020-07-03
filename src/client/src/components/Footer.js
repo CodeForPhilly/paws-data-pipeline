@@ -1,17 +1,25 @@
-import  React, { useState, useEffect } from "react";
-import {Box, Menu, MenuItem, Toolbar, Container } from "@material-ui/core";
+import  React from "react";
+import { Link as RouterLink } from "react-router-dom";
+import {Paper, Toolbar, Link } from "@material-ui/core";
 
-import useFetch from "./scripts/useFetch";
 
 export default function Footer(props){
-  const [{data, isLoading, isError},setUrl] = useFetch('/time', "0"); 
 
   return (
-      <Box id="footer">
-        <Toolbar>
-            <h2>The time is: {data.time}</h2>
+      <Paper elevation={1} style={{"marginTop":"1em"}}>
+        <Toolbar style={{
+              "minWidth":"100",
+              "display":"flex",
+              "flexDirection":"row",
+              "justifyContent":"center"
+            }}>
+            <div>
+              <Link style={{"margin":"1em"}} component={RouterLink} to="/upload">Upload</Link>
+              <Link style={{"margin":"1em"}} component={RouterLink} to="/dataview">360 DataView</Link>
+              <Link style={{"margin":"1em"}} component={RouterLink} to="/about">About</Link>
+            </div>
         </Toolbar>
-      </Box>
+      </Paper>
   );
 
 }

@@ -13,10 +13,10 @@ MAPPING_FIELDS = {
     },
     'petpoint': {
         '_label': 'petpoint',
-        'table_id': 'outcome_person_',  # "Outcome.Person.."
+        'table_id': 'outcome_person_num',  # "Outcome.Person.."
         'table_email': 'out_email',
         '_table_name': ['outcome_person_name'],
-        '_preprocess': lambda df: match_data.group_concat(df, ['outcome_person_', 'out_email', 'outcome_person_name'])
+        '_preprocess': lambda df: match_data.group_concat(df, ['outcome_person_num', 'out_email', 'outcome_person_name'])
     },
     'volgistics': {
         '_label': 'volgistics',

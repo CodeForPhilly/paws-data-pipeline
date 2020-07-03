@@ -1,41 +1,18 @@
-import  React, { useState, useEffect } from "react";
-import {AppBar, IconButton, Menu, MenuItem, Toolbar, Container } from "@material-ui/core";
-import MenuIcon from "@material-ui/icons/Menu";
+import  React from "react";
+import { Link as RouterLink } from "react-router-dom";
+import {AppBar, Button, Toolbar, Typography } from "@material-ui/core";
 
 export default function Header(props){
 
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleMenuClick = (e) => {
-   setAnchorEl(e.target);
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  }
- 
-
   return(
-        <AppBar position="sticky" id="header" color="primary"> 
-          <Toolbar>
-            <IconButton edge="start" color="inherit" onClick={handleMenuClick}>
-              <MenuIcon />
-            </IconButton>
-            <h1>Hello Paws User</h1>
-            <Menu anchorEl={anchorEl}
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'center'
-                  }} 
-                  open={Boolean(anchorEl)}
-                  onClose={handleClose}>
-
-                <MenuItem onClick={handleClose}><a href="/upload">Upload</a></MenuItem>
-                <MenuItem><a href="/">R5</a></MenuItem>
-                <MenuItem>360 View</MenuItem>
-                <MenuItem>R7</MenuItem>
-                <MenuItem><a href="/about">About</a></MenuItem>
-            </Menu>
+        <AppBar position="static" id="header" color="primary"> 
+          <Toolbar style={{"minWidth":"100", "dipslay":"flex", "justifyContent":"space-between"}}>
+            <Typography variant="h6">Hello Paws User</Typography>
+            <div style={{"display":"flex", "justifyContent":"space-between", "margin":"1em"}}>
+              <Button color="default" component={RouterLink} to="/upload">Upload</Button>
+              <Button color="default" component={RouterLink} to="/dataview">360 DataView</Button>
+              <Button color="default" component={RouterLink} to="/about">About</Button>
+            </div>
           </Toolbar>
         </AppBar>
   );
