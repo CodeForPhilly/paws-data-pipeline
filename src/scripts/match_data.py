@@ -1,10 +1,15 @@
-import pandas as pd
 import os
 import copy
+
+import pandas as pd
+import numpy as np
 
 from fuzzywuzzy import fuzz
 from config import REPORT_PATH, engine
 import datetime
+
+from config import engine
+from datasource_manager import DATASOURCE_MAPPING
 
 
 def single_fuzzy_score(record1, record2, case_sensitive=False):
@@ -61,60 +66,107 @@ def normalize_table_for_comparison(df, cols):
     return out_df
 
 
+# Big questions/TODOs
+# 1. When is master_df initialized?
+# 2. What schema will master_df take?  petpoint_id, salesforcecontacts_id, etc.?
+# 3. Can we include the name/email of-record in master_df to simplify matching?
+#    If not, the matching script will need to recreate these values and do some extra accounting to match everything back.
+# 4. Note: load_paws_data.__find_updated_rows is still using the old deleted_date notation
+# 5. Log any changes to name or email to a file + visual notification for human review and handling?
+# 6. Adjusting the stubs and code assumptions below, according to decisions about these questions
+
+
+### STUBS TO IMPLEMENT OR FIGURE OUT ###
+def _get_master_df():
+    # FIXME: stub which should be replaced by load_paws_data, create_master_df, or another database-aware file
+    # Gets the full master dataframe from postgres so we can identify new vs. old matches
+    return pd.DataFrame(columns=['email', 'name', 'salesforcecontacts_id', 'volgistics_id', 'petpoint_id'])
+
+def _get_most_recent_table_records_from_postgres(table_name):
+    select_query = f'select * from {table_name} where archived_date is null'
+    #with engine.connect() as conn:
+    #    rows = conn.execute(select_query)
+    return pd.read_sql(select_query, engine)
+
+def _get_table_primary_key(source_name):
+    return DATASOURCE_MAPPING[source_name]['id']
+
+def _get_master_primary_key(source_name):
+    # NOTE: may change based on the decisions for how master_df is structured
+    return source_name + '_id'
+
 def start(added_or_updated_rows):
     # Match newly identified records to each other and existing master data
     # FIXME: not yet operational: see function stubs below to refactor
 
     # TODO: Still need to replace a few functions that have placeholder names:
     # Define _get_most_recent_table_records_from_postgres with help from Steve to extract the new names (SELECT * FROM X WHERE _MOST_RECENT)
-    # _get_master_df to get the full master dataframe from postgres, and load in the data to match against historical data
     # def _get_primary_key(source_name): return source_name+'_id' (?)
     # FIXME: added_or_updated_rows json has an irregular tuple input format instead of key:value or similar
+
+    # TODO: cleaning up the comments above and throughout
+    # TODO: handling empty json within added_or_updated rows
 
     if len(added_or_updated_rows['updated_rows']) > 0:  # any updated rows
         raise NotImplementedError("match_data.start cannot yet handle row updates.")
 
     # Matching columns and table order priority as established by
     # https://github.com/CodeForPhilly/paws-data-pipeline/blob/master/documentation/matching_rules.md
-    # TODO: refactor out into a settings import, likely in the same place where the table names and keys are defined
+    # TODO: refactor out into a settings import from ../datasource_manager.py
     match_criteria = ['email', 'name']
-    table_priority = ['salesforcecontacts', 'volgistics', 'petpoint', 'ClinicHQ']
+    table_mapping = {
+        #'salesforcecontacts': {'full_name': 'name', 'email': 'email'},
+        #'volgistics': {'full_name': 'name', 'email': 'email'},
+        #'petpoint': {'outcome_person_name': 'name', 'out_email': 'email'}
+        'salesforcecontacts': {'email': 'email', 'name': ['first_name', 'last_name']},
+        'volgistics': {'email': 'email', 'name': ['first_name', 'last_name']},
+        'petpoint': {'email': 'out_email', 'name': ['outcome_person_name']}
+    }
+    table_priority = ['salesforcecontacts', 'volgistics', 'petpoint']
 
     # Recreate the normalized match_criteria of-record based on the available source data based on the table_priority order
-    master_df = _get_master_df()
+    master_df = _get_master_df()  # FIXME: does this table even exist in the load_paws_data.py or before the matching script is called?
     master_fields = master_df.columns
-    master_df = coalesce_fields_by_id(
-        master_df,
-        [_get_most_recent_table_records_from_postgres(x) for x in table_priority],
-        match_criteria
-    )
+    #master_df = coalesce_fields_by_id(  # no longer necessary if name+email is in master_df
+    #    master_df,
+    #    [_get_most_recent_table_records_from_postgres(x) for x in table_priority],
+    #    match_criteria
+    #)
     master_df = normalize_table_for_comparison(master_df, match_criteria)
 
-    # Summarize all of the new_rows from the previous step into a single dataframe of changes
+    # Combine all of the loaded new_rows into a single dataframe
     new_df = pd.DataFrame({col: [] for col in match_criteria})  # init an empty dataframe to collect the new data in one place
     for table_name in table_priority:
-        if table_name not in input_data['new_rows'].keys():
+        if table_name not in added_or_updated_rows['new_rows'].keys():
             continue  # df is empty or not-updated, so there's nothing to do
+            # FIXME: handling empty df here?
+        table_csv_key = _get_table_primary_key(table_name)
+        table_master_key = _get_master_primary_key(table_name)
         table_cols = copy.deepcopy(match_criteria)
-        table_cols.append(_get_primary_key(table_name))
-        new_table_data = normalize_table_for_comparison(pd.DataFrame(input_data['new_rows'][table_name]))[table_cols]
+        table_cols.append(table_csv_key)
+        def combine_names(df, fields, sep=' '):
+            if len(fields) == 1:
+                return df[fields[0]]
+            else:
+                return df[fields[0]].str.cat(others=df[fields[1:]], sep=sep)
+        new_table_data = (
+            pd.DataFrame(added_or_updated_rows['new_rows'][table_name])
+            .rename(columns={table_mapping[table_name]['email']: 'email'})
+            .assign(name=lambda df: combine_names(df, table_mapping[table_name]['name']))
+            [table_cols]
+            .pipe(lambda df: normalize_table_for_comparison(df, match_criteria))
+            .rename(columns={table_csv_key: table_master_key})
+        )
         new_df = new_df.merge(new_table_data, how='outer')
 
     # Run the join, then report only the original fields of interest
-    master_df['_temp_orig_id'] = np.arange(master_df.shape[0] + 1)
-    master_df_matching_cols = copy.deepcopy(match_criteria)
-    master_df_matching_cols.append('_temp_orig_id')
-    new_df['_temp_new_id'] = np.arange(new_df.shape[0] + 1)
-    new_df_matching_cols = copy.deepcopy(match_criteria)
-    new_df_matching_cols.append('_temp_new_id')
+    matches, left_only, right_only = join_on_all_columns(master_df[match_criteria], new_df[match_criteria])
+    #new_master_rows = new_df[new_df['_temp_new_id'] in right_only['_temp_new_id']][master_fields]
+    new_master_rows = right_only.merge(new_df, how='inner')  # associate name+email back to the IDs
+    # TODO LATER, after getting the new fields working, first.  Also should report the old version of the row.
+    #updated_master_rows = coalesce_fields_by_id(
+    #    master_df[master_fields],  # TODO: still need to figure out this field
+    #    new_df['_temp_new_id' in matches['_temp_new_id']][master_fields]
+    #)
 
-    matches, left_only, right_only = join_on_all_columns(master_df[master_df_matching_cols], new_df[new_df_matching_cols])
-    new_master_rows = new_df[new_df['_temp_new_id'] in right_only['_temp_new_id']][master_fields]
-    updated_master_rows = coalesce_fields_by_id(
-        master_df[master_fields],  # TODO: still need to figure out this field
-        new_df['_temp_new_id' in matches['_temp_new_id']][master_fields]
-    )
-    # and could get the former versions of those rows via a similar merge step or filter for the old versions of the fields in master_df
-    # TODO: we should figure out that matching logic because it would be necessary to keep any existing matches, too
-
-    return {'new_matches': new_master_rows.to_dict(), 'updated_matches': updated_master_rows.to_dict()}
+    return {'new_matches': new_master_rows.to_dict(), 'updated_matches': ['empty_for_now']}
