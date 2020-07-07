@@ -3,7 +3,7 @@ import os
 import time
 
 from flask import send_file, render_template, request, redirect, flash, jsonify, Blueprint, current_app
-from scripts import flow_script_for_360_mock, flow_script
+from scripts import flow_script
 from server.file_uploader import validate_and_arrange_upload
 from config import UPLOAD_PATH, OUTPUT_PATH, CURRENT_SOURCE_FILES_PATH, ZIPPED_FILES, REPORT_PATH
 
@@ -88,7 +88,6 @@ def listCurrentFiles():
 def execute():
     current_app.logger.info('Execute flow')
     flow_script.start_flow()
-    #flow_script_for_360_mock.start_flow()
     flash('Successfully executed!', 'info')
 
     return showIndexPage()
