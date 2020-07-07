@@ -55,10 +55,6 @@ function UploadForm(props) {
         <input type="file" ref={props.fileInput} multiple />
         <button type="submit">Submit</button>
     </form>
-    <break />
-    <form onSubmit={execute}>
-      <input type="submit" />
-    </form>
     </div>
   );
 
