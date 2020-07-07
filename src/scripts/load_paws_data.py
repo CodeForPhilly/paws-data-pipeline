@@ -2,7 +2,6 @@ import pandas as pd
 import re
 import os
 import datetime
-import json
 
 from datasource_manager import DATASOURCE_MAPPING
 from config import engine
@@ -31,7 +30,7 @@ if not engine.dialect.has_table(engine, 'petpoint'):
           Column('archived_date', DateTime)
           )
     Table('volgistics', meta,
-          Column('number', Integer),
+          Column('number', String),
           Column('last_name', String),
           Column('first_name', String),
           Column('middle_name', String),
@@ -104,13 +103,19 @@ def __find_new_rows(result, table_name):
         rows_data = []
         now = datetime.now()
         tracked_columns = DATASOURCE_MAPPING[table_name]['tracked_columns']
+
         for row in rows:
             row_dict = {}
             json_dict = {}
+
             for key_value in row.items():
                 if key_value[0] in tracked_columns:
-                    row_dict[key_value[0]] = key_value[1]
+                    if key_value[0] == DATASOURCE_MAPPING['volgistics']['id']:
+                        row_dict[key_value[0]] = str(key_value[1])
+                    else:
+                        row_dict[key_value[0]] = key_value[1]
                 json_dict[key_value[0]] = key_value[1]
+
             row_dict['json'] = json_dict
             row_dict['created_date'] = now
             rows_data.append(row_dict)

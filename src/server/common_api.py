@@ -26,20 +26,24 @@ def get_360(salesforce_id):
 
     with engine.connect() as connection:
         query_result = connection.execute(
-            "select * from master where salesforce_id='{}'".format(salesforce_id))
+            "select * from master where salesforcecontacts_id='{}'".format(salesforce_id))
 
         master_row = {'result': [dict(row) for row in query_result]}
 
         query_result = connection.execute(
             "select * from salesforcecontacts where contact_id='{}'".format(salesforce_id))
-        result['salesforcecontacts'] = [dict(row) for row in query_result][0]
+        if 'salesforcecontacts' in result:
+            result['salesforcecontacts'] = [dict(row) for row in query_result][0]
 
         query_result = connection.execute(
             "select * from petpoint where outcome_person_num='{}'".format(master_row['result'][0]['petpoint_id']))
-        result['petpoint'] = [dict(row) for row in query_result][0]
+        if 'petpoint' in result:
+            result['petpoint'] = [dict(row) for row in query_result][0]
 
-        query_result = connection.execute(
-            "select * from volgistics where number='{}'".format(master_row['result'][0]['volgistics_id']))
-        result['volgistics'] = [dict(row) for row in query_result][0]
+        if master_row['result'][0]['volgistics_id']:
+            query_result = connection.execute(
+                "select * from volgistics where number='{}'".format(master_row['result'][0]['volgistics_id']))
+            if 'volgistics' in result:
+                result['volgistics'] = [dict(row) for row in query_result][0]
 
         return jsonify(result)

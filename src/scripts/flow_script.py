@@ -3,7 +3,6 @@ import os
 from scripts import load_paws_data, match_data, create_master_df
 from config import CURRENT_SOURCE_FILES_PATH
 
-
 MAPPING_FIELDS = {
     'salesforcecontacts': {
         '_label': 'salesforce',
@@ -33,6 +32,6 @@ def start_flow():
     if file_path_list:
         rows_to_add_or_updated = load_paws_data.start(file_path_list, True)
 
-        #rows_for_master_df = match_data.start(rows_to_add_or_updated)
+        rows_for_master_df = match_data.start(rows_to_add_or_updated)
 
-        #create_master_df.start(rows_for_master_df)
+        create_master_df.start(rows_for_master_df)
