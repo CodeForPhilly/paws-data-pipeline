@@ -1,10 +1,19 @@
 import React, {useState, useEffect} from 'react';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
-import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container} from '@material-ui/core';
+import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container, capitalize} from '@material-ui/core';
 import Skeleton from '@material-ui/lab/Skeleton';
 
 import SearchBar from '../components/SearchBar';
 
+
+const StyledContact = withStyles((theme)=>({
+    root:{
+        span:{
+        fontWeight:600,
+        },
+    },
+
+}))(Typography);
 
 const StyledTableCell = withStyles((theme)=>({
     head:{
@@ -21,30 +30,58 @@ const StyledTableRow = withStyles((theme)=>({
     }
 }))(TableRow);
 
-
-
 /* --------------------------------------------------------/
     Returns Div with Name, Address, Phone, Email, and a
     Summary of the person
 /---------------------------------------------------------*/
 function ContactInfo(props){
 
+    // Helper function to create labels for each Contact Value
+    function BoldLabel(props){
+        return (
+            <span style={{'fontWeight':'600'}}>
+                {props.value}{':\t'}
+            </span>
+        ) 
+    };
+
     return (
     <Container>
         <Typography align='center' gutterBottom='true' variant='h4'>Contact Info</Typography>
+        <Paper variant='outlined' style={{padding:'1em'}}>
         <div style={{"display":"flex", "justifyContent":"space-between"}}>
-            <Typography>Name: 
-                        {props.participant.first_name}{', '}
-                        {props.participant.last_name}
+            <Typography>
+                <BoldLabel value="Name" />
+                <span>
+                    {props.participant.first_name}{'\t'}
+                    {props.participant.last_name}
+                </span>
             </Typography>
-            <Typography>Phone: {props.participant.phone}</Typography>
-            <Typography>Email: {props.participant.email}</Typography>
+            <StyledContact>
+                <BoldLabel value="Phone" />
+                <span>
+                    {props.participant.phone}
+                </span>
+            </StyledContact>
+            <Typography>
+                <BoldLabel value="Email" />
+                <span>
+                    {props.participant.email}
+                </span>
+            </Typography>
         </div>
-        <Typography>Address: 
-                    {props.participant.mailing_street}{'\t'}
-                    {props.participant.mailing_city}{',\t'}
+        <Typography>
+            <BoldLabel value="Address" />
+            <span style={{"textTransform":"uppercase"}}>
+                {props.participant.mailing_street}{',\t'}
+                {props.participant.mailing_city}{'\t'}
+            </span>
         </Typography>
-        <Typography>Summary: {props.summary}</Typography>
+        <Typography>
+            <BoldLabel value="Summary" />
+            <span>{props.summary}</span>
+        </Typography>
+        </Paper>
     </Container>
     );
 }
@@ -72,7 +109,7 @@ function Adoption(props){
     return (
         <Container style={{"marginTop":"1em"}}>
             <Typography align='center' gutterBottom='true' variant='h4'>Adoption/Foster Records</Typography> 
-            <TableContainer style={{"marginTop":"1em"}}>
+            <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -110,7 +147,7 @@ function Donations(props){
     return (
         <Container style={{"marginTop":"1em"}}>
             <Typography align='center' gutterBottom='true' variant='h4'>Donation Records</Typography> 
-            <TableContainer style={{"marginTop":"1em"}}>
+            <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -141,7 +178,7 @@ function Volunteer(props){
     return (
         <Container style={{"marginTop":"1em"}}>
             <Typography align='center' gutterBottom='true' variant='h4'>Volunteer Records</Typography> 
-            <TableContainer style={{"marginTop":"1em"}}>
+            <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                 <Table>
                     <TableHead>
                         <TableRow>
