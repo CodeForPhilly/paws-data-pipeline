@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import Startpage from './pages/Start';
 import Content from './pages/Upload';
 import Dataview from './pages/DataView360';
+import About from './pages/About';
 
 /* 
   It seems to make the most sense to use the Material UI style features when possible. Rather than
@@ -29,7 +30,7 @@ export default function App(props){
                 <Content />
               </Route>
               <Route path="/about">
-                <h1>About Section</h1>
+                <About />
               </Route>
               <Route path="/dataview">
                 <Dataview />

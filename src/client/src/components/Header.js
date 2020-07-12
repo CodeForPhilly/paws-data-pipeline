@@ -5,7 +5,7 @@ import {AppBar, Button, Toolbar, Typography } from "@material-ui/core";
 export default function Header(props){
 
   return(
-        <AppBar position="static" id="header" color="primary"> 
+        <AppBar position="static" id="header" color="primary" elevation={1}> 
           <Toolbar style={{"minWidth":"100", "dipslay":"flex", "justifyContent":"space-between"}}>
             <Typography variant="h6">Hello Paws User</Typography>
             <div style={{"display":"flex", "justifyContent":"space-between", "margin":"1em"}}>
