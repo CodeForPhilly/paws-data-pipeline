@@ -26,7 +26,7 @@ def start(file_path_list, should_drop_first_col=False):
         current_app.logger.info('looking for new rows ')
         __find_new_rows(result, table_name)
         current_app.logger.info('looking for updated rows ')
-        __find_updated_rows(result, table_name)
+        #__find_updated_rows(result, table_name)
         current_app.logger.info('   - finish load_paws_data on: ' + uploaded_file)
 
     return result
