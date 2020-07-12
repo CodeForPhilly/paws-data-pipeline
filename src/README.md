@@ -1,4 +1,3 @@
----------------------------------------
 Run the PAWS data pipeline locally
 ---------------------------------------
 #### Run local - when debugging
