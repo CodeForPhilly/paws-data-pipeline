@@ -20,30 +20,29 @@ def get_contacts(search_text):
 
 @common_api.route('/360/<salesforce_id>', methods=['GET'])
 def get_360(salesforce_id):
-    result = {
-        'salesforcecontacts': None
-    }
+    result = {}
 
     with engine.connect() as connection:
         query_result = connection.execute(
             "select * from master where salesforcecontacts_id='{}'".format(salesforce_id))
-
         master_row = {'result': [dict(row) for row in query_result]}
 
         query_result = connection.execute(
             "select * from salesforcecontacts where contact_id='{}'".format(salesforce_id))
-        if 'salesforcecontacts' in result:
-            result['salesforcecontacts'] = [dict(row) for row in query_result][0]
+        salesforce_results = [dict(row) for row in query_result]
+        if salesforce_results:
+            result['salesforcecontacts'] = salesforce_results[0]
 
         query_result = connection.execute(
             "select * from petpoint where outcome_person_num='{}'".format(master_row['result'][0]['petpoint_id']))
-        if 'petpoint' in result:
-            result['petpoint'] = [dict(row) for row in query_result][0]
-
-        if master_row['result'][0]['volgistics_id']:
-            query_result = connection.execute(
-                "select * from volgistics where number='{}'".format(master_row['result'][0]['volgistics_id']))
-            if 'volgistics' in result:
-                result['volgistics'] = [dict(row) for row in query_result][0]
+        petpoint_results = [dict(row) for row in query_result]
+        if petpoint_results:
+            result['petpoint'] = petpoint_results[0]
+        
+        query_result = connection.execute(
+            "select * from volgistics where number='{}'".format(master_row['result'][0]['volgistics_id']))
+        volgistics_results = [dict(row) for row in query_result]
+        if volgistics_results:
+            result['volgistics'] = volgistics_results[0]
 
         return jsonify(result)
