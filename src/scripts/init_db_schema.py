@@ -16,7 +16,7 @@ def start():
               Column('outcome_person_num', String),
               Column('outcome_person_name', String),
               Column('out_street_address', String),
-              Column('out_unit_number', Integer),
+              Column('out_unit_number', String),
               Column('out_city', String),
               Column('out_province', String),
               Column('out_postal_code', String),

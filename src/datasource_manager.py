@@ -3,9 +3,8 @@ import re
 
 
 def __clean_csv_headers(header):
-    header = re.sub(r'\.+', '_', header.lower().strip().replace(' ', '_'))
-    return header.replace('#', 'num')
-
+    header =  re.sub(r'\.+', '_', header.lower().strip().replace(' ', '_').replace('/', '_'))
+    return header.replace('#','num')
 
 CSV_HEADERS = {
     'petpoint': ['Animal #', 'Outcome Person #', 'Outcome Person Name', 'Out Street Address', 'Out Unit Number',
