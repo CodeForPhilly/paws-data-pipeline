@@ -40,8 +40,10 @@ def __find_new_rows(result, table_name):
     with engine.connect() as conn:
         # find new rows
         rows = conn.execute(
-            'select t.* from {} t left join {} v on v."{}" = t."{}" where v."{}" is null'.format(
-                table_name + "_stage", table_name, source_id, source_id, source_id))
+                'select t.* from {} t left join {} v on v."{}" = t."{}"::VARCHAR where v."{}" is null'.format(
+                    table_name + "_stage", table_name, source_id, source_id, source_id
+                    )
+                )
 
         rows_data = []
         now = datetime.now()
@@ -82,13 +84,13 @@ def __find_updated_rows(found_rows, table_name):
         updated_query = '''
             select * from {} where "{}" in (
                 select "{}" from (
-                    select {} 
-                    from {} t 
+                    select {}
+                    from {} t
                     where exists (select 1 from {} c where c."{}" = t."{}" and c.archived_date is null)
-                    except 
-                    select {} 
+                    except
+                    select {}
                     from {} where archived_date is null
-            	) a
+                ) a
         )
         '''.format(table_name_temp, primary_key, primary_key, tracked_column_str, table_name_temp, table_name,
                    primary_key, primary_key, tracked_column_str, table_name)
@@ -130,7 +132,8 @@ def __create_table(df, engine, table_name):
 
 
 def __clean_raw_data(df, should_drop_first_col):
-    # drop the first column - so far all csvs have had a first column that's an index and doesn't have a name
+    # NOTE: drop the first column - so far all csvs have had a
+    #       first column that's an index and doesn't have a name
     if should_drop_first_col:
         df = df.drop(df.columns[0], axis=1)
 
