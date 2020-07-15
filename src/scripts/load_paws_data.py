@@ -37,7 +37,7 @@ def __find_new_rows(result, table_name):
     with engine.connect() as conn:
         # find new rows
         rows = conn.execute(
-            'select t.* from {} t left join {} c on c."{}" = t."{}"::text where c."{}" is null'.format(
+            'select t.* from {} t left join {} c on c."{}" = t."{}"::VARCHAR where c."{}" is null'.format(
                 table_name + "_stage", table_name, source_id, source_id, source_id))
 
         current_app.logger.info('finished query')
@@ -81,7 +81,7 @@ def __find_updated_rows(found_rows, table_name):
                 select "{}" from (
                     select {} 
                     from {} t 
-                    where exists (select 1 from {} c where c."{}" = t."{}"::text and c.archived_date is null)
+                    where exists (select 1 from {} c where c."{}" = t."{}"::VARCHAR and c.archived_date is null)
                     except 
                     select {} 
                     from {} where archived_date is null
