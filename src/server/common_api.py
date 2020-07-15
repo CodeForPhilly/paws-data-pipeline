@@ -11,7 +11,7 @@ def get_contacts(search_text):
         query = text("select concat(first_name,' ',last_name) as name, email, contact_id from salesforcecontacts \
             WHERE lower(first_name) like :search_text \
             OR lower(last_name) like :search_text")
-        query_result = connection.execute(query, search_text='%{}%'.format(search_text))
+        query_result = connection.execute(query, search_text='%{}%'.format(search_text.lower()))
 
         results = jsonify({'result': [dict(row) for row in query_result]})
 
