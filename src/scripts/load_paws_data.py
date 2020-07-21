@@ -8,7 +8,7 @@ from config import engine
 from flask import current_app
 from config import CURRENT_SOURCE_FILES_PATH
 from datetime import datetime
-from scripts.init_db_schema import meta
+from models import Base
 
 def start(file_path_list, should_drop_first_col=False):
     result = {
@@ -62,7 +62,7 @@ def __find_new_rows(result, table_name):
             rows_data.append(row_dict)
 
         result['new_rows'][table_name] = rows_data
-        ins = meta.tables[table_name].insert()
+        ins = Base.metadata.tables[table_name].insert()
         conn.execute(ins, rows_data)
 
 def __find_updated_rows(found_rows, table_name):
@@ -111,7 +111,7 @@ def __find_updated_rows(found_rows, table_name):
         connection.execute(mark_deleted)
 
         # insert new updated rows
-        ins = meta.tables[table_name].insert()
+        ins = Base.metadata.tables[table_name].insert()
         connection.execute(ins, row_data)
 
 def __create_row_dicts(rows, tracked_columns):
