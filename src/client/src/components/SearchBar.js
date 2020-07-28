@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import { Paper, Select, InputLabel, MenuItem, FormControl, TextField, IconButton} from '@material-ui/core';
-import {alert, Alert, AlertTitle} from '@material-ui/lab';
+import {Button, Paper, Select, InputLabel, MenuItem, FormControl, TextField, IconButton} from '@material-ui/core';
+import {Alert, AlertTitle} from '@material-ui/lab';
 import SearchIcon from '@material-ui/icons/Search';
 
 
@@ -31,28 +31,25 @@ function SearchParticipant(props){
     
 
     return (
-        <div>
-            {alertMinChars ?
-            <Alert severity="error">
-                <AlertTitle>Error</AlertTitle>
-                Minimum number of characters for searching is 3
-            </Alert> : <div></div>
-
-            }
             <form onSubmit={props.handleSubmit} style={{"display":"flex"}}>
-                <TextField 
+                <TextField
+                    error={alertMinChars}
+                    helperText={alertMinChars?
+                            "Requires 3 search characters":""}
                     id="participant-search" x
                     label="search name"
                     value={props.participantSearch}
                     variant="outlined"
                     onChange={handleChange} />
-                <button type="submit">
+                <Button 
+                    type="submit"
+                    disabled={alertMinChars}
+                    >
                     <IconButton component="span">
                         <SearchIcon />
                     </IconButton>
-                </button>
+                </Button>
             </form>
-        </div>
     );
 }
 
@@ -67,18 +64,26 @@ function SearchParticipant(props){
 /---------------------------------------------------------*/
 function SelectParticipant(props){
 
-    const participants = props.participantList && 
-        props.participantList.map(person =>
-        <MenuItem value={person.contact_id}>
-            {person.name}
-            {" "}
-            ({person.email})
-        </MenuItem>)
+    let participants;
 
-    console.log(props.activeParticipant);
+    if (props.participantList != null) {
+        const participantIndexLimit=200;
+        const participantList = props.participantList.slice(0,participantIndexLimit);
+
+        participants =
+            participantList.map((person,index) =>
+            
+            <MenuItem value={person.contact_id}>
+                {person.name}
+                {" "}
+                ({person.email})
+            </MenuItem>)
+
+    }
+
     return (
             <FormControl style={{"minWidth":"20em"}}>
-                <InputLabel id="paws-participant-label">Select Participant</InputLabel>
+                <InputLabel id="paws-participant-label">Select Participant - Top 200 Results</InputLabel>
                 <Select
                     labelId="paws-participant-label"
                     id="paws-participant-select"

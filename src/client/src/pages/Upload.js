@@ -45,6 +45,7 @@ function Content(props){
         .then(text=>console.log(text))
         .catch(error => console.log(error));
 
+      // make this a separate button
       fetch("/execute");
     
       console.log(reload);     
