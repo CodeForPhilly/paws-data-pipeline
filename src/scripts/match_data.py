@@ -56,7 +56,9 @@ def coalesce_fields_by_id(master_table, other_tables, fields):
         df_with_updated_fields[field] = np.nan
     for table in other_tables:
         # may need to adjust the loop based on the master ID, renaming the fields, depending on how the PK is stored in the volgistics table, etc.
-        fields_from_table = master_table.merge(table, how='left', validate='1:1')
+        # 1:1 validation fails (possibly due to NULL handling or repeated data); disabling since this block of code may get replaced as part of the
+        # transition to name+email within the master file
+        fields_from_table = master_table.merge(table, how='left')#, validate='1:1')
         for field_to_update in fields:
             df_with_updated_fields[field_to_update] = df_with_updated_fields[field_to_update].combine_first(
                 fields_from_table[field_to_update])
