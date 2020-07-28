@@ -35,7 +35,7 @@ DATASOURCE_MAPPING = {
         '_label': 'volgistics',
         'table_id': 'Number'.lower(),
         'table_email': 'Email'.lower(),
-        '_table_name': ['first_name_last_name']
+        '_table_name': ['first_name', 'last_name']
     },
     'petpoint': {
         'id': 'animal_num',
