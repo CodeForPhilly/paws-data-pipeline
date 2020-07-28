@@ -1,6 +1,8 @@
 import React, {useState} from 'react';
 import { Paper, Select, InputLabel, MenuItem, FormControl, TextField, IconButton} from '@material-ui/core';
+import {alert, Alert, AlertTitle} from '@material-ui/lab';
 import SearchIcon from '@material-ui/icons/Search';
+
 
 /*------------------------------------------------------/
 To Do:
@@ -9,16 +11,41 @@ To Do:
 
 /------------------------------------------------------*/
 function SearchParticipant(props){
-        
+    
+    const [alertMinChars, setAlertMinChar]= useState(true);
+
+    const handleChange = (event)=>{
+        const strSearch=event.target.value;
+
+        if ((strSearch.length) > 2) {
+            setAlertMinChar(false);
+            props.setParticipantSearch(strSearch);
+        }
+        else {
+            setAlertMinChar(true);
+            props.setParticipantSearch(strSearch)
+        }
+
+    }
+
+    
+
     return (
         <div>
+            {alertMinChars ?
+            <Alert severity="error">
+                <AlertTitle>Error</AlertTitle>
+                Minimum number of characters for searching is 3
+            </Alert> : <div></div>
+
+            }
             <form onSubmit={props.handleSubmit} style={{"display":"flex"}}>
                 <TextField 
                     id="participant-search" x
                     label="search name"
                     value={props.participantSearch}
                     variant="outlined"
-                    onChange={ (event)=>{props.setParticipantSearch(event.target.value)}} />
+                    onChange={handleChange} />
                 <button type="submit">
                     <IconButton component="span">
                         <SearchIcon />
