@@ -21,22 +21,28 @@ https://material-ui.com/customization/components/
 export default function App(props){
   return (
     <Router>
-            <Header />
             <Switch>
               <Route exact path="/">
+                <Header />
                 <Startpage />
+                <Footer />
               </Route>
               <Route path="/upload">
+                <Header />
                 <Content />
+                <Footer />
               </Route>
               <Route path="/about">
+                <Header />
                 <About />
+                <Footer />
               </Route>
               <Route path="/dataview">
+                <Header />
                 <Dataview />
+                <Footer />
               </Route>
             </Switch>
-            <Footer />
     </Router>
   );
 }

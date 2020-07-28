@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react';
-import {Input, MenuItem, Select, FormControl, InputLabel, Button} from "@material-ui/core";
+import React, {useState} from 'react';
+import {Container, MenuItem, Select, FormControl, InputLabel, Button} from "@material-ui/core";
 
 import useFetch from './scripts/useFetch';
 
@@ -7,27 +7,29 @@ import useFetch from './scripts/useFetch';
 // https://reactjs.org/docs/forms.html
 
 function DownloadForm(props) {
+  const [downloadSource, setDownloadSource] = useState("current");
+
+  const makePath = (value) => {
+    return `http://localhost:3333/files/${value}?download_${value}_btn=${value}+sources`
+  }
 
   const handleChange = (event)=>{
-    event.preventDefault();
-
-    fetch("/files/current")
-      .then(response => response.formData())
-      .then(files => console.log(files));
+    setDownloadSource(event.target.value)
   }
 
   return (
-    <form onSubmit={handleChange}>
+    <Container>
     <FormControl>
-      <Select>
+      <Select value={downloadSource}
+              onChange={handleChange}>
         <InputLabel>Select Item to Download</InputLabel>
-        <MenuItem>Current</MenuItem>
-        <MenuItem>Archived</MenuItem>
-        <MenuItem>Output</MenuItem>
+        <MenuItem value={'current'}>Current</MenuItem>
+        <MenuItem value={'archived'}>Archived</MenuItem>
+        <MenuItem value={'output'}>Output</MenuItem>
       </Select>
-      <button type="submit">Download</button>
     </FormControl>
-    </form>
+    <Button href={makePath(downloadSource)}>Download</Button>
+    </Container>
   );
 
 }

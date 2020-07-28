@@ -44,6 +44,8 @@ function Content(props){
         .then(response => response.text())
         .then(text=>console.log(text))
         .catch(error => console.log(error));
+
+      fetch("/execute");
     
       console.log(reload);     
       setReload(!reload);
@@ -74,7 +76,9 @@ function Content(props){
         </Tabs>
         <TabPanel value={activeIndex} index={0}> 
           {files} 
-          <UploadForm fileInput={fileInput} handleSubmit={handleSubmit} />
+          <UploadForm
+              fileInput={fileInput}
+              handleSubmit={handleSubmit} />
         </TabPanel>
         <TabPanel value={activeIndex} index={1}>
           {files}

@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container, capitalize} from '@material-ui/core';
-import Skeleton from '@material-ui/lab/Skeleton';
 
 import SearchBar from '../components/SearchBar';
 
@@ -201,23 +200,24 @@ function Volunteer(props){
 function Dataview(props){
 
     const [participant, setParticipant] = useState(null);
+    const [activeParticipant, setActiveParticipant] = useState(0);
     const handleParticipantChange = (event)=>{
         event.preventDefault();
-        //setParticipant(event.target.value);
+        setActiveParticipant(event.target.value);
+    };
 
-        fetch('/360/'+event.target.value)
+    useEffect(()=>{
+        fetch('/360/'+activeParticipant)
             .then(response => response.json())
             .then(response => setParticipant(response))
             .catch(error => console.log(error))
-    }
-
-    useEffect(()=>{
-        console.log(participant);
-    },[participant]);
+    },[activeParticipant]);
 
     return(
     <Container>
-        <SearchBar handleParticipantChange={handleParticipantChange}/>
+        <SearchBar activeParticipant={activeParticipant}
+            setActiveParticipant={setActiveParticipant}
+            handleParticipantChange={handleParticipantChange}/>
         {participant &&
         <Paper elevation={1} style={{"padding":"1em"}}>
             <ContactInfo participant={participant.salesforcecontacts} /> 

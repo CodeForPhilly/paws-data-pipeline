@@ -2,13 +2,19 @@ import React, {useState} from 'react';
 import { Paper, Select, InputLabel, MenuItem, FormControl, TextField, IconButton} from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 
+/*------------------------------------------------------/
+To Do:
+    1. Make sure atleast three chars are entered for a search
+    2. Warn user when results are > 200.
+
+/------------------------------------------------------*/
 function SearchParticipant(props){
         
     return (
         <div>
             <form onSubmit={props.handleSubmit} style={{"display":"flex"}}>
                 <TextField 
-                    id="participant-search" 
+                    id="participant-search" x
                     label="search name"
                     value={props.participantSearch}
                     variant="outlined"
@@ -42,12 +48,14 @@ function SelectParticipant(props){
             ({person.email})
         </MenuItem>)
 
+    console.log(props.activeParticipant);
     return (
             <FormControl style={{"minWidth":"20em"}}>
                 <InputLabel id="paws-participant-label">Select Participant</InputLabel>
                 <Select
                     labelId="paws-participant-label"
                     id="paws-participant-select"
+                    value={props.activeParticipant}
                     onChange={props.handleChange}
                     >
                         {participants}
@@ -72,10 +80,12 @@ function SearchBar(props){
     // returns list of matching participants
     const handleSubmit = (event)=>{
         event.preventDefault();
-        
         fetch('/contacts/'+participantSearch)
             .then(response => response.json())
-            .then(response => setParticipantList(response.result))
+            .then(response => {
+                setParticipantList(response.result);
+                props.setActiveParticipant(response.result[0].contact_id);
+            })
             .catch(error => console.log(error));
     };
 
@@ -94,6 +104,7 @@ function SearchBar(props){
             />
             <SelectParticipant
                 handleChange={props.handleParticipantChange}
+                activeParticipant={props.activeParticipant}
                 participantList={participantList}
             />
         </Paper>
