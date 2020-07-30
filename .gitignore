@@ -10,8 +10,9 @@ __pycache__
 venv
 /dist/
 src/scripts/__pycache__
-src/server/__pycache__
+src/api/__pycache__
 /src/client/.idea
 /.idea
 start_env.sh
 
+/src/server/venv/

@@ -10,7 +10,7 @@ function DownloadForm(props) {
   const [downloadSource, setDownloadSource] = useState("current");
 
   const makePath = (value) => {
-    return `http://localhost:3333/files/${value}?download_${value}_btn=${value}+sources`
+    return `http://localhost:3000/api/files/${value}?download_${value}_btn=${value}+sources`
   }
 
   const handleChange = (event)=>{
@@ -40,25 +40,24 @@ function DownloadForm(props) {
 // https://reactjs.org/docs/uncontrolled-components.html#the-file-input-tag
 
 function UploadForm(props) {
-  const [{response, isLoading, isError}, setUrl] = useFetch(null, null);
-
-  const execute = (event)=>{
-    event.preventDefault();
-
-    fetch("/execute")
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.log(error));
-  };
-
   return (
     <div>
-    <form onSubmit={props.handleSubmit}>
-        <input type="file" ref={props.fileInput} multiple />
-        <button type="submit">Submit</button>
-    </form>
+        <form onSubmit={props.handleUpload}>
+            <input type="file" ref={props.fileInput} multiple />
+            <button type="submit">Upload</button>
+        </form>
     </div>
   );
-
 }
-export { UploadForm, DownloadForm };
+
+function ExecuteForm(props) {
+    return (
+        <div>
+            <form onSubmit={props.handleExecute}>
+                <button type="submit">Execute</button>
+            </form>
+        </div>
+    );
+}
+
+export { UploadForm, DownloadForm, ExecuteForm };

@@ -4,8 +4,7 @@ import Skeleton from "@material-ui/lab/Skeleton";
 import { makeStyles } from "@material-ui/core/styles";
 
 import TabPanel from '../components/TabPanel';
-import { UploadForm, DownloadForm } from '../components/Forms';
-import useFetch from "../components/scripts/useFetch";
+import { UploadForm, DownloadForm, ExecuteForm } from '../components/Forms';
 
 const useStyles = makeStyles({
     content:{
@@ -29,8 +28,8 @@ function Content(props){
     };
 
     //const [{data, isLoading, isError}, setUrl] = useFetch("/listCurrentFiles", null);
-    
-    const handleSubmit = (event)=>{
+
+    const handleUpload = (event)=>{
       //Prevent default reload on submit
       event.preventDefault();
 
@@ -40,23 +39,25 @@ function Content(props){
         formData.append('file', element, element.name)
       })
 
-      fetch("/file", { method:'POST', body:formData })
+      fetch("/api/file", { method:'POST', body:formData })
         .then(response => response.text())
         .then(text=>console.log(text))
         .catch(error => console.log(error));
 
-      // make this a separate button
-      fetch("/execute");
-    
-      console.log(reload);     
+      console.log(reload);
       setReload(!reload);
       console.log(reload);
     };
 
+    const handleExecute = useEffect(()=>{
+        fetch('/api/execute')
+            .then(response => response.json())
+            .catch(error => console.log(error))
+    });
     // May need to submit twice to refresh,
     // need to figure out why?
     useEffect(()=>{
-      fetch("/listCurrentFiles")
+      fetch("/api/listCurrentFiles")
         .then(response=>response.json())
         .then(data => setData(data))
         .catch(error=>console.log(error));
@@ -73,20 +74,19 @@ function Content(props){
         <Tabs value={activeIndex} onChange={handleChange} aria-label="upload-download-reports-tabs">
           <Tab label="Upload" />
           <Tab label="Download" />
-          <Tab label="Reports" />
+          <Tab label="Execute" />
         </Tabs>
+
         <TabPanel value={activeIndex} index={0}> 
-          {files} 
-          <UploadForm
-              fileInput={fileInput}
-              handleSubmit={handleSubmit} />
+          {files}
+          <UploadForm fileInput={fileInput} handleUpload={handleUpload}/>
         </TabPanel>
         <TabPanel value={activeIndex} index={1}>
           {files}
           <DownloadForm />
         </TabPanel>
         <TabPanel value={activeIndex} index={2}>
-          <Skeleton variant="rect" width={400} height={400}>Select File to Load</Skeleton>
+          <ExecuteForm handleExecute={handleExecute}/>
         </TabPanel>
         </Paper>
       </Container>

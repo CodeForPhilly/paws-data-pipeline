@@ -1,9 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
-import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container, capitalize} from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
+import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container} from '@material-ui/core';
 
 import SearchBar from '../components/SearchBar';
 
+import {get} from 'lodash';
 
 const StyledContact = withStyles((theme)=>({
     root:{
@@ -52,28 +53,28 @@ function ContactInfo(props){
             <Typography>
                 <BoldLabel value="Name" />
                 <span>
-                    {props.participant.first_name}{'\t'}
-                    {props.participant.last_name}
+                    {get(props, "participant.first_name")}{'\t'}
+                    {get(props, "participant.last_name")}
                 </span>
             </Typography>
             <StyledContact>
                 <BoldLabel value="Phone" />
                 <span>
-                    {props.participant.phone}
+                    {get(props, "participant.phone")}
                 </span>
             </StyledContact>
             <Typography>
                 <BoldLabel value="Email" />
                 <span>
-                    {props.participant.email}
+                    {get(props, "participant.email")}
                 </span>
             </Typography>
         </div>
         <Typography>
             <BoldLabel value="Address" />
             <span style={{"textTransform":"uppercase"}}>
-                {props.participant.mailing_street}{',\t'}
-                {props.participant.mailing_city}{'\t'}
+                {get(props, "participant.mailing_street")}{',\t'}
+                {get(props, "participant.mailing_city")}{'\t'}
             </span>
         </Typography>
         <Typography>
@@ -207,7 +208,7 @@ function Dataview(props){
     };
 
     useEffect(()=>{
-        fetch('/360/'+activeParticipant)
+        fetch('/api/360/'+activeParticipant)
             .then(response => response.json())
             .then(response => setParticipant(response))
             .catch(error => console.log(error))

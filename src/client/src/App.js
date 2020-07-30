@@ -2,7 +2,6 @@ import  React from "react";
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import Header from "./components/Header";
-import Footer from "./components/Footer";
 
 import Startpage from './pages/Start';
 import Content from './pages/Upload';
@@ -25,22 +24,18 @@ export default function App(props){
               <Route exact path="/">
                 <Header />
                 <Startpage />
-                <Footer />
               </Route>
               <Route path="/upload">
                 <Header />
                 <Content />
-                <Footer />
               </Route>
               <Route path="/about">
                 <Header />
                 <About />
-                <Footer />
               </Route>
               <Route path="/dataview">
                 <Header />
                 <Dataview />
-                <Footer />
               </Route>
             </Switch>
     </Router>

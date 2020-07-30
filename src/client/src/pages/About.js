@@ -1,8 +1,6 @@
 import React from 'react';
 import { Container } from '@material-ui/core';
 
-import Footer from '../components/Footer';
-
 export default function About(props){
   return (
 <Container>
@@ -70,7 +68,6 @@ export default function About(props){
   <p><a href="https://codeforphilly.org/chat?channel=paws_data_pipeline">Slack Channel</a></p>
   <p><a href="https://drive.google.com/open?id=1O8oPWLT5oDL8q_Tm4a0Gt8XCYYxEIcjiPJYHm33lXII">Google Drive</a></p>
 </Container>
-<Footer />
 </Container>
   );
 }

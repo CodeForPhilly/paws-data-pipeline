@@ -12,14 +12,13 @@ Run the PAWS data pipeline locally
 #### Run docker - before pushing your code
 - Install docker - `https://docs.docker.com/install`  
 
-_Compose instructions_  
+_Docker Compose instructions_  
 - Install Docker Compose - `https://docs.docker.com/compose/install/`      
 - Most package managers have it as `docker-compose` and it's largely just a shell script.    
 - `docker compose up -d` to bring up the database and the server.
 
-_Non-compose instructions_  (not being used anymore)  
-- Build the Docker image, preparing it for execution:  `docker build -t paws-data-pipeline .`  
-- Execute: `docker run --publish 5000:5555 --name pdp -d paws-data-pipeline`    
+#### Finally - Run The UI on http://localhost:3000
+   
 ---------------------------------------  
 Production Private Network:
 ---------------------------------------    
@@ -40,3 +39,4 @@ From local machine:
 In server:
 1. `cd paws-data-pipeline`
 2. run `sh deploy_from_tar_docker-compose.sh`
+
