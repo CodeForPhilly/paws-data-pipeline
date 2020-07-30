@@ -198,7 +198,7 @@ function Volunteer(props){
 
 // Add scoll list of contacts endpoint "/contacts/<search_sub_string>"
 //Need to add clinic and volunteer info too
-function Dataview(props){
+function DataView(props){
 
     const [participant, setParticipant] = useState(null);
     const [activeParticipant, setActiveParticipant] = useState(0);
@@ -232,4 +232,4 @@ function Dataview(props){
 }
 
 
-export default Dataview;
+export default DataView;

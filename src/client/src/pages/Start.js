@@ -12,9 +12,9 @@ const useStyles = makeStyles({
 
 });
 
-function Startpage(props) {
+function StartPage(props) {
   const classes = useStyles();
   return <Paper elevation={3} classes={classes.paper} />
 }
 
-export default Startpage;
+export default StartPage;

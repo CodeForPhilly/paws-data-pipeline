@@ -3,18 +3,10 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import Header from "./components/Header";
 
-import Startpage from './pages/Start';
+import StartPage from './pages/Start';
 import Content from './pages/Upload';
-import Dataview from './pages/DataView360';
+import DataView from './pages/DataView360';
 import About from './pages/About';
-
-/* 
-  It seems to make the most sense to use the Material UI style features when possible. Rather than
-fighting with the CSS specificity, or using the id to style every component.
-"CSS injected into the DOM by Material-UI to style a component has the highest specificity possible"
-https://material-ui.com/customization/components/ 
-*/
-
 
 /*basic routing of the app*/ 
 export default function App(props){
@@ -23,7 +15,7 @@ export default function App(props){
             <Switch>
               <Route exact path="/">
                 <Header />
-                <Startpage />
+                <StartPage />
               </Route>
               <Route path="/upload">
                 <Header />
@@ -33,9 +25,9 @@ export default function App(props){
                 <Header />
                 <About />
               </Route>
-              <Route path="/dataview">
+              <Route path="/dataView">
                 <Header />
-                <Dataview />
+                <DataView />
               </Route>
             </Switch>
     </Router>

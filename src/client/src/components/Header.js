@@ -10,7 +10,7 @@ export default function Header(props){
             <Typography variant="h6">Hello Paws User</Typography>
             <div style={{"display":"flex", "justifyContent":"space-between", "margin":"1em"}}>
               <Button color="default" component={RouterLink} to="/upload">Admin</Button>
-              <Button color="default" component={RouterLink} to="/dataview">360 DataView</Button>
+              <Button color="default" component={RouterLink} to="/dataView">360 DataView</Button>
               <Button color="default" component={RouterLink} to="/about">About</Button>
             </div>
           </Toolbar>
