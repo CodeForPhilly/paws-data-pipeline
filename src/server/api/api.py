@@ -2,7 +2,7 @@ import shutil
 import os
 
 from flask import send_file, request, redirect, jsonify, Blueprint, current_app
-from scripts import flow_script
+from pipeline import flow_script
 from api.file_uploader import validate_and_arrange_upload
 from config import UPLOAD_PATH, OUTPUT_PATH, CURRENT_SOURCE_FILES_PATH, ZIPPED_FILES
 

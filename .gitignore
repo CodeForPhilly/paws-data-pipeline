@@ -9,8 +9,8 @@ __pycache__
 .cache/
 venv
 /dist/
-src/scripts/__pycache__
-src/api/__pycache__
+src/server/pipeline/__pycache__
+src/server/api/__pycache__
 /src/client/.idea
 /.idea
 start_env.sh
