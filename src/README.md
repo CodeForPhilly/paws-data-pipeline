@@ -40,3 +40,8 @@ In server:
 1. `cd paws-data-pipeline`
 2. run `sh deploy_from_tar_docker-compose.sh`
 
+
+--------------------------
+Brutaly clean all docker related items from your machine
+--------------------------
+  `docker stop $(docker ps -aq) && docker rm $(docker ps -aq) && docker network prune -f && docker rmi -f $(docker images --filter dangling=true -qa) && docker volume rm $(docker volume ls --filter dangling=true -q) && docker rmi -f $(docker images -qa)`

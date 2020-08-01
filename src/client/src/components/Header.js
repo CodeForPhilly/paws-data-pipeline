@@ -7,7 +7,7 @@ export default function Header(props){
   return(
         <AppBar position="static" id="header" color="primary" elevation={1}> 
           <Toolbar style={{"minWidth":"100", "dipslay":"flex", "justifyContent":"space-between"}}>
-            <Typography variant="h6">Hello Paws User</Typography>
+            <Typography variant="h6">Paws Data Pipeline</Typography>
             <div style={{"display":"flex", "justifyContent":"space-between", "margin":"1em"}}>
               <Button color="default" component={RouterLink} to="/upload">Admin</Button>
               <Button color="default" component={RouterLink} to="/dataView">360 DataView</Button>

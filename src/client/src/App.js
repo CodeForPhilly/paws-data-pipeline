@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import Header from "./components/Header";
 
-import StartPage from './pages/Start';
-import Content from './pages/Upload';
+import HomePage from './pages/Home';
+import Admin from './pages/Admin';
 import DataView from './pages/DataView360';
 import About from './pages/About';
 
@@ -15,11 +15,11 @@ export default function App(props){
             <Switch>
               <Route exact path="/">
                 <Header />
-                <StartPage />
+                <HomePage />
               </Route>
               <Route path="/upload">
                 <Header />
-                <Content />
+                <Admin />
               </Route>
               <Route path="/about">
                 <Header />
