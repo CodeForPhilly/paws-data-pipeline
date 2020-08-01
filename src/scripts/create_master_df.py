@@ -4,20 +4,54 @@ import pandas as pd
 from config import engine
 from flask import current_app
 
+from models import User
+
 
 def __find_and_add_new_rows(connection, new_rows_dataframe):
     current_app.logger.info('   - Adding new rows to master table')
     master_df = pd.read_sql('select * from master', connection)
     master_df = master_df.merge(new_rows_dataframe, how='outer')
     master_df['created_date'] = datetime.datetime.now()
-    master_df.to_sql('master', connection, index_label='master_id', if_exists='replace') # TODO - master_id is getting duplicated. Fix this.
+    master_df.to_sql('master', connection, index_label='master_id', if_exists='replace')
 
 
 def __find_and_update_rows(connection, rows_to_update):
     current_app.logger.info('   - Updating rows to master table')
     master_df = pd.read_sql('select * from master', connection)
     master_df.update(rows_to_update)
-    master_df.to_sql('master', connection, index_label='master_id', if_exists='replace') # TODO - master_id is getting duplicated. Fix this.
+    master_df.to_sql('master', connection, index_label='master_id', if_exists='replace')
+
+
+def __create_new_user(connection, master_id, name, email, source):
+    # TODO: Take a list of users
+    current_app.logger.info('   - Creating new User')
+    user_df = pd.read_sql(
+        'select * from user_info',
+        connection
+    )
+    user_id = None
+    try:
+        user_id = user_df[user_df.master_id == master_id][user_df.source == source]['_id'][0]
+    except KeyError:
+        pass
+
+    if user_id is not None:
+        new_user = pd.DataFrame({
+            '_id': [user_id],
+            'master_id': [master_id],
+            'name': [name],
+            'email': [email],
+            'source': [source]
+        })
+    else:
+        new_user = pd.DataFrame({
+            'master_id': [master_id],
+            'name': [name],
+            'email': [email],
+            'source': [source]
+        })
+    user_df.update(new_user)
+    user_df.to_sql('user', connection, index_label='_id', if_exists='replace')
 
 
 def start(rows_for_master_df):
@@ -39,11 +73,3 @@ def start(rows_for_master_df):
             __find_and_update_rows(connection, updated_rows_dataframe)
 
         current_app.logger.info('   - Finish Creating master table')
-
-
-
-
-
-
-
-
