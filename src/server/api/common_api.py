@@ -1,10 +1,10 @@
 from config import engine
-from server.api import common_api
+from api.api import common_api
 from flask import jsonify
 from sqlalchemy.sql import text
 
 
-@common_api.route('/contacts/<search_text>', methods=['GET'])
+@common_api.route('/api/contacts/<search_text>', methods=['GET'])
 def get_contacts(search_text):
     with engine.connect() as connection:
         #todo: add logic to grab names from all sources - 1.salesforce 2.volgistics 3.petpoint once you find one, return all unique names and email
@@ -18,7 +18,7 @@ def get_contacts(search_text):
         return results
 
 
-@common_api.route('/360/<salesforce_id>', methods=['GET'])
+@common_api.route('/api/360/<salesforce_id>', methods=['GET'])
 def get_360(salesforce_id):
     result = {}
 
@@ -33,16 +33,18 @@ def get_360(salesforce_id):
         if salesforce_results:
             result['salesforcecontacts'] = salesforce_results[0]
 
-        query_result = connection.execute(
-            "select * from petpoint where outcome_person_num='{}'".format(master_row['result'][0]['petpoint_id']))
-        petpoint_results = [dict(row) for row in query_result]
-        if petpoint_results:
-            result['petpoint'] = petpoint_results[0]
-        
-        query_result = connection.execute(
-            "select * from volgistics where number='{}'".format(master_row['result'][0]['volgistics_id']))
-        volgistics_results = [dict(row) for row in query_result]
-        if volgistics_results:
-            result['volgistics'] = volgistics_results[0]
+        if master_row['result']:
+            query_result = connection.execute(
+                "select * from petpoint where outcome_person_num='{}'".format(master_row['result'][0]['petpoint_id']))
+            petpoint_results = [dict(row) for row in query_result]
+            if petpoint_results:
+                result['petpoint'] = petpoint_results[0]
+
+        if master_row['result']:
+            query_result = connection.execute(
+                "select * from volgistics where number='{}'".format(master_row['result'][0]['volgistics_id']))
+            volgistics_results = [dict(row) for row in query_result]
+            if volgistics_results:
+                result['volgistics'] = volgistics_results[0]
 
         return jsonify(result)

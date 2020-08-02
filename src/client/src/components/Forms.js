@@ -1,16 +1,15 @@
 import React, {useState} from 'react';
-import {Container, MenuItem, Select, FormControl, InputLabel, Button} from "@material-ui/core";
+import {MenuItem, Select, FormControl, InputLabel, Button} from "@material-ui/core";
+import Grid from '@material-ui/core/Grid';
 
-import useFetch from './scripts/useFetch';
+import CardContent from '@material-ui/core/CardContent';
 
-// These "forms" can be refactored to be a resuable component
-// https://reactjs.org/docs/forms.html
 
 function DownloadForm(props) {
   const [downloadSource, setDownloadSource] = useState("current");
 
   const makePath = (value) => {
-    return `http://localhost:3333/files/${value}?download_${value}_btn=${value}+sources`
+    return `http://localhost:3000/api/files/${value}?download_${value}_btn=${value}+sources`
   }
 
   const handleChange = (event)=>{
@@ -18,47 +17,52 @@ function DownloadForm(props) {
   }
 
   return (
-    <Container>
-    <FormControl>
-      <Select value={downloadSource}
-              onChange={handleChange}>
-        <InputLabel>Select Item to Download</InputLabel>
-        <MenuItem value={'current'}>Current</MenuItem>
-        <MenuItem value={'archived'}>Archived</MenuItem>
-        <MenuItem value={'output'}>Output</MenuItem>
-      </Select>
-    </FormControl>
-    <Button href={makePath(downloadSource)}>Download</Button>
-    </Container>
-  );
-
-}
-
-// Still need to refresh the list of availabe files on Server.
-// <Input /> objects are uncontrolled in React, so it is recommend that you use
-// the File API to interact with selected files. 
-// https://reactjs.org/docs/uncontrolled-components.html#the-file-input-tag
-
-function UploadForm(props) {
-  const [{response, isLoading, isError}, setUrl] = useFetch(null, null);
-
-  const execute = (event)=>{
-    event.preventDefault();
-
-    fetch("/execute")
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.log(error));
-  };
-
-  return (
     <div>
-    <form onSubmit={props.handleSubmit}>
-        <input type="file" ref={props.fileInput} multiple />
-        <button type="submit">Submit</button>
-    </form>
+        <CardContent>
+            <Grid container spacing={3}>
+                <Grid item>
+                    <FormControl>
+                          <Select value={downloadSource} onChange={handleChange} style={{"minWidth": "30px"}}>
+                            <InputLabel style={{"padding": "10px"}}>Select Item to Download</InputLabel>
+                            <MenuItem value={'current'}>Current</MenuItem>
+                            <MenuItem value={'archived'}>Archived</MenuItem>
+                            <MenuItem value={'output'}>Output</MenuItem>
+                          </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item>
+                    <Button href={makePath(downloadSource)} variant="contained" color="primary">Download</Button>
+                </Grid>
+            </Grid>
+        </CardContent>
     </div>
   );
 
 }
-export { UploadForm, DownloadForm };
+
+function UploadForm(props) {
+  return (
+    <div>
+        <form onSubmit={props.handleUpload}>
+            <CardContent>
+                <input type="file" value={props.fileInput} multiple />
+                <Button type="submit" variant="contained" color="primary">Upload</Button>
+            </CardContent>
+        </form>
+    </div>
+  );
+}
+
+function ExecuteForm(props) {
+    return (
+        <div>
+            <form onSubmit={props.handleExecute}>
+                <CardContent>
+                    <Button type="submit" variant="contained" color="primary">Execute</Button>
+                </CardContent>
+            </form>
+        </div>
+    );
+}
+
+export { UploadForm, DownloadForm, ExecuteForm };
