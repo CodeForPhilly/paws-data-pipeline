@@ -6,6 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class Master(Base):
     __tablename__ = "master"
 
@@ -15,6 +16,7 @@ class Master(Base):
     petpoint_id = Column(String)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
+
 
 class User(Base):
     __tablename__ = "user_info"
