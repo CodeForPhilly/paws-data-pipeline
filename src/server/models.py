@@ -6,17 +6,26 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class Master(Base):
     __tablename__ = "master"
 
     _id = Column(Integer, primary_key=True)
-    name = Column(String)
-    email = Column(String)
     salesforcecontacts_id = Column(String)
     volgistics_id = Column(String)
     petpoint_id = Column(String)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
+
+class User(Base):
+    __tablename__ = "user_info"
+
+    _id = Column(Integer, primary_key=True)
+    master_id = Column(Integer)
+    name = Column(String)
+    email = Column(String)
+    source = Column(String)
+    created_date = Column(DateTime, default=datetime.datetime.utcnow)
 
 class SalesForceContacts(Base):
     __tablename__ = "salesforcecontacts"
