@@ -12,16 +12,16 @@ def __find_and_add_new_rows(connection, new_rows_dataframe):
     master_df = pd.read_sql('select * from master', connection)
     master_df = master_df.merge(new_rows_dataframe, how='outer')
     master_df['created_date'] = datetime.datetime.now()
-    # replace with ORM insert
-    master_df.to_sql('master', connection, index=False)
+    #todo: replace with ORM insert (currently doesn't use the correct schema)
+    master_df.to_sql('master', connection, index=False, if_exists='replace')
 
 
 def __find_and_update_rows(connection, rows_to_update):
     current_app.logger.info('   - Updating rows to master table')
     master_df = pd.read_sql('select * from master', connection)
     master_df.update(rows_to_update)
-    # replace with ORM insert
-    master_df.to_sql('master', connection, index=False)
+    #todo: replace with ORM insert (currently doesn't use the correct schema)
+    master_df.to_sql('master', connection, index=False, if_exists='replace')
 
 
 def __create_new_user(connection, master_id, name, email, source):
@@ -53,7 +53,7 @@ def __create_new_user(connection, master_id, name, email, source):
             'source': [source]
         })
     user_df.update(new_user)
-    user_df.to_sql('user', connection, index=False)
+    user_df.to_sql('user', connection, index=False, if_exists='replace')
 
 
 def start(rows_for_master_df):

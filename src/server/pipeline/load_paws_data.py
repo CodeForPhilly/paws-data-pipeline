@@ -31,6 +31,7 @@ def start(file_path_list, should_drop_first_col=False):
 
     return result
 
+
 def __find_new_rows(result, table_name):
     source_id = DATASOURCE_MAPPING[table_name]['id']
     current_app.logger.info(table_name + ' ' + source_id)
@@ -64,6 +65,7 @@ def __find_new_rows(result, table_name):
         result['new_rows'][table_name] = rows_data
         ins = Base.metadata.tables[table_name].insert()
         conn.execute(ins, rows_data)
+
 
 def __find_updated_rows(found_rows, table_name):
     table_name_temp = table_name + '_stage'
