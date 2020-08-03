@@ -61,9 +61,9 @@ def __find_new_rows(connection, result, table_name):
         row_dict['created_date'] = now
         rows_data.append(row_dict)
 
-        result['new_rows'][table_name] = rows_data
-        ins = Base.metadata.tables[table_name].insert()
-        connection.execute(ins, rows_data)
+    result['new_rows'][table_name] = rows_data
+    ins = Base.metadata.tables[table_name].insert()
+    connection.execute(ins, rows_data)
 
 
 def __find_updated_rows(connection, found_rows, table_name):
