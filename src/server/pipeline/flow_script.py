@@ -1,6 +1,6 @@
 import os
 
-from scripts import load_paws_data, match_data, create_master_df, init_db_schema
+from pipeline import load_paws_data, match_data, create_master_df, init_db_schema
 from config import CURRENT_SOURCE_FILES_PATH
 from config import engine
 

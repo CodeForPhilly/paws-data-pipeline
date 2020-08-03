@@ -4,12 +4,15 @@ import pandas as pd
 
 from flask import current_app
 
+from models import User
+
 
 def __find_and_add_new_rows(connection, new_rows_dataframe):
     current_app.logger.info('   - Adding new rows to master table')
     master_df = pd.read_sql('select * from master', connection)
     master_df = master_df.merge(new_rows_dataframe, how='outer')
     master_df['created_date'] = datetime.datetime.now()
+    #todo: replace with ORM insert (currently doesn't use the correct schema)
     master_df.to_sql('master', connection, index=False, if_exists='replace')
 
 
@@ -17,6 +20,7 @@ def __find_and_update_rows(connection, rows_to_update):
     current_app.logger.info('   - Updating rows to master table')
     master_df = pd.read_sql('select * from master', connection)
     master_df.update(rows_to_update)
+    #todo: replace with ORM insert (currently doesn't use the correct schema)
     master_df.to_sql('master', connection, index=False, if_exists='replace')
 
 

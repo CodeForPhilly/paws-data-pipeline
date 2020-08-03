@@ -1,49 +1,31 @@
 import shutil
 import os
-import time
 
-from flask import send_file, render_template, request, redirect, flash, jsonify, Blueprint, current_app
-from scripts import flow_script
-from server.file_uploader import validate_and_arrange_upload
-from config import UPLOAD_PATH, OUTPUT_PATH, CURRENT_SOURCE_FILES_PATH, ZIPPED_FILES, REPORT_PATH
+from flask import send_file, request, redirect, jsonify, Blueprint, current_app
+from pipeline import flow_script
+from api.file_uploader import validate_and_arrange_upload
+from config import UPLOAD_PATH, OUTPUT_PATH, CURRENT_SOURCE_FILES_PATH, ZIPPED_FILES
 
 ALLOWED_EXTENSIONS = {'csv', 'xlsx'}
 
 admin_api = Blueprint('admin_api', __name__)
 common_api = Blueprint('common_api', __name__)
 
-
-@admin_api.route('/', methods=['GET'])
-def showIndexPage():
-    current_file_list = listCurrentFiles().json
-
-    # used in html
-    output_files_exist = len(os.listdir(REPORT_PATH)) > 0
-
-    return render_template('index.html', current_file_list=current_file_list, output_files_exist=output_files_exist)
-
-
-def allowed_file(filename):
+def __allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # file upload tutorial
-# https://flask.palletsprojects.com/en/1.1.x/patterns/fileuploads/
-@admin_api.route('/file', methods=['POST'])
+@admin_api.route('/api/file', methods=['POST'])
 def uploadCSV():
     if 'file' not in request.files:
-        flash('ERROR no file part', 'error')
         return redirect(request.url)
 
     for file in request.files.getlist('file'):
-        if not allowed_file(file.filename):
-            flash('ERROR not a csv: ' + file.filename, 'error')
-
-        else:
+        if __allowed_file(file.filename):
             try:
                 validate_and_arrange_upload(file, UPLOAD_PATH)
             except Exception as e:
-                flash("ERROR can't parse upload: " + file.filename, 'error')
                 current_app.logger.exception(e)
             finally:
                 file.close()
@@ -51,7 +33,7 @@ def uploadCSV():
     return redirect('/')
 
 
-@admin_api.route('/files/<destination>', methods=['GET'])
+@admin_api.route('/api/files/<destination>', methods=['GET'])
 def files(destination):
     current_app.logger.info('Start returning zip of all data')
     if request.args.get('download_current_btn'):
@@ -71,7 +53,7 @@ def files(destination):
         return str(e)
 
 
-@admin_api.route('/listCurrentFiles', methods=['GET'])
+@admin_api.route('/api/listCurrentFiles', methods=['GET'])
 def listCurrentFiles():
     result = None
 
@@ -84,16 +66,10 @@ def listCurrentFiles():
     return jsonify(result)
 
 
-@admin_api.route('/execute', methods=['GET'])
+@admin_api.route('/api/execute', methods=['GET'])
 def execute():
     current_app.logger.info('Execute flow')
     flow_script.start_flow()
-    flash('Successfully executed!', 'info')
 
-    return showIndexPage()
-
-
-@common_api.route('/time')
-def get_current_time():
-    return {'time': time.time()}
+    return jsonify(success=True)
 

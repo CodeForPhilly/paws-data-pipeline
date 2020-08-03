@@ -1,15 +1,7 @@
 import React, {useState} from 'react';
 import {Button, Paper, Select, InputLabel, MenuItem, FormControl, TextField, IconButton} from '@material-ui/core';
-import {Alert, AlertTitle} from '@material-ui/lab';
 import SearchIcon from '@material-ui/icons/Search';
 
-
-/*------------------------------------------------------/
-To Do:
-    1. Make sure atleast three chars are entered for a search
-    2. Warn user when results are > 200.
-
-/------------------------------------------------------*/
 function SearchParticipant(props){
     
     const [alertMinChars, setAlertMinChar]= useState(true);
@@ -28,10 +20,8 @@ function SearchParticipant(props){
 
     }
 
-    
-
     return (
-            <form onSubmit={props.handleSubmit} style={{"display":"flex"}}>
+            <form onSubmit={props.handleSearch} style={{"display":"flex"}}>
                 <TextField
                     error={alertMinChars}
                     helperText={alertMinChars?
@@ -110,9 +100,9 @@ function SearchBar(props){
    
     // Submits a request to contacts/<participant sub string> api
     // returns list of matching participants
-    const handleSubmit = (event)=>{
+    const handleSearch = (event)=>{
         event.preventDefault();
-        fetch('/contacts/'+participantSearch)
+        fetch('/api/contacts/'+participantSearch)
             .then(response => response.json())
             .then(response => {
                 setParticipantList(response.result);
@@ -130,7 +120,7 @@ function SearchBar(props){
                 "justifyContent":"space-around"
             }}>
             <SearchParticipant
-                handleSubmit={handleSubmit}
+                handleSearch={handleSearch}
                 participantSearch={participantSearch}
                 setParticipantSearch={setParticipantSearch}
             />

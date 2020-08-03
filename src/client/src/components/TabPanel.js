@@ -5,7 +5,7 @@ function TabPanel (props) {
     const { children, value, index } = props;
 
     return (
-        <div className="tab-panel" role="tabpanel" hidden={value !== index} id={'upload-download-reports-tab-${index}'}>
+        <div className="tab-panel" role="tabpanel" hidden={value !== index} id={`upload-download-reports-tab-${index}`}>
           {children}
         </div>
 

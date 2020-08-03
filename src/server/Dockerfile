@@ -24,11 +24,11 @@ RUN mkdir /app/static \
 
 RUN chmod -R 777 /app/static
 
-COPY src /paws-data-pipeline/
+COPY . /paws-data-pipeline/server
 
-RUN chmod 777 /paws-data-pipeline
+RUN chmod 777 /paws-data-pipeline/server
 
-WORKDIR /app/src
+WORKDIR /app
 
 CMD python app.py
 
