@@ -4,7 +4,6 @@ import numpy as np
 
 from fuzzywuzzy import fuzz
 from flask import current_app
-from config import engine
 from datasource_manager import DATASOURCE_MAPPING
 
 
@@ -91,9 +90,9 @@ def _reassign_combined_fields(df, field_mapping):
     return out_df
 
 
-def _get_most_recent_table_records_from_postgres(table_name):
+def _get_most_recent_table_records_from_postgres(connection, table_name):
     select_query = f'select * from {table_name} where archived_date is null'
-    return pd.read_sql(select_query, engine)
+    return pd.read_sql(select_query, connection)
 
 
 def _get_table_primary_key(source_name):
@@ -104,7 +103,7 @@ def _get_master_primary_key(source_name):
     return source_name + '_id'
 
 
-def start(added_or_updated_rows):
+def start(connection, added_or_updated_rows):
     # Match newly identified records to each other and existing master data
 
     # TODO: handling empty json within added_or_updated rows
@@ -135,10 +134,10 @@ def start(added_or_updated_rows):
 
     # Recreate the normalized MATCH_FIELDS of-record based on the available
     # source data in MATCH_PRIORITY order since not stored in postgres
-    master_df = pd.read_sql_table('master', engine).drop(columns=['created_date', 'archived_date'])
+    master_df = pd.read_sql_table('master', connection).drop(columns=['created_date', 'archived_date'])
     source_dfs = [
         _reassign_combined_fields(
-            _get_most_recent_table_records_from_postgres(table),
+            _get_most_recent_table_records_from_postgres(connection, table),
             {master_col: DATASOURCE_MAPPING[table][table_col] for master_col, table_col in MATCH_MAPPING.items()}
         ).rename(columns={_get_table_primary_key(table): _get_master_primary_key(table)})
         for table in MATCH_PRIORITY

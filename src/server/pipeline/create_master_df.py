@@ -1,7 +1,7 @@
 import datetime
 
 import pandas as pd
-from config import engine
+
 from flask import current_app
 
 from models import User
@@ -56,7 +56,7 @@ def __create_new_user(connection, master_id, name, email, source):
     user_df.to_sql('user', connection, index=False, if_exists='replace')
 
 
-def start(rows_for_master_df):
+def start(connection, rows_for_master_df):
     # Create a simple table with the following values:
     # ------------> master_id (primary key), petpoint_id, volgistics_id, salesforce_id, created_date, archived_date
     # petpoint[[outcome_person_id]]
@@ -65,13 +65,12 @@ def start(rows_for_master_df):
 
     current_app.logger.info('Start creating Master table')
 
-    with engine.connect() as connection:
-        if "new_matches" in rows_for_master_df:
-            new_rows_dataframe = pd.DataFrame(rows_for_master_df["new_matches"])
-            __find_and_add_new_rows(connection, new_rows_dataframe)
+    if "new_matches" in rows_for_master_df:
+        new_rows_dataframe = pd.DataFrame(rows_for_master_df["new_matches"])
+        __find_and_add_new_rows(connection, new_rows_dataframe)
 
-        if "updated_rows" in rows_for_master_df:
-            updated_rows_dataframe = pd.DataFrame(rows_for_master_df["updated_rows"])
-            __find_and_update_rows(connection, updated_rows_dataframe)
+    if "updated_rows" in rows_for_master_df:
+        updated_rows_dataframe = pd.DataFrame(rows_for_master_df["updated_rows"])
+        __find_and_update_rows(connection, updated_rows_dataframe)
 
-        current_app.logger.info('   - Finish Creating master table')
+    current_app.logger.info('   - Finish Creating master table')

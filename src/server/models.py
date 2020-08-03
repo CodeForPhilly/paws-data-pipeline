@@ -17,6 +17,7 @@ class Master(Base):
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
 
+
 class User(Base):
     __tablename__ = "user_info"
 
