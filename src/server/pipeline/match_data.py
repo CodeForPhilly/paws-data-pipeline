@@ -47,23 +47,6 @@ def join_on_all_columns(master_df, table_to_join):
     )
 
 
-def coalesce_fields_by_id(master_table, other_tables, fields):
-    # Add fields to master_table from other_tables, in priority order of how they're listed.
-    # Similar in intent to running a SQL COALESCE based on the join to each field.
-    df_with_updated_fields = master_table.copy()
-    for field in fields:
-        df_with_updated_fields[field] = np.nan
-    for table in other_tables:
-        # may need to adjust the loop based on the master ID, renaming the fields, depending on how the PK is stored in the volgistics table, etc.
-        # 1:1 validation fails (possibly due to NULL handling or repeated data); disabling since this block of code may get replaced as part of the
-        # transition to name+email within the master file
-        fields_from_table = master_table.merge(table, how='left')#, validate='1:1')
-        for field_to_update in fields:
-            df_with_updated_fields[field_to_update] = df_with_updated_fields[field_to_update].combine_first(
-                fields_from_table[field_to_update])
-    return df_with_updated_fields
-
-
 def normalize_table_for_comparison(df, cols):
     # Standardize specified columns to avoid common/irrelevant sources of mismatching (lowercase, etc)
     out_df = df.copy()
@@ -109,8 +92,46 @@ def start(connection, added_or_updated_rows):
     # TODO: handling empty json within added_or_updated rows
     # TODO: Log any changes to name or email to a file + visual notification for human review and handling?
 
+    # TODO: check the previous step in the pipeline, that it adds the Names/Emails to Users
+    # TODO: how will the names/emails be added to users--who is adding the new row to master?  For now, assume it's already been handled
+    # TODO: adding an assertion as such as: assert sum(Users['master_id'].isna()) == 0
+
     if len(added_or_updated_rows['updated_rows']) > 0:  # any updated rows
         raise NotImplementedError("match_data.start cannot yet handle row updates.")
+        # TODO: implement.  Given the new Users workflow, this will likely be just checking if name and email are updated.
+        # The only work would be (a) if changed, notify the user since it's hard to automate, or (b) if unchanged, it won't cause a new match.
+
+    orig_master = pd.read_sql_table('master', connection)  #.drop(columns=['created_date', 'archived_date'])
+    updated_master = orig_master.copy()
+    users_df = pd.read_sql_table('users', connection)
+
+    for table_name in MATCH_PRIORITY:
+        if table_name not in added_or_updated_rows['new_rows'].keys():
+            continue   # df is empty or not-updated, so there's nothing to do
+        
+        table_csv_key = _get_table_primary_key(table_name)
+        table_master_key = _get_master_primary_key(table_name)
+        table_cols = copy.deepcopy(MATCH_FIELDS)
+        table_cols.append(table_csv_key)
+
+        # Normalize table and rename columns for compatibility with users
+        table_to_match = (
+            pd.DataFrame(added_or_updated_rows['new_rows'][table_name])
+            .pipe(_reassign_combined_fields, {master_col: DATASOURCE_MAPPING[table_name][table_col] for master_col, table_col in MATCH_MAPPING.items()})
+            [table_cols]
+            .pipe(lambda df: normalize_table_for_comparison(df, MATCH_FIELDS))
+            .rename(columns={table_csv_key: table_master_key})
+        )
+        # Then get the corresponding rows in master
+        table_to_master = (
+            table_to_match
+            .merge(normalize_table_for_comparison(users_df, MATCH_FIELDS), how='left')
+            [[table_master_key, 'master_id']]
+        )
+        # TODO: save the results of this loop, compile all the tables into master, then return the results to the next step in the flow script.
+
+
+    # OLD CODE BELOW: finish the code above then delete the rest
 
     # Combine all of the loaded new_rows into a single dataframe
     new_df = pd.DataFrame({col: [] for col in MATCH_FIELDS})  # init empty dataframe
