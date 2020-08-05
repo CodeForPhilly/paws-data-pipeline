@@ -34,11 +34,16 @@ def get_360(salesforce_id):
             result['salesforcecontacts'] = salesforce_results[0]
 
         if master_row['result']:
-            query_result = connection.execute(
-                "select * from petpoint where outcome_person_num='{}'".format(master_row['result'][0]['petpoint_id']))
-            petpoint_results = [dict(row) for row in query_result]
+            petpoint_results = []
+
+            for item in master_row['result']:
+                query_result = connection.execute(
+                    "select * from petpoint where outcome_person_num='{}'".format(item['petpoint_id']))
+
+                petpoint_results = [dict(row) for row in query_result]
+
             if petpoint_results:
-                result['petpoint'] = petpoint_results[0]
+                result['petpoint'] = petpoint_results
 
         if master_row['result']:
             query_result = connection.execute(
