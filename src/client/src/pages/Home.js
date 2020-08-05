@@ -13,7 +13,7 @@ class HomePage extends Component {
         return (
             <Grid container justify = "center">
                 <Container style={{display: "flex",justifyContent: "center", alignItems: "center"}}>
-                    <h2>Welcome Paws User</h2>
+                    <h2>Welcome PAWS User</h2>
                 </Container>
                 <Container style={{display: "flex",justifyContent: "center", alignItems: "center"}}>
                     <img src={startImage} width="300" height="300"/>

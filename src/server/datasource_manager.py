@@ -38,7 +38,7 @@ DATASOURCE_MAPPING = {
         '_table_name': ['first_name', 'last_name']
     },
     'petpoint': {
-        'id': 'animal_num',
+        'id': 'outcome_person_num',
         'csv_names': CSV_HEADERS['petpoint'],
         'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['petpoint'])),
         'identifying_criteria': [],
