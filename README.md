@@ -39,6 +39,9 @@ not to mention opportunities to further tap the potential of these enthusiastic 
 
 This is a Code for Philly project operating under their code of conduct. 
 
+## Getting started
+see [Getting Started](GettingStarted.md) to run the app locally
+
 ## Project Plan
 
 ### Phase 1 (now - Jan 15 2020) 
