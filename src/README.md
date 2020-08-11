@@ -27,19 +27,18 @@ Production Private Network:
 - Create an account online.  
 - Sign in and join the network `e5cd7a9e1c5330df`  
 - Talk to Uri/Chris Alfano to approve your zeroTier node and send your node_id. 
-- URL: `http://10.147.20.146:5000/` 
+- URL: `http://10.147.20.146:3000/` 
 ---------------------------------------
 Deploy
 ---------------------------------------
 From local machine:
-1. ZIP the project folder: `tar -czvf src.tar.gz src`
-2. SCP the project to the server: `scp src.tar.gz [usrmname]@paws-data-pipeline.team-machine.phl.io:/home/[usrmname]/paws-data-pipeline`
-3. SSH into the server: `ssh [usrmname]@paws-data-pipeline.team-machine.phl.io`
+1. SSH into the server: `ssh [usrmname]@paws-data-pipeline.team-machine.phl.io` 
 
 In server:
-1. `cd paws-data-pipeline`
+1. access root
+2. git clone `https://github.com/CodeForPhilly/paws-data-pipeline.git`
+3. `cd paws-data-pipeline`
 2. run `sh deploy_from_tar_docker-compose.sh`
-
 
 --------------------------
 Brutaly clean all docker related items from your machine
