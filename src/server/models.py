@@ -70,6 +70,22 @@ class Volgistics(Base):
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
 
+class Volgistics_Shifts(Base):
+    __tablename__ = 'volgisticsshifts'
+
+    _id = Column(Integer, primary_key=True)
+    number = Column(String)
+    site = Column(String)
+    assignment = Column(String)
+    from_date = Column(DateTime)
+    to_date = Column(DateTime)
+    from_time = Column(String)
+    to_time = Column(String)
+    hours = Column(Integer)
+    no_call_no_show = Column(Integer)
+    call_email_to_miss_shift = Column(Integer)
+    absence = Column(Integer)
+
 class Petpoint(Base):
     __tablename__ = "petpoint"
 
