@@ -73,7 +73,7 @@ function ContactInfo(props){
             <Typography>
                 <BoldLabel value="Address" />
                 <span style={{"textTransform":"uppercase"}}>
-                    {get(props, "participant.mailing_street")}{',\t'}
+                    {get(props, "participant.mailing_street")}{'\t'}
                     {get(props, "participant.mailing_city")}{'\t'}
                 </span>
             </Typography>
