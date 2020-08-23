@@ -5,7 +5,7 @@ import Header from "./components/Header";
 
 import HomePage from './pages/Home';
 import Admin from './pages/Admin';
-import DataView from './pages/DataView360';
+import DataView from './pages/DataView360/DataView360';
 import About from './pages/About';
 
 /*basic routing of the app*/ 
