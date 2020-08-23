@@ -5,10 +5,6 @@ import { Container } from "@material-ui/core";
 
 
 class HomePage extends Component {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         return (
             <Grid container justify = "center">
@@ -16,7 +12,7 @@ class HomePage extends Component {
                     <h2>Welcome PAWS User</h2>
                 </Container>
                 <Container style={{display: "flex",justifyContent: "center", alignItems: "center"}}>
-                    <img src={startImage} width="300" height="300"/>
+                    <img src={startImage} alt="animal-friends" width="300" height="300"/>
                 </Container>
             </Grid>
         );

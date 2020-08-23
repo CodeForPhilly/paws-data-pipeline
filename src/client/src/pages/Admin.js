@@ -86,7 +86,7 @@ class Admin extends Component {
         this.setState({fileList: filesResponse});
 
         this.setState({fileListHtml: _.map(filesResponse, (fileName) => {
-            return <li>{fileName}</li>
+            return <li key={fileName}> {fileName}</li>
         })});
 
         //just a UX indication that a new list has been loaded
