@@ -51,7 +51,8 @@ def normalize_table_for_comparison(df, cols):
     # Standardize specified columns to avoid common/irrelevant sources of mismatching (lowercase, etc)
     out_df = df.copy()
     for column in cols:
-        out_df[column] = out_df[column].astype(str).str.strip().str.lower()
+        # NOTE: make sure this regex is correct
+        out_df[column] = out_df[column].astype(str).str.strip().str.lower().str.replace("[^a-z0-9]", "")
     return out_df
 
 
@@ -103,7 +104,7 @@ def start(connection, added_or_updated_rows):
 
     orig_master = pd.read_sql_table('master', connection)  #.drop(columns=['created_date', 'archived_date'])
     updated_master = orig_master.copy()
-    users_df = pd.read_sql_table('users', connection)
+    users_df = pd.read_sql_table('user_info', connection)
 
     for table_name in MATCH_PRIORITY:
         if table_name not in added_or_updated_rows['new_rows'].keys():

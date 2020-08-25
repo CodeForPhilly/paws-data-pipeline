@@ -8,7 +8,7 @@ from models import User
 
 
 def __find_and_add_new_rows(connection, new_rows_dataframe):
-    current_app.logger.info('   - Adding new rows to master table')
+    current_app.logger.info('   - Adding new rows to master and user_info tables')
 
     new_rows_dataframe = new_rows_dataframe.where(pd.notnull(new_rows_dataframe), None)
     new_rows_json = new_rows_dataframe.to_dict(orient='records')
