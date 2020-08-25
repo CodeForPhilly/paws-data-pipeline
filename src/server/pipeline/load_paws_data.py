@@ -20,13 +20,15 @@ def start(connection, file_path_list, should_drop_first_col=False):
         table_name = file_path.split('/')[-1].split('-')[0]
         current_app.logger.info('running load_paws_data on: ' + uploaded_file)
         df = pd.read_csv(file_path, encoding='cp1252')
+        current_app.logger.info('Populated DF')
         df = __clean_raw_data(df, should_drop_first_col)
-        df.to_sql(table_name + '_stage', connection, index=False, if_exists='replace')
-        
+        _dict = {c.name: c.type for c in Base.metadata.tables[table_name].c}
+        current_app.logger.info('Built schema dict') 
+        df.to_sql(table_name + '_stage', connection, index=False, if_exists='replace', dtype=_dict)
+        current_app.logger.info('looking for updated rows ')
+        __find_updated_rows(connection, result, table_name)
         current_app.logger.info('looking for new rows ')
         __find_new_rows(connection, result, table_name)
-        current_app.logger.info('looking for updated rows ')
-        #__find_updated_rows(connection, result, table_name)
         current_app.logger.info('   - finish load_paws_data on: ' + uploaded_file)
 
     return result
@@ -37,10 +39,9 @@ def __find_new_rows(connection, result, table_name):
     current_app.logger.info(table_name + ' ' + source_id)
     # find new rows
     rows = connection.execute(
-        'select t.* from {} t left join {} c on c."{}" = t."{}"::VARCHAR where c."{}" is null'.format(
+        'select t.* from {} t left join {} c on c."{}" = t."{}" where c."{}" is null'.format(
             table_name + "_stage", table_name, source_id, source_id, source_id))
-
-    current_app.logger.info('finished query')
+            
     rows_data = []
     now = datetime.now()
     tracked_columns = DATASOURCE_MAPPING[table_name]['tracked_columns']
@@ -81,7 +82,7 @@ def __find_updated_rows(connection, found_rows, table_name):
             select "{}" from (
                 select {} 
                 from {} t 
-                where exists (select 1 from {} c where c."{}" = t."{}"::VARCHAR and c.archived_date is null)
+                where exists (select 1 from {} c where c."{}" = t."{}" and c.archived_date is null)
                 except 
                 select {} 
                 from {} where archived_date is null
@@ -100,7 +101,7 @@ def __find_updated_rows(connection, found_rows, table_name):
         select "{}" from (
             select {}
             from {} t 
-            where exists (select 1 from {} c where c."{}" = t."{}"::text and c.archived_date is null)
+            where exists (select 1 from {} c where c."{}" = t."{}" and c.archived_date is null)
             except 
             select {}
             from {} where archived_date is null
@@ -110,7 +111,7 @@ def __find_updated_rows(connection, found_rows, table_name):
                primary_key, tracked_column_str, table_name)
     connection.execute(mark_deleted)
 
-    # insert new updated rows
+    # insert new updated rows ....eeek that's confusing
     ins = Base.metadata.tables[table_name].insert()
     connection.execute(ins, row_data)
 
