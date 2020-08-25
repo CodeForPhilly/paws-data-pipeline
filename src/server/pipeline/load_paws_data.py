@@ -92,8 +92,10 @@ def __find_updated_rows(connection, found_rows, table_name):
                primary_key, primary_key, tracked_column_str, table_name)
     rows = connection.execute(updated_query)
     row_data = __create_row_dicts(rows, tracked_columns)
-    updates = {table_name: row_data}
-    found_rows['updated_rows'] = updates
+
+    if row_data:
+        updates = {table_name: row_data}
+        found_rows['updated_rows'] = updates
 
     # mark old version of updated rows as archived
     mark_deleted = '''
