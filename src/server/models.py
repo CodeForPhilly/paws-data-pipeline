@@ -35,6 +35,7 @@ class SalesForceContacts(Base):
     contact_id = Column(String)
     first_name = Column(String)
     last_name = Column(String)
+    mailing_country = Column(String)
     mailing_street = Column(String)
     mailing_city = Column(String)
     mailing_state_province = Column(String)
