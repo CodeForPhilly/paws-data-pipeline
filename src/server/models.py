@@ -1,8 +1,9 @@
 import datetime
 
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -11,9 +12,9 @@ class Master(Base):
     __tablename__ = "master"
 
     _id = Column(Integer, primary_key=True)
-    salesforcecontacts_id = Column(String, default=None)
-    volgistics_id = Column(String, default=None)
-    petpoint_id = Column(String, default=None)
+    salesforcecontacts_id = Column(String, ForeignKey("salesforcecontacts._id"))
+    volgistics_id = Column(String, ForeignKey("volgistics._id"))
+    petpoint_id = Column(String, ForeignKey("petpoint._id"))
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
 
@@ -22,7 +23,7 @@ class User(Base):
     __tablename__ = "user_info"
 
     _id = Column(Integer, primary_key=True)
-    master_id = Column(Integer)
+    master_id = Column(Integer, ForeignKey("master._id"))
     name = Column(String)
     email = Column(String)
     source = Column(String)
