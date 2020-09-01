@@ -13,9 +13,11 @@ class Master(Base):
 
     _id = Column(Integer, primary_key=True)
     # NOTE: FK constraints from datasource_manager.DATASOURCE_MAPPING[table]['id']
-    salesforcecontacts_id = Column(String, ForeignKey("salesforcecontacts.contact_id"))
-    volgistics_id = Column(String, ForeignKey("volgistics.number"))
-    petpoint_id = Column(String, ForeignKey("petpoint.outcome_person_num"))
+    # But, an FK needs to reference either a PK or a column with unique constraint.
+    # For now, disabling the ForeignKey constraint (last present in 8cf6367c)
+    salesforcecontacts_id = Column(String)
+    volgistics_id = Column(String)
+    petpoint_id = Column(String)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
 
