@@ -11,9 +11,9 @@ class Master(Base):
     __tablename__ = "master"
 
     _id = Column(Integer, primary_key=True)
-    salesforcecontacts_id = Column(String)
-    volgistics_id = Column(String)
-    petpoint_id = Column(String)
+    salesforcecontacts_id = Column(String, default=None)
+    volgistics_id = Column(String, default=None)
+    petpoint_id = Column(String, default=None)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
 
@@ -35,6 +35,7 @@ class SalesForceContacts(Base):
     contact_id = Column(String)
     first_name = Column(String)
     last_name = Column(String)
+    mailing_country = Column(String)
     mailing_street = Column(String)
     mailing_city = Column(String)
     mailing_state_province = Column(String)
