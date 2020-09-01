@@ -107,7 +107,17 @@ def start(connection, added_or_updated_rows):
     orig_master = pd.read_sql_table('master', connection)  #.drop(columns=['created_date', 'archived_date'])
     updated_master = orig_master.copy()
     updated_master_rows = pd.Series()
-    users_df = pd.read_sql_table('user_info', connection)
+    orig_users = pd.read_sql_table('user_info', connection)
+    updated_users = orig_users
+    
+    # TODO: potentially updating the users table here
+    def _fill_missing_pk(df, pk='_id'):
+        # FIXME: STUB
+        return df.copy()
+    # then a loop over MATCH_PRIORITY, where we first fill in any missing users.
+    # Or, maybe this gets handled below, after the table_to_match step.
+    # Either way, we would need to assign the new master key in this script and pass the new Users records to add, under that flow?
+        
 
     for table_name in MATCH_PRIORITY:
         if table_name not in added_or_updated_rows['new_rows'].keys():
@@ -129,7 +139,7 @@ def start(connection, added_or_updated_rows):
         # Then get the corresponding rows in master
         table_to_master = (
             table_to_match
-            .merge(normalize_table_for_comparison(users_df, MATCH_FIELDS), how='left')
+            .merge(normalize_table_for_comparison(updated_users, MATCH_FIELDS), how='left')
             [[table_master_key, 'master_id']]
         )
 
