@@ -26,7 +26,7 @@ def start(connection, file_path_list, should_drop_first_col=False):
         current_app.logger.info('Built schema dict') 
         df.to_sql(table_name + '_stage', connection, index=False, if_exists='replace', dtype=_dict)
         current_app.logger.info('looking for updated rows ')
-        __find_updated_rows(connection, result, table_name)
+        #__find_updated_rows(connection, result, table_name)
         current_app.logger.info('looking for new rows ')
         __find_new_rows(connection, result, table_name)
         current_app.logger.info('   - finish load_paws_data on: ' + uploaded_file)

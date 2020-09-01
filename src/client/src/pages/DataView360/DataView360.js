@@ -67,7 +67,8 @@ class DataView360 extends Component {
                     <ContactInfo participant={_.get(this.state, "participantData.salesforcecontacts")} />
                     <Donations donations={[{date:"-", amount:"-", type:"-"}]} />
                     <Adoptions adoptions={_.get(this.state, 'participantData.petpoint')} />
-                    <Volunteer volunteer={_.get(this.state, 'participantData.volgistics.json')}/>
+                    <Volunteer volunteer={_.get(this.state, 'participantData.volgistics.json')}
+                    volunteerShifts={_.get(this.state, 'participantData.volgistics_shifts_results')}/>
 
                 </Paper>)}
                 {this.state.isDataBusy === true && (

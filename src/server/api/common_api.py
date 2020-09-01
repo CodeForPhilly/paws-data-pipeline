@@ -48,8 +48,16 @@ def get_360(salesforce_id):
         if master_row['result']:
             query_result = connection.execute(
                 "select * from volgistics where number='{}'".format(master_row['result'][0]['volgistics_id']))
+
             volgistics_results = [dict(row) for row in query_result]
+
+            query_result = connection.execute(
+                "select * from volgisticsshifts where number='{}'".format(master_row['result'][0]['volgistics_id']))
+
+            volgistics_shifts_results = [dict(row) for row in query_result]
+
             if volgistics_results:
                 result['volgistics'] = volgistics_results[0]
+                result['volgistics_shifts_results'] = volgistics_shifts_results
 
         return jsonify(result)
