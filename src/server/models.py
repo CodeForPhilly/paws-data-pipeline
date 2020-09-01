@@ -12,9 +12,10 @@ class Master(Base):
     __tablename__ = "master"
 
     _id = Column(Integer, primary_key=True)
-    salesforcecontacts_id = Column(String, ForeignKey("salesforcecontacts._id"))
-    volgistics_id = Column(String, ForeignKey("volgistics._id"))
-    petpoint_id = Column(String, ForeignKey("petpoint._id"))
+    # NOTE: FK constraints from datasource_manager.DATASOURCE_MAPPING[table]['id']
+    salesforcecontacts_id = Column(String, ForeignKey("salesforcecontacts.contact_id"))
+    volgistics_id = Column(String, ForeignKey("volgistics.number"))
+    petpoint_id = Column(String, ForeignKey("petpoint.outcome_person_num"))
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
 
