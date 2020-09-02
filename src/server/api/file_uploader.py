@@ -35,7 +35,6 @@ def determine_upload_type(file, file_extension, destination_path):
                     now_date = time.strftime("%Y-%m-%d--%H-%M-%S", now)
                     current_app.logger.info("  -File: " + filename + " Matches files type: " + src_type)
                     df.to_csv(os.path.join(destination_path, src_type + '-' + now_date + '.csv'))
-                    current_app.logger.info('  -Checking if file of type: ' + src_type + ' already exists')
                     clean_current_folder(destination_path + '/current', src_type)
                     df.to_csv(os.path.join(destination_path + '/current', src_type + '-' + now_date + '.csv'))
                     current_app.logger.info("  -Uploaded successfully as : " + src_type + '-' + now_date + '.' + file_extension)
