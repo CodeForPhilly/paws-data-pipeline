@@ -27,15 +27,11 @@ class Volunteer extends Component {
     }
 
     createShiftRows(shifts) {
-        const lastShiftsNoZero = _.filter(shifts, shift => {
-            return shift.hours !== 0;
+        const shiftsSorted = _.sortBy(shifts, shift => {
+            return new Date(shift.from).getTime();
         });
 
-        const shiftsSorted = _.sortBy(lastShiftsNoZero, shift => {
-            return new Date(shift.from_date).getTime();
-        });
-
-        const lastShifts = shiftsSorted.slice(shiftsSorted.length - SHIFTS_TO_SHOW - 1, shiftsSorted.length - 1)
+        const lastShifts = shiftsSorted.slice(shiftsSorted.length - SHIFTS_TO_SHOW, shiftsSorted.length)
 
         const result = _.map(lastShifts, shift => {
             return(<StyledTableRow>
