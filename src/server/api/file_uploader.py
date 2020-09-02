@@ -6,6 +6,7 @@ import threading
 from werkzeug.utils import secure_filename
 from flask import flash, current_app
 from datasource_manager import CSV_HEADERS
+from datasource_manager import DATASOURCE_MAPPING
 from openpyxl import load_workbook
 from tempfile import NamedTemporaryFile
 
@@ -43,14 +44,14 @@ def determine_upload_type(file, file_extension, destination_path):
 
 def excel_to_dataframes(xls):
     wb = load_workbook(xls)
-    dfs = []
     with NamedTemporaryFile() as tmp:
         wb.save(tmp.name)
         for sheetname in wb.sheetnames:
-            tmp.seek(0)
-            df = pd.read_excel(tmp.read(), sheetname)
-            dfs.append(df)
-    return dfs
+            for item in DATASOURCE_MAPPING:
+                if item['sheetname'] == sheetname:
+                    tmp.seek(0)
+                    df = pd.read_excel(tmp.read(), sheetname)
+                    return df
 
 def clean_current_folder(destination_path, src_type):
     if os.listdir(destination_path):
