@@ -36,7 +36,8 @@ DATASOURCE_MAPPING = {
         '_label': 'volgistics',
         'table_id': 'Number'.lower(),
         'table_email': 'Email'.lower(),
-        '_table_name': ['first_name', 'last_name']
+        '_table_name': ['first_name', 'last_name'],
+        'sheetname': 'Master'
     },
     'petpoint': {
         'id': 'outcome_person_num',
@@ -56,6 +57,7 @@ DATASOURCE_MAPPING = {
         '_label': 'volgisticsshifts',
         'table_id': 'number', 
         'table_email': None,
-        '_table_name': []
+        '_table_name': [],
+        'sheetname': 'Assignment'
     }
 }
