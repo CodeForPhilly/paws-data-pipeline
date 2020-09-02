@@ -13,7 +13,8 @@ CSV_HEADERS = {
                    'Street 3', 'City', 'State', 'Zip', 'All phone numbers', 'Home', 'Work', 'Cell', 'Email'],
     'salesforcecontacts': ['Contact ID', 'First Name', 'Last Name', 'Mailing Street', 'Mailing City',
                            'Mailing State/Province', 'Mailing Zip/Postal Code', 'Mailing Country', 'Phone', 'Mobile',
-                           'Email']
+                           'Email'],
+    'volgisticsshifts': ['Number', 'Site', 'Place', 'Assignment', 'Role', 'From', 'To', 'Spare date', 'Spare dropdown', 'Spare checkbox', 'Coordinator']
 }
 
 DATASOURCE_MAPPING = {
@@ -35,7 +36,8 @@ DATASOURCE_MAPPING = {
         '_label': 'volgistics',
         'table_id': 'Number'.lower(),
         'table_email': 'Email'.lower(),
-        '_table_name': ['first_name', 'last_name']
+        '_table_name': ['first_name', 'last_name'],
+        'sheetname': 'Master'
     },
     'petpoint': {
         'id': 'outcome_person_num',
@@ -46,5 +48,16 @@ DATASOURCE_MAPPING = {
         'table_id': 'outcome_person_num',  # "Outcome.Person.."
         'table_email': 'out_email',
         '_table_name': ['outcome_person_name']
+    },
+    'volgisticsshifts': {
+        'id': 'number',
+        'csv_names': CSV_HEADERS['volgisticsshifts'],
+        'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['volgisticsshifts'])),
+        'identifying_criteria': [],
+        '_label': 'volgisticsshifts',
+        'table_id': 'number', 
+        'table_email': None,
+        '_table_name': [],
+        'sheetname': 'Assignments'
     }
 }
