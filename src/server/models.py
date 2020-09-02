@@ -77,15 +77,15 @@ class Volgistics_Shifts(Base):
     _id = Column(Integer, primary_key=True)
     number = Column(String)
     site = Column(String)
+    place = Column(String)
     assignment = Column(String)
-    from_date = Column(DateTime)
-    to_date = Column(DateTime)
-    from_time = Column(String)
-    to_time = Column(String)
-    hours = Column(Integer)
-    no_call_no_show = Column(Integer)
-    call_email_to_miss_shift = Column(Integer)
-    absence = Column(Integer)
+    role = Column(String)
+    from_date = Column('from', DateTime)
+    to = Column(DateTime)
+    spare_date = Column(String)
+    spare_chechbox = Column(String)
+    coordinator = Column(String)
+
 
 class Petpoint(Base):
     __tablename__ = "petpoint"

@@ -39,8 +39,7 @@ class Volunteer extends Component {
 
         const result = _.map(lastShifts, shift => {
             return(<StyledTableRow>
-                    <TableCell align="center">{shift.from_date}</TableCell>
-                    <TableCell align="center">{shift.hours}</TableCell>
+                    <TableCell align="center">{shift.from}</TableCell>
                     <TableCell align="center">{shift.assignment}</TableCell>
                 </StyledTableRow>);
 
@@ -84,7 +83,6 @@ class Volunteer extends Component {
                             <TableHead>
                                 <TableRow>
                                     <StyledTableCell align="center">Date</StyledTableCell>
-                                    <StyledTableCell align="center">Hours</StyledTableCell>
                                     <StyledTableCell align="center">Assignment</StyledTableCell>
                                 </TableRow>
                             </TableHead>

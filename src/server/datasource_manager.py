@@ -14,7 +14,7 @@ CSV_HEADERS = {
     'salesforcecontacts': ['Contact ID', 'First Name', 'Last Name', 'Mailing Street', 'Mailing City',
                            'Mailing State/Province', 'Mailing Zip/Postal Code', 'Mailing Country', 'Phone', 'Mobile',
                            'Email'],
-    'volgisticsshifts': ['Number', 'Site', 'Place', 'Assignment', 'From date', 'To date', 'From time', 'To time', 'Hours', 'No Call/No Show', 'Call/Email to miss shift', 'Absence', 'Volunteers']
+    'volgisticsshifts': ['Number', 'Site', 'Place', 'Assignment', 'Role', 'From', 'To', 'Spare date', 'Spare dropdown', 'Spare checkbox', 'Coordinator']
 }
 
 DATASOURCE_MAPPING = {
@@ -58,6 +58,6 @@ DATASOURCE_MAPPING = {
         'table_id': 'number', 
         'table_email': None,
         '_table_name': [],
-        'sheetname': 'Assignment'
+        'sheetname': 'Assignments'
     }
 }
