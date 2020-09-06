@@ -110,9 +110,12 @@ def start(connection, added_or_updated_rows):
     updated_master = orig_master.copy()
     updated_master_keys = pd.Series()
     orig_users = pd.read_sql_table('user_info', connection)
-    updated_users = orig_users
+    updated_users = orig_users.copy()
     
     # TODO: potentially updating the users table here
+    # FIXME: the users table should be initialized (via create_master_df.__create_new_user) before
+    # the matching logic...possibly here?
+    # But also, it would add users one at a time, instead of bulk import
     def _fill_missing_pk(df, pk='_id'):
         # FIXME: STUB
         return df.copy()
@@ -143,11 +146,12 @@ def start(connection, added_or_updated_rows):
             table_to_match
             .merge(normalize_table_for_comparison(updated_users, MATCH_FIELDS), how='left')
             [[table_master_key, 'master_id']]
+            .rename(columns={'master_id': '_id'})  # master_id in user_info -> _id in master
         )
 
         # Save results of the loop
         updated_master = updated_master.merge(table_to_master, how='left')
-        updated_master_keys = updated_master_keys.append(table_to_master[table_master_key])
+        updated_master_keys = updated_master_keys.append(table_to_master["_id"])
 
     updated_master_keys = updated_master_keys.drop_duplicates()
     updated_master_rows = updated_master[updated_master["_id"].isin(updated_master_keys.values)]
