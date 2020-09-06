@@ -99,14 +99,16 @@ def start(connection, added_or_updated_rows):
 
     # WARNING: matching logic cannot get tested due to an error in FK constraints (salesforcecontacts ID)
 
-    if len(added_or_updated_rows['updated_rows']) > 0:  # any updated rows
-        raise NotImplementedError("match_data.start cannot yet handle row updates.")
+    # TODO: temporarily commenting out the updated_rows section, since multiple petpoint
+    # worksheets are being loaded here.
+    #if len(added_or_updated_rows['updated_rows']) > 0:  # any updated rows
+    #    raise NotImplementedError("match_data.start cannot yet handle row updates.")
         # TODO: implement.  Given the new Users workflow, this will likely be just checking if name and email are updated.
         # The only work would be (a) if changed, notify the user since it's hard to automate, or (b) if unchanged, it won't cause a new match.
 
     orig_master = pd.read_sql_table('master', connection)  #.drop(columns=['created_date', 'archived_date'])
     updated_master = orig_master.copy()
-    updated_master_rows = pd.Series()
+    updated_master_keys = pd.Series()
     orig_users = pd.read_sql_table('user_info', connection)
     updated_users = orig_users
     
@@ -148,10 +150,12 @@ def start(connection, added_or_updated_rows):
         updated_master_keys = updated_master_keys.append(table_to_master[table_master_key])
 
     updated_master_keys = updated_master_keys.drop_duplicates()
-    updated_master_rows = updated_master_keys.merge(updated_master, how='left')
+    updated_master_rows = updated_master[updated_master["_id"].isin(updated_master_keys.values)]
     # new will be similar, after adding the new User row logic at the beginning of this section.
     # asserting that the keys are not null.  If they are, we need a way to autoincrement (a new function for that??),
     # then adding in the new users, refreshing the users table, then running the matching logic.
     # Then, we'll have both the updated and new rows to pass to the next step.
+    print("EXPORTED VALUES")
+    print(updated_master_keys.values)
     return {'new_matches': [], 'updated_matches': updated_master_rows.to_dict(orient='records')}
 
