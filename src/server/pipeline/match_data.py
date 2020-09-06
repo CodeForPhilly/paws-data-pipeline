@@ -4,7 +4,9 @@ import numpy as np
 
 from fuzzywuzzy import fuzz
 from flask import current_app
+
 from datasource_manager import DATASOURCE_MAPPING
+from pipeline.create_master_df import __create_new_user
 
 
 # Matching columns and table order priority as established by
@@ -88,16 +90,13 @@ def _get_master_primary_key(source_name):
 
 
 def start(connection, added_or_updated_rows):
-    # Match newly identified records to each other and existing master data
+    # Match newly identified records to each other and existing master data.
+    # Also adds new users to the user_info table (consider moving to a separate step)
 
     # TODO: handling empty json within added_or_updated rows
     # TODO: Log any changes to name or email to a file + visual notification for human review and handling?
 
-    # TODO: check the previous step in the pipeline, that it adds the Names/Emails to Users
-    # TODO: how will the names/emails be added to users--who is adding the new row to master?  For now, assume it's already been handled
     # TODO: adding an assertion as such as: assert sum(Users['master_id'].isna()) == 0
-
-    # WARNING: matching logic cannot get tested due to an error in FK constraints (salesforcecontacts ID)
 
     # TODO: temporarily commenting out the updated_rows section, since multiple petpoint
     # worksheets are being loaded here.
@@ -105,25 +104,14 @@ def start(connection, added_or_updated_rows):
     #    raise NotImplementedError("match_data.start cannot yet handle row updates.")
         # TODO: implement.  Given the new Users workflow, this will likely be just checking if name and email are updated.
         # The only work would be (a) if changed, notify the user since it's hard to automate, or (b) if unchanged, it won't cause a new match.
+    # TODO: the updated_rows logic would be implemented (likely at the end?) by checking for any changes to user
+    # contact info.  If changed, notify the user to take action, possibly keeping both versions of records
 
     orig_master = pd.read_sql_table('master', connection)  #.drop(columns=['created_date', 'archived_date'])
     updated_master = orig_master.copy()
     updated_master_keys = pd.Series()
-    orig_users = pd.read_sql_table('user_info', connection)
-    updated_users = orig_users.copy()
+    users = pd.read_sql_table('user_info', connection)
     
-    # TODO: potentially updating the users table here
-    # FIXME: the users table should be initialized (via create_master_df.__create_new_user) before
-    # the matching logic...possibly here?
-    # But also, it would add users one at a time, instead of bulk import
-    def _fill_missing_pk(df, pk='_id'):
-        # FIXME: STUB
-        return df.copy()
-    # then a loop over MATCH_PRIORITY, where we first fill in any missing users.
-    # Or, maybe this gets handled below, after the table_to_match step.
-    # Either way, we would need to assign the new master key in this script and pass the new Users records to add, under that flow?
-        
-
     for table_name in MATCH_PRIORITY:
         if table_name not in added_or_updated_rows['new_rows'].keys():
             continue   # df is empty or not-updated, so there's nothing to do
@@ -138,13 +126,37 @@ def start(connection, added_or_updated_rows):
             pd.DataFrame(added_or_updated_rows['new_rows'][table_name])
             .pipe(_reassign_combined_fields, {master_col: DATASOURCE_MAPPING[table_name][table_col] for master_col, table_col in MATCH_MAPPING.items()})
             [table_cols]
-            .pipe(lambda df: normalize_table_for_comparison(df, MATCH_FIELDS))
             .rename(columns={table_csv_key: table_master_key})
         )
+        # Check for new entries to add to the users table
+        users_to_add = (
+            normalize_table_for_comparison(table_to_match, MATCH_FIELDS)
+            .merge(normalize_table_for_comparison(users, MATCH_FIELDS), how='left')
+            .pipe(lambda df: df[df["_id"].isna()])  # filtering for new user_info._id
+            [[table_master_key]].drop_duplicates()
+            .pipe(lambda df: table_to_match[table_to_match[table_master_key].isin(df[table_master_key].values)])
+            .drop_duplicates()
+        )
+        #print(users_to_add.shape)
+        #print(users_to_add.head())
+        # THEN A FOR LOOP TO ADD TO USERS
+        #users_to_add.apply(add_new_user_and_master, axis=1)  # row-wise
+        # - calls __create_new_user
+        # Unfortunately, this would also require adding a new row to master, corresponding with the new User
+        #
+        # README: This is a chicken and egg situation.  The flow of passing new or updated master_df entries
+        # does not fit with the user_info schema.  We need a master_id to initialize a new row in the Users table,
+        # but we're not currently creating new rows in master until the next step (as an output from this step).
+        # Should we be considering ELT instead of ETL?
+        #
+        users = pd.read_sql_table('user_info', connection)
+        # TODO: new assertion here, about users present?
+        
         # Then get the corresponding rows in master
         table_to_master = (
             table_to_match
-            .merge(normalize_table_for_comparison(updated_users, MATCH_FIELDS), how='left')
+            .pipe(lambda df: normalize_table_for_comparison(df, MATCH_FIELDS))
+            .merge(normalize_table_for_comparison(users, MATCH_FIELDS), how='left')
             [[table_master_key, 'master_id']]
             .rename(columns={'master_id': '_id'})  # master_id in user_info -> _id in master
         )
@@ -155,11 +167,7 @@ def start(connection, added_or_updated_rows):
 
     updated_master_keys = updated_master_keys.drop_duplicates()
     updated_master_rows = updated_master[updated_master["_id"].isin(updated_master_keys.values)]
-    # new will be similar, after adding the new User row logic at the beginning of this section.
-    # asserting that the keys are not null.  If they are, we need a way to autoincrement (a new function for that??),
-    # then adding in the new users, refreshing the users table, then running the matching logic.
-    # Then, we'll have both the updated and new rows to pass to the next step.
-    print("EXPORTED VALUES")
-    print(updated_master_keys.values)
+    #print("EXPORTED VALUES")
+    #print(updated_master_keys.values)
     return {'new_matches': [], 'updated_matches': updated_master_rows.to_dict(orient='records')}
 
