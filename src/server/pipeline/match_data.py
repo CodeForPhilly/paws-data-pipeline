@@ -108,9 +108,7 @@ def start(connection, added_or_updated_rows):
     # contact info.  If changed, notify the user to take action, possibly keeping both versions of records
 
     orig_master = pd.read_sql_table('master', connection)  #.drop(columns=['created_date', 'archived_date'])
-    updated_master = orig_master.copy()
-    updated_master_keys = pd.Series()
-    users = pd.read_sql_table('user_info', connection)
+    input_matches = pd.DataFrame(columns=MATCH_FIELDS)
     
     for table_name in MATCH_PRIORITY:
         if table_name not in added_or_updated_rows['new_rows'].keys():
@@ -128,46 +126,27 @@ def start(connection, added_or_updated_rows):
             [table_cols]
             .rename(columns={table_csv_key: table_master_key})
         )
-        # Check for new entries to add to the users table
-        users_to_add = (
-            normalize_table_for_comparison(table_to_match, MATCH_FIELDS)
-            .merge(normalize_table_for_comparison(users, MATCH_FIELDS), how='left')
-            .pipe(lambda df: df[df["_id"].isna()])  # filtering for new user_info._id
-            [[table_master_key]].drop_duplicates()
-            .pipe(lambda df: table_to_match[table_to_match[table_master_key].isin(df[table_master_key].values)])
-            .drop_duplicates()
-        )
-        #print(users_to_add.shape)
-        #print(users_to_add.head())
-        # THEN A FOR LOOP TO ADD TO USERS
-        #users_to_add.apply(add_new_user_and_master, axis=1)  # row-wise
-        # - calls __create_new_user
-        # Unfortunately, this would also require adding a new row to master, corresponding with the new User
-        #
-        # README: This is a chicken and egg situation.  The flow of passing new or updated master_df entries
-        # does not fit with the user_info schema.  We need a master_id to initialize a new row in the Users table,
-        # but we're not currently creating new rows in master until the next step (as an output from this step).
-        # Should we be considering ELT instead of ETL?
-        #
-        users = pd.read_sql_table('user_info', connection)
-        # TODO: new assertion here, about users present?
-        
-        # Then get the corresponding rows in master
-        table_to_master = (
-            table_to_match
-            .pipe(lambda df: normalize_table_for_comparison(df, MATCH_FIELDS))
-            .merge(normalize_table_for_comparison(users, MATCH_FIELDS), how='left')
-            [[table_master_key, 'master_id']]
-            .rename(columns={'master_id': '_id'})  # master_id in user_info -> _id in master
-        )
 
-        # Save results of the loop
-        updated_master = updated_master.merge(table_to_master, how='left')
-        updated_master_keys = updated_master_keys.append(table_to_master["_id"])
+        input_matches = input_matches.merge(table_to_match, how='outer')  # TODO: lowercase filtering preprocessing above
+        # TODO: consider adding a "source" field based on the first table to introduce the term (by filling NA?)
 
-    updated_master_keys = updated_master_keys.drop_duplicates()
-    updated_master_rows = updated_master[updated_master["_id"].isin(updated_master_keys.values)]
-    #print("EXPORTED VALUES")
-    #print(updated_master_keys.values)
-    return {'new_matches': [], 'updated_matches': updated_master_rows.to_dict(orient='records')}
+    # Resolve new vs. updated records in the master table
+    MERGE_INDICATOR = "_merge_indicator"
+    orig_users = pd.read_sql_table('user_info', connection)
+    new_users = (
+        input_matches
+        .merge(orig_users, how='outer', indicator=MERGE_INDICATOR)
+        .pipe(lambda df: df[df[MERGE_INDICATOR]=='left_only'])
+        .drop(columns=[MERGE_INDICATOR])
+    )
+    # TODO: updating the new_users by running the MERGE_INDICATOR and analyzing the separate components,
+    # translating the master PK as needed
+
+    print(new_users.query("name == 'Chris Kohl'").head(10).to_dict(orient='records'))  # Test case, with a known match
+
+    # TODO: finish the revised flow.  Match the user_info of the new tables to each other.
+    # At the end, compare which users exist in master/users (updates) vs. unique (new)
+    # vs. updated records (checking for changes).
+    # Then, someone will need to finish the new/update Users logic in the next step of the pipeline
+    return {'new_matches': [], 'updated_matches': new_users.to_dict(orient='records')}
 
