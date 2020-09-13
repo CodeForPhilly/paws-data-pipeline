@@ -20,7 +20,8 @@ CSV_HEADERS = {
                          'Spare checkbox', 'Coordinator'],
     'salesforcedonations': ['Recurring donor', 'Opportunity Owner', 'Account ID', 'Account Name', 'Opportunity ID',
                             'Opportunity Name', 'Stage', 'Fiscal Period', 'Amount', 'Probability (%)', 'Age',
-                            'Close Date', 'Created Date', 'Next Step', 'Lead Source', 'Type', 'Primary Campaign Source']
+                            'Close Date', 'Created Date', 'Next Step', 'Lead Source', 'Type', 'Primary Campaign',
+                            'Source', 'Contact ID', 'Primary Contact']
 }
 
 DATASOURCE_MAPPING = {
@@ -67,12 +68,12 @@ DATASOURCE_MAPPING = {
         'sheetname': 'Assignments'
     },
     'salesforcedonations': {
-        'id': 'account_id',
+        'id': 'contact_id',
         'csv_names': CSV_HEADERS['salesforcedonations'],
         'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['salesforcedonations'])),
         'identifying_criteria': [],
         '_label': 'salesforcedonations',
-        'table_id': 'account_id',
+        'table_id': 'contact_id',
         'table_email': None,
         '_table_name': []
     }

@@ -69,6 +69,8 @@ class SalesForceDonations(Base):
     next_step = Column(String)
     lead_source = Column(String)
     type = Column(String)
+    source = Column(String)
+    contact_id = Column(String)
     primary_campaign_source = Column(String)
 
 
