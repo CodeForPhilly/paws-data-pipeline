@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 import os
+import io
 import datetime
 
 from datasource_manager import DATASOURCE_MAPPING
@@ -18,18 +19,22 @@ def start(connection, file_path_list, should_drop_first_col=False):
     for uploaded_file in file_path_list:
         file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
         table_name = file_path.split('/')[-1].split('-')[0]
-        current_app.logger.info('running load_paws_data on: ' + uploaded_file)
-        df = pd.read_csv(file_path, encoding='cp1252')
-        current_app.logger.info('Populated DF')
+        current_app.logger.info('   - Running load_paws_data on: ' + uploaded_file)
+
+        df = pd.read_csv((io.BytesIO(open(file_path, "rb").read())), encoding='iso-8859-1')
+        current_app.logger.info('   - Populated DF')
+
         df = __clean_raw_data(df, should_drop_first_col)
         _dict = {c.name: c.type for c in Base.metadata.tables[table_name].c}
-        current_app.logger.info('Built schema dict') 
+        current_app.logger.info('   - Built schema dict')
+
         df.to_sql(table_name + '_stage', connection, index=False, if_exists='replace', dtype=_dict)
-        current_app.logger.info('looking for updated rows ')
+        ##current_app.logger.info('   - Looking for updated rows ')
         #__find_updated_rows(connection, result, table_name)
-        current_app.logger.info('looking for new rows ')
+        current_app.logger.info('   - Looking for new rows ')
+
         __find_new_rows(connection, result, table_name)
-        current_app.logger.info('   - finish load_paws_data on: ' + uploaded_file)
+        current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)
 
     return result
 
@@ -140,6 +145,7 @@ def __clean_raw_data(df, should_drop_first_col):
         df = df.drop(df.columns[0], axis=1)
 
     # strip whitespace and periods from headers, convert to lowercase
+    df.columns = df.columns.str.replace(r"\.*\(%\)\.*", "")
     df.columns = df.columns.str.lower().str.strip()
     df.columns = df.columns.str.replace(' ', '_')
     df.columns = df.columns.str.replace('#', 'num')

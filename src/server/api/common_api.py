@@ -30,8 +30,14 @@ def get_360(salesforce_id):
         query_result = connection.execute(
             "select * from salesforcecontacts where contact_id='{}'".format(salesforce_id))
         salesforce_results = [dict(row) for row in query_result]
+
+        query_result = connection.execute(
+            "select * from salesforcedonations where account_id='{}'".format(salesforce_id))
+        salesforcedonations_results = [dict(row) for row in query_result]
+
         if salesforce_results:
             result['salesforcecontacts'] = salesforce_results[0]
+            result['salesforcedonations'] = salesforcedonations_results[0]
 
         if master_row['result']:
             petpoint_results = []

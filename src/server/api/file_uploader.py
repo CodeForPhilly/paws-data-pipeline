@@ -2,6 +2,7 @@ import os
 import time
 import pandas as pd
 import threading
+import io
 
 from werkzeug.utils import secure_filename
 from flask import flash, current_app
@@ -12,6 +13,7 @@ from tempfile import NamedTemporaryFile
 
 SUCCESS_MSG = 'Uploaded Successfully!'
 lock = threading.Lock()
+
 
 def validate_and_arrange_upload(file, destination_path):
     current_app.logger.info("Start uploading file: " + file.filename)
@@ -24,7 +26,11 @@ def determine_upload_type(file, file_extension, destination_path):
     df = None
 
     if file_extension == 'csv':
-        dfs = [pd.read_csv(file.stream, encoding='iso-8859-1')]
+        dfs = [pd.read_csv(io.BytesIO(file.stream.read()), encoding='iso-8859-1')]
+
+        #for item in dfs[0]:
+        #    item = item.replace(' (%)', '')
+
         file.close()
     else:
         dfs = excel_to_dataframes(file)
@@ -62,6 +68,7 @@ def excel_to_dataframes(xls):
         df.append(pd.read_excel(xls))
 
     return df
+
 
 def clean_current_folder(destination_path, src_type):
     if os.listdir(destination_path):
