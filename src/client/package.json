@@ -15,7 +15,8 @@
         "react-scripts": "3.4.1"
     },
     "scripts": {
-        "start": "react-scripts start",
+        "start": "IS_LOCAL=false react-scripts start",
+        "start:local": "IS_LOCAL=true react-scripts start",
         "start-api": "cd api && ../../venv/bin/flask run --no-debugger",
         "build": "react-scripts build",
         "test": "react-scripts test",
