@@ -107,11 +107,13 @@ def start(connection, added_or_updated_rows):
     # TODO: the updated_rows logic would be implemented (likely at the end?) by checking for any changes to user
     # contact info.  If changed, notify the user to take action, possibly keeping both versions of records
 
-    orig_master = pd.read_sql_table('master', connection)  #.drop(columns=['created_date', 'archived_date'])
+    orig_master = pd.read_sql_table('master', connection)
     input_matches = pd.DataFrame(columns=MATCH_FIELDS)
+    input_matches['source'] = []  # also initializing an empty source field, similar to user_info
+    master_cols_to_keep = [x for x in MATCH_FIELDS]
     
     for table_name in MATCH_PRIORITY:
-        if table_name not in added_or_updated_rows['new_rows'].keys():
+        if table_name not in added_or_updated_rows['new_rows'].keys() or len(added_or_updated_rows['new_rows'][table_name]) == 0:
             continue   # df is empty or not-updated, so there's nothing to do
         
         table_csv_key = _get_table_primary_key(table_name)
@@ -125,28 +127,33 @@ def start(connection, added_or_updated_rows):
             .pipe(_reassign_combined_fields, {master_col: DATASOURCE_MAPPING[table_name][table_col] for master_col, table_col in MATCH_MAPPING.items()})
             [table_cols]
             .rename(columns={table_csv_key: table_master_key})
+            .pipe(normalize_table_for_comparison, MATCH_FIELDS)
         )
 
-        input_matches = input_matches.merge(table_to_match, how='outer')  # TODO: lowercase filtering preprocessing above
-        # TODO: consider adding a "source" field based on the first table to introduce the term (by filling NA?)
+        input_matches = input_matches.merge(table_to_match, how='outer')
+        input_matches['source'] = input_matches['source'].fillna(table_name)
+        master_cols_to_keep.append(table_master_key)
 
     # Resolve new vs. updated records in the master table
-    MERGE_INDICATOR = "_merge_indicator"
     orig_users = pd.read_sql_table('user_info', connection)
-    new_users = (
-        input_matches
-        .merge(orig_users, how='outer', indicator=MERGE_INDICATOR)
-        .pipe(lambda df: df[df[MERGE_INDICATOR]=='left_only'])
-        .drop(columns=[MERGE_INDICATOR])
+    updated_users, new_users, unused_users = join_on_all_columns(input_matches, orig_users)
+    # Convert format of new_users -> master_table minus _id column plus name+email_source from user_info
+    new_users = new_users[master_cols_to_keep].copy()
+    # Convert format of updated_users -> master table
+    updated_users = (
+        updated_users
+        [[x for x in updated_users.columns if x.endswith('_id')]]
+        .drop(columns='_id')
+        .rename(columns={'master_id': '_id'})
     )
-    # TODO: updating the new_users by running the MERGE_INDICATOR and analyzing the separate components,
-    # translating the master PK as needed
 
-    print(new_users.query("name == 'Chris Kohl'").head(10).to_dict(orient='records'))  # Test case, with a known match
+    print(new_users.query("name == 'chriskohl'").head(10).to_dict(orient='records'))  # Test case, with a known match
 
-    # TODO: finish the revised flow.  Match the user_info of the new tables to each other.
-    # At the end, compare which users exist in master/users (updates) vs. unique (new)
-    # vs. updated records (checking for changes).
-    # Then, someone will need to finish the new/update Users logic in the next step of the pipeline
-    return {'new_matches': [], 'updated_matches': new_users.to_dict(orient='records')}
+    # TODO: finish the new/update Users logic in the next step of the pipeline
+    # TODO: also consider how to update the user_info table with original name/email formatting, not lowercase
+    # TODO: what to do about matching and current data in master, when a new data source is skipped??
+    return {
+        'new_matches': new_users.to_dict(orient='recorts'),
+        'updated_matches': updated_users.to_dict(orient='records')
+    }
 
