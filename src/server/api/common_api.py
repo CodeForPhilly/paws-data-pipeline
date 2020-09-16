@@ -1,6 +1,6 @@
 from config import engine
 from api.api import common_api
-from flask import jsonify, flash, current_app
+from flask import jsonify
 from sqlalchemy.sql import text
 
 
