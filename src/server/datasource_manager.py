@@ -3,8 +3,10 @@ import re
 
 
 def __clean_csv_headers(header):
-    header =  re.sub(r'\.+', '_', header.lower().strip().replace(' ', '_').replace('/', '_'))
-    return header.replace('#','num')
+    header = re.sub(r'\.+', '_', header.lower().strip().replace(' ', '_').replace('/', '_'))
+    header = header.replace('(%)', '')
+    return header.replace('#', 'num')
+
 
 CSV_HEADERS = {
     'petpoint': ['Animal #', 'Outcome Person #', 'Outcome Person Name', 'Out Street Address', 'Out Unit Number',
@@ -14,7 +16,12 @@ CSV_HEADERS = {
     'salesforcecontacts': ['Contact ID', 'First Name', 'Last Name', 'Mailing Street', 'Mailing City',
                            'Mailing State/Province', 'Mailing Zip/Postal Code', 'Mailing Country', 'Phone', 'Mobile',
                            'Email'],
-    'volgisticsshifts': ['Number', 'Site', 'Place', 'Assignment', 'Role', 'From', 'To', 'Spare date', 'Spare dropdown', 'Spare checkbox', 'Coordinator']
+    'volgisticsshifts': ['Number', 'Site', 'Place', 'Assignment', 'Role', 'From', 'To', 'Spare date', 'Spare dropdown',
+                         'Spare checkbox', 'Coordinator'],
+    'salesforcedonations': ['Recurring donor', 'Opportunity Owner', 'Account ID', 'Account Name', 'Opportunity ID',
+                            'Opportunity Name', 'Stage', 'Fiscal Period', 'Amount', 'Probability (%)', 'Age',
+                            'Close Date', 'Created Date', 'Next Step', 'Lead Source', 'Type', 'Primary Campaign',
+                            'Source', 'Contact ID', 'Primary Contact']
 }
 
 DATASOURCE_MAPPING = {
@@ -55,9 +62,19 @@ DATASOURCE_MAPPING = {
         'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['volgisticsshifts'])),
         'identifying_criteria': [],
         '_label': 'volgisticsshifts',
-        'table_id': 'number', 
+        'table_id': 'number',
         'table_email': None,
         '_table_name': [],
         'sheetname': 'Assignments'
+    },
+    'salesforcedonations': {
+        'id': 'contact_id',
+        'csv_names': CSV_HEADERS['salesforcedonations'],
+        'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['salesforcedonations'])),
+        'identifying_criteria': [],
+        '_label': 'salesforcedonations',
+        'table_id': 'contact_id',
+        'table_email': None,
+        '_table_name': []
     }
 }
