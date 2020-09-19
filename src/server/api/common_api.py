@@ -35,7 +35,7 @@ def get_360(salesforce_id):
             result['salesforcecontacts'] = salesforce_results[0]
 
         query_result = connection.execute(
-            "select * from salesforcedonations where account_id='{}'".format(salesforce_id))
+            "select * from salesforcedonations where contact_id='{}'".format(salesforce_id))
         salesforcedonations_results = [dict(row) for row in query_result]
 
         if salesforcedonations_results:

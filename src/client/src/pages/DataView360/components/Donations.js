@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import _ from 'lodash';
+
 
 const StyledTableCell = withStyles((theme)=>({
     head:{
@@ -17,25 +19,38 @@ const StyledTableRow = withStyles((theme)=>({
     }
 }))(TableRow);
 
+const ROWS_TO_SHOW = 3
+
 class Donations extends Component {
     constructor(props) {
         super(props);
 
-        this.createRow = this.createRow.bind(this);
+        this.createRows = this.createRows.bind(this);
     }
 
-    createRow(item) {
-        return( <StyledTableRow>
-                    <TableCell align="center">{item.date}</TableCell>
-                    <TableCell align="center">{item.amount}</TableCell>
-                    <TableCell align="center">{item.type}</TableCell>
+    createRows(donations) {
+
+        const donationsSorted = _.sortBy(donations, donation => {
+            return Date(donation.created_date);
+        });
+
+        const latestDonations = donationsSorted.slice(0,ROWS_TO_SHOW);
+
+        const result = _.map(latestDonations, donation => {
+            return( <StyledTableRow>
+                    <TableCell align="center">{donation.close_date}</TableCell>
+                    <TableCell align="center">${donation.amount}</TableCell>
+                    <TableCell align="center">{donation.type}</TableCell>
                 </StyledTableRow>);
+        });
+
+        return result;
     }
 
     render() {
         return (
             <Container style={{"marginTop":"1em"}}>
-                <Typography align='center' gutterBottom='true' variant='h4'>Donation Records</Typography>
+                <Typography align='center' gutterBottom='true' variant='h4'>Financial Support Activity(Top 3)</Typography>
                 <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                     <Table>
                         <TableHead>
@@ -46,7 +61,7 @@ class Donations extends Component {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            { this.props.donations && this.props.donations.map(i => this.createRow(i)) }
+                            { this.props.donations && this.createRows(this.props.donations) }
                         </TableBody>
                     </Table>
                 </TableContainer>

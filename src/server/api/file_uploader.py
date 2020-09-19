@@ -27,10 +27,6 @@ def determine_upload_type(file, file_extension, destination_path):
 
     if file_extension == 'csv':
         dfs = [pd.read_csv(io.BytesIO(file.stream.read()), encoding='iso-8859-1')]
-
-        #for item in dfs[0]:
-        #    item = item.replace(' (%)', '')
-
         file.close()
     else:
         dfs = excel_to_dataframes(file)
