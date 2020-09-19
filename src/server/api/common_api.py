@@ -11,8 +11,8 @@ def get_contacts(search_text):
 
         names = search_text.split(" ")
         if len(names) == 2:
-            first_name = names[1]
-            last_name = names[0]
+            first_name = names[0]
+            last_name = names[1]
             # note: query is an AND and the first name starts with the value 
             query = text("select concat(first_name,' ',last_name) as name, email, contact_id from salesforcecontacts \
                 WHERE lower(first_name) like :first_name \
