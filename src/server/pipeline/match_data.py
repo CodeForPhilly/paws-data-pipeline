@@ -98,6 +98,7 @@ def start(connection, added_or_updated_rows):
     input_matches = pd.DataFrame(columns=MATCH_FIELDS)
     input_matches['source'] = []  # also initializing an empty source field, similar to user_info
     master_cols_to_keep = [x for x in MATCH_FIELDS]
+    master_cols_to_keep.append('source')
     
     # TODO: handling row updates (possibly)
     # Check consistency of updated_rows
