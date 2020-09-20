@@ -131,7 +131,6 @@ def start(connection, added_or_updated_rows):
         orig_compared_cols = ['original_' + col_name for col_name in MATCH_FIELDS]
 
         input_matches = input_matches.merge(table_to_match, how='outer')
-        # TODO: DROPPING THE ORIG COLUMNS AND KEEPING, AS AN IF STATEMENT ON THE fillna STATEMENT
         input_matches['source'].fillna(table_name, inplace=True)
         for col in MATCH_FIELDS:  # also fill untransformed original_cols from source
             if 'source_'+col not in input_matches.columns:
@@ -153,7 +152,7 @@ def start(connection, added_or_updated_rows):
         [master_cols_to_keep]
         .copy()
     )
-    # Convert format of updated_users -> master table
+    # Convert format of updated_users -> master table. Reports the new table_id cols in terms of user_info
     updated_users = (
         updated_users
         [[x for x in updated_users.columns if x.endswith('_id')]]
@@ -163,7 +162,6 @@ def start(connection, added_or_updated_rows):
 
     print(new_users.query("name == 'Chris Kohl'").head(10).to_dict(orient='records'))  # Test case, with a known match
 
-    # TODO: what to do about matching and current data in master, when a new data source is skipped??
     return {
         'new_matches': new_users.to_dict(orient='records'),
         'updated_matches': updated_users.to_dict(orient='records')
