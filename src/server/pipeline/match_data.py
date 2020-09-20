@@ -91,27 +91,24 @@ def _get_master_primary_key(source_name):
 
 def start(connection, added_or_updated_rows):
     # Match newly identified records to each other and existing master data.
-    # Also adds new users to the user_info table (consider moving to a separate step)
-
-    # TODO: handling empty json within added_or_updated rows
-    # TODO: Log any changes to name or email to a file + visual notification for human review and handling?
-
-    # TODO: adding an assertion as such as: assert sum(Users['master_id'].isna()) == 0
-
-    # TODO: temporarily commenting out the updated_rows section, since multiple petpoint
-    # worksheets are being loaded here.
-    #if len(added_or_updated_rows['updated_rows']) > 0:  # any updated rows
-    #    raise NotImplementedError("match_data.start cannot yet handle row updates.")
-        # TODO: implement.  Given the new Users workflow, this will likely be just checking if name and email are updated.
-        # The only work would be (a) if changed, notify the user since it's hard to automate, or (b) if unchanged, it won't cause a new match.
-    # TODO: the updated_rows logic would be implemented (likely at the end?) by checking for any changes to user
-    # contact info.  If changed, notify the user to take action, possibly keeping both versions of records
 
     orig_master = pd.read_sql_table('master', connection)
     input_matches = pd.DataFrame(columns=MATCH_FIELDS)
     input_matches['source'] = []  # also initializing an empty source field, similar to user_info
     master_cols_to_keep = [x for x in MATCH_FIELDS]
     
+    # TODO: handling row updates (possibly)
+    # Check consistency of updated_rows
+    # If the matching fields (name or email) are updated, then flag the row for human review and processing
+    # (e.g. deciding matching when a name changes)
+    #for table_name, table_json in added_or_updated_rows['updated_rows'].items():
+    #    if len(table_json) == 0:
+    #        continue  # empty df, so nothing to do
+    #    proposed_updates = pd.DataFrame(table_json)
+    # Then, map the proposed update ID back to master table to get the saved user_info name+email
+    # Only keep rows where there is a mismatch in name+email. Report these rows in the output dict.
+        
+    # Match records for new users
     for table_name in MATCH_PRIORITY:
         if table_name not in added_or_updated_rows['new_rows'].keys() or len(added_or_updated_rows['new_rows'][table_name]) == 0:
             continue   # df is empty or not-updated, so there's nothing to do
@@ -149,7 +146,6 @@ def start(connection, added_or_updated_rows):
 
     print(new_users.query("name == 'chriskohl'").head(10).to_dict(orient='records'))  # Test case, with a known match
 
-    # TODO: finish the new/update Users logic in the next step of the pipeline
     # TODO: also consider how to update the user_info table with original name/email formatting, not lowercase
     # TODO: what to do about matching and current data in master, when a new data source is skipped??
     return {
