@@ -49,10 +49,12 @@ def join_on_all_columns(master_df, table_to_join):
     )
 
 
-def normalize_table_for_comparison(df, cols):
+def normalize_table_for_comparison(df, cols, orig_prefix=None):
     # Standardize specified columns to avoid common/irrelevant sources of mismatching (lowercase, etc)
     out_df = df.copy()
     for column in cols:
+        if orig_prefix is not None:
+            out_df[orig_prefix+column] = out_df[column]
         # NOTE: make sure this regex is correct
         out_df[column] = out_df[column].astype(str).str.strip().str.lower().str.replace("[^a-z0-9]", "")
     return out_df
@@ -124,18 +126,33 @@ def start(connection, added_or_updated_rows):
             .pipe(_reassign_combined_fields, {master_col: DATASOURCE_MAPPING[table_name][table_col] for master_col, table_col in MATCH_MAPPING.items()})
             [table_cols]
             .rename(columns={table_csv_key: table_master_key})
-            .pipe(normalize_table_for_comparison, MATCH_FIELDS)
+            .pipe(normalize_table_for_comparison, MATCH_FIELDS, orig_prefix='original_')
         )
+        orig_compared_cols = ['original_' + col_name for col_name in MATCH_FIELDS]
 
         input_matches = input_matches.merge(table_to_match, how='outer')
-        input_matches['source'] = input_matches['source'].fillna(table_name)
+        # TODO: DROPPING THE ORIG COLUMNS AND KEEPING, AS AN IF STATEMENT ON THE fillna STATEMENT
+        input_matches['source'].fillna(table_name, inplace=True)
+        for col in MATCH_FIELDS:  # also fill untransformed original_cols from source
+            if 'source_'+col not in input_matches.columns:
+                input_matches['source_'+col] = np.nan
+            input_matches['source_'+col].fillna(input_matches['original_'+col], inplace=True)
+            del input_matches['original_'+col]
         master_cols_to_keep.append(table_master_key)
 
     # Resolve new vs. updated records in the master table
     orig_users = pd.read_sql_table('user_info', connection)
-    updated_users, new_users, unused_users = join_on_all_columns(input_matches, orig_users)
+    updated_users, new_users, unused_users = join_on_all_columns(
+        input_matches,
+        normalize_table_for_comparison(orig_users, MATCH_FIELDS)
+    )
     # Convert format of new_users -> master_table minus _id column plus name+email_source from user_info
-    new_users = new_users[master_cols_to_keep].copy()
+    new_users = (
+        new_users
+        .drop(columns=MATCH_FIELDS).rename(columns={'source_'+x: x for x in MATCH_FIELDS})
+        [master_cols_to_keep]
+        .copy()
+    )
     # Convert format of updated_users -> master table
     updated_users = (
         updated_users
@@ -144,12 +161,11 @@ def start(connection, added_or_updated_rows):
         .rename(columns={'master_id': '_id'})
     )
 
-    print(new_users.query("name == 'chriskohl'").head(10).to_dict(orient='records'))  # Test case, with a known match
+    print(new_users.query("name == 'Chris Kohl'").head(10).to_dict(orient='records'))  # Test case, with a known match
 
-    # TODO: also consider how to update the user_info table with original name/email formatting, not lowercase
     # TODO: what to do about matching and current data in master, when a new data source is skipped??
     return {
-        'new_matches': new_users.to_dict(orient='recorts'),
+        'new_matches': new_users.to_dict(orient='records'),
         'updated_matches': updated_users.to_dict(orient='records')
     }
 
