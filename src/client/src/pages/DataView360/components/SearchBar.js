@@ -36,7 +36,17 @@ class SearchBar extends Component {
         let searchStr = _.get(event, 'target.value');
 
         if(_.isEmpty(searchStr) !== true) {
-            this.setState({alertMinChars: searchStr.length > 2 ? false : true});
+            const searchStrSplitted = searchStr.split(' ');
+            let shouldShowAlert = false;
+
+            if(_.size(searchStrSplitted) === 2) {
+                shouldShowAlert = _.size(searchStrSplitted[0]) < 3 || _.size(searchStrSplitted[1]) < 3;
+            }
+            else if (_.size(searchStrSplitted) === 1) {
+                shouldShowAlert = _.size(searchStrSplitted[0]) < 3;
+            }
+
+            this.setState({alertMinChars: shouldShowAlert});
         }
         this.setState({participantSearch: searchStr});
     }
@@ -44,11 +54,11 @@ class SearchBar extends Component {
     searchParticipant(event) {
         return (
                 <form onSubmit={this.handleParticipantSearch} style={{"display":"flex"}}>
-                    <TextField
+                    <TextField style={{"min-width":"300px"}}
                         error={this.state.alertMinChars}
-                        helperText={this.state.alertMinChars ? "Requires 3 search characters" : ""}
+                        helperText={this.state.alertMinChars ? "Requires 3 search characters for first and last name" : ""}
                         id="participant-search"
-                        label="search name"
+                        label="Search by First or Full name(first last)"
                         value={this.state.participantSearch}
                         variant="outlined"
                         onChange={this.handleParticipantKeyStroke} />

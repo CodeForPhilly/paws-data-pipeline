@@ -3,6 +3,7 @@ pandas==1.0.0
 numpy==1.18.1
 fuzzywuzzy==0.17.0
 sqlalchemy
+sqlalchemy_utils
 psycopg2-binary==2.8.4
 python-Levenshtein-wheels
 xlrd
