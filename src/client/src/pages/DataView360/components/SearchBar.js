@@ -58,7 +58,7 @@ class SearchBar extends Component {
                         error={this.state.alertMinChars}
                         helperText={this.state.alertMinChars ? "Requires 3 search characters for first and last name" : ""}
                         id="participant-search"
-                        label="Search by Full Name"
+                        label="Search by First or Full Name"
                         value={this.state.participantSearch}
                         variant="outlined"
                         onChange={this.handleParticipantKeyStroke} />
