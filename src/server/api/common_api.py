@@ -15,15 +15,15 @@ def get_contacts(search_text):
             last_name = names[1]
             # note: query is an AND and the first name starts with the value 
             query = text("select concat(first_name,' ',last_name) as name, email, contact_id from salesforcecontacts \
-                WHERE lower(first_name) like :first_name \
-                AND lower(last_name) like :last_name order by last_name")
-            query_result = connection.execute(query, first_name='{}%'.format(first_name), last_name='%{}%'.format(last_name))
+                WHERE lower(first_name) like :first_name AND lower(last_name) like :last_name order by last_name")
+            query_result = connection.execute(query, first_name='{}%'.format(first_name),
+                                              last_name='{}%'.format(last_name))
         else:
-            #todo: add logic to grab names from all sources - 1.salesforce 2.volgistics 3.petpoint once you find one, return all unique names and email
+            # todo: add logic to grab names from all sources - 1.salesforce 2.volgistics 3.petpoint once you find one, return all unique names and email
             query = text("select concat(first_name,' ',last_name) as name, email, contact_id from salesforcecontacts \
                 WHERE lower(first_name) like :search_text \
                 OR lower(last_name) like :search_text order by last_name")
-            query_result = connection.execute(query, search_text='%{}%'.format(search_text))
+            query_result = connection.execute(query, search_text='{}%'.format(search_text))
 
         results = jsonify({'result': [dict(row) for row in query_result]})
 
