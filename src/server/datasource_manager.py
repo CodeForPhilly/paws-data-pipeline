@@ -3,8 +3,8 @@ import re
 
 
 def __clean_csv_headers(header):
+    header = re.sub(r'\s\(.*\)', '', header)
     header = re.sub(r'\.+', '_', header.lower().strip().replace(' ', '_').replace('/', '_'))
-    header = header.replace('(%)', '')
     return header.replace('#', 'num')
 
 
