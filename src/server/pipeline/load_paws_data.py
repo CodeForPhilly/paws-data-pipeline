@@ -62,12 +62,7 @@ def __find_new_rows(connection, result, table_name):
                 else:
                     row_dict[key_value[0]] = key_value[1]
             json_dict[key_value[0]] = key_value[1]
-
-        # temporary fix for suffix in sales force donations
-        if table_name == 'salesforcedonations':
-            if row_dict['contact_id']:
-                row_dict['contact_id'] = row_dict['contact_id'][0:-3]
-
+        
         row_dict['json'] = json_dict
         row_dict['created_date'] = now
         rows_data.append(row_dict)
@@ -152,9 +147,10 @@ def __clean_raw_data(df, should_drop_first_col):
     # strip whitespace and periods from headers, convert to lowercase
     df.columns = df.columns.str.replace(r"\.*\(%\)\.*", "")
     df.columns = df.columns.str.lower().str.strip()
+    df.columns = df.columns.map(lambda x: re.sub(r'\s\(.*\)', '', x))
     df.columns = df.columns.str.replace(' ', '_')
     df.columns = df.columns.str.replace('#', 'num')
     df.columns = df.columns.str.replace('/', '_')
     df.columns = df.columns.map(lambda x: re.sub(r'\.+', '_', x))
-
+    
     return df

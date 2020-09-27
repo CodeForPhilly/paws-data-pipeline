@@ -18,10 +18,10 @@ CSV_HEADERS = {
                            'Email'],
     'volgisticsshifts': ['Number', 'Site', 'Place', 'Assignment', 'Role', 'From', 'To', 'Spare date', 'Spare dropdown',
                          'Spare checkbox', 'Coordinator'],
-    'salesforcedonations': ['Recurring donor', 'Opportunity Owner', 'Account ID', 'Account Name', 'Opportunity ID',
+    'salesforcedonations': ['Recurring donor', 'Opportunity Owner', 'Account Name', 'Opportunity ID (18 Digit)', 'Account ID (18 digit)', 
                             'Opportunity Name', 'Stage', 'Fiscal Period', 'Amount', 'Probability (%)', 'Age',
-                            'Close Date', 'Created Date', 'Next Step', 'Lead Source', 'Type', 'Primary Campaign',
-                            'Source', 'Contact ID', 'Primary Contact']
+                            'Close Date', 'Created Date', 'Type', 'Primary Campaign Source',
+                            'Source', 'Contact ID (18 Digit)', 'Primary Contact']
 }
 
 DATASOURCE_MAPPING = {

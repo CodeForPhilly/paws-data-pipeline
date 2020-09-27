@@ -31,10 +31,12 @@ def determine_upload_type(file, file_extension, destination_path):
     else:
         dfs = excel_to_dataframes(file)
 
+    found_sources = 0
     for df in dfs:
         for src_type in CSV_HEADERS:
             if set(CSV_HEADERS[src_type]).issubset(df.columns):
                 with lock:
+                    found_sources += 1
                     filename = secure_filename(file.filename)
                     now = time.gmtime()
                     now_date = time.strftime("%Y-%m-%d--%H-%M-%S", now)
@@ -44,7 +46,8 @@ def determine_upload_type(file, file_extension, destination_path):
                     df.to_csv(os.path.join(destination_path + '/current', src_type + '-' + now_date + '.csv'))
                     current_app.logger.info("  -Uploaded successfully as : " + src_type + '-' + now_date + '.' + file_extension)
                     flash(src_type + " {0} ".format(SUCCESS_MSG), 'info')
-    flash('ERROR Unrecognized data extract: ' + file.filename, 'error')
+    if found_sources == 0:
+        current_app.logger.error("No sources found in upload")
 
 
 def excel_to_dataframes(xls):
