@@ -94,6 +94,7 @@ def _get_master_primary_key(source_name):
 def start(connection, added_or_updated_rows):
     # Match newly identified records to each other and existing master data.
 
+    current_app.logger.info('Start record matching')
     orig_master = pd.read_sql_table('master', connection)
     input_matches = pd.DataFrame(columns=MATCH_FIELDS)
     input_matches['source'] = []  # also initializing an empty source field, similar to user_info
@@ -112,6 +113,7 @@ def start(connection, added_or_updated_rows):
     # Only keep rows where there is a mismatch in name+email. Report these rows in the output dict.
         
     # Match records for new users
+    current_app.logger.info('   - Matching new rows of input data')
     for table_name in MATCH_PRIORITY:
         if table_name not in added_or_updated_rows['new_rows'].keys() or len(added_or_updated_rows['new_rows'][table_name]) == 0:
             continue   # df is empty or not-updated, so there's nothing to do
