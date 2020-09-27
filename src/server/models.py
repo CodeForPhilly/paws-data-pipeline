@@ -15,9 +15,9 @@ class Master(Base):
     # NOTE: FK constraints from datasource_manager.DATASOURCE_MAPPING[table]['id']
     # But, an FK needs to reference either a PK or a column with unique constraint.
     # For now, disabling the ForeignKey constraint (last present in 8cf6367c)
-    salesforcecontacts_id = Column(String)
-    volgistics_id = Column(String)
-    petpoint_id = Column(String)
+    salesforcecontacts_id = Column(String, default=None)
+    volgistics_id = Column(String, default=None)
+    petpoint_id = Column(String, default=None)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
 
