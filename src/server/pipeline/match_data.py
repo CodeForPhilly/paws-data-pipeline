@@ -163,8 +163,6 @@ def start(connection, added_or_updated_rows):
         .rename(columns={'master_id': '_id'})
     )
 
-    print(new_users.query("name == 'Chris Kohl'").head(10).to_dict(orient='records'))  # Test case, with a known match
-
     return {
         'new_matches': new_users.to_dict(orient='records'),
         'updated_matches': updated_users.to_dict(orient='records')
