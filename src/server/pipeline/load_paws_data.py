@@ -19,7 +19,7 @@ def start(connection, file_path_list, should_drop_first_col=False):
     for uploaded_file in file_path_list:
         file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
         table_name = file_path.split('/')[-1].split('-')[0]
-        current_app.logger.info('   - Running load_paws_data on: ' + uploaded_file)
+        current_app.logger.info('Running load_paws_data on: ' + uploaded_file)
 
         df = pd.read_csv((io.BytesIO(open(file_path, "rb").read())), encoding='iso-8859-1')
         current_app.logger.info('   - Populated DF')

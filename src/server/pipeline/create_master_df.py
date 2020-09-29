@@ -1,10 +1,5 @@
-import datetime
 import pandas as pd
-
 from flask import current_app
-from models import Base
-
-from models import User
 
 
 def __find_and_add_new_rows(connection, new_rows_dataframe):

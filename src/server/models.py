@@ -28,6 +28,7 @@ class User(Base):
     email = Column(String)
     source = Column(String)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
+    archived_date = Column(DateTime, default=None)
 
 
 class SalesForceContacts(Base):
@@ -73,6 +74,8 @@ class SalesForceDonations(Base):
     source = Column(String)
     contact_id = Column(String)
     primary_campaign_source = Column(String)
+    created_date = Column(DateTime, default=datetime.datetime.utcnow)
+    archived_date = Column(DateTime, default=None)
 
 
 class Volgistics(Base):
@@ -113,6 +116,8 @@ class Volgistics_Shifts(Base):
     spare_date = Column(String)
     spare_chechbox = Column(String)
     coordinator = Column(String)
+    created_date = Column(DateTime, default=datetime.datetime.utcnow)
+    archived_date = Column(DateTime, default=None)
 
 
 class Petpoint(Base):
