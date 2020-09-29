@@ -3,8 +3,7 @@ const proxy = require('http-proxy-middleware');
 
 module.exports = function(app) {
     app.use(proxy('/api/**', {
-            //target: 'http://localhost:3333'
-            target: 'http://server:5000'
+            target: process.env.IS_LOCAL === 'true' ? 'http://localhost:3333' : 'http://server:5000'
         }
     ));
 }
