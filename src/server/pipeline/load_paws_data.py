@@ -41,7 +41,6 @@ def start(connection, file_path_list, should_drop_first_col=False):
 
 def __find_new_rows(connection, result, table_name):
     source_id = DATASOURCE_MAPPING[table_name]['id']
-    current_app.logger.info(table_name + ' ' + source_id)
     # find new rows
     rows = connection.execute(
         'select t.* from {} t left join {} c on c."{}" = t."{}" where c."{}" is null'.format(

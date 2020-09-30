@@ -130,6 +130,7 @@ def start(connection, added_or_updated_rows):
             [table_cols]
             .rename(columns={table_csv_key: table_master_key})
             .pipe(normalize_table_for_comparison, MATCH_FIELDS, orig_prefix='original_')
+            .drop_duplicates()
         )
         orig_compared_cols = ['original_' + col_name for col_name in MATCH_FIELDS]
 
