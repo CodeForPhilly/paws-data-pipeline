@@ -4,7 +4,9 @@ import numpy as np
 
 from fuzzywuzzy import fuzz
 from flask import current_app
+
 from datasource_manager import DATASOURCE_MAPPING
+from pipeline.create_master_df import __create_new_user
 
 
 # Matching columns and table order priority as established by
@@ -47,28 +49,14 @@ def join_on_all_columns(master_df, table_to_join):
     )
 
 
-def coalesce_fields_by_id(master_table, other_tables, fields):
-    # Add fields to master_table from other_tables, in priority order of how they're listed.
-    # Similar in intent to running a SQL COALESCE based on the join to each field.
-    df_with_updated_fields = master_table.copy()
-    for field in fields:
-        df_with_updated_fields[field] = np.nan
-    for table in other_tables:
-        # may need to adjust the loop based on the master ID, renaming the fields, depending on how the PK is stored in the volgistics table, etc.
-        # 1:1 validation fails (possibly due to NULL handling or repeated data); disabling since this block of code may get replaced as part of the
-        # transition to name+email within the master file
-        fields_from_table = master_table.merge(table, how='left')#, validate='1:1')
-        for field_to_update in fields:
-            df_with_updated_fields[field_to_update] = df_with_updated_fields[field_to_update].combine_first(
-                fields_from_table[field_to_update])
-    return df_with_updated_fields
-
-
-def normalize_table_for_comparison(df, cols):
+def normalize_table_for_comparison(df, cols, orig_prefix=None):
     # Standardize specified columns to avoid common/irrelevant sources of mismatching (lowercase, etc)
     out_df = df.copy()
     for column in cols:
-        out_df[column] = out_df[column].astype(str).str.strip().str.lower()
+        if orig_prefix is not None:
+            out_df[orig_prefix+column] = out_df[column]
+        # NOTE: make sure this regex is correct
+        out_df[column] = out_df[column].astype(str).str.strip().str.lower().str.replace("[^a-z0-9]", "")
     return out_df
 
 
@@ -104,57 +92,80 @@ def _get_master_primary_key(source_name):
 
 
 def start(connection, added_or_updated_rows):
-    # Match newly identified records to each other and existing master data
+    # Match newly identified records to each other and existing master data.
 
-    # TODO: handling empty json within added_or_updated rows
-    # TODO: Log any changes to name or email to a file + visual notification for human review and handling?
-
-    if len(added_or_updated_rows['updated_rows']) > 0:  # any updated rows
-        raise NotImplementedError("match_data.start cannot yet handle row updates.")
-
-    # Combine all of the loaded new_rows into a single dataframe
-    new_df = pd.DataFrame({col: [] for col in MATCH_FIELDS})  # init empty dataframe
+    current_app.logger.info('Start record matching')
+    orig_master = pd.read_sql_table('master', connection)
+    input_matches = pd.DataFrame(columns=MATCH_FIELDS)
+    input_matches['source'] = []  # also initializing an empty source field, similar to user_info
+    master_cols_to_keep = [x for x in MATCH_FIELDS]
+    master_cols_to_keep.append('source')
+    
+    # TODO: handling row updates (possibly)
+    # Check consistency of updated_rows
+    # If the matching fields (name or email) are updated, then flag the row for human review and processing
+    # (e.g. deciding matching when a name changes)
+    #for table_name, table_json in added_or_updated_rows['updated_rows'].items():
+    #    if len(table_json) == 0:
+    #        continue  # empty df, so nothing to do
+    #    proposed_updates = pd.DataFrame(table_json)
+    # Then, map the proposed update ID back to master table to get the saved user_info name+email
+    # Only keep rows where there is a mismatch in name+email. Report these rows in the output dict.
+        
+    # Match records for new users
+    current_app.logger.info('   - Matching new rows of input data')
     for table_name in MATCH_PRIORITY:
-        if table_name not in added_or_updated_rows['new_rows'].keys():
-            continue  # df is empty or not-updated, so there's nothing to do
-            # FIXME: handling empty df here?
+        if table_name not in added_or_updated_rows['new_rows'].keys() or len(added_or_updated_rows['new_rows'][table_name]) == 0:
+            continue   # df is empty or not-updated, so there's nothing to do
+        
         table_csv_key = _get_table_primary_key(table_name)
         table_master_key = _get_master_primary_key(table_name)
         table_cols = copy.deepcopy(MATCH_FIELDS)
         table_cols.append(table_csv_key)
 
-        new_table_data = (
+        # Normalize table and rename columns for compatibility with users
+        table_to_match = (
             pd.DataFrame(added_or_updated_rows['new_rows'][table_name])
             .pipe(_reassign_combined_fields, {master_col: DATASOURCE_MAPPING[table_name][table_col] for master_col, table_col in MATCH_MAPPING.items()})
             [table_cols]
-            .pipe(lambda df: normalize_table_for_comparison(df, MATCH_FIELDS))
             .rename(columns={table_csv_key: table_master_key})
+            .pipe(normalize_table_for_comparison, MATCH_FIELDS, orig_prefix='original_')
+            .drop_duplicates()
         )
-        new_df = new_df.merge(new_table_data, how='outer')
+        orig_compared_cols = ['original_' + col_name for col_name in MATCH_FIELDS]
 
-    # Recreate the normalized MATCH_FIELDS of-record based on the available
-    # source data in MATCH_PRIORITY order since not stored in postgres
-    master_df = pd.read_sql_table('master', connection).drop(columns=['created_date', 'archived_date'])
-    source_dfs = [
-        _reassign_combined_fields(
-            _get_most_recent_table_records_from_postgres(connection, table),
-            {master_col: DATASOURCE_MAPPING[table][table_col] for master_col, table_col in MATCH_MAPPING.items()}
-        ).rename(columns={_get_table_primary_key(table): _get_master_primary_key(table)})
-        for table in MATCH_PRIORITY
-    ]
-    master_df = coalesce_fields_by_id(master_df, source_dfs, MATCH_FIELDS)
-    master_df = normalize_table_for_comparison(master_df, MATCH_FIELDS)
+        input_matches = input_matches.merge(table_to_match, how='outer')
+        input_matches['source'].fillna(table_name, inplace=True)
+        for col in MATCH_FIELDS:  # also fill untransformed original_cols from source
+            if 'source_'+col not in input_matches.columns:
+                input_matches['source_'+col] = np.nan
+            input_matches['source_'+col].fillna(input_matches['original_'+col], inplace=True)
+            del input_matches['original_'+col]
+        master_cols_to_keep.append(table_master_key)
 
-    # Run the join, then report only the original fields of interest
-    matches, left_only, right_only = join_on_all_columns(master_df[MATCH_FIELDS], new_df[MATCH_FIELDS])
+    # Resolve new vs. updated records in the master table
+    orig_users = pd.read_sql_table('user_info', connection)
+    updated_users, new_users, unused_users = join_on_all_columns(
+        input_matches,
+        normalize_table_for_comparison(orig_users, MATCH_FIELDS)
+    )
+    # Convert format of new_users -> master_table minus _id column plus name+email_source from user_info
+    new_users = (
+        new_users
+        .drop(columns=MATCH_FIELDS).rename(columns={'source_'+x: x for x in MATCH_FIELDS})
+        [master_cols_to_keep]
+        .copy()
+    )
+    # Convert format of updated_users -> master table. Reports the new table_id cols in terms of user_info
+    updated_users = (
+        updated_users
+        [[x for x in updated_users.columns if x.endswith('_id')]]
+        .drop(columns='_id')
+        .rename(columns={'master_id': '_id'})
+    )
 
-    # Use the matching columns (name+email) to handle matching accounting, then drop the ID fields
-    new_master_rows = right_only.merge(new_df, how='inner').drop(columns=MATCH_FIELDS)
+    return {
+        'new_matches': new_users.to_dict(orient='records'),
+        'updated_matches': updated_users.to_dict(orient='records')
+    }
 
-    # TODO LATER, after getting the new fields working, first.  Also should report the old version of the row.
-    # updated_master_rows = coalesce_fields_by_id(
-    #    master_df[master_fields],  # TODO: still need to figure out this field
-    #    new_df['_temp_new_id' in matches['_temp_new_id']][master_fields]
-    # )
-
-    return {'new_matches': new_master_rows.to_dict(orient='records'), 'updated_matches': []}

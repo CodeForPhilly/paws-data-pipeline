@@ -19,7 +19,7 @@ def start(connection, file_path_list, should_drop_first_col=False):
     for uploaded_file in file_path_list:
         file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
         table_name = file_path.split('/')[-1].split('-')[0]
-        current_app.logger.info('   - Running load_paws_data on: ' + uploaded_file)
+        current_app.logger.info('Running load_paws_data on: ' + uploaded_file)
 
         df = pd.read_csv((io.BytesIO(open(file_path, "rb").read())), encoding='iso-8859-1')
         current_app.logger.info('   - Populated DF')
@@ -41,12 +41,11 @@ def start(connection, file_path_list, should_drop_first_col=False):
 
 def __find_new_rows(connection, result, table_name):
     source_id = DATASOURCE_MAPPING[table_name]['id']
-    current_app.logger.info(table_name + ' ' + source_id)
     # find new rows
     rows = connection.execute(
         'select t.* from {} t left join {} c on c."{}" = t."{}" where c."{}" is null'.format(
             table_name + "_stage", table_name, source_id, source_id, source_id))
-            
+
     rows_data = []
     now = datetime.now()
     tracked_columns = DATASOURCE_MAPPING[table_name]['tracked_columns']
@@ -67,7 +66,7 @@ def __find_new_rows(connection, result, table_name):
         if table_name == 'salesforcedonations':
             if row_dict['contact_id']:
                 row_dict['contact_id'] = row_dict['contact_id'][0:-3]
-        
+
         row_dict['json'] = json_dict
         row_dict['created_date'] = now
         rows_data.append(row_dict)
@@ -157,5 +156,5 @@ def __clean_raw_data(df, should_drop_first_col):
     df.columns = df.columns.str.replace('#', 'num')
     df.columns = df.columns.str.replace('/', '_')
     df.columns = df.columns.map(lambda x: re.sub(r'\.+', '_', x))
-    
+
     return df

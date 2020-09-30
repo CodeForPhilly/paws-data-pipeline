@@ -1,18 +1,29 @@
 import pandas as pd
-
 from flask import current_app
-from models import Base
-
-from models import User
 
 
 def __find_and_add_new_rows(connection, new_rows_dataframe):
-    current_app.logger.info('   - Adding new rows to master table')
+    current_app.logger.info('   - Adding new rows to master and user_info tables')
 
-    new_rows_dataframe = new_rows_dataframe.where(pd.notnull(new_rows_dataframe), None)
-    new_rows_json = new_rows_dataframe.to_dict(orient='records')
-    master_schema = Base.metadata.tables["master"].insert()
-    connection.execute(master_schema, new_rows_json)
+    # The master and user_info tables are linked in the postgres database via the master table ID,
+    # so adding a new row to master should happen concurrently with the write to user_info.
+    # We could add some custom logic to handle this step, but at least in the short term until MVP
+    # review, it would be easier to write the extra columns into a joint table, then split them
+    # afterwards (and more maintainable than figuring out how to manually assign the automatic (nextval?)
+    # master ID from postgres and sqlalchemy).
+    new_rows_dataframe = new_rows_dataframe.where(pd.notnull(new_rows_dataframe), None)  # np.nan -> None
+    new_rows_dataframe['new_row_flag'] = True
+    connection.execute('ALTER TABLE master ADD COLUMN name VARCHAR, ADD COLUMN email VARCHAR, ADD COLUMN source VARCHAR, ADD COLUMN new_row_flag BOOLEAN')
+    new_rows_dataframe.to_sql('master', connection, index=False, if_exists='append')
+    
+    # Using the temporary table (with auto-assigned master._id) to write to user_info, and remove
+    # the temporarily added columns from master.
+    new_master_rows = pd.read_sql('SELECT * FROM master WHERE new_row_flag IS NOT NULL', connection)
+    new_user_info_columns = new_master_rows.rename(columns={'_id': 'master_id'})[['master_id', 'name', 'email', 'source']]
+    new_user_info_columns.to_sql('user_info', connection, index=False, if_exists='append')
+    connection.execute('ALTER TABLE master DROP COLUMN email, DROP COLUMN name, DROP COLUMN source, DROP COLUMN new_row_flag')
+    
+
 
 def __find_and_update_rows(connection, rows_to_update):
     current_app.logger.info('   - Updating rows to master table')
