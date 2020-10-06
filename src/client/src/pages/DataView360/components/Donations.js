@@ -30,10 +30,11 @@ class Donations extends Component {
 
     createRows(donations) {
 
-        const donationsSorted = _.sortBy(donations, donation => {
+        let donationsSorted = _.sortBy(donations, donation => {
             return Date(donation.created_date);
         });
 
+        donationsSorted = donationsSorted.reverse();
         const latestDonations = donationsSorted.slice(0,ROWS_TO_SHOW);
 
         const result = _.map(latestDonations, donation => {

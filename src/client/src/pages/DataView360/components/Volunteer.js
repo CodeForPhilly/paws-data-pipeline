@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
+import moment from 'moment';
 
 
 const StyledTableCell = withStyles((theme)=>({
@@ -35,7 +36,7 @@ class Volunteer extends Component {
 
         const result = _.map(lastShifts, shift => {
             return(<StyledTableRow>
-                    <TableCell align="center">{shift.from}</TableCell>
+                    <TableCell align="center">{moment(shift.from).format("YYYY-MM-DD")}</TableCell>
                     <TableCell align="center">{shift.assignment}</TableCell>
                 </StyledTableRow>);
 
