@@ -9,71 +9,77 @@ def get_contacts(search_text):
     with engine.connect() as connection:
         search_text = search_text.lower()
 
+        #TODO: Is the client expecting the id labeled as contact_id?
         names = search_text.split(" ")
         if len(names) == 2:
-            first_name = names[0]
-            last_name = names[1]
-            # note: query is an AND and the first name starts with the value 
-            query = text("select concat(first_name,' ',last_name) as name, email, contact_id from salesforcecontacts \
-                WHERE lower(first_name) like :first_name AND lower(last_name) like :last_name order by last_name")
-            query_result = connection.execute(query, first_name='{}%'.format(first_name),
-                                              last_name='{}%'.format(last_name))
-        else:
-            # todo: add logic to grab names from all sources - 1.salesforce 2.volgistics 3.petpoint once you find one, return all unique names and email
-            query = text("select concat(first_name,' ',last_name) as name, email, contact_id from salesforcecontacts \
-                WHERE lower(first_name) like :search_text \
-                OR lower(last_name) like :search_text order by last_name")
+            query = text("select name, email, master_id as contact_id from user_info \
+                where (split_part(lower(name),' ',1) like lower(:name1) and split_part(lower(name),' ',2) like lower(:name2)) \
+                OR (split_part(lower(name),' ',1) like lower(:name2) and split_part(lower(name),' ',2) like lower(:name1)) order by name")
+            query_result = connection.execute(query, name1='{}%'.format(names[0]), name2='{}%'.format(names[1]))
+        elif len(names) == 1:
+            query = text("select name, email, master_id as contact_id from user_info \
+                WHERE split_part(lower(name),' ',1) like :search_text \
+                OR split_part(lower(name),' ',2) like :search_text order by name")
             query_result = connection.execute(query, search_text='{}%'.format(search_text))
+        else:
+            #Throw a malformed search exception?
+            pass
 
-        results = jsonify({'result': [dict(row) for row in query_result]})
+        # we only want to display one search result per master id
+        id_set  = set()
+        results = []
+        for result in query_result:
+            if result['contact_id'] in id_set: continue
+            results.append(dict(result))
+        results = jsonify({'result': results})
 
         return results
 
 
-@common_api.route('/api/360/<salesforce_id>', methods=['GET'])
-def get_360(salesforce_id):
+@common_api.route('/api/360/<master_id>', methods=['GET'])
+def get_360(master_id):
     result = {}
 
     with engine.connect() as connection:
-        query_result = connection.execute(
-            "select * from master where salesforcecontacts_id='{}'".format(salesforce_id))
-        master_row = {'result': [dict(row) for row in query_result]}
+        #Master Table
+        query = text("select * from master where _id = :master_id")
+        query_result = connection.execute(query, master_id=master_id)
+        #todo: this shouldn't loop so eliminate the for
+        master_row = query_result.fetchone()
+        if master_row == None: return
+        
+        #Salesforce
+        salesforcecontacts_id = master_row['salesforcecontacts_id']
+        if salesforcecontacts_id:
+            query = text("select * from salesforcecontacts where contact_id = :salesforcecontacts_id")
+            query_result = connection.execute(query, salesforcecontacts_id=salesforcecontacts_id)
+            salesforce_results = [dict(row) for row in query_result]
+            if salesforce_results:
+                result['salesforcecontacts'] = salesforce_results[0]
+            query = text("select * from salesforcedonations where contact_id = :salesforcecontacts_id")
+            query_result = connection.execute(query, salesforcecontacts_id=salesforcecontacts_id)    
+            salesforcedonations_results = [dict(row) for row in query_result]
+            if salesforcedonations_results:
+                result['salesforcedonations'] = salesforcedonations_results
 
-        query_result = connection.execute(
-            "select * from salesforcecontacts where contact_id='{}'".format(salesforce_id))
-        salesforce_results = [dict(row) for row in query_result]
-
-        if salesforce_results:
-            result['salesforcecontacts'] = salesforce_results[0]
-
-        query_result = connection.execute(
-            "select * from salesforcedonations where contact_id='{}'".format(salesforce_id))
-        salesforcedonations_results = [dict(row) for row in query_result]
-
-        if salesforcedonations_results:
-            result['salesforcedonations'] = salesforcedonations_results
-
-        if master_row['result']:
-            petpoint_results = []
-
-            for item in master_row['result']:
-                query_result = connection.execute(
-                    "select * from petpoint where outcome_person_num='{}'".format(item['petpoint_id']))
-
-                petpoint_results = [dict(row) for row in query_result]
-
+        #PetPoint
+        petpoint_id = master_row['petpoint_id']
+        if petpoint_id:
+            query = text("select * from petpoint where outcome_person_num = :petpoint_id")
+            query_result = connection.execute(query, petpoint_id=petpoint_id)
+            petpoint_results = [dict(row) for row in query_result]
             if petpoint_results:
                 result['petpoint'] = petpoint_results
 
-        if master_row['result']:
-            query_result = connection.execute(
-                "select * from volgistics where number='{}'".format(master_row['result'][0]['volgistics_id']))
-
+        #Volgistics
+        volgistics_id = master_row['volgistics_id']
+        if volgistics_id: 
+            query = text("select * from volgistics where number = :volgistics_id")
+            query_result = connection.execute(query, volgistics_id=volgistics_id)
             volgistics_results = [dict(row) for row in query_result]
 
-            query_result = connection.execute(
-                "select * from volgisticsshifts where number='{}'".format(master_row['result'][0]['volgistics_id']))
-
+            query = text("select * from volgisticsshifts where number = :volgistics_id")
+            query_result = connection.execute(query, volgistics_id=volgistics_id)
             volgistics_shifts_results = [dict(row) for row in query_result]
 
             if volgistics_results:
