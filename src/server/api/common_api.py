@@ -21,15 +21,13 @@ def get_contacts(search_text):
                 WHERE split_part(lower(name),' ',1) like :search_text \
                 OR split_part(lower(name),' ',2) like :search_text order by name")
             query_result = connection.execute(query, search_text='{}%'.format(search_text))
-        else:
-            #Throw a malformed search exception?
-            pass
 
         # we only want to display one search result per master id
         id_set  = set()
         results = []
         for result in query_result:
-            if result['contact_id'] in id_set: continue
+            if result['contact_id'] in id_set:
+                continue
             results.append(dict(result))
         results = jsonify({'result': results})
 
