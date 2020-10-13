@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
+import moment from 'moment';
 
 const ROWS_TO_SHOW = 3
 
@@ -36,11 +37,11 @@ class Adoptions extends Component {
 
         const result = _.map(latestAdoptions, pet => {
             return(<StyledTableRow>
+                    <TableCell align="center">{moment(pet.outcome_date).format("YYYY-MM-DD")}</TableCell>
                     <TableCell align="center">{pet.animal_name}</TableCell>
                     <TableCell align="center">{pet.animal_type}</TableCell>
                     <TableCell align="center">{pet.primary_breed}</TableCell>
                     <TableCell align="center">{pet.animal_num}</TableCell>
-                    <TableCell align="center">{pet.outcome_date}</TableCell>
                     <TableCell align="center">{pet.age_group}</TableCell>
                 </StyledTableRow>);
 
@@ -56,11 +57,11 @@ class Adoptions extends Component {
                         <Table>
                             <TableHead>
                                 <TableRow>
+                                    <StyledTableCell align="center">Date of Adoption</StyledTableCell>
                                     <StyledTableCell align="center">Name</StyledTableCell>
                                     <StyledTableCell align="center">Type/Species</StyledTableCell>
                                     <StyledTableCell align="center">Primary Breed</StyledTableCell>
                                     <StyledTableCell align="center">Animal-Number</StyledTableCell>
-                                    <StyledTableCell align="center">Date of Adoption</StyledTableCell>
                                     <StyledTableCell align="center">Current Age</StyledTableCell>
                                 </TableRow>
                             </TableHead>
