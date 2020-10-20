@@ -1,0 +1,8 @@
+#root > .MuiContainer-root .MuiPaper-root:first-child {
+	display: flex !important;
+	margin: 12px 10px 12px 36px !important;
+	background-color: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 4px;
+	box-shadow: none;
+}

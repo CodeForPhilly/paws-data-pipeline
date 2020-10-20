@@ -1,0 +1,20 @@
+#root > .MuiContainer-root > .MuiPaper-root:last-child > div > .MuiContainer-root:first-child h4 {
+	padding-left: 23px;
+}
+#root > .MuiContainer-root > .MuiPaper-root:last-child > div > .MuiContainer-root:first-child h4::before {
+	top: 0px;
+	left: -6px;
+	width: 22px;
+	height: 22px;
+	background-image: url('../assets/icon-activity.svg');
+}
+#root > .MuiContainer-root > .MuiPaper-root:last-child > div > .MuiContainer-root:nth-child(2) h4 {
+	padding-left: 23px;
+}
+#root > .MuiContainer-root > .MuiPaper-root:last-child > div > .MuiContainer-root:nth-child(2) h4::before {
+	top: -7px;
+	left: -10px;
+	width: 30px;
+	height: 30px;
+	background-image: url('../assets/icon-history.svg');
+}

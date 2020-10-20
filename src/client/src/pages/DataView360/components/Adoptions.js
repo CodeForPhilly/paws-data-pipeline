@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import "./styles/Adoptions.css";
 import _ from 'lodash';
 import moment from 'moment';
 

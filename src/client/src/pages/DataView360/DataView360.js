@@ -3,6 +3,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Paper, Container} from '@material-ui/core';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Box from '@material-ui/core/Box';
+import "./styles/DataView360.css";
 import _ from 'lodash';
 
 import SearchBar from './components/SearchBar';

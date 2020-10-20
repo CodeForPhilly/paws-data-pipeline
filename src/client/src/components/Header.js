@@ -1,6 +1,7 @@
 import  React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import {AppBar, Button, Toolbar, Typography } from "@material-ui/core";
+import "./styles/header.css";
 
 export default function Header(props){
 

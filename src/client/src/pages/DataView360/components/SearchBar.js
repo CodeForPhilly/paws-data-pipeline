@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {Button, Paper, Select, InputLabel, MenuItem, FormControl, TextField, IconButton} from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { withStyles } from '@material-ui/core/styles';
+import "./styles/SearchBar.css";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import _ from 'lodash';

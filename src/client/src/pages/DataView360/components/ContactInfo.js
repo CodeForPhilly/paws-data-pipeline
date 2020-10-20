@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Paper, Typography, Container} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import "./styles/ContactInfo.css";
 
 import _ from 'lodash';
 

@@ -1,0 +1,10 @@
+#root > .MuiContainer-root > .MuiPaper-root:last-child > .MuiContainer-root:nth-child(3) h4 {
+	padding-left: 18px;
+}
+#root > .MuiContainer-root > .MuiPaper-root:last-child > .MuiContainer-root:nth-child(3) h4::before {
+	top: -2px;
+	left: -8px;
+	width: 22px;
+	height: 22px;
+	background-image: url('../assets/icon-adoption.svg');
+}

@@ -1,0 +1,37 @@
+#root .MuiTypography-h6 {
+	position: relative;
+	top: 2px;
+	left: 14px;
+	padding-left: 32px;
+	font-family: 'Noway Round Regular', sans-serif;
+	font-size: 22px;
+	color: #fff;
+	letter-spacing: initial;
+}
+#root header.MuiAppBar-colorPrimary {
+	background-color: #00AFDA;
+}
+#root header.MuiAppBar-colorPrimary .MuiButton-root {
+	font-family: 'Noway Round Regular', sans-serif;
+	color: #fff;
+	font-weight: 700;
+}
+#root header.MuiAppBar-colorPrimary .MuiButton-root:not(:last-child) {
+	margin-right: 10px;
+}
+#root .MuiTypography-h6::before {
+	content: '';
+	position: absolute;
+	top: -1px;
+	left: 0;
+	display: block;
+	width: 25px;
+	height: 38px;
+	background-image: url('../../assets/header-logo.png');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+}
+#root > header {
+	margin-bottom: 30px;
+}
