@@ -34,6 +34,24 @@ def get_contacts(search_text):
         return results
 
 
+@common_api.route('/api/statistics', methods=['GET'])
+def listStatistics():
+    with engine.connect() as connection:
+        query = text("SELECT \
+            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is null and petpoint_id is null THEN 1 ELSE 0 END) AS only_salesforcecontacts, \
+            SUM(CASE WHEN volgistics_id is not null and petpoint_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS only_volgistics, \
+            SUM(CASE WHEN petpoint_id is not null and volgistics_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS only_petpoint, \
+            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is not null THEN 1 ELSE 0 END) AS all_data_source, \
+            SUM(CASE WHEN salesforcecontacts_id is not null and petpoint_id is not null and volgistics_id is null THEN 1 ELSE 0 END) AS salesforcecontacnts_and_petpoint, \
+            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is null THEN 1 ELSE 0 END) AS salesforcecontacnts_and_volgistics, \
+            SUM(CASE WHEN volgistics_id is not null and petpoint_id is not null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS salesforcecontacnts_and_volgistics \
+            FROM master")
+        query_result = connection.execute(query)
+
+        # results = query_result[0];
+        return jsonify({'result': [dict(row) for row in query_result]})
+
+
 @common_api.route('/api/360/<master_id>', methods=['GET'])
 def get_360(master_id):
     result = {}
