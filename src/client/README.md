@@ -9,10 +9,10 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 In order to view changes, rerun the docker or the whole docker-compose
 
 ## Run locally
+Make sure proxy is set to the port you are running your backend.  
 In the project directory, you can run:   
-Make sure proxy is set to the port you are running your backend.   
 
-###`npm start`
+### `npm start`
 This will run locally against the docker container backend which running on port 5000
 
 ### `npm run start:local`
