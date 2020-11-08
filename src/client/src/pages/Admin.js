@@ -2,7 +2,12 @@ import React, { Component } from 'react';
 import {Tabs, Tab, Container, Paper } from "@material-ui/core";
 import TabPanel from '../components/TabPanel';
 import Grid from '@material-ui/core/Grid';
-// import { DataGrid } from '@material-ui/data-grid';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import { withStyles } from '@material-ui/core/styles';
 import Divider from '@material-ui/core/Divider';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -21,10 +26,6 @@ const styles = theme => ({
     }
 });
 
-const columns = [
-    { field: 'source', headerName: 'ID', width: 70 },
-    { field: 'count', headerName: 'First name', width: 130 }
-]
 class Admin extends Component {
     constructor(props) {
         super(props);
@@ -33,10 +34,9 @@ class Admin extends Component {
             loading: false,
             loadingCurrentFiles: false,
             loadingStatistics: false,
-            statistics: undefined,
+            statistics: [],
             filesInput: undefined,
             fileListHtml: undefined,
-            statisticsListHtml: undefined
         }
 
         this.handleIndexChange = this.handleIndexChange.bind(this);
@@ -76,6 +76,7 @@ class Admin extends Component {
 
     async handleExecute(event) {
         event.preventDefault();
+        // TODO: it looks like it handles it, but may want to tie events into stats too (like set loadingStatistics: true)
         this.setState({loading: true});
 
         const response = await fetch('/api/execute');
@@ -92,21 +93,9 @@ class Admin extends Component {
         const statsData = await fetch("/api/statistics");
         const statsResponse = await statsData.json();
 
-        this.setState({statistics: statsResponse});
+        this.setState({statistics: _.toPairsIn(statsResponse)});
 
-        // this.setState({fileListHtml: _.map(filesResponse, (fileName) => {
-        //     return <li key={fileName}> {fileName}</li>
-        // })});        
-        // this.setState({statisticsListHtml: _.keys(statsResponse, (key) => {
-        //     return <li>{key}: {statsResponse[key]}</li>
-        // })});
-        let stats = _.toPairsIn(statsResponse)
-
-        this.setState({statisticsListHtml: _.map(stats, (stat) => {
-            return <li key={stat[0]}>{stat[0]} {stat[1]}</li>
-        })});
-
-        console.log("statisticsListHtml", stats);
+        console.log("statisticsListHtml", this.state.statistics);
         // this.setState({statisticsListHtml: stats});
         this.setState({loadingStatistics: false}) 
     }
@@ -162,7 +151,26 @@ class Admin extends Component {
             <CircularProgress />
         </div>
         :
-        <ul>{this.state.statisticsListHtml}</ul>
+        <TableContainer component={Paper} className="statisticsData">
+            <Table aria-label="simple table" className={classes.table}>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Name</TableCell>
+                        <TableCell align="right">Value</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                {this.state.statistics.map((row) => (
+                    <TableRow key={row[0]}>
+                    <TableCell component="th" scope="row">
+                        {row[0]}
+                    </TableCell>
+                        <TableCell align="right">{row[1]}</TableCell>
+                    </TableRow>
+                ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
 
         return (
             <Container>
