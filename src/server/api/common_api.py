@@ -50,13 +50,13 @@ def checkStatus():
 def listStatistics():
     with engine.connect() as connection:
         query = text("SELECT \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is null and petpoint_id is null THEN 1 ELSE 0 END) AS only_salesforcecontacts, \
-            SUM(CASE WHEN volgistics_id is not null and petpoint_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS only_volgistics, \
-            SUM(CASE WHEN petpoint_id is not null and volgistics_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS only_petpoint, \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is not null THEN 1 ELSE 0 END) AS all_data_source, \
-            SUM(CASE WHEN salesforcecontacts_id is not null and petpoint_id is not null and volgistics_id is null THEN 1 ELSE 0 END) AS salesforcecontacnts_and_petpoint, \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is null THEN 1 ELSE 0 END) AS salesforcecontacnts_and_volgistics, \
-            SUM(CASE WHEN volgistics_id is not null and petpoint_id is not null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS salesforcecontacnts_and_volgistics \
+            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is null and petpoint_id is null THEN 1 ELSE 0 END) AS \"Only SalesForce Contacts\", \
+            SUM(CASE WHEN volgistics_id is not null and petpoint_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Only Volgistics Contacts\", \
+            SUM(CASE WHEN petpoint_id is not null and volgistics_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Only Petpoint Contacts\", \
+            SUM(CASE WHEN salesforcecontacts_id is not null and petpoint_id is not null and volgistics_id is null THEN 1 ELSE 0 END) AS \"Salesforcec & Petpoint\", \
+            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is null THEN 1 ELSE 0 END) AS \"Salesforce & Volgistics\", \
+            SUM(CASE WHEN volgistics_id is not null and petpoint_id is not null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Petpoint & Volgistics\", \
+            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is not null THEN 1 ELSE 0 END) AS \"All Sources\" \
             FROM master")
         query_result = connection.execute(query)
 
