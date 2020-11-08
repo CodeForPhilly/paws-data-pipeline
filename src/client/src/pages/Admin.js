@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {Tabs, Tab, Container, Paper } from "@material-ui/core";
 import TabPanel from '../components/TabPanel';
 import Grid from '@material-ui/core/Grid';
+// import { DataGrid } from '@material-ui/data-grid';
 import { withStyles } from '@material-ui/core/styles';
 import Divider from '@material-ui/core/Divider';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -20,6 +21,10 @@ const styles = theme => ({
     }
 });
 
+const columns = [
+    { field: 'source', headerName: 'ID', width: 70 },
+    { field: 'count', headerName: 'First name', width: 130 }
+]
 class Admin extends Component {
     constructor(props) {
         super(props);
@@ -27,19 +32,23 @@ class Admin extends Component {
             activeIndex: 0,
             loading: false,
             loadingCurrentFiles: false,
-            fileList: undefined,
+            loadingStatistics: false,
+            statistics: undefined,
             filesInput: undefined,
-            fileListHtml: undefined
+            fileListHtml: undefined,
+            statisticsListHtml: undefined
         }
 
         this.handleIndexChange = this.handleIndexChange.bind(this);
         this.handleUpload = this.handleUpload.bind(this);
         this.handleExecute = this.handleExecute.bind(this);
         this.handleGetFileList = this.handleGetFileList.bind(this);
+        this.handleGetStatistics = this.handleGetStatistics.bind(this);
     }
 
     componentDidMount(){
         this.handleGetFileList();
+        this.handleGetStatistics();
     }
 
     handleIndexChange(event, newIndex){
@@ -77,20 +86,46 @@ class Admin extends Component {
         return result
     }
 
+    async handleGetStatistics() {
+        this.setState({loadingStatistics: true})
+
+        const statsData = await fetch("/api/statistics");
+        const statsResponse = await statsData.json();
+
+        this.setState({statistics: statsResponse});
+
+        // this.setState({fileListHtml: _.map(filesResponse, (fileName) => {
+        //     return <li key={fileName}> {fileName}</li>
+        // })});        
+        // this.setState({statisticsListHtml: _.keys(statsResponse, (key) => {
+        //     return <li>{key}: {statsResponse[key]}</li>
+        // })});
+        let stats = _.toPairsIn(statsResponse)
+
+        this.setState({statisticsListHtml: _.map(stats, (stat) => {
+            return <li key={stat[0]}>{stat[0]} {stat[1]}</li>
+        })});
+
+        console.log("statisticsListHtml", stats);
+        // this.setState({statisticsListHtml: stats});
+        this.setState({loadingStatistics: false}) 
+    }
+
     async handleGetFileList() {
         this.setState({loadingCurrentFiles: true})
 
         const filesData = await fetch("/api/listCurrentFiles");
         const filesResponse = await filesData.json();
 
-        this.setState({fileList: filesResponse});
+        // this.setState({fileList: filesResponse});
 
         this.setState({fileListHtml: _.map(filesResponse, (fileName) => {
-            return <li key={fileName}> {fileName}</li>
+            return (<li key={fileName}> {fileName}</li>)
         })});
 
+        console.log("fileListHtml", this.state.fileListHtml);
         //just a UX indication that a new list has been loaded
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        //await new Promise(resolve => setTimeout(resolve, 1000));
 
         this.setState({loadingCurrentFiles: false})
     }
@@ -122,6 +157,13 @@ class Admin extends Component {
         :
         <ul>{this.state.fileListHtml}</ul>
 
+        let currentStatistics = this.state.loadingStatistics === true ?
+        <div className={classes.spinner}>
+            <CircularProgress />
+        </div>
+        :
+        <ul>{this.state.statisticsListHtml}</ul>
+
         return (
             <Container>
                 <h2>Admin Options</h2>
@@ -139,6 +181,10 @@ class Admin extends Component {
                         <Grid item>
                             <h3>Current Files</h3>
                             {currentListWithState}
+                        </Grid>
+                        <Grid item>
+                            <h3>Current Stats</h3>
+                            {currentStatistics}
                         </Grid>
                     </Grid>
                 </Paper>

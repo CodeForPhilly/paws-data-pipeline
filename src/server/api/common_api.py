@@ -34,6 +34,18 @@ def get_contacts(search_text):
         return results
 
 
+@common_api.route('/api/status', methods=['GET'])
+def checkStatus():
+    with engine.connect() as connection:
+        query = text("SELECT now()")
+        query_result = connection.execute(query)
+
+        # Need to iterate over the results proxy
+        results = {}
+        for row in query_result:
+            results = dict(row)
+        return jsonify(results)
+
 @common_api.route('/api/statistics', methods=['GET'])
 def listStatistics():
     with engine.connect() as connection:
@@ -48,8 +60,11 @@ def listStatistics():
             FROM master")
         query_result = connection.execute(query)
 
-        # results = query_result[0];
-        return jsonify({'result': [dict(row) for row in query_result]})
+        # Need to iterate over the results proxy
+        results = {}
+        for row in query_result:
+            results = dict(row)
+        return jsonify(results)
 
 
 @common_api.route('/api/360/<master_id>', methods=['GET'])
