@@ -1,5 +1,5 @@
-from config import engine
 from api.api import common_api
+from config import engine
 from flask import jsonify
 from sqlalchemy.sql import text
 
@@ -32,39 +32,6 @@ def get_contacts(search_text):
         results = jsonify({'result': results})
 
         return results
-
-
-@common_api.route('/api/status', methods=['GET'])
-def checkStatus():
-    with engine.connect() as connection:
-        query = text("SELECT now()")
-        query_result = connection.execute(query)
-
-        # Need to iterate over the results proxy
-        results = {}
-        for row in query_result:
-            results = dict(row)
-        return jsonify(results)
-
-@common_api.route('/api/statistics', methods=['GET'])
-def listStatistics():
-    with engine.connect() as connection:
-        query = text("SELECT \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is null and petpoint_id is null THEN 1 ELSE 0 END) AS \"Only SalesForce Contacts\", \
-            SUM(CASE WHEN volgistics_id is not null and petpoint_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Only Volgistics Contacts\", \
-            SUM(CASE WHEN petpoint_id is not null and volgistics_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Only Petpoint Contacts\", \
-            SUM(CASE WHEN salesforcecontacts_id is not null and petpoint_id is not null and volgistics_id is null THEN 1 ELSE 0 END) AS \"Salesforcec & Petpoint\", \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is null THEN 1 ELSE 0 END) AS \"Salesforce & Volgistics\", \
-            SUM(CASE WHEN volgistics_id is not null and petpoint_id is not null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Petpoint & Volgistics\", \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is not null THEN 1 ELSE 0 END) AS \"Salesforcec & Petpoint & Volgistics\" \
-            FROM master")
-        query_result = connection.execute(query)
-
-        # Need to iterate over the results proxy
-        results = {}
-        for row in query_result:
-            results = dict(row)
-        return jsonify(results)
 
 
 @common_api.route('/api/360/<master_id>', methods=['GET'])

@@ -37,6 +37,7 @@ class Admin extends Component {
             statistics: [],
             filesInput: undefined,
             fileListHtml: undefined,
+            lastExecution: undefined
         }
 
         this.handleIndexChange = this.handleIndexChange.bind(this);
@@ -90,33 +91,47 @@ class Admin extends Component {
     async handleGetStatistics() {
         this.setState({loadingStatistics: true})
 
-        const statsData = await fetch("/api/statistics");
-        const statsResponse = await statsData.json();
+        try {
+            const statsData = await fetch("/api/statistics");
+            const statsResponse = await statsData.json();
 
-        this.setState({statistics: _.toPairsIn(statsResponse)});
+            this.setState({
+                statistics: _.toPairsIn(statsResponse.stats),
+                lastExecution: statsResponse.executionTime
+            });
 
-        console.log("statisticsListHtml", this.state.statistics);
-        // this.setState({statisticsListHtml: stats});
-        this.setState({loadingStatistics: false}) 
+            console.log("statisticsListHtml", this.state.statistics);
+            // this.setState({statisticsListHtml: stats});
+            this.setState({loadingStatistics: false})
+        }
+        finally {
+            this.setState({loadingStatistics: false})
+        }
+
     }
 
     async handleGetFileList() {
         this.setState({loadingCurrentFiles: true})
 
-        const filesData = await fetch("/api/listCurrentFiles");
-        const filesResponse = await filesData.json();
+        try{
+            const filesData = await fetch("/api/listCurrentFiles");
+            const filesResponse = await filesData.json();
 
-        // this.setState({fileList: filesResponse});
+            // this.setState({fileList: filesResponse});
 
-        this.setState({fileListHtml: _.map(filesResponse, (fileName) => {
-            return (<li key={fileName}> {fileName}</li>)
-        })});
+            this.setState({fileListHtml: _.map(filesResponse, (fileName) => {
+                return (<li key={fileName}> {fileName}</li>)
+            })});
 
-        console.log("fileListHtml", this.state.fileListHtml);
-        //just a UX indication that a new list has been loaded
-        //await new Promise(resolve => setTimeout(resolve, 1000));
+            console.log("fileListHtml", this.state.fileListHtml);
+            //just a UX indication that a new list has been loaded
+            //await new Promise(resolve => setTimeout(resolve, 1000));
+        }
 
-        this.setState({loadingCurrentFiles: false})
+        finally {
+            this.setState({loadingCurrentFiles: false})
+        }
+
     }
 
     render() {
@@ -144,13 +159,15 @@ class Admin extends Component {
             <CircularProgress />
         </div>
         :
-        <ul>{this.state.fileListHtml}</ul>
+        <Paper style={{padding: 5}}>
+            <ul>{this.state.fileListHtml}</ul>
+        </Paper>
 
         let currentStatistics = this.state.loadingStatistics === true ?
         <div className={classes.spinner}>
             <CircularProgress />
         </div>
-        :
+        : _.isEmpty(this.state.statistics) !== true &&
         <TableContainer component={Paper} className="statisticsData">
             <Table aria-label="simple table" className={classes.table}>
                 <TableHead>
@@ -190,14 +207,12 @@ class Admin extends Component {
                             </Grid>
                             <Grid item sm={4}>
                                 <h3>Current Files</h3>
-                                <Paper className={classes.paper} style={{padding: 5}}>
-                                    {currentListWithState}
-                                </Paper>
+                                {currentListWithState}
                             </Grid>
                         </Grid>
                         <Grid container spacing={3} direction="row">
                             <Grid item sm={4}>
-                                <h3>Matching Stats</h3>
+                                <h3>Matching Stats from last Execution: {this.state.lastExecution}</h3>
                                 {currentStatistics}
                             </Grid>
                         </Grid>

@@ -23,7 +23,7 @@ engine = db.create_engine(DB)
 if not database_exists(engine.url):
     create_database(engine.url)
 
-print(database_exists(engine.url))
+# print(database_exists(engine.url))
 
 # Define global reusable paths
 UPLOAD_PATH = BASE_PATH + 'uploads/'
@@ -42,5 +42,5 @@ if BASE_PATH != '/app/static/':
         os.mkdir(CURRENT_SOURCE_FILES_PATH)
         os.mkdir(REPORT_PATH)
         os.mkdir(ZIPPED_FILES)
-    except FileExistsError:
-        print("One or more Directories already exist")
+    except FileExistsError as e:
+        print(e)
