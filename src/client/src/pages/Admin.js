@@ -26,20 +26,6 @@ const styles = theme => ({
     }
 });
 
-const useStyles = withStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  layout: {
-    padding: 30
-  },
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  },
-}));
-
 class Admin extends Component {
     constructor(props) {
         super(props);
@@ -169,8 +155,8 @@ class Admin extends Component {
             <Table aria-label="simple table" className={classes.table}>
                 <TableHead>
                     <TableRow>
-                        <TableCell>Name</TableCell>
-                        <TableCell align="left">Value</TableCell>
+                        <TableCell>Sources Matched</TableCell>
+                        <TableCell align="left">Number of Matches</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -187,13 +173,13 @@ class Admin extends Component {
         </TableContainer>
 
         return (
-            <div className={classes.root}>
+            <div>
                 <h2>Admin Portal</h2>
                     <Grid container spacing={3} direction="column"  style={{padding:30}}>
                         <Grid container spacing={3} direction="row">
                             <Grid item sm={5} >
                                 <h3>Options</h3>
-                                <Paper className={classes.paper}>
+                                <Paper style={{padding: 5}}>
                                     <Tabs value={this.state.activeIndex} onChange={this.handleIndexChange}>
                                         <Tab label="Upload" />
                                         <Tab label="Download" />
@@ -204,19 +190,15 @@ class Admin extends Component {
                             </Grid>
                             <Grid item sm={4}>
                                 <h3>Current Files</h3>
-                                <Paper className={classes.paper} style={{padding:5}}>
-                                    <Container>
-                                        {currentListWithState}
-                                    </Container>
+                                <Paper className={classes.paper} style={{padding: 5}}>
+                                    {currentListWithState}
                                 </Paper>
                             </Grid>
                         </Grid>
                         <Grid container spacing={3} direction="row">
                             <Grid item sm={4}>
-                                <h3>Current Stats</h3>
-                                <Paper className={classes.paper}>
-                                    {currentStatistics}
-                                </Paper>
+                                <h3>Matching Stats</h3>
+                                {currentStatistics}
                             </Grid>
                         </Grid>
                     </Grid>

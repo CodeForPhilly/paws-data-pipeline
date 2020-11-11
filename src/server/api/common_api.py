@@ -56,7 +56,7 @@ def listStatistics():
             SUM(CASE WHEN salesforcecontacts_id is not null and petpoint_id is not null and volgistics_id is null THEN 1 ELSE 0 END) AS \"Salesforcec & Petpoint\", \
             SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is null THEN 1 ELSE 0 END) AS \"Salesforce & Volgistics\", \
             SUM(CASE WHEN volgistics_id is not null and petpoint_id is not null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Petpoint & Volgistics\", \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is not null THEN 1 ELSE 0 END) AS \"All Sources\" \
+            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is not null THEN 1 ELSE 0 END) AS \"Salesforcec & Petpoint & Volgistics\" \
             FROM master")
         query_result = connection.execute(query)
 
