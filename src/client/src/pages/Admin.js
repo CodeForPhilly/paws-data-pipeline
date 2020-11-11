@@ -26,6 +26,20 @@ const styles = theme => ({
     }
 });
 
+const useStyles = withStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+  },
+  layout: {
+    padding: 30
+  },
+  paper: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+  },
+}));
+
 class Admin extends Component {
     constructor(props) {
         super(props);
@@ -156,16 +170,16 @@ class Admin extends Component {
                 <TableHead>
                     <TableRow>
                         <TableCell>Name</TableCell>
-                        <TableCell align="right">Value</TableCell>
+                        <TableCell align="left">Value</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                 {this.state.statistics.map((row) => (
                     <TableRow key={row[0]}>
-                    <TableCell component="th" scope="row">
+                    <TableCell align="left" component="th" scope="row">
                         {row[0]}
                     </TableCell>
-                        <TableCell align="right">{row[1]}</TableCell>
+                        <TableCell align="left">{row[1]}</TableCell>
                     </TableRow>
                 ))}
                 </TableBody>
@@ -173,30 +187,40 @@ class Admin extends Component {
         </TableContainer>
 
         return (
-            <Container>
-                <h2>Admin Options</h2>
-                <Paper elevation={2} style={{"marginTop":"1em", "padding":"2em"}}>
-                    <Grid container spacing={5}>
-                        <Grid item>
-                            <Tabs value={this.state.activeIndex} onChange={this.handleIndexChange}>
-                                <Tab label="Upload" />
-                                <Tab label="Download" />
-                                <Tab label="Execute" />
-                            </Tabs>
-                            {currentTabWithState}
-                        <Divider orientation="vertical" flexItem />
+            <div className={classes.root}>
+                <h2>Admin Portal</h2>
+                    <Grid container spacing={3} direction="column"  style={{padding:30}}>
+                        <Grid container spacing={3} direction="row">
+                            <Grid item sm={5} >
+                                <h3>Options</h3>
+                                <Paper className={classes.paper}>
+                                    <Tabs value={this.state.activeIndex} onChange={this.handleIndexChange}>
+                                        <Tab label="Upload" />
+                                        <Tab label="Download" />
+                                        <Tab label="Execute" />
+                                    </Tabs>
+                                    {currentTabWithState}
+                                </Paper>
+                            </Grid>
+                            <Grid item sm={4}>
+                                <h3>Current Files</h3>
+                                <Paper className={classes.paper} style={{padding:5}}>
+                                    <Container>
+                                        {currentListWithState}
+                                    </Container>
+                                </Paper>
+                            </Grid>
                         </Grid>
-                        <Grid item>
-                            <h3>Current Files</h3>
-                            {currentListWithState}
-                        </Grid>
-                        <Grid item>
-                            <h3>Current Stats</h3>
-                            {currentStatistics}
+                        <Grid container spacing={3} direction="row">
+                            <Grid item sm={4}>
+                                <h3>Current Stats</h3>
+                                <Paper className={classes.paper}>
+                                    {currentStatistics}
+                                </Paper>
+                            </Grid>
                         </Grid>
                     </Grid>
-                </Paper>
-            </Container>
+            </div>
         );
     }
 }
