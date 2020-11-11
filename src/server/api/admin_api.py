@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 import json
 from sqlalchemy.sql import text
-
+from pipeline import flow_script
 from config import engine
 from flask import send_file, request, redirect, jsonify, current_app
 from api.file_uploader import validate_and_arrange_upload
@@ -70,7 +70,7 @@ def listCurrentFiles():
 @admin_api.route('/api/execute', methods=['GET'])
 def execute():
     current_app.logger.info('Execute flow')
-    #flow_script.start_flow()
+    flow_script.start_flow()
 
     current_time = datetime.now().ctime()
     statistics = getStatistics()
