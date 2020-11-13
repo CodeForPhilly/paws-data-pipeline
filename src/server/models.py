@@ -14,7 +14,7 @@ class Master(Base):
     _id = Column(Integer, primary_key=True)
     salesforcecontacts_id = Column(String, default=None)
     volgistics_id = Column(String, default=None)
-    petpoint_id = Column(String, default=None)
+    shelterluvpeople_id = Column(String, default=None)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
 
@@ -51,29 +51,23 @@ class SalesForceContacts(Base):
     archived_date = Column(DateTime, default=None)
 
 
-class SalesForceDonations(Base):
-    __tablename__ = "salesforcedonations"
+class ShelterluvPeople(Base):
+    __tablename__ = "shelterluvpeople"
 
     _id = Column(Integer, primary_key=True)
-    recurring_donor = Column(String)
-    opportunity_owner = Column(String)
-    account_id = Column(String)
-    account_name = Column(String)
-    opportunity_id = Column(String)
-    opportunity_name = Column(String)
-    stage = Column(String)
-    fiscal_period = Column(String)
-    amount = Column(String)
-    probability = Column(String)
-    age = Column(String)
-    close_date = Column(String)
-    created_date = Column(String)
-    next_step = Column(String)
-    lead_source = Column(String)
-    type = Column(String)
-    source = Column(String)
-    contact_id = Column(String)
-    primary_campaign_source = Column(String)
+    firstname = Column(String)
+    lastname = Column(String)
+    id = Column(String)
+    associated = Column(String)
+    street = Column(String)
+    apartment = Column(String)
+    city = Column(String)
+    state = Column(String)
+    zip = Column(String)
+    email = Column(String)
+    phone = Column(String)
+    animal_ids = Column(JSONB)
+    json = Column(JSONB)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
 
@@ -102,6 +96,34 @@ class Volgistics(Base):
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
 
+
+class SalesForceDonations(Base):
+    __tablename__ = "salesforcedonations"
+
+    _id = Column(Integer, primary_key=True)
+    recurring_donor = Column(String)
+    opportunity_owner = Column(String)
+    account_id = Column(String)
+    account_name = Column(String)
+    opportunity_id = Column(String)
+    opportunity_name = Column(String)
+    stage = Column(String)
+    fiscal_period = Column(String)
+    amount = Column(String)
+    probability = Column(String)
+    age = Column(String)
+    close_date = Column(String)
+    created_date = Column(String)
+    next_step = Column(String)
+    lead_source = Column(String)
+    type = Column(String)
+    source = Column(String)
+    contact_id = Column(String)
+    primary_campaign_source = Column(String)
+    created_date = Column(DateTime, default=datetime.datetime.utcnow)
+    archived_date = Column(DateTime, default=None)
+
+
 class Volgistics_Shifts(Base):
     __tablename__ = 'volgisticsshifts'
 
@@ -116,25 +138,5 @@ class Volgistics_Shifts(Base):
     spare_date = Column(String)
     spare_chechbox = Column(String)
     coordinator = Column(String)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
-    archived_date = Column(DateTime, default=None)
-
-
-class Petpoint(Base):
-    __tablename__ = "petpoint"
-
-    _id = Column(Integer, primary_key=True)
-    animal_num = Column(String)
-    outcome_person_num = Column(String)
-    outcome_person_name = Column(String)
-    out_street_address = Column(String)
-    out_unit_number = Column(String)
-    out_city = Column(String)
-    out_province = Column(String)
-    out_postal_code = Column(String)
-    out_email = Column(String)
-    out_home_phone = Column(String)
-    out_cell_phone = Column(String)
-    json = Column(JSONB)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)

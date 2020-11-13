@@ -6,7 +6,7 @@ import json
 from sqlalchemy.sql import text
 from pipeline import flow_script
 from config import engine
-from flask import send_file, request, redirect, jsonify, current_app
+from flask import send_file, request, redirect, jsonify, current_app, abort
 from api.file_uploader import validate_and_arrange_upload
 from config import RAW_DATA_PATH, OUTPUT_PATH, CURRENT_SOURCE_FILES_PATH, ZIPPED_FILES, LOGS_PATH
 
@@ -102,12 +102,15 @@ def checkStatus():
 '''
 
 
-
 @admin_api.route('/api/statistics', methods=['GET'])
 def listStatistics():
-    last_execution_file = open(LOGS_PATH + 'last_execution.json', 'r')
-    last_execution_details = json.loads(last_execution_file.read())
-    last_execution_file.close()
+    try:
+        last_execution_file = open(LOGS_PATH + 'last_execution.json', 'r')
+        last_execution_details = json.loads(last_execution_file.read())
+        last_execution_file.close()
+
+    except Exception as e:
+        return abort(404)
 
     return jsonify(last_execution_details)
 
@@ -115,13 +118,13 @@ def listStatistics():
 def getStatistics():
     with engine.connect() as connection:
         query = text("SELECT \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is null and petpoint_id is null THEN 1 ELSE 0 END) AS \"Only SalesForce Contacts\", \
-            SUM(CASE WHEN volgistics_id is not null and petpoint_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Only Volgistics Contacts\", \
-            SUM(CASE WHEN petpoint_id is not null and volgistics_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Only Petpoint Contacts\", \
-            SUM(CASE WHEN salesforcecontacts_id is not null and petpoint_id is not null and volgistics_id is null THEN 1 ELSE 0 END) AS \"Salesforcec & Petpoint\", \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is null THEN 1 ELSE 0 END) AS \"Salesforce & Volgistics\", \
-            SUM(CASE WHEN volgistics_id is not null and petpoint_id is not null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Petpoint & Volgistics\", \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and petpoint_id is not null THEN 1 ELSE 0 END) AS \"Salesforcec & Petpoint & Volgistics\" \
+            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is null and shelterluvpeople_id is null THEN 1 ELSE 0 END) AS \"Only SalesForce Contacts\", \
+            SUM(CASE WHEN volgistics_id is not null and shelterluvpeople_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Only Volgistics Contacts\", \
+            SUM(CASE WHEN shelterluvpeople_id is not null and volgistics_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Only Shelterluv Contacts\", \
+            SUM(CASE WHEN salesforcecontacts_id is not null and shelterluvpeople_id is not null and volgistics_id is null THEN 1 ELSE 0 END) AS \"Only Salesforcec & Shelterluv\", \
+            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and shelterluvpeople_id is null THEN 1 ELSE 0 END) AS \"Only Salesforce & Volgistics\", \
+            SUM(CASE WHEN volgistics_id is not null and shelterluvpeople_id is not null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Only Shelterluv & Volgistics\", \
+            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and shelterluvpeople_id is not null THEN 1 ELSE 0 END) AS \"Salesforcec & Shelterluv & Volgistics\" \
             FROM master")
         query_result = connection.execute(query)
 

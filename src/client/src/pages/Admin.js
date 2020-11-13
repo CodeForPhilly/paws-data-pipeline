@@ -47,9 +47,13 @@ class Admin extends Component {
         this.handleGetStatistics = this.handleGetStatistics.bind(this);
     }
 
-    componentDidMount(){
+    refreshPage() {
         this.handleGetFileList();
         this.handleGetStatistics();
+    }
+
+    componentDidMount(){
+        this.refreshPage();
     }
 
     handleIndexChange(event, newIndex){
@@ -84,6 +88,8 @@ class Admin extends Component {
         const result = await response.json();
 
         this.setState({loading: false});
+
+        this.refreshPage();
 
         return result
     }
