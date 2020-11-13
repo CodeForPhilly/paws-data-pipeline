@@ -8,7 +8,7 @@ from pipeline import flow_script
 from config import engine
 from flask import send_file, request, redirect, jsonify, current_app
 from api.file_uploader import validate_and_arrange_upload
-from config import UPLOAD_PATH, OUTPUT_PATH, CURRENT_SOURCE_FILES_PATH, ZIPPED_FILES, LOGS_PATH
+from config import RAW_DATA_PATH, OUTPUT_PATH, CURRENT_SOURCE_FILES_PATH, ZIPPED_FILES, LOGS_PATH
 
 ALLOWED_EXTENSIONS = {'csv', 'xlsx'}
 
@@ -25,7 +25,7 @@ def uploadCSV():
     for file in request.files.getlist('file'):
         if __allowed_file(file.filename):
             try:
-                validate_and_arrange_upload(file, UPLOAD_PATH)
+                validate_and_arrange_upload(file, RAW_DATA_PATH)
             except Exception as e:
                 current_app.logger.exception(e)
             finally:
@@ -38,9 +38,9 @@ def uploadCSV():
 def files(destination):
     current_app.logger.info('Start returning zip of all data')
     if request.args.get('download_current_btn'):
-        source = UPLOAD_PATH + destination
+        source = RAW_DATA_PATH + destination
     if request.args.get('download_archived_btn'):
-        source = UPLOAD_PATH
+        source = RAW_DATA_PATH
     if request.args.get('download_output_btn'):
         source = OUTPUT_PATH
 

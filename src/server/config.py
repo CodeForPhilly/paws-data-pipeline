@@ -26,17 +26,17 @@ if not database_exists(engine.url):
 # print(database_exists(engine.url))
 
 # Define global reusable paths
-UPLOAD_PATH = BASE_PATH + 'uploads/'
+RAW_DATA_PATH = BASE_PATH + 'raw_data/'
 OUTPUT_PATH = BASE_PATH + 'output/'
 LOGS_PATH = BASE_PATH + 'logs/'
-CURRENT_SOURCE_FILES_PATH = UPLOAD_PATH + 'current/'
+CURRENT_SOURCE_FILES_PATH = RAW_DATA_PATH + 'current/'
 REPORT_PATH = OUTPUT_PATH + 'reports/'
 ZIPPED_FILES = BASE_PATH + 'zipped/'
 
 if BASE_PATH != '/app/static/':
     try:
         os.mkdir(BASE_PATH)
-        os.mkdir(UPLOAD_PATH)
+        os.mkdir(RAW_DATA_PATH)
         os.mkdir(OUTPUT_PATH)
         os.mkdir(LOGS_PATH)
         os.mkdir(CURRENT_SOURCE_FILES_PATH)
