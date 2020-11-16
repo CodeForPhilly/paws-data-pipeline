@@ -27,13 +27,17 @@ class Adoptions extends Component {
     }
 
     getAnimalIds() {
-        return _.filter(this.props.adoptions[0].animal_ids.split("'"), item => {
-            return _.isNaN(_.parseInt(item)) !== true;
-        })
+        let result = [];
+
+        let animal_ids = _.get(this.props, 'adoptions[0].animal_ids');
+        if(animal_ids) {
+            result = _.filter(animal_ids.split("'"), item => {
+                return _.isNaN(_.parseInt(item)) !== true;
+            })
+        }
     }
 
     render() {
-        debugger;
         // todo: update when we add pet info
         // todo: clean array of animal_id
         return (<Container style={{"marginTop":"1em"}}>
