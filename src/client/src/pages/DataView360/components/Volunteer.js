@@ -24,9 +24,6 @@ const StyledTableRow = withStyles((theme)=>({
 const SHIFTS_TO_SHOW = 3;
 
 class Volunteer extends Component {
-    constructor(props) {
-        super(props);
-    }
 
     createShiftRows(shifts) {
         const shiftsSorted = _.sortBy(shifts, shift => {
@@ -35,8 +32,8 @@ class Volunteer extends Component {
 
         const lastShifts = shiftsSorted.slice(shiftsSorted.length - SHIFTS_TO_SHOW, shiftsSorted.length)
 
-        const result = _.map(lastShifts, shift => {
-            return(<StyledTableRow>
+        const result = _.map(lastShifts, (shift, index) => {
+            return(<StyledTableRow key={index}>
                     <TableCell align="center">{moment(shift.from).format("YYYY-MM-DD")}</TableCell>
                     <TableCell align="center">{shift.assignment}</TableCell>
                 </StyledTableRow>);
@@ -51,7 +48,7 @@ class Volunteer extends Component {
         return (
             <div>
                 <Container style={{"marginTop":"1em"}}>
-                    <Typography align='center' gutterBottom='true' variant='h4'>Volunteer Activity</Typography>
+                    <Typography align='center' variant='h4'>Volunteer Activity</Typography>
                     <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                         <Table>
                             <TableHead>
@@ -75,7 +72,7 @@ class Volunteer extends Component {
                 </Container>
 
                 <Container style={{"marginTop":"1em"}}>
-                    <Typography align='center' gutterBottom='true' variant='h4'>Volunteer History(Top 3)</Typography>
+                    <Typography align='center' variant='h4'>Volunteer History(Top 3)</Typography>
                     <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                         <Table>
                             <TableHead>

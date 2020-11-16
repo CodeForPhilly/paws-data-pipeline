@@ -22,9 +22,6 @@ const StyledTableRow = withStyles((theme)=>({
 
 
 class Adoptions extends Component {
-    constructor(props) {
-        super(props);
-    }
 
     getAnimalIds() {
         let result = [];
@@ -35,13 +32,15 @@ class Adoptions extends Component {
                 return _.isNaN(_.parseInt(item)) !== true;
             })
         }
+
+        return result;
     }
 
     render() {
         // todo: update when we add pet info
         // todo: clean array of animal_id
         return (<Container style={{"marginTop":"1em"}}>
-                    <Typography align='center' gutterBottom='true' variant='h4'>Adoption/Foster Records(Top 3)</Typography>
+                    <Typography align='center' variant='h4'>Adoption/Foster Records(Top 3)</Typography>
                     <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                         <Table>
                             <TableHead>
