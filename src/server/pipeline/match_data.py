@@ -13,7 +13,7 @@ from pipeline.create_master_df import __create_new_user
 # https://github.com/CodeForPhilly/paws-data-pipeline/blob/master/documentation/matching_rules.md
 MATCH_MAPPING = {'email': 'table_email', 'name': '_table_name'}
 MATCH_FIELDS = list(MATCH_MAPPING.keys())
-MATCH_PRIORITY = ['salesforcecontacts', 'volgistics', 'petpoint']
+MATCH_PRIORITY = ['salesforcecontacts', 'volgistics', 'shelterluvpeople']
 
 
 def single_fuzzy_score(record1, record2, case_sensitive=False):

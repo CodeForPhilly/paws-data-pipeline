@@ -3,9 +3,6 @@ import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRo
 import { withStyles } from '@material-ui/core/styles';
 import "./styles/Adoptions.css";
 import _ from 'lodash';
-import moment from 'moment';
-
-const ROWS_TO_SHOW = 3
 
 const StyledTableCell = withStyles((theme)=>({
     head:{
@@ -22,52 +19,39 @@ const StyledTableRow = withStyles((theme)=>({
     }
 }))(TableRow);
 
+
+
 class Adoptions extends Component {
-    constructor(props) {
-        super(props);
 
-        this.createRows = this.createRows.bind(this);
-    }
+    getAnimalIds() {
+        let result = [];
 
-    createRows(adoptions){
-        adoptions = _.map(adoptions, pet => {
-            return pet.json;
-        });
-        const adoptionsSorted = _.sortBy(adoptions, 'outcome_date');
-        const latestAdoptions = adoptionsSorted.slice(0,ROWS_TO_SHOW);
-
-        const result = _.map(latestAdoptions, pet => {
-            return(<StyledTableRow>
-                    <TableCell align="center">{moment(pet.outcome_date).format("YYYY-MM-DD")}</TableCell>
-                    <TableCell align="center">{pet.animal_name}</TableCell>
-                    <TableCell align="center">{pet.animal_type}</TableCell>
-                    <TableCell align="center">{pet.primary_breed}</TableCell>
-                    <TableCell align="center">{pet.animal_num}</TableCell>
-                    <TableCell align="center">{pet.age_group}</TableCell>
-                </StyledTableRow>);
-
-            });
+        let animal_ids = _.get(this.props, 'adoptions[0].animal_ids');
+        if(animal_ids) {
+            result = _.filter(animal_ids.split("'"), item => {
+                return _.isNaN(_.parseInt(item)) !== true;
+            })
+        }
 
         return result;
     }
 
     render() {
+        // todo: update when we add pet info
+        // todo: clean array of animal_id
         return (<Container style={{"marginTop":"1em"}}>
-                    <Typography align='center' gutterBottom='true' variant='h4'>Adoption/Foster Records(Top 3)</Typography>
+                    <Typography align='center' variant='h4'>Adoption/Foster Records(Top 3)</Typography>
                     <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <StyledTableCell align="center">Date of Adoption</StyledTableCell>
-                                    <StyledTableCell align="center">Name</StyledTableCell>
-                                    <StyledTableCell align="center">Type/Species</StyledTableCell>
-                                    <StyledTableCell align="center">Primary Breed</StyledTableCell>
-                                    <StyledTableCell align="center">Animal-Number</StyledTableCell>
-                                    <StyledTableCell align="center">Current Age</StyledTableCell>
+                                    <StyledTableCell align="center">Number of Adoptions</StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                { this.props.adoptions && this.createRows(this.props.adoptions) }
+                                <StyledTableRow>
+                                    <TableCell align="center"> {_.size(this.getAnimalIds())}</TableCell>
+                                </StyledTableRow>
                             </TableBody>
                         </Table>
                    </TableContainer>

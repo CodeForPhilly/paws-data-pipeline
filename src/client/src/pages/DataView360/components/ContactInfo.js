@@ -19,8 +19,8 @@ class ContactInfo extends Component {
         const phoneStr = _.get(this.props, "participant.phone");
         let phone = _.isEmpty(phoneStr) ? '-' : phoneStr.split(" ").join("");
 
-        return (<Container class="contactInfo">
-            <Typography align='center' gutterBottom='true' variant='h4'>Contact Info</Typography>
+        return (<Container className="contactInfo">
+            <Typography align='center' variant='h4'>Contact Info</Typography>
                 <Paper variant='outlined' style={{padding:'1em'}}>
                     <div style={{"display":"flex", "justifyContent":"space-between"}}>
                         <Typography>

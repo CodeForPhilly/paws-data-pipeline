@@ -12,7 +12,7 @@ def start_flow():
         with engine.connect() as connection:
             init_db_schema.start(connection)
 
-            rows_to_add_or_updated = load_paws_data.start(connection, file_path_list, True)
+            rows_to_add_or_updated = load_paws_data.start(connection, file_path_list)
 
             rows_for_master_df = match_data.start(connection, rows_to_add_or_updated)
 

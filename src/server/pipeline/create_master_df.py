@@ -67,8 +67,8 @@ def __create_new_user(connection, master_id, name, email, source):
 
 def start(connection, rows_for_master_df):
     # Create a simple table with the following values:
-    # ------------> master_id (primary key), petpoint_id, volgistics_id, salesforce_id, created_date, archived_date
-    # petpoint[[outcome_person_id]]
+    # ------------> master_id (primary key), shelterluvpeople_id, volgistics_id, salesforce_id, created_date, archived_date
+    # shelterluvpeople[[id]]
     # volgistics[[number]]
     # salesforcecontacts[[account_id]]
 
