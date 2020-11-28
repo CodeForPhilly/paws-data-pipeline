@@ -68,3 +68,59 @@ DATASOURCE_MAPPING = {
         'should_drop_first_column': True
     }
 }
+
+SOURCE_NORMALIZATION_MAPPING = {
+    "salesforcecontacts": {
+        "source_id": "contact_id",
+        "first_name": "first_name",
+        "last_name": "last_name",
+        "email": "email",
+        "mobile": "mobile" or "phone",
+        "street": "mailing_street",
+        "apartment": "mailing_street",
+        "city": "mailing_city",
+        "state": "mailing_state_province",
+        "zip": "mailing_zip_postal_code",
+
+        "should_drop_first_column": True
+    },
+    "shelterluvpeople": {
+        "source_id": "id",
+        "first_name": "firstname",
+        "last_name": "lastname",
+        "email": "email",
+        "mobile": "phone",
+        "street": "street",
+        "apartment": "apartment",
+        "city": "city",
+        "state": "state",
+        "zip": "zip",
+        "should_drop_first_column": False
+    },
+    "volgistics": {
+        "source_id": "number",
+        "first_name": "first_name",
+        "last_name": "last_name",
+        "email": "email",
+        "mobile": "cell" or "home",
+        "street": "street_1",
+        "apartment": "street_1",
+        "city": "city",
+        "state": "state",
+        "zip": "zip",
+
+        "should_drop_first_column": True
+    }
+}
+
+'''
+draft:
+"street": lambda var: var['street_1'].apply(lambda x: "" if " " not in x else x.split(' ')[1]),
+        "apartment": lambda var: var['street_1'].apply(lambda x: "" if " " not in x else x.split(' ')[0])
+"additional_sources": [
+            {"volgisticsshifts": {'should_drop_first_column': True}}
+        ],
+"additional_sources": [
+    {"salesforcedonations": {'should_drop_first_column': True}}
+],
+'''

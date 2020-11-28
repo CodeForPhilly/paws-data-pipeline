@@ -4,7 +4,7 @@ import os
 import io
 import datetime
 
-from datasource_manager import DATASOURCE_MAPPING
+from datasource_manager import DATASOURCE_MAPPING, SOURCE_NORMALIZATION_MAPPING
 from flask import current_app
 from config import CURRENT_SOURCE_FILES_PATH
 from datetime import datetime
@@ -43,11 +43,11 @@ def start(connection, file_path_list):
 
 
 def __find_new_rows(connection, result, table_name):
-    source_id = DATASOURCE_MAPPING[table_name]['id']
+    source_id = SOURCE_NORMALIZATION_MAPPING[table_name]['source_id']
     # find new rows
     rows = connection.execute(
-        'select t.* from {} t left join pdp_contacts c on c."{}" = t."{}" where c."{}" is null'.format(
-            table_name + "_stage", source_id, source_id, source_id))
+        'select t.* from {} t left join pdp_contacts c on c."source_id" = t."{}" where c."source_id" is null'.format(
+            table_name + "_stage", source_id))
 
     rows_data = []
     #now = datetime.now()
