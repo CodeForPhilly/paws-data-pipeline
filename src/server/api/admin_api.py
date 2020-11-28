@@ -121,10 +121,10 @@ def getStatistics():
             SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is null and shelterluvpeople_id is null THEN 1 ELSE 0 END) AS \"Only SalesForce Contacts\", \
             SUM(CASE WHEN volgistics_id is not null and shelterluvpeople_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Only Volgistics Contacts\", \
             SUM(CASE WHEN shelterluvpeople_id is not null and volgistics_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Only Shelterluv Contacts\", \
-            SUM(CASE WHEN salesforcecontacts_id is not null and shelterluvpeople_id is not null and volgistics_id is null THEN 1 ELSE 0 END) AS \"Only Salesforcec & Shelterluv\", \
+            SUM(CASE WHEN salesforcecontacts_id is not null and shelterluvpeople_id is not null and volgistics_id is null THEN 1 ELSE 0 END) AS \"Only Salesforce & Shelterluv\", \
             SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and shelterluvpeople_id is null THEN 1 ELSE 0 END) AS \"Only Salesforce & Volgistics\", \
             SUM(CASE WHEN volgistics_id is not null and shelterluvpeople_id is not null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS \"Only Shelterluv & Volgistics\", \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and shelterluvpeople_id is not null THEN 1 ELSE 0 END) AS \"Salesforcec & Shelterluv & Volgistics\" \
+            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and shelterluvpeople_id is not null THEN 1 ELSE 0 END) AS \"Salesforce & Shelterluv & Volgistics\" \
             FROM master")
         query_result = connection.execute(query)
 

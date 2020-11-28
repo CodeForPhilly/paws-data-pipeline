@@ -16,6 +16,7 @@ def start(connection, file_path_list):
         "new_rows": {},
         "updated_rows": {}
     }
+    # all latest(current) files are being tested against the main table to see if they are new or updated
     for uploaded_file in file_path_list:
         file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
         table_name = file_path.split('/')[-1].split('-')[0]
@@ -29,11 +30,13 @@ def start(connection, file_path_list):
         current_app.logger.info('   - Built schema dict')
 
         df.to_sql(table_name + '_stage', connection, index=False, if_exists='replace', dtype=_dict)
+
         ##current_app.logger.info('   - Looking for updated rows ')
         #__find_updated_rows(connection, result, table_name)
-        current_app.logger.info('   - Looking for new rows ')
 
+        current_app.logger.info('   - Looking for new rows ')
         __find_new_rows(connection, result, table_name)
+
         current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)
 
     return result
@@ -43,11 +46,11 @@ def __find_new_rows(connection, result, table_name):
     source_id = DATASOURCE_MAPPING[table_name]['id']
     # find new rows
     rows = connection.execute(
-        'select t.* from {} t left join {} c on c."{}" = t."{}" where c."{}" is null'.format(
-            table_name + "_stage", table_name, source_id, source_id, source_id))
+        'select t.* from {} t left join pdp_contacts c on c."{}" = t."{}" where c."{}" is null'.format(
+            table_name + "_stage", source_id, source_id, source_id))
 
     rows_data = []
-    now = datetime.now()
+    #now = datetime.now()
     tracked_columns = DATASOURCE_MAPPING[table_name]['tracked_columns']
 
     for row in rows:
@@ -68,7 +71,7 @@ def __find_new_rows(connection, result, table_name):
                 row_dict['contact_id'] = row_dict['contact_id'][0:-3]
 
         row_dict['json'] = json_dict
-        row_dict['created_date'] = now
+        #row_dict['created_date'] = now
         rows_data.append(row_dict)
 
     result['new_rows'][table_name] = rows_data
