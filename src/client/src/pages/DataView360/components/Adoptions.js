@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
 import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import "./styles/Adoptions.css";
+import styles from "./styles/Adoptions.module.css";
+import "./styles/table.css";
 import _ from 'lodash';
 import moment from 'moment';
 
 const ROWS_TO_SHOW = 3
 
+/* I don't khow, how to remove it. So I changed background-color on 'initial' */
 const StyledTableCell = withStyles((theme)=>({
     head:{
-        backgroundColor: theme.palette.grey.A100,
+        backgroundColor: 'initial', // here
         fontWeight: 600,
     }
 }))(TableCell);
@@ -17,7 +19,7 @@ const StyledTableCell = withStyles((theme)=>({
 const StyledTableRow = withStyles((theme)=>({
     root:{
         '&:nth-of-type(even)':{
-            backgroundColor: theme.palette.action.hover,
+            backgroundColor: 'initial', // and here
         }
     }
 }))(TableRow);
@@ -38,12 +40,12 @@ class Adoptions extends Component {
 
         const result = _.map(latestAdoptions, pet => {
             return(<StyledTableRow>
-                    <TableCell align="center">{moment(pet.outcome_date).format("YYYY-MM-DD")}</TableCell>
-                    <TableCell align="center">{pet.animal_name}</TableCell>
-                    <TableCell align="center">{pet.animal_type}</TableCell>
-                    <TableCell align="center">{pet.primary_breed}</TableCell>
-                    <TableCell align="center">{pet.animal_num}</TableCell>
-                    <TableCell align="center">{pet.age_group}</TableCell>
+                    <TableCell>{moment(pet.outcome_date).format("YYYY-MM-DD")}</TableCell>
+                    <TableCell>{pet.animal_name}</TableCell>
+                    <TableCell>{pet.animal_type}</TableCell>
+                    <TableCell>{pet.primary_breed}</TableCell>
+                    <TableCell>{pet.animal_num}</TableCell>
+                    <TableCell>{pet.age_group}</TableCell>
                 </StyledTableRow>);
 
             });
@@ -52,18 +54,18 @@ class Adoptions extends Component {
     }
 
     render() {
-        return (<Container style={{"marginTop":"1em"}}>
-                    <Typography align='center' gutterBottom='true' variant='h4'>Adoption/Foster Records(Top 3)</Typography>
-                    <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
-                        <Table>
+        return (<Container className={styles.adoptions}>
+                    <Typography className={styles.adoptions_title} gutterBottom='true' variant='h4'>Adoption/Foster Records(Top 3)</Typography>
+                    <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
+                        <Table className="main_table">
                             <TableHead>
                                 <TableRow>
-                                    <StyledTableCell align="center">Date of Adoption</StyledTableCell>
-                                    <StyledTableCell align="center">Name</StyledTableCell>
-                                    <StyledTableCell align="center">Type/Species</StyledTableCell>
-                                    <StyledTableCell align="center">Primary Breed</StyledTableCell>
-                                    <StyledTableCell align="center">Animal-Number</StyledTableCell>
-                                    <StyledTableCell align="center">Current Age</StyledTableCell>
+                                    <StyledTableCell>Date of Adoption</StyledTableCell>
+                                    <StyledTableCell>Name</StyledTableCell>
+                                    <StyledTableCell>Type/Species</StyledTableCell>
+                                    <StyledTableCell>Primary Breed</StyledTableCell>
+                                    <StyledTableCell>Animal-Number</StyledTableCell>
+                                    <StyledTableCell>Current Age</StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>

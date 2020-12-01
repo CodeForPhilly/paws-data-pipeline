@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import {Button, Paper, Select, InputLabel, MenuItem, FormControl, TextField, IconButton} from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { withStyles } from '@material-ui/core/styles';
-import "./styles/SearchBar.css";
+import styles from "./styles/SearchBar.module.css";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import _ from 'lodash';
 
 const LIST_LIMIT = 200;
 
-const styles = theme => ({
+const customStyles = theme => ({
     spinner: {
         display: 'flex',
         marginLeft: theme.spacing(2)
@@ -127,7 +127,7 @@ class SearchBar extends Component {
         const { classes } = this.props;
 
         return (
-            <Paper elevation={1} style={{
+            <Paper className={styles.search_bar} elevation={1} style={{
                     "display":"flex",
                     "padding":"1em",
                     "margin":"1em 0 1em 0",
@@ -146,4 +146,4 @@ class SearchBar extends Component {
     }
 }
 
-export default withStyles(styles)(SearchBar);
+export default withStyles(customStyles)(SearchBar);
