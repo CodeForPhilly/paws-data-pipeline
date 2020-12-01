@@ -118,8 +118,19 @@ def listStatistics():
         last_execution_details = json.loads(last_execution_file.read())
         last_execution_file.close()
 
+    except (FileNotFoundError):
+        current_app.logger.error("last_execution.json file was missing")
+        return abort(500)
+
+    except (json.JSONDecodeError):
+        current_app.logger.error(
+            "last_execution.json could not be decoded - possible corruption"
+        )
+        return abort(500)
+
     except Exception as e:
-        return jsonify(None)
+        current_app.logger.error("Failure reading last_execution.json: ", e)
+        return abort(500)
 
     return jsonify(last_execution_details)
 
