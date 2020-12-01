@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
-import {Tabs, Tab, Container, Paper } from "@material-ui/core";
+import {Tabs, Tab, Paper } from "@material-ui/core";
 import TabPanel from '../components/TabPanel';
 import Grid from '@material-ui/core/Grid';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import { withStyles } from '@material-ui/core/styles';
-import Divider from '@material-ui/core/Divider';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { UploadForm, DownloadForm, ExecuteForm } from '../components/Forms';
@@ -27,19 +32,27 @@ class Admin extends Component {
             activeIndex: 0,
             loading: false,
             loadingCurrentFiles: false,
-            fileList: undefined,
+            loadingStatistics: false,
+            statistics: [],
             filesInput: undefined,
-            fileListHtml: undefined
+            fileListHtml: undefined,
+            lastExecution: undefined
         }
 
         this.handleIndexChange = this.handleIndexChange.bind(this);
         this.handleUpload = this.handleUpload.bind(this);
         this.handleExecute = this.handleExecute.bind(this);
         this.handleGetFileList = this.handleGetFileList.bind(this);
+        this.handleGetStatistics = this.handleGetStatistics.bind(this);
+    }
+
+    refreshPage() {
+        this.handleGetFileList();
+        this.handleGetStatistics();
     }
 
     componentDidMount(){
-        this.handleGetFileList();
+        this.refreshPage();
     }
 
     handleIndexChange(event, newIndex){
@@ -67,6 +80,7 @@ class Admin extends Component {
 
     async handleExecute(event) {
         event.preventDefault();
+        // TODO: it looks like it handles it, but may want to tie events into stats too (like set loadingStatistics: true)
         this.setState({loading: true});
 
         const response = await fetch('/api/execute');
@@ -74,25 +88,55 @@ class Admin extends Component {
 
         this.setState({loading: false});
 
+        this.refreshPage();
+
         return result
+    }
+
+    async handleGetStatistics() {
+        this.setState({loadingStatistics: true})
+
+        try {
+            const statsData = await fetch("/api/statistics");
+            const statsResponse = await statsData.json();
+
+            this.setState({
+                statistics: _.toPairsIn(statsResponse.stats),
+                lastExecution: statsResponse.executionTime
+            });
+
+            console.log("statisticsListHtml", this.state.statistics);
+            // this.setState({statisticsListHtml: stats});
+            this.setState({loadingStatistics: false})
+        }
+        finally {
+            this.setState({loadingStatistics: false})
+        }
+
     }
 
     async handleGetFileList() {
         this.setState({loadingCurrentFiles: true})
 
-        const filesData = await fetch("/api/listCurrentFiles");
-        const filesResponse = await filesData.json();
+        try{
+            const filesData = await fetch("/api/listCurrentFiles");
+            const filesResponse = await filesData.json();
 
-        this.setState({fileList: filesResponse});
+            // this.setState({fileList: filesResponse});
 
-        this.setState({fileListHtml: _.map(filesResponse, (fileName) => {
-            return <li key={fileName}> {fileName}</li>
-        })});
+            this.setState({fileListHtml: _.map(filesResponse, (fileName) => {
+                return (<li key={fileName}> {fileName}</li>)
+            })});
 
-        //just a UX indication that a new list has been loaded
-        await new Promise(resolve => setTimeout(resolve, 1000));
+            console.log("fileListHtml", this.state.fileListHtml);
+            //just a UX indication that a new list has been loaded
+            //await new Promise(resolve => setTimeout(resolve, 1000));
+        }
 
-        this.setState({loadingCurrentFiles: false})
+        finally {
+            this.setState({loadingCurrentFiles: false})
+        }
+
     }
 
     render() {
@@ -120,29 +164,65 @@ class Admin extends Component {
             <CircularProgress />
         </div>
         :
-        <ul>{this.state.fileListHtml}</ul>
+        <Paper style={{padding: 5}}>
+            <ul>{this.state.fileListHtml}</ul>
+        </Paper>
+
+        let currentStatistics = this.state.loadingStatistics === true ?
+        <div className={classes.spinner}>
+            <CircularProgress />
+        </div>
+        : _.isEmpty(this.state.statistics) !== true &&
+        <TableContainer component={Paper} className="statisticsData">
+            <Table aria-label="simple table" className={classes.table}>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Sources Matched</TableCell>
+                        <TableCell align="left">Number of Matches</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                {this.state.statistics.map((row) => (
+                    <TableRow key={row[0]}>
+                    <TableCell align="left" component="th" scope="row">
+                        {row[0]}
+                    </TableCell>
+                        <TableCell align="left">{row[1]}</TableCell>
+                    </TableRow>
+                ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
 
         return (
-            <Container>
-                <h2>Admin Options</h2>
-                <Paper elevation={2} style={{"marginTop":"1em", "padding":"2em"}}>
-                    <Grid container spacing={5}>
-                        <Grid item>
-                            <Tabs value={this.state.activeIndex} onChange={this.handleIndexChange}>
-                                <Tab label="Upload" />
-                                <Tab label="Download" />
-                                <Tab label="Execute" />
-                            </Tabs>
-                            {currentTabWithState}
-                        <Divider orientation="vertical" flexItem />
+            <div>
+                <h2>Admin Portal</h2>
+                    <Grid container spacing={3} direction="column"  style={{padding:30}}>
+                        <Grid container spacing={3} direction="row">
+                            <Grid item sm={5} >
+                                <h3>Options</h3>
+                                <Paper style={{padding: 5}}>
+                                    <Tabs value={this.state.activeIndex} onChange={this.handleIndexChange}>
+                                        <Tab label="Upload" />
+                                        <Tab label="Download" />
+                                        <Tab label="Execute" />
+                                    </Tabs>
+                                    {currentTabWithState}
+                                </Paper>
+                            </Grid>
+                            <Grid item sm={4}>
+                                <h3>Current Files</h3>
+                                {currentListWithState}
+                            </Grid>
                         </Grid>
-                        <Grid item>
-                            <h3>Current Files</h3>
-                            {currentListWithState}
+                        <Grid container spacing={3} direction="row">
+                            <Grid item sm={4}>
+                                <h3>Matching Stats from last Execution: {this.state.lastExecution}</h3>
+                                {currentStatistics}
+                            </Grid>
                         </Grid>
                     </Grid>
-                </Paper>
-            </Container>
+            </div>
         );
     }
 }

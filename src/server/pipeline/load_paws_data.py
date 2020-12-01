@@ -11,7 +11,7 @@ from datetime import datetime
 from models import Base
 
 
-def start(connection, file_path_list, should_drop_first_col=False):
+def start(connection, file_path_list):
     result = {
         "new_rows": {},
         "updated_rows": {}
@@ -24,7 +24,7 @@ def start(connection, file_path_list, should_drop_first_col=False):
         df = pd.read_csv((io.BytesIO(open(file_path, "rb").read())), encoding='iso-8859-1')
         current_app.logger.info('   - Populated DF')
 
-        df = __clean_raw_data(df, should_drop_first_col)
+        df = __clean_raw_data(df, table_name)
         _dict = {c.name: c.type for c in Base.metadata.tables[table_name].c}
         current_app.logger.info('   - Built schema dict')
 
@@ -143,9 +143,9 @@ def __create_row_dicts(rows, tracked_columns):
     return rows_data
 
 
-def __clean_raw_data(df, should_drop_first_col):
+def __clean_raw_data(df, table_name):
     # drop the first column - so far all csvs have had a first column that's an index and doesn't have a name
-    if should_drop_first_col:
+    if DATASOURCE_MAPPING[table_name]["should_drop_first_column"]:
         df = df.drop(df.columns[0], axis=1)
 
     # strip whitespace and periods from headers, convert to lowercase

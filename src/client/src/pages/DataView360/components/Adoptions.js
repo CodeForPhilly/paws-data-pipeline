@@ -4,9 +4,6 @@ import { withStyles } from '@material-ui/core/styles';
 import styles from "./styles/Adoptions.module.css";
 import "./styles/table.css";
 import _ from 'lodash';
-import moment from 'moment';
-
-const ROWS_TO_SHOW = 3
 
 /* I don't khow, how to remove it. So I changed background-color on 'initial' */
 const StyledTableCell = withStyles((theme)=>({
@@ -24,52 +21,39 @@ const StyledTableRow = withStyles((theme)=>({
     }
 }))(TableRow);
 
+
+
 class Adoptions extends Component {
-    constructor(props) {
-        super(props);
 
-        this.createRows = this.createRows.bind(this);
-    }
+    getAnimalIds() {
+        let result = [];
 
-    createRows(adoptions){
-        adoptions = _.map(adoptions, pet => {
-            return pet.json;
-        });
-        const adoptionsSorted = _.sortBy(adoptions, 'outcome_date');
-        const latestAdoptions = adoptionsSorted.slice(0,ROWS_TO_SHOW);
-
-        const result = _.map(latestAdoptions, pet => {
-            return(<StyledTableRow>
-                    <TableCell>{moment(pet.outcome_date).format("YYYY-MM-DD")}</TableCell>
-                    <TableCell>{pet.animal_name}</TableCell>
-                    <TableCell>{pet.animal_type}</TableCell>
-                    <TableCell>{pet.primary_breed}</TableCell>
-                    <TableCell>{pet.animal_num}</TableCell>
-                    <TableCell>{pet.age_group}</TableCell>
-                </StyledTableRow>);
-
-            });
+        let animal_ids = _.get(this.props, 'adoptions[0].animal_ids');
+        if(animal_ids) {
+            result = _.filter(animal_ids.split("'"), item => {
+                return _.isNaN(_.parseInt(item)) !== true;
+            })
+        }
 
         return result;
     }
 
     render() {
-        return (<Container className={styles.adoptions}>
-                    <Typography className={styles.adoptions_title} gutterBottom='true' variant='h4'>Adoption/Foster Records(Top 3)</Typography>
+        // todo: update when we add pet info
+        // todo: clean array of animal_id
+        return (<Container className={styles.adoptions} style={{"marginTop":"1em"}}>
+                    <Typography className={styles.adoptions_title} variant='h4'>Adoption/Foster Records(Top 3)</Typography>
                     <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                         <Table className="main_table">
                             <TableHead>
                                 <TableRow>
-                                    <StyledTableCell>Date of Adoption</StyledTableCell>
-                                    <StyledTableCell>Name</StyledTableCell>
-                                    <StyledTableCell>Type/Species</StyledTableCell>
-                                    <StyledTableCell>Primary Breed</StyledTableCell>
-                                    <StyledTableCell>Animal-Number</StyledTableCell>
-                                    <StyledTableCell>Current Age</StyledTableCell>
+                                    <StyledTableCell align="center">Number of Adoptions</StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                { this.props.adoptions && this.createRows(this.props.adoptions) }
+                                <StyledTableRow>
+                                    <TableCell align="center"> {_.size(this.getAnimalIds())}</TableCell>
+                                </StyledTableRow>
                             </TableBody>
                         </Table>
                    </TableContainer>

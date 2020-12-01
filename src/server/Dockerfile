@@ -15,8 +15,8 @@ RUN pip install --no-cache-dir -r /requirements.txt
 COPY . .
 
 RUN mkdir /app/static \
-          /app/static/uploads \
-          /app/static/uploads/current \
+          /app/static/raw_data \
+          /app/static/raw_data/current \
           /app/static/output \
           /app/static/output/reports \
           /app/static/logs \

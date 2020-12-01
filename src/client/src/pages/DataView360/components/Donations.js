@@ -39,8 +39,8 @@ class Donations extends Component {
         donationsSorted = donationsSorted.reverse();
         const latestDonations = donationsSorted.slice(0,ROWS_TO_SHOW);
 
-        const result = _.map(latestDonations, donation => {
-            return( <StyledTableRow>
+        const result = _.map(latestDonations, (donation, index) => {
+            return( <StyledTableRow key={index}>
                     <TableCell>{donation.close_date}</TableCell>
                     <TableCell>${donation.amount}</TableCell>
                     <TableCell>{donation.type}</TableCell>
@@ -52,8 +52,8 @@ class Donations extends Component {
 
     render() {
         return (
-            <Container className={styles.donations} >
-                <Typography className={styles.donations_title} gutterBottom='true' variant='h4'>Financial Support Activity(Top 3)</Typography>
+            <Container className={styles.donations} style={{"marginTop":"1em"}}>
+                <Typography className={styles.donations_title} variant='h4'>Financial Support Activity(Top 3)</Typography>
                 <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                     <Table className="main_table">
                         <TableHead>

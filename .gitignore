@@ -17,3 +17,4 @@ start_env.sh
 *.DS_Store
 
 /src/server/venv/
+/src/local_files/

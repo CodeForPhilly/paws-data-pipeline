@@ -19,7 +19,7 @@ services:
     depends_on:
       - db
     volumes:
-      - src_archive:/app/static/uploads
+      - src_archive:/app/static/raw_data
     environment: 
       FLASK_ENV: development
 

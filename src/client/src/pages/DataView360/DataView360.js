@@ -57,7 +57,6 @@ class DataView360 extends Component {
     render(){
         const { classes } = this.props;
 
-        //temporary taking the first pet row in petpoint - todo: change to list
         return(
             <Container>
                 <SearchBar participant={this.state.participant}
@@ -67,7 +66,7 @@ class DataView360 extends Component {
                 <Paper className={styles.main} elevation={1} style={{"padding":"1em"}}>
                     <ContactInfo participant={_.get(this.state, "participantData.salesforcecontacts")} />
                     <Donations donations={_.get(this.state, 'participantData.salesforcedonations')} />
-                    <Adoptions adoptions={_.get(this.state, 'participantData.petpoint')} />
+                    <Adoptions adoptions={_.get(this.state, 'participantData.shelterluvpeople')} />
                     <Volunteer volunteer={_.get(this.state, 'participantData.volgistics.json')}
                     volunteerShifts={_.get(this.state, 'participantData.volgistics_shifts_results')}/>
 

@@ -25,9 +25,6 @@ const StyledTableRow = withStyles((theme)=>({
 const SHIFTS_TO_SHOW = 3;
 
 class Volunteer extends Component {
-    constructor(props) {
-        super(props);
-    }
 
     createShiftRows(shifts) {
         const shiftsSorted = _.sortBy(shifts, shift => {
@@ -36,10 +33,10 @@ class Volunteer extends Component {
 
         const lastShifts = shiftsSorted.slice(shiftsSorted.length - SHIFTS_TO_SHOW, shiftsSorted.length)
 
-        const result = _.map(lastShifts, shift => {
-            return(<StyledTableRow>
-                    <TableCell >{moment(shift.from).format("YYYY-MM-DD")}</TableCell>
-                    <TableCell >{shift.assignment}</TableCell>
+        const result = _.map(lastShifts, (shift, index) => {
+            return(<StyledTableRow key={index}>
+                    <TableCell>{moment(shift.from).format("YYYY-MM-DD")}</TableCell>
+                    <TableCell>{shift.assignment}</TableCell>
                 </StyledTableRow>);
 
         });
@@ -51,8 +48,8 @@ class Volunteer extends Component {
 
         return (
             <React.Fragment>
-                <Container className={styles.volonteer_activity} >
-                    <Typography className={styles.volonteer_activity_title} gutterBottom='true' variant='h4'>Volunteer Activity</Typography>
+                <Container className={styles.volonteer_activity} style={{"marginTop":"1em"}}>
+                    <Typography className={styles.volonteer_activity_title} variant='h4'>Volunteer Activity</Typography>
                     <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper}>
                         <Table className="main_table">
                             <TableHead>
@@ -74,9 +71,9 @@ class Volunteer extends Component {
                         </Table>
                     </TableContainer>
                 </Container>
-                <Container className={styles.volonteer_history}>
-                    <Typography className={styles.volonteer_history_title} gutterBottom='true' variant='h4'>Volunteer History(Top 3)</Typography>
-                    <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper}>
+                <Container className={styles.volonteer_history} style={{"marginTop":"1em"}}>
+                    <Typography className={styles.volonteer_history_title} variant='h4'>Volunteer History(Top 3)</Typography>
+                    <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                         <Table className="main_table">
                             <TableHead>
                                 <TableRow>
