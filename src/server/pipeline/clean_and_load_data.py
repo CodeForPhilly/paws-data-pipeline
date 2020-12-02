@@ -26,13 +26,15 @@ def start(connection, file_path_list):
         current_app.logger.info('   - Cleaned DF')
 
         result[table_name] = pd.DataFrame(columns=["matching_id", "source_type"])
-        for new_column, table_column in SOURCE_NORMALIZATION_MAPPING[table_name].items():
+        normalization_without_others = SOURCE_NORMALIZATION_MAPPING[table_name]
+
+        normalization_without_others.pop("others")
+
+        for new_column, table_column in normalization_without_others.items():
             if isinstance(table_column, str):
                 result[table_name][new_column] = df[table_column]
             elif callable(table_column):
                 result[table_name][new_column] = table_column(df)
-            elif isinstance(table_column, bool):
-                continue
             else:
                 raise ValueError("Unknown mapping operation")
         current_app.logger.info('   - Normalized DF')

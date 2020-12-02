@@ -69,20 +69,51 @@ DATASOURCE_MAPPING = {
     }
 }
 
+
+def volgistics_street(df):
+    result = ""
+
+    for item in df.street_1:
+        if isinstance(item, str):
+            if " " in item:
+                result = item.split()[1]
+
+    return result
+
+
+def volgistics_apartment(df):
+    result = ""
+
+    for item in df.street_1:
+        if isinstance(item, str):
+            if " " in item:
+                result = item.split()[0]
+
+    return result
+
+
 SOURCE_NORMALIZATION_MAPPING = {
     "salesforcecontacts": {
         "source_id": "contact_id",
         "first_name": "first_name",
         "last_name": "last_name",
         "email": "email",
-        "mobile": "mobile" or "phone",
+        "mobile": lambda df: df["mobile"].combine_first(df["phone"]),
         "street": "mailing_street",
         "apartment": "mailing_street",
         "city": "mailing_city",
         "state": "mailing_state_province",
         "zip": "mailing_zip_postal_code",
+        "others": {
+            "additional_sources": [{
+                "salesforcedonations": {
+                    'should_drop_first_column': True
+                }
+            }
+            ],
+            "should_drop_first_column": True
+        }
 
-        "should_drop_first_column": True
     },
     "shelterluvpeople": {
         "source_id": "id",
@@ -95,32 +126,30 @@ SOURCE_NORMALIZATION_MAPPING = {
         "city": "city",
         "state": "state",
         "zip": "zip",
-        "should_drop_first_column": False
+        "others": {
+            "should_drop_first_column": False
+        }
     },
     "volgistics": {
         "source_id": "number",
         "first_name": "first_name",
         "last_name": "last_name",
         "email": "email",
-        "mobile": "cell" or "home",
-        "street": "street_1",
-        "apartment": "street_1",
+        "mobile": lambda df: df["cell"].combine_first(df["home"]),
+        "street": volgistics_street,
+        "apartment": volgistics_apartment,
         "city": "city",
         "state": "state",
         "zip": "zip",
+        "others": {
+            "additional_sources": [{
+                "volgisticsshifts": {
+                    'should_drop_first_column': True
+                }
+            }
+            ],
+            "should_drop_first_column": True
+        }
 
-        "should_drop_first_column": True
     }
 }
-
-'''
-draft:
-"street": lambda var: var['street_1'].apply(lambda x: "" if " " not in x else x.split(' ')[1]),
-        "apartment": lambda var: var['street_1'].apply(lambda x: "" if " " not in x else x.split(' ')[0])
-"additional_sources": [
-            {"volgisticsshifts": {'should_drop_first_column': True}}
-        ],
-"additional_sources": [
-    {"salesforcedonations": {'should_drop_first_column': True}}
-],
-'''
