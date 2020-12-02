@@ -22,7 +22,7 @@ RUN mkdir /app/static \
     /app/static/logs \
     /app/static/zipped
 
-RUN [ ! -f /app/static/logs/last_execution.json ] && printf null > /app/static/logs/last_execution.json
+RUN [ ! -f /app/static/logs/last_execution.json ] && printf {} > /app/static/logs/last_execution.json
 
 RUN chmod -R 777 /app/static
 
