@@ -70,24 +70,13 @@ DATASOURCE_MAPPING = {
 }
 
 
-def volgistics_street(df):
+def volgistics_address(index, street):
     result = ""
 
-    for item in df.street_1:
+    for item in street:
         if isinstance(item, str):
             if " " in item:
-                result = item.split()[1]
-
-    return result
-
-
-def volgistics_apartment(df):
-    result = ""
-
-    for item in df.street_1:
-        if isinstance(item, str):
-            if " " in item:
-                result = item.split()[0]
+                result = item.split()[index]
 
     return result
 
@@ -107,9 +96,9 @@ SOURCE_NORMALIZATION_MAPPING = {
         "others": {
             "additional_sources": [{
                 "salesforcedonations": {
-                    'should_drop_first_column': True
+                        'should_drop_first_column': True
+                    }
                 }
-            }
             ],
             "should_drop_first_column": True
         }
@@ -136,20 +125,25 @@ SOURCE_NORMALIZATION_MAPPING = {
         "last_name": "last_name",
         "email": "email",
         "mobile": lambda df: df["cell"].combine_first(df["home"]),
-        "street": volgistics_street,
-        "apartment": volgistics_apartment,
+        "street": lambda df: volgistics_address(1, df["street_1"]),
+        "apartment": lambda df: volgistics_address(0, df["street_1"]),
         "city": "city",
         "state": "state",
         "zip": "zip",
         "others": {
             "additional_sources": [{
-                "volgisticsshifts": {
-                    'should_drop_first_column': True
+                    "volgisticsshifts": {
+                        'should_drop_first_column': True
+                    }
                 }
-            }
             ],
             "should_drop_first_column": True
         }
 
     }
 }
+
+
+
+
+
