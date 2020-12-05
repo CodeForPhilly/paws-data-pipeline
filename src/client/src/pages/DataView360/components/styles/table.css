@@ -11,6 +11,7 @@ div.main_table_container {
 .main_table thead th,
 .main_table tbody td {
     padding: 12px 10px 12px 20px;
+    text-align: left;
 }
 .main_table thead th:last-child,
 .main_table tbody td:last-child {

@@ -27,6 +27,11 @@ div.contact_info_main::before {
 	overflow: hidden;
 	transform: translate(-50%, 0);
 }
+div.contact_info_container {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+}
 p.contact_info_name {
 	margin-bottom: 10px;
 	font-size: 20px;

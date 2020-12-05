@@ -20,13 +20,9 @@ class ContactInfo extends Component {
         let phone = _.isEmpty(phoneStr) ? '-' : phoneStr.split(" ").join("");
 
         return (<Container className={styles.contact_info}>
-            <Typography align='center' variant='h4'>Contact Info</Typography>
                 <Paper variant='outlined' className={styles.contact_info_main} style={{padding:'1em'}}>
-                    <div style={{"display":"flex", "justifyContent":"space-between"}}>
+                    <div className={styles.contact_container}>
                         <Typography className={styles.contact_info_name}>
-                            <span style={{'fontWeight':'600'}}>
-                                {'Name:\t'}
-                            </span>
                             <span>
                                 {_.get(this.props, "participant.first_name")}{'\t'}
                                 {_.get(this.props, "participant.last_name")}
