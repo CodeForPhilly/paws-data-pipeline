@@ -1,4 +1,4 @@
-import pytest, socket, requests
+import pytest, socket, requests, os
 
 #
 # Run 'pytest' from the command line
@@ -14,7 +14,12 @@ import pytest, socket, requests
 # These codes are represented by the pytest.ExitCode enum
 
 
-SERVER_URL = "http://server:5000"
+if os.getenv("IS_LOCAL") == "True":
+    SERVER_URL = "http://localhost:3333"
+    IS_LOCAL = True
+else:
+    SERVER_URL = "http://server:5000"
+    IS_LOCAL = False
 
 ###  DNS lookup tests
 
@@ -25,21 +30,27 @@ def test_bad_dns():
 
 
 # Do we get IPs for good names?
+
+
+@pytest.mark.skipif(IS_LOCAL, reason="Not run when IS_LOCAL")
 def test_db_dns():
     assert (
         len(socket.getaddrinfo("db", "5000")) > 0
     )  # getaddrinfo works for IPv4 and v6
 
 
+@pytest.mark.skipif(IS_LOCAL, reason="Not run when IS_LOCAL")
 def test_server_dns():
     assert len(socket.getaddrinfo("server", "5000")) > 0
 
 
+@pytest.mark.skipif(IS_LOCAL, reason="Not run when IS_LOCAL")
 def test_client_dns():
     assert len(socket.getaddrinfo("client", "5000")) > 0
 
 
 # Simple API tests
+
 
 def test_currentFiles():
     response = requests.get(SERVER_URL + "/api/listCurrentFiles")
