@@ -29,21 +29,21 @@ def start(connection, file_path_list):
         normalization_without_others = SOURCE_NORMALIZATION_MAPPING[table_name]
 
         normalization_without_others.pop("others")
-
-        for new_column, table_column in normalization_without_others.items():
-            if isinstance(table_column, str):
-                result[table_name][new_column] = df[table_column]
-            elif callable(table_column):
-                result[table_name][new_column] = table_column(df)
-            else:
-                raise ValueError("Unknown mapping operation")
-        current_app.logger.info('   - Normalized DF')
+        create_normalized_df(df, table_name, normalization_without_others, result)
 
         current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)
 
     return result
 
-
+def create_normalized_df(df, table_name, normalization_without_others, result):
+    for new_column, table_column in normalization_without_others.items():
+        if isinstance(table_column, str):
+            result[table_name][new_column] = df[table_column]
+        elif callable(table_column):
+            result[table_name][new_column] = table_column(df)
+        else:
+            raise ValueError("Unknown mapping operation")
+    current_app.logger.info('   - Normalized DF')
 '''
 def __create_row_dicts(rows, tracked_columns):
     rows_data = []

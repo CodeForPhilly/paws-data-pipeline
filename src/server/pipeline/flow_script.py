@@ -18,6 +18,10 @@ def start_flow():
             # output - normalized object of all entries
             normalized_data = clean_and_load_data.start(connection, file_path_list)
 
+            # todo: load existing pdp contact table into a dataframe
+            # todo: compare two dataframes
+            #       1. drop existing data and keep updated and new entries
+
             # todo: Split object from previous step to new items and updated. drop existing items
             # STEP
             rows_to_add_or_updated = load_paws_data.start(normalized_data)
