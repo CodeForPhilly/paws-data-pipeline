@@ -3,12 +3,15 @@ from sqlalchemy.sql import text
 from config import engine
 from flask import request, redirect, jsonify, current_app, abort
 
+# from profile import init_db_schema
 import jwt_ops
 
 #
 import random
 
 # jwt_ops.JWT_init()
+
+# init_db_schema.start()
 
 
 @user_api.route("/user/test", methods=["GET"])
@@ -21,7 +24,12 @@ def user_test():
 def user_login():
     # Lookup user in db
 
-    # For now, just echo the data
+    with engine.connect() as connection:
+
+        result = connection.execute("select username from pdp_users")
+        for row in result:
+            print("username:", row["username"])
+
     return jwt_ops.create_token(37, "JoeUser", "Admin")
 
 

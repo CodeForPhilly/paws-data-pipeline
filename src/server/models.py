@@ -125,7 +125,7 @@ class SalesForceDonations(Base):
 
 
 class Volgistics_Shifts(Base):
-    __tablename__ = 'volgisticsshifts'
+    __tablename__ = "volgisticsshifts"
 
     _id = Column(Integer, primary_key=True)
     number = Column(String)
@@ -133,10 +133,29 @@ class Volgistics_Shifts(Base):
     place = Column(String)
     assignment = Column(String)
     role = Column(String)
-    from_date = Column('from', DateTime)
+    from_date = Column("from", DateTime)
     to = Column(DateTime)
     spare_date = Column(String)
     spare_chechbox = Column(String)
     coordinator = Column(String)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
+
+
+class pdp_user_roles(Base):
+    __tablename__ = "pdp_user_roles"
+
+    _id = Column(Integer, primary_key=True)
+    role = Column(String)
+
+
+class pdp_users(Base):
+    __tablename__ = "pdp_users"
+
+    _id = Column(Integer, primary_key=True)
+    username = Column(String)
+    created = Column(DateTime, server_default=sysdate)
+    active = Column(String)
+    role = Column(String)
+    password = Column(String)
+

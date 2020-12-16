@@ -10,3 +10,4 @@ xlrd
 openpyxl
 requests
 pytest
+flask-jwt-extended
