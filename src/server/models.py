@@ -145,20 +145,19 @@ class Volgistics_Shifts(Base):
 ##################   User DB stuff ########################################
 
 
-class pdp_user_roles(Base):
-    __tablename__ = "pdp_user_roles"
+# class pdp_user_roles(Base):
+#     __tablename__ = "pdp_user_roles"
 
-    _id = Column(Integer, primary_key=True)
-    role = Column(String)
+#     _id = Column(Integer, primary_key=True)
+#     role = Column(String)
 
 
-class pdp_users(Base):
-    __tablename__ = "pdp_users"
+# class pdp_users(Base):
+#     __tablename__ = "pdp_users"
 
-    _id = Column(Integer, primary_key=True)
-    username = Column(String)
-    created = Column(DateTime, default=datetime.datetime.utcnow)
-    active = Column(String)
-    role = Column(String)
-    password = Column(String)
-
+#     _id = Column(Integer, primary_key=True)
+#     username = Column(String)
+#     created = Column(DateTime, default=datetime.datetime.utcnow)
+#     active = Column(String)
+#     role = Column(String)
+#     password = Column(String)

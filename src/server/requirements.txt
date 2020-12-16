@@ -11,3 +11,4 @@ openpyxl
 requests
 pytest
 flask-jwt-extended
+alembic

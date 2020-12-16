@@ -1,5 +1,7 @@
 FROM python:3.7
 
+RUN apt-get update && apt-get install -y vim
+
 WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -26,12 +28,13 @@ RUN [ ! -f /app/static/logs/last_execution.json ] && printf {} > /app/static/log
 
 RUN chmod -R 777 /app/static
 
+RUN alembic upgrade head
+
 COPY . /paws-data-pipeline/server
 
 RUN chmod 777 /paws-data-pipeline/server
 
 WORKDIR /app
 
+# we may want to switch this to a script which logs output, etc?
 CMD python app.py
-
-
