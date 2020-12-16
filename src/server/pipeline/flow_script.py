@@ -20,17 +20,25 @@ def start_flow():
             # output - normalized object of all entries
             normalized_data = clean_and_load_data.start(file_path_list)
 
-            # todo: load existing pdp contact table into a dataframe
-            # todo: compare two dataframes
-            #       1. drop existing data and keep updated and new entries
-
             # todo: Split object from previous step to new items and updated. drop existing items
+            # todo: A good place to consider archiving items that were updated
             # STEP
             rows_to_add_or_updated = calssify_new_data.start(pdp_contacts_df, normalized_data)
 
             # todo: Remove renaming
             # todo: Run fuzzy match on all new and updated items
             # todo: When match found - generate matching ID and add to both matching columns (if there is one use it)
+
+            # match and load:
+            # for each item
+                ### if it matches - it will get the same matching id as the match
+                ### if it doesn't - generate matching id (some prefix with increment?)
+                ### new item:
+                    ### load it with created_at = now and archived_at = null
+                ### updated item:
+                    ###  can we just use everything as new item if we are already archiving?
+
+
             rows_for_master_df = match_data.start(connection, rows_to_add_or_updated)
 
             # load to pdp_contacts DB
