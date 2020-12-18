@@ -1,26 +1,25 @@
 from hashlib import pbkdf2_hmac
 from os import urandom
-import pytest, codecs
+import pytest, codecs, random
 
 from api.api import user_api
 from sqlalchemy.sql import text
 from config import engine
 from flask import request, redirect, jsonify, current_app, abort
 
-# from profile import init_db_schema
+from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
+
 import jwt_ops
 
-#
-import random
 
-# jwt_ops.JWT_init()
+metadata = MetaData()
 
-# init_db_schema.start()
-
+# Salt for hashing storing passwords
 SALT_LENGTH = 32
 
-# Generate salt+hash for storing in db
+
 def hash_password(password):
+    """ Generate salt+hash for storing in db"""
     salt = urandom(SALT_LENGTH)
     print("Salt:", salt, len(salt))
     hash = pbkdf2_hmac("sha512", password, salt, 500000)
@@ -32,6 +31,7 @@ def hash_password(password):
 
 # Check presented password against what's in the db
 def check_password(password, salty_hash):
+    """Check presented cleartext password aginst DB-type salt+hash, return True if they match"""
     salt = salty_hash[0:SALT_LENGTH]
     hash = salty_hash[SALT_LENGTH:]
     # Use salt from db to hash what user gave us
@@ -48,18 +48,30 @@ def user_test():
 # Verify username and password, return a JWT with role
 @user_api.route("/user/login", methods=["POST"])
 def user_login():
-    # Lookup user in db
+    """ Validate user in db, return JWT if legit"""
 
     with engine.connect() as connection:
 
         pwhash = None
-        s = text("select password, role from pdp_users where username=:u")
+        s = text(
+            """select password, pdp_user_roles.role 
+                from pdp_users 
+                left join pdp_user_roles on pdp_users.role = pdp_user_roles._id 
+                where username=:u """
+        )
         s = s.bindparams(u=request.form["username"])
         result = connection.execute(s)
-        pwhash, role = result.fetchone()
+
+        if result.rowcount:  # Did we get a match on username? 
+            pwhash, role = result.fetchone()
+        else:
+            return jsonify("Bad credentials"), 401
 
         if check_password(request.form["password"], pwhash):
-            return jwt_ops.create_token(request.form["username"], role)
+            # Yes, user is valid & password matches
+            token = jwt_ops.create_token(request.form["username"], role)
+            return token
+
         else:
             return jsonify("Bad credentials"), 401
 
@@ -81,6 +93,7 @@ def user_logout():
 def user_create():
 
     new_user = request.form["username"]
+    fullname = request.form["full_name"]
     user_role = request.form["role"]
 
     user_id = random.randrange(1, 200)
@@ -97,6 +110,15 @@ def user_create():
         + user_role
     )
     return jsonify(user_id), 201
+
+
+def get_user_count():
+    """Return number of records in pdp_users table """
+    with engine.connect() as connection:
+        s = text("select count(user) from pdp_users;")
+        result = connection.execute(s)
+        user_count = result.fetchone()
+        return user_count[0]
 
 
 # Keep a journal of user activity
