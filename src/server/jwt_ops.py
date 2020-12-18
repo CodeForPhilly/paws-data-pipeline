@@ -67,12 +67,12 @@ def login():
 
 
 @jwt.user_claims_loader
-def add_claims_to_access_token(username):
+def add_claims_to_access_token(accesslevel):
     print("Add claims")
-    return {"role": "admin"}
+    return {"role": accesslevel}
 
 
-def create_token(user_id, username, accesslevel):
+def create_token(username, accesslevel):
 
     print(jwt)
     print("CREATE Token")
@@ -83,7 +83,7 @@ def create_token(user_id, username, accesslevel):
 
     # Identity can be any data that is json serializable
     new_token = create_access_token(identity=username)
-    #   add_claims_to_access_token(username, accesslevel, user_id)
+    # add_claims_to_access_token(accesslevel)
     return jsonify(access_token=new_token)
 
 

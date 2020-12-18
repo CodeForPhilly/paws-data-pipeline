@@ -1,3 +1,7 @@
+from hashlib import pbkdf2_hmac
+from os import urandom
+import pytest, codecs
+
 from api.api import user_api
 from sqlalchemy.sql import text
 from config import engine
@@ -13,6 +17,28 @@ import random
 
 # init_db_schema.start()
 
+SALT_LENGTH = 32
+
+# Generate salt+hash for storing in db
+def hash_password(password):
+    salt = urandom(SALT_LENGTH)
+    print("Salt:", salt, len(salt))
+    hash = pbkdf2_hmac("sha512", password, salt, 500000)
+    print("Hash:", hash, len(hash))
+    hash_for_db = salt + hash
+    print("Hash for db", hash_for_db)
+    return hash_for_db
+
+
+# Check presented password against what's in the db
+def check_password(password, salty_hash):
+    salt = salty_hash[0:SALT_LENGTH]
+    hash = salty_hash[SALT_LENGTH:]
+    # Use salt from db to hash what user gave us
+    pw_bytes = bytes(password, "utf8")
+    hash_of_presented = pbkdf2_hmac("sha512", pw_bytes, salt, 500000)
+    return hash.hex() == hash_of_presented.hex()
+
 
 @user_api.route("/user/test", methods=["GET"])
 def user_test():
@@ -26,11 +52,16 @@ def user_login():
 
     with engine.connect() as connection:
 
-        result = connection.execute("select username from pdp_users")
-        for row in result:
-            print("username:", row["username"])
+        pwhash = None
+        s = text("select password, role from pdp_users where username=:u")
+        s = s.bindparams(u=request.form["username"])
+        result = connection.execute(s)
+        pwhash, role = result.fetchone()
 
-    return jwt_ops.create_token(37, "JoeUser", "Admin")
+        if check_password(request.form["password"], pwhash):
+            return jwt_ops.create_token(request.form["username"], role)
+        else:
+            return jsonify("Bad credentials"), 401
 
 
 # Logout is not strictly neeed; client can just delete JWT, but good for logging
@@ -73,3 +104,17 @@ def log_user_action(action):
 
     # for now, just print to stdin
     print(action)
+
+
+def test_pw_hashing():
+    test_pw = codecs.encode("long complicated password ##$& λογοσ δοζα", "utf8")
+
+    print("Test pw:", test_pw)
+
+    db_hash = hash_password(test_pw)
+    print("DB hash", db_hash)
+
+    good = check_password(test_pw, db_hash)
+    bad = check_password(test_pw + b"xxx", db_hash)
+    print("Good, bad:", good, bad)
+    return good and not bad

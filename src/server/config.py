@@ -4,6 +4,7 @@ from sqlalchemy_utils import database_exists, create_database
 
 import models
 
+
 # from user_mgmt import base_users
 
 
@@ -42,7 +43,12 @@ if not database_exists(engine.url):
     create_database(engine.url)
     with engine.connect() as connection:
         models.Base.metadata.create_all(connection)
-        # base_users.create_base_roles(connection)
+
+
+with engine.connect() as connection:
+    import user_mgmt.base_users
+
+    user_mgmt.base_users.create_base_users()
 
 
 # Initiate local file system
