@@ -7,7 +7,7 @@ from sqlalchemy.sql import text
 from config import engine
 from flask import request, redirect, jsonify, current_app, abort
 
-from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc, select
 
 import jwt_ops
 
@@ -22,7 +22,7 @@ def hash_password(password):
     """ Generate salt+hash for storing in db"""
     salt = urandom(SALT_LENGTH)
     print("Salt:", salt, len(salt))
-    hash = pbkdf2_hmac("sha512", password, salt, 500000)
+    hash = pbkdf2_hmac("sha512", bytes(password, "utf8"), salt, 500000)
     print("Hash:", hash, len(hash))
     hash_for_db = salt + hash
     print("Hash for db", hash_for_db)
@@ -62,7 +62,7 @@ def user_login():
         s = s.bindparams(u=request.form["username"])
         result = connection.execute(s)
 
-        if result.rowcount:  # Did we get a match on username? 
+        if result.rowcount:  # Did we get a match on username?
             pwhash, role = result.fetchone()
         else:
             return jsonify("Bad credentials"), 401
@@ -87,29 +87,64 @@ def user_logout():
     return jsonify("Logged out " + str(user_id))
 
 
-# Create new user
+# TODO: Re-enable admin check
 @user_api.route("/user/create", methods=["POST"])
-# Requestor must have admin role, else 403
+@jwt_ops.admin_required
 def user_create():
-
+    """Create user record from username, full_name, password, role """
     new_user = request.form["username"]
     fullname = request.form["full_name"]
+    userpw = request.form["password"]
     user_role = request.form["role"]
 
-    user_id = random.randrange(1, 200)
+    pw_hash = hash_password(userpw)
 
-    # User must not already exist, else 409 ?
+    pu = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
+    pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
+
+    # TODO: Get list of roles, use value
+
+    with engine.connect() as connection:
+
+        # Build dict of roles
+        role_dict = {}
+        r = select((pr.c.role, pr.c._id))
+        rr = connection.execute(r)
+        fa = rr.fetchall()
+        for row in fa:
+            role_dict[row[0]] = row[1]
+
+        try:
+            role_val = role_dict[user_role]
+        except KeyError as e:
+            print("Role not found", e)
+            return jsonify("Bad role"), 422
+
+        ins_stmt = pu.insert().values(
+            # _id=default,
+            username=new_user,
+            password=pw_hash,
+            full_name=fullname,
+            active="Y",
+            role=role_val,
+        )
+
+        try:
+            connection.execute(ins_stmt)
+        except exc.IntegrityError as e:  # Uniqueness violation
+            return jsonify(e.orig.pgerror), 409
 
     # if created, 201
     log_user_action(
         "DUMMY LOG: Created account for "
         + new_user
-        + " as id "
-        + str(user_id)
+        + " ( "
+        + fullname
+        + " ) "
         + " with role "
         + user_role
     )
-    return jsonify(user_id), 201
+    return jsonify(new_user), 201
 
 
 def get_user_count():
