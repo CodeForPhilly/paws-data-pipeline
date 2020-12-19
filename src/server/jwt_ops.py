@@ -11,17 +11,7 @@ from flask_jwt_extended import (
 
 from app import app, jwt
 
-# app = Flask(__name__)
-# app = Flask.current_app
-
-# Setup the Flask-JWT-Extended extension
-
-
-# app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
-print("jwt_ops: ", jwt)
-print("JWTSK:", app.config["JWT_SECRET_KEY"])
-
-
+# Wraps funcs to require admin role to execute
 def admin_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):

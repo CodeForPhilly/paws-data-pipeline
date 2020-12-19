@@ -9,7 +9,6 @@ app = Flask(__name__)
 
 app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
 jwt = JWTManager(app)
-print("app.py: jwt:", jwt)
 
 
 # def create_app():
@@ -25,8 +24,6 @@ app.register_blueprint(common_api)
 app.register_blueprint(user_api)
 
 # init_db_schema.start(connection)
-
-print("Leaving create_app")
 
 
 if __name__ == "__main__":

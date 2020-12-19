@@ -21,15 +21,11 @@ SALT_LENGTH = 32
 def hash_password(password):
     """ Generate salt+hash for storing in db"""
     salt = urandom(SALT_LENGTH)
-    print("Salt:", salt, len(salt))
     hash = pbkdf2_hmac("sha512", bytes(password, "utf8"), salt, 500000)
-    print("Hash:", hash, len(hash))
     hash_for_db = salt + hash
-    print("Hash for db", hash_for_db)
     return hash_for_db
 
 
-# Check presented password against what's in the db
 def check_password(password, salty_hash):
     """Check presented cleartext password aginst DB-type salt+hash, return True if they match"""
     salt = salty_hash[0:SALT_LENGTH]
@@ -87,7 +83,6 @@ def user_logout():
     return jsonify("Logged out " + str(user_id))
 
 
-# TODO: Re-enable admin check
 @user_api.route("/user/create", methods=["POST"])
 @jwt_ops.admin_required
 def user_create():
@@ -102,8 +97,6 @@ def user_create():
     pu = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
     pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
 
-    # TODO: Get list of roles, use value
-
     with engine.connect() as connection:
 
         # Build dict of roles
@@ -112,7 +105,7 @@ def user_create():
         rr = connection.execute(r)
         fa = rr.fetchall()
         for row in fa:
-            role_dict[row[0]] = row[1]
+            role_dict[row[0]] = row[1]  # TODO: possible to do directly in sa?
 
         try:
             role_val = role_dict[user_role]
@@ -156,10 +149,34 @@ def get_user_count():
         return user_count[0]
 
 
+@user_api.route("/user/deactivate", methods=["POST"])
+@jwt_ops.admin_required
+def user_deactivate():
+    """Mark user as inactive in DB"""
+
+    return "", 200
+
+
+@user_api.route("/user/activate", methods=["POST"])
+@jwt_ops.admin_required
+def user_activate():
+    """Mark user as active in DB"""
+
+    return "", 200
+
+
+@user_api.route("/user/get_users", methods=["GET"])
+@jwt_ops.admin_required
+def user_get_list():
+    """Return list of users"""
+
+    return "", 200
+
+
 # Keep a journal of user activity
 def log_user_action(action):
 
-    # for now, just print to stdin
+    # for now, just print to stdout
     print(action)
 
 
