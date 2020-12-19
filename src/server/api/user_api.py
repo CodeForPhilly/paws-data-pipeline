@@ -38,6 +38,7 @@ def check_password(password, salty_hash):
 
 @user_api.route("/user/test", methods=["GET"])
 def user_test():
+    """Liveness test"""
     return jsonify("OK from User Test")
 
 
@@ -76,17 +77,34 @@ def user_login():
 @user_api.route("/user/logout", methods=["POST"])
 def user_logout():
     # Lookup user in db
-    user_id = request.form["user_id"]
+    username = request.form["username"]
 
     # For now, just echo the data
-    log_user_action("Logged out " + str(user_id))
-    return jsonify("Logged out " + str(user_id))
+    log_user_action("Logged out " + username)
+    return jsonify("Logged out " + username)
 
 
 @user_api.route("/user/create", methods=["POST"])
 @jwt_ops.admin_required
 def user_create():
-    """Create user record from username, full_name, password, role """
+    """Create user record 
+    
+    Requires admin role  
+
+    Form POST Parameters  
+    ----------
+    username : str  
+    full_name : str  
+    password : str  
+    role : str, one of `user`, `editor`, `admin`  
+
+    Returns    
+    ----------
+    User created: 201 + username  
+    Invalid role: 422 + "Bad role"  
+    Duplicate user: 409 +  DB error  
+
+    """
     new_user = request.form["username"]
     fullname = request.form["full_name"]
     userpw = request.form["password"]

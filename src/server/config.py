@@ -48,7 +48,8 @@ if not database_exists(engine.url):
 with engine.connect() as connection:
     import user_mgmt.base_users
 
-    user_mgmt.base_users.create_base_users()
+    user_mgmt.base_users.create_base_roles()  # IFF there are no roles already
+    user_mgmt.base_users.create_base_users()  # IFF there are no users already
 
 
 # Initiate local file system

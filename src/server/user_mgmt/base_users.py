@@ -21,51 +21,39 @@ def create_base_roles():
             print(role_count, "roles already present in DB, not creating")
 
 
-def create_base_users():
+def create_base_users():  # TODO: Just call create_user for each
+    """ Creates three users (user, editor, admin) for testing
+        Password for each is user name with 'pw' appended """
     with engine.connect() as connection:
-
-        # ins = pdp_users.insert()
 
         result = connection.execute("select user from pdp_users")
         user_count = len(result.fetchall())
         if user_count == 0:
 
+            print("Creating base users")
+
             pu = sa.Table("pdp_users", metadata, autoload=True, autoload_with=engine)
-            pw_hash = user_api.hash_password(b"userpw")
 
+            # user
+            pw_hash = user_api.hash_password("userpw")
             ins_stmt = pu.insert().values(
-                # _id=default,
-                username="user",
-                password=pw_hash,
-                # created=sa.ColumnDefault,
-                active="Y",
-                role=1,
+                username="user", password=pw_hash, active="Y", role=1,
             )
-
             connection.execute(ins_stmt)
 
-            pw_hash = user_api.hash_password(b"editorpw")
-
+            # editor
+            pw_hash = user_api.hash_password("editorpw")
             ins_stmt = pu.insert().values(
                 username="editor", password=pw_hash, active="Y", role=2,
             )
-
             connection.execute(ins_stmt)
 
-            pw_hash = user_api.hash_password(b"adminpw")
-
+            # admin
+            pw_hash = user_api.hash_password("adminpw")
             ins_stmt = pu.insert().values(
                 username="admin", password=pw_hash, active="Y", role=9,
             )
-
             connection.execute(ins_stmt)
-
-        # connection.execute(
-        #     "INSERT into pdp_users  values (Default, 'editor','editorpw',  'Y', Default,  2) "
-        # )
-        # connection.execute(
-        #     "INSERT into pdp_users  values (Default, 'admin', 'adminpw',  'Y', Default,  9) "
-        # )
 
         else:
             print(user_count, "users already present in DB, not creating")
