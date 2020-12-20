@@ -188,7 +188,27 @@ def user_activate():
 def user_get_list():
     """Return list of users"""
 
-    return "", 200
+    # pu = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
+    #  pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
+
+    with engine.connect() as connection:
+
+        s = text(
+            """ select username, full_name, active, pr.role
+            from pdp_users as pu 
+            left join pdp_user_roles as pr on pu.role = pr._id
+            order by username """
+        )
+        result = connection.execute(s)
+
+        user_list = ""
+
+        for row in result:
+            user_list += str(row.values()) + ","
+
+        ul = str(row.keys()) + "," + user_list
+
+    return jsonify(ul), 200
 
 
 # Keep a journal of user activity
