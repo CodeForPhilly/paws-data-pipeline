@@ -53,7 +53,7 @@ class Donations extends Component {
     render() {
         return (
             <Container className={styles.donations} style={{"marginTop":"1em"}}>
-                <Typography className={styles.donations_title} variant='h4'>Financial Support Activity(Top 3)</Typography>
+                <Typography className={styles.donations_title} variant='h4'>Financial Support Activity (Top 3)</Typography>
                 <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                     <Table className="main_table">
                         <TableHead>
