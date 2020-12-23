@@ -2,13 +2,10 @@ import pandas as pd
 import re
 import os
 import io
-import datetime
 
 from datasource_manager import DATASOURCE_MAPPING, SOURCE_NORMALIZATION_MAPPING
 from flask import current_app
 from config import CURRENT_SOURCE_FILES_PATH
-from datetime import datetime
-from models import Base
 
 
 def start(file_path_list):
@@ -29,14 +26,14 @@ def start(file_path_list):
         normalization_without_others = SOURCE_NORMALIZATION_MAPPING[table_name]
 
         normalization_without_others.pop("others")
-        create_normalized_df(df, table_name, normalization_without_others, result)
+        create_normalized_df(df, normalization_without_others, result)
 
         current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)
 
     return result
 
 
-def create_normalized_df(df, table_name, normalization_without_others, result):
+def create_normalized_df(df, normalization_without_others, result):
     for new_column, table_column in normalization_without_others.items():
         if isinstance(table_column, str):
             result[new_column] = df[table_column]
@@ -45,23 +42,6 @@ def create_normalized_df(df, table_name, normalization_without_others, result):
         else:
             raise ValueError("Unknown mapping operation")
     current_app.logger.info('   - Normalized DF')
-
-'''
-def __create_row_dicts(rows, tracked_columns):
-    rows_data = []
-    now = datetime.now()
-    for row in rows:
-        row_dict = {}
-        json_dict = {}
-        for key_value in row.items():
-            if key_value[0] in tracked_columns:
-                row_dict[key_value[0]] = key_value[1]
-            json_dict[key_value[0]] = key_value[1]
-        row_dict['json'] = json_dict
-        row_dict['created_date'] = now
-        rows_data.append(row_dict)
-    return rows_data
-'''
 
 
 def __clean_raw_data(df, table_name):

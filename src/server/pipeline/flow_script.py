@@ -36,10 +36,15 @@ def start_flow():
                 ### new item:
                     ### load it with created_at = now and archived_at = null
                 ### updated item:
-                    ###  can we just use everything as new item if we are already archiving?
+                    ### can we just use everything as new item if we are already archiving?
 
 
-            rows_for_master_df = match_data.start(connection, rows_to_add_or_updated)
+
+            ## test::
+            rows_to_add_or_updated["new"].to_sql('pdp_contacts', connection, index=False, if_exists='append')
+
+            print(1)
+            # rows_for_master_df = match_data.start(connection, rows_to_add_or_updated)
 
             # load to pdp_contacts DB
-            create_master_df.start(connection, rows_for_master_df)
+            # create_master_df.start(connection, rows_for_master_df)

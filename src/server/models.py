@@ -10,7 +10,7 @@ Base = declarative_base()
 class PdpContacts(Base):
     __tablename__ = "pdp_contacts"
 
-    _id = Column(Integer, primary_key=True)
+    _id = Column(primary_key=True, autoincrement=True)
     matching_id = Column(Integer)
     source_type = Column(String)
     source_id = Column(String)
@@ -19,6 +19,7 @@ class PdpContacts(Base):
     email = Column(String, default=None)
     mobile = Column(String, default=None)
     street_and_number = Column(String, default=None)
+    apartment = Column(String)
     city = Column(String, default=None)
     state = Column(String, default=None)
     zip = Column(String, default=None)
@@ -26,28 +27,6 @@ class PdpContacts(Base):
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
 
-
-class Master(Base):
-    __tablename__ = "master"
-
-    _id = Column(Integer, primary_key=True)
-    salesforcecontacts_id = Column(String, default=None)
-    volgistics_id = Column(String, default=None)
-    shelterluvpeople_id = Column(String, default=None)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
-    archived_date = Column(DateTime, default=None)
-
-
-class User(Base):
-    __tablename__ = "user_info"
-
-    _id = Column(Integer, primary_key=True)
-    master_id = Column(Integer, ForeignKey("master._id"))
-    name = Column(String)
-    email = Column(String)
-    source = Column(String)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
-    archived_date = Column(DateTime, default=None)
 
 
 class SalesForceContacts(Base):
