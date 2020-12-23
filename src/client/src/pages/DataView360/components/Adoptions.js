@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import "./styles/Adoptions.css";
+import styles from "./styles/Adoptions.module.css";
+import "./styles/table.css";
 import _ from 'lodash';
 
+/* I don't khow, how to remove it. So I changed background-color on 'initial' */
 const StyledTableCell = withStyles((theme)=>({
     head:{
-        backgroundColor: theme.palette.grey.A100,
+        backgroundColor: 'initial', // here
         fontWeight: 600,
     }
 }))(TableCell);
@@ -14,7 +16,7 @@ const StyledTableCell = withStyles((theme)=>({
 const StyledTableRow = withStyles((theme)=>({
     root:{
         '&:nth-of-type(even)':{
-            backgroundColor: theme.palette.action.hover,
+            backgroundColor: 'initial', // and here
         }
     }
 }))(TableRow);
@@ -39,10 +41,10 @@ class Adoptions extends Component {
     render() {
         // todo: update when we add pet info
         // todo: clean array of animal_id
-        return (<Container style={{"marginTop":"1em"}}>
-                    <Typography align='center' variant='h4'>Adoption/Foster Records(Top 3)</Typography>
-                    <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
-                        <Table>
+        return (<Container className={styles.adoptions} style={{"marginTop":"1em"}}>
+                    <Typography className={styles.adoptions_title} variant='h4'>Adoption/Foster Records (Top 3)</Typography>
+                    <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
+                        <Table className="main_table">
                             <TableHead>
                                 <TableRow>
                                     <StyledTableCell align="center">Number of Adoptions</StyledTableCell>

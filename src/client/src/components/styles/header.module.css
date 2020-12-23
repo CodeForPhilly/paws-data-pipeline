@@ -1,4 +1,9 @@
-#root .MuiTypography-h6 {
+header.header {
+	margin-bottom: 30px;
+	background-color: #00AFDA !important;
+}
+
+h6.header_logo {
 	position: relative;
 	top: 2px;
 	left: 14px;
@@ -8,18 +13,7 @@
 	color: #fff;
 	letter-spacing: initial;
 }
-#root header.MuiAppBar-colorPrimary {
-	background-color: #00AFDA;
-}
-#root header.MuiAppBar-colorPrimary .MuiButton-root {
-	font-family: 'Noway Round Regular', sans-serif;
-	color: #fff;
-	font-weight: 700;
-}
-#root header.MuiAppBar-colorPrimary .MuiButton-root:not(:last-child) {
-	margin-right: 10px;
-}
-#root .MuiTypography-h6::before {
+h6.header_logo::before {
 	content: '';
 	position: absolute;
 	top: -1px;
@@ -32,6 +26,10 @@
 	background-position: center;
 	background-size: contain;
 }
-#root > header {
-	margin-bottom: 30px;
+
+a.header_link {
+	margin-right: 10px;
+	font-family: 'Noway Round Regular', sans-serif;
+	color: #fff;
+	font-weight: 700;
 }

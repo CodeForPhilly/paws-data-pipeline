@@ -3,7 +3,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Paper, Container} from '@material-ui/core';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Box from '@material-ui/core/Box';
-import "./styles/DataView360.css";
+import styles from "./styles/DataView360.module.css";
 import _ from 'lodash';
 
 import SearchBar from './components/SearchBar';
@@ -13,7 +13,7 @@ import Donations from './components/Donations';
 import Adoptions from './components/Adoptions';
 
 
-const styles = theme => ({
+const customStyles = theme => ({
     spinner: {
         display: 'flex',
         align: 'center',
@@ -63,7 +63,7 @@ class DataView360 extends Component {
                 handleParticipantChange={this.handleGetParticipant}
                 handleSearchChange={this.handleSearchChange}/>
                 {(_.isEmpty(this.state.participantData) !== true && this.state.isDataBusy !== true) && (
-                <Paper elevation={1} style={{"padding":"1em"}}>
+                <Paper className={styles.main} elevation={1} style={{"padding":"1em"}}>
                     <ContactInfo participant={_.get(this.state, "participantData.salesforcecontacts")} />
                     <Donations donations={_.get(this.state, 'participantData.salesforcedonations')} />
                     <Adoptions adoptions={_.get(this.state, 'participantData.shelterluvpeople')} />
@@ -81,4 +81,4 @@ class DataView360 extends Component {
     }
 }
 
-export default withStyles(styles)(DataView360);
+export default withStyles(customStyles)(DataView360);

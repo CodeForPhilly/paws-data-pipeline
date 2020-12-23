@@ -1,4 +1,4 @@
-#root > .MuiContainer-root .MuiPaper-root:first-child {
+div.search_bar {
 	display: flex !important;
 	margin: 12px 10px 12px 36px !important;
 	background-color: #fff;

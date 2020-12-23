@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import "./styles/Donations.css";
+import styles from "./styles/Donations.module.css";
+import "./styles/table.css";
 import _ from 'lodash';
 
-
+/* I don't khow, how to remove it. So I changed background-color on 'initial' */
 const StyledTableCell = withStyles((theme)=>({
     head:{
-        backgroundColor: theme.palette.grey.A100,
+        backgroundColor: 'initial', // here
         fontWeight: 600,
     }
 }))(TableCell);
@@ -15,7 +16,7 @@ const StyledTableCell = withStyles((theme)=>({
 const StyledTableRow = withStyles((theme)=>({
     root:{
         '&:nth-of-type(even)':{
-            backgroundColor: theme.palette.action.hover,
+            backgroundColor: 'initial', // and here
         }
     }
 }))(TableRow);
@@ -40,9 +41,9 @@ class Donations extends Component {
 
         const result = _.map(latestDonations, (donation, index) => {
             return( <StyledTableRow key={index}>
-                    <TableCell align="center">{donation.close_date}</TableCell>
-                    <TableCell align="center">${donation.amount}</TableCell>
-                    <TableCell align="center">{donation.type}</TableCell>
+                    <TableCell>{donation.close_date}</TableCell>
+                    <TableCell>${donation.amount}</TableCell>
+                    <TableCell>{donation.type}</TableCell>
                 </StyledTableRow>);
         });
 
@@ -51,15 +52,15 @@ class Donations extends Component {
 
     render() {
         return (
-            <Container style={{"marginTop":"1em"}}>
-                <Typography align='center' variant='h4'>Financial Support Activity(Top 3)</Typography>
-                <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
-                    <Table>
+            <Container className={styles.donations} style={{"marginTop":"1em"}}>
+                <Typography className={styles.donations_title} variant='h4'>Financial Support Activity (Top 3)</Typography>
+                <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
+                    <Table className="main_table">
                         <TableHead>
                             <TableRow>
-                                <StyledTableCell align="center">Date of Donation</StyledTableCell>
-                                <StyledTableCell align="center">Amount</StyledTableCell>
-                                <StyledTableCell align="center">Campaign Type</StyledTableCell>
+                                <StyledTableCell>Date of Donation</StyledTableCell>
+                                <StyledTableCell>Amount</StyledTableCell>
+                                <StyledTableCell>Campaign Type</StyledTableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>

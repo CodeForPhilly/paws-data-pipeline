@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import { Paper, Typography, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Container} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import "./styles/Volunteer.css";
+import styles from "./styles/Volunteer.module.css";
+import "./styles/table.css";
 import _ from 'lodash';
 import moment from 'moment';
 
-
+/* I don't khow, how to remove it. So I changed background-color on 'initial' */
 const StyledTableCell = withStyles((theme)=>({
     head:{
-        backgroundColor: theme.palette.grey.A100,
+        backgroundColor: 'initial', // here
         fontWeight: 600,
     }
 }))(TableCell);
@@ -16,7 +17,7 @@ const StyledTableCell = withStyles((theme)=>({
 const StyledTableRow = withStyles((theme)=>({
     root:{
         '&:nth-of-type(even)':{
-            backgroundColor: theme.palette.action.hover,
+            backgroundColor: 'initial', // and here
         }
     }
 }))(TableRow);
@@ -34,8 +35,8 @@ class Volunteer extends Component {
 
         const result = _.map(lastShifts, (shift, index) => {
             return(<StyledTableRow key={index}>
-                    <TableCell align="center">{moment(shift.from).format("YYYY-MM-DD")}</TableCell>
-                    <TableCell align="center">{shift.assignment}</TableCell>
+                    <TableCell>{moment(shift.from).format("YYYY-MM-DD")}</TableCell>
+                    <TableCell>{shift.assignment}</TableCell>
                 </StyledTableRow>);
 
         });
@@ -46,39 +47,38 @@ class Volunteer extends Component {
     render() {
 
         return (
-            <div>
-                <Container style={{"marginTop":"1em"}}>
-                    <Typography align='center' variant='h4'>Volunteer Activity</Typography>
-                    <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
-                        <Table>
+            <React.Fragment>
+                <Container className={styles.volonteer_activity} style={{"marginTop":"1em"}}>
+                    <Typography className={styles.volonteer_activity_title} variant='h4'>Volunteer Activity</Typography>
+                    <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper}>
+                        <Table className="main_table">
                             <TableHead>
                                 <TableRow>
-                                    <StyledTableCell align="center">Volunteer activity start</StyledTableCell>
-                                    <StyledTableCell align="center">Life hours</StyledTableCell>
-                                    <StyledTableCell align="center">YTD hours</StyledTableCell>
+                                    <StyledTableCell>Volunteer activity start</StyledTableCell>
+                                    <StyledTableCell>Life hours</StyledTableCell>
+                                    <StyledTableCell>YTD hours</StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 { this.props.volunteer && (
                                 <StyledTableRow>
-                                    <TableCell align="center">{this.props.volunteer.start_date}</TableCell>
-                                    <TableCell align="center">{this.props.volunteer.life_hours}</TableCell>
-                                    <TableCell align="center">{this.props.volunteer.ytd_hours}</TableCell>
+                                    <TableCell>{this.props.volunteer.start_date}</TableCell>
+                                    <TableCell>{this.props.volunteer.life_hours}</TableCell>
+                                    <TableCell>{this.props.volunteer.ytd_hours}</TableCell>
                                 </StyledTableRow>
                                 )}
                             </TableBody>
                         </Table>
                     </TableContainer>
                 </Container>
-
-                <Container style={{"marginTop":"1em"}}>
-                    <Typography align='center' variant='h4'>Volunteer History(Top 3)</Typography>
-                    <TableContainer style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
-                        <Table>
+                <Container className={styles.volonteer_history} style={{"marginTop":"1em"}}>
+                    <Typography className={styles.volonteer_history_title} variant='h4'>Volunteer History (Top 3)</Typography>
+                    <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
+                        <Table className="main_table">
                             <TableHead>
                                 <TableRow>
-                                    <StyledTableCell align="center">Date</StyledTableCell>
-                                    <StyledTableCell align="center">Assignment</StyledTableCell>
+                                    <StyledTableCell>Date</StyledTableCell>
+                                    <StyledTableCell>Assignment</StyledTableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -87,7 +87,7 @@ class Volunteer extends Component {
                         </Table>
                     </TableContainer>
                 </Container>
-            </div>
+            </React.Fragment>
         );
     }
 }

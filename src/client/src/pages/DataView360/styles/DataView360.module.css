@@ -1,0 +1,10 @@
+/* Grid system */
+.main {
+	position: relative;
+	display: grid;
+	grid-template-columns: 300px auto;
+	grid-column-gap: 25px;
+	grid-row-gap: 0px;
+	background-color: initial;
+	box-shadow: none;
+}
