@@ -8,8 +8,8 @@ from flask import current_app
 from config import CURRENT_SOURCE_FILES_PATH
 
 
-def start(file_path_list):
-    result = None
+def start(pdp_contacts_df, file_path_list):
+    result = pd.DataFrame(columns=pdp_contacts_df.columns)
 
     for uploaded_file in file_path_list:
         file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
@@ -22,26 +22,39 @@ def start(file_path_list):
         df = __clean_raw_data(df, table_name)
         current_app.logger.info('   - Cleaned DF')
 
-        result = pd.DataFrame(columns=["matching_id", "source_type"])
         normalization_without_others = SOURCE_NORMALIZATION_MAPPING[table_name]
-
         normalization_without_others.pop("others")
-        create_normalized_df(df, normalization_without_others, result)
+
+        source_df = create_normalized_df(df, normalization_without_others, table_name)
+
+        if result.empty:
+            result = source_df
+        else:
+            result = pd.concat([result, source_df])
 
         current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)
 
     return result
 
 
-def create_normalized_df(df, normalization_without_others, result):
-    for new_column, table_column in normalization_without_others.items():
+def create_normalized_df(df, normalized_df, table_name):
+    result = pd.DataFrame(columns=["matching_id"])
+
+    for new_column, table_column in normalized_df.items():
+        result["source_type"] = table_name
+
         if isinstance(table_column, str):
             result[new_column] = df[table_column]
         elif callable(table_column):
             result[new_column] = table_column(df)
         else:
             raise ValueError("Unknown mapping operation")
+
     current_app.logger.info('   - Normalized DF')
+
+    return result
+
+
 
 
 def __clean_raw_data(df, table_name):

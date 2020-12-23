@@ -10,7 +10,7 @@ Base = declarative_base()
 class PdpContacts(Base):
     __tablename__ = "pdp_contacts"
 
-    _id = Column(primary_key=True, autoincrement=True)
+    _id = Column(Integer, primary_key=True, autoincrement=True)
     matching_id = Column(Integer)
     source_type = Column(String)
     source_id = Column(String)

@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from pipeline import calssify_new_data, match_data, create_master_df, clean_and_load_data
+from pipeline import calssify_new_data,clean_and_load_data
 from config import CURRENT_SOURCE_FILES_PATH
 from config import engine
 from models import Base
@@ -18,7 +18,7 @@ def start_flow():
             # Clean the input data and normalize
             # input - existing files in path
             # output - normalized object of all entries
-            normalized_data = clean_and_load_data.start(file_path_list)
+            normalized_data = clean_and_load_data.start(pdp_contacts_df, file_path_list)
 
             # todo: Split object from previous step to new items and updated. drop existing items
             # todo: A good place to consider archiving items that were updated

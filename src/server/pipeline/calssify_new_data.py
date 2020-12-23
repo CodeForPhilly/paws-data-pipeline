@@ -22,8 +22,7 @@ def start(pdp_contacts_df, normalized_data):
         "old": pd.DataFrame(columns=pdp_contacts_df.columns)
     }
 
-    # todo: add source_type in the origin tables bofre merge
-    partial_merge = normalized_data.merge(pdp_contacts_df, how="outer", indicator="_indication", suffixes=("$x", "$y"),
+    partial_merge = normalized_data.merge(pdp_contacts_df, how="outer", indicator="_indication",
                                           left_on=["source_id", "source_type"], right_on=["source_id", "source_type"])
 
     result["new"] = partial_merge[partial_merge["_indication"] == "left_only"]
