@@ -2,6 +2,7 @@ import pandas as pd
 import re
 import os
 import io
+import copy
 
 from datasource_manager import DATASOURCE_MAPPING, SOURCE_NORMALIZATION_MAPPING
 from flask import current_app
@@ -22,9 +23,8 @@ def start(pdp_contacts_df, file_path_list):
         df = __clean_raw_data(df, table_name)
         current_app.logger.info('   - Cleaned DF')
 
-        normalization_without_others = SOURCE_NORMALIZATION_MAPPING[table_name]
-        # normalization_without_others.pop("others") will modify the imported mapping table as well
-        normalization_without_others = [x for x in normalization_without_others if x !="others"]
+        normalization_without_others = copy.deepcopy(SOURCE_NORMALIZATION_MAPPING[table_name])
+        normalization_without_others.pop("others")  # copy avoids modifying the imported mapping
 
         source_df = create_normalized_df(df, normalization_without_others, table_name)
 
