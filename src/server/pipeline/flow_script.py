@@ -22,6 +22,10 @@ def start_flow():
             # output - normalized object of all entries
             normalized_data = clean_and_load_data.start(pdp_contacts_df, file_path_list)
 
+            # Standardize column datatypes
+            normalized_data.to_sql('_temp_pdp_contacts_loader', connection, index=False, if_exists='replace')
+            normalized_data = pd.read_sql_table('_temp_pdp_contacts_loader', connection)
+
             # todo: Split object from previous step to new items and updated. drop existing items
             # todo: A good place to consider archiving items that were updated
             # STEP
@@ -47,7 +51,7 @@ def start_flow():
             current_app.logger.info('Writing pdp_contacts to PostgreSQL')
             current_app.logger.info(' - Columns: {}'.format(rows_to_add_or_updated["new"].columns))
             rows_to_add_or_updated["new"].to_sql('pdp_contacts', connection, index=False, if_exists='append')
-            current_app.logger.info('Finished table writing')
+            current_app.logger.info(' - Finished writing table')
 
             print(1)
             # rows_for_master_df = match_data.start(connection, rows_to_add_or_updated)

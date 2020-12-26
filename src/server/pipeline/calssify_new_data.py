@@ -56,17 +56,6 @@ def start(pdp_contacts_df, normalized_data):
     incoming_ids = normalized_data[["source_id", "source_type"]].drop_duplicates()
     existing_ids = pdp_contacts_df[["source_id", "source_type"]].drop_duplicates()
     new_ids, reused_ids, old_ids = venn_diagram_join(incoming_ids, existing_ids)
-    # TODO: debugging the new rows...something lost in translation from pandas <-> postgres???
-    #  - based on the join results, it looks like potentially a datatype issue why they're not matching.
-    # TODO: need to make sure the ID column is properly cast as a string to avoid these issues.
-    # - TODO that, just check where we're importing the ID column and make sure it's consistently being cast to a string or similar datatype
-    # - UPDATE: confirmed, the dtype was the cause for 1/3 of the ID's (non-salesforce) not matching between the
-    #   format as-read from CSV and the format as-read from SQL
-    # - TODO: but, column consistency with SQL has not been enforced for the other fields, leading to false positives in the updated field.
-    # - could try to resolve using internal pandas code, but it might be faster just to write to a temporary table, TBH
-    # - see also https://github.com/pandas-dev/pandas/blob/v1.2.0/pandas/io/sql.py#L968
-    # - in conclusion, let's add some code in here to write to a new _temp_process_contacts table and read back from it, for pdp_contacts_df
-    # - Otherwise, this code works okay for identifying new rows, deletions, etc.
     print("TEMP: NUMBER OF UNIQUE INCOMING AND EXISTING IDs: {}, {}".format(incoming_ids.shape[0], existing_ids.shape[0]))
     print("TEMP: IDs IDENTIFIED AS {}, {}, {}".format(new_ids.shape[0], reused_ids.shape[0], old_ids.shape[0]))
 
