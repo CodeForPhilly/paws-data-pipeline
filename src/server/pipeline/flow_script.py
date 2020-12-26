@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from flask import current_app
 from pipeline import calssify_new_data,clean_and_load_data
 from config import CURRENT_SOURCE_FILES_PATH
 from config import engine
@@ -14,6 +15,7 @@ def start_flow():
             Base.metadata.create_all(connection)
 
             pdp_contacts_df = pd.read_sql_table('pdp_contacts', connection)
+            current_app.logger.info('Loaded {} records from pdp_contacts table'.format(pdp_contacts_df.shape[0]))
 
             # Clean the input data and normalize
             # input - existing files in path
@@ -41,7 +43,11 @@ def start_flow():
 
 
             ## test::
+            print(rows_to_add_or_updated["new"].head())
+            current_app.logger.info('Writing pdp_contacts to PostgreSQL')
+            current_app.logger.info(' - Columns: {}'.format(rows_to_add_or_updated["new"].columns))
             rows_to_add_or_updated["new"].to_sql('pdp_contacts', connection, index=False, if_exists='append')
+            current_app.logger.info('Finished table writing')
 
             print(1)
             # rows_for_master_df = match_data.start(connection, rows_to_add_or_updated)
