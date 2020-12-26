@@ -42,14 +42,16 @@ def create_normalized_df(df, normalized_df, table_name):
     result = pd.DataFrame(columns=["matching_id"])
 
     for new_column, table_column in normalized_df.items():
-        result["source_type"] = table_name
-
         if isinstance(table_column, str):
             result[new_column] = df[table_column]
         elif callable(table_column):
             result[new_column] = table_column(df)
         else:
             raise ValueError("Unknown mapping operation")
+    
+    result["source_type"] = table_name
+    # Enforce ID datatype to avoid inconsistency when reading/writing table to SQL
+    result["source_id"] = result["source_id"].astype(str)
 
     current_app.logger.info('   - Normalized DF')
 
