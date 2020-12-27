@@ -23,6 +23,8 @@ def start_flow():
             normalized_data = clean_and_load_data.start(pdp_contacts_df, file_path_list)
 
             # Standardize column datatypes
+            # If additional inconsistencies are encountered, may need to enforce the schema of
+            # the contacts loader by initializing it from pdp_contacts.
             normalized_data.to_sql('_temp_pdp_contacts_loader', connection, index=False, if_exists='replace')
             normalized_data = pd.read_sql_table('_temp_pdp_contacts_loader', connection)
 
@@ -47,7 +49,6 @@ def start_flow():
 
 
             ## test::
-            print(rows_to_add_or_updated["new"].head())
             current_app.logger.info('Writing pdp_contacts to PostgreSQL')
             current_app.logger.info(' - Columns: {}'.format(rows_to_add_or_updated["new"].columns))
             rows_to_add_or_updated["new"].to_sql('pdp_contacts', connection, index=False, if_exists='append')
