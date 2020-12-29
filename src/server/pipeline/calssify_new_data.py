@@ -35,7 +35,6 @@ def start(pdp_contacts_df, normalized_data):
         "old": pd.DataFrame(columns=pdp_contacts_df.columns)
     }
 
-    # TODO: @urirot should verify that the old TODO is fixed (todo - seems to not return what's expected on update)
     incoming_ids = normalized_data[["source_id", "source_type"]].drop_duplicates()
     existing_ids = pdp_contacts_df[["source_id", "source_type"]].drop_duplicates()
     new_ids, reused_ids, old_ids = venn_diagram_join(incoming_ids, existing_ids)
