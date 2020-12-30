@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from flask import current_app
-from pipeline import calssify_new_data,clean_and_load_data
+from pipeline import calssify_new_data,clean_and_load_data, archive_rows
 from config import CURRENT_SOURCE_FILES_PATH
 from config import engine
 from models import Base
@@ -28,34 +28,22 @@ def start_flow():
             normalized_data.to_sql('_temp_pdp_contacts_loader', connection, index=False, if_exists='replace')
             normalized_data = pd.read_sql_table('_temp_pdp_contacts_loader', connection)
 
-            # todo: Split object from previous step to new items and updated. drop existing items
-            # todo: A good place to consider archiving items that were updated
-            # STEP
-            rows_to_add_or_updated = calssify_new_data.start(pdp_contacts_df, normalized_data)
+            # Classifies rows to old rows that haven't changed, updated rows and new rows - compared to the existing state of the DB
+            rows_classified = calssify_new_data.start(pdp_contacts_df, normalized_data)
 
-            # todo: Remove renaming
-            # todo: Run fuzzy match on all new and updated items
-            # todo: When match found - generate matching ID and add to both matching columns (if there is one use it)
+            # Archives rows the were updated in the current state of the DB (changes their archived_date to now)
+            archive_rows.archive(connection, rows_classified["updated"])
 
-            # match and load:
-            # for each item
-                ### if it matches - it will get the same matching id as the match
-                ### if it doesn't - generate matching id (some prefix with increment?)
-                ### new item:
-                    ### load it with created_at = now and archived_at = null
-                ### updated item:
-                    ### can we just use everything as new item if we are already archiving?
+            # todo: match and load
+            #   Compare each new and updated item to all records in the DB
+            #   (including all other items that are new and updated this iteration) - for each item:
+            #       if it matches - it will get the same matching id as the match
+            #       if it doesn't - generate matching id (some prefix with increment?)
+            #       load it with created_at = now and archived_at = null
 
-
-
-            ## test::
+            ## test:
             current_app.logger.info('Writing pdp_contacts to PostgreSQL')
-            current_app.logger.info(' - Columns: {}'.format(rows_to_add_or_updated["new"].columns))
-            rows_to_add_or_updated["new"].to_sql('pdp_contacts', connection, index=False, if_exists='append')
+            current_app.logger.info(' - Columns: {}'.format(rows_classified["new"].columns))
+            rows_classified["new"].to_sql('pdp_contacts', connection, index=False, if_exists='append')
             current_app.logger.info(' - Finished writing table')
 
-            print(1)
-            # rows_for_master_df = match_data.start(connection, rows_to_add_or_updated)
-
-            # load to pdp_contacts DB
-            # create_master_df.start(connection, rows_for_master_df)
