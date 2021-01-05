@@ -13,8 +13,8 @@ def create_base_roles():
         result = connection.execute("select role from pdp_user_roles")
         role_count = len(result.fetchall())
         if role_count == 0:
-            connection.execute("INSERT into pdp_user_roles  values (0, 'user') ")
-            connection.execute("INSERT into pdp_user_roles  values (1, 'editor') ")
+            connection.execute("INSERT into pdp_user_roles  values (1, 'user') ")
+            connection.execute("INSERT into pdp_user_roles  values (2, 'editor') ")
             connection.execute("INSERT into pdp_user_roles  values (9, 'admin') ")
 
         else:
@@ -38,6 +38,13 @@ def create_base_users():  # TODO: Just call create_user for each
             pw_hash = user_api.hash_password("userpw")
             ins_stmt = pu.insert().values(
                 username="user", password=pw_hash, active="Y", role=1,
+            )
+            connection.execute(ins_stmt)
+
+            # INactive user
+            # Reuse pw hash
+            ins_stmt = pu.insert().values(
+                username="user_inact", password=pw_hash, active="N", role=1,
             )
             connection.execute(ins_stmt)
 

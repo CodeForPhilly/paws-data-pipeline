@@ -94,3 +94,6 @@ def admin_func():
     current_user = get_jwt_identity()
     return jsonify(logged_in_as=current_user), 200
 
+
+def get_jwt_user():
+    return get_jwt_identity()

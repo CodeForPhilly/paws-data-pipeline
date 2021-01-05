@@ -28,8 +28,6 @@ RUN [ ! -f /app/static/logs/last_execution.json ] && printf {} > /app/static/log
 
 RUN chmod -R 777 /app/static
 
-# RUN alembic upgrade head
-
 COPY . /paws-data-pipeline/server
 
 RUN chmod 777 /paws-data-pipeline/server
@@ -41,4 +39,4 @@ WORKDIR /app
 
 RUN set FLASK_APP=server/app.py
 RUN export FLASK_APP
-CMD python -m flask run --host=0.0.0.0
+CMD alembic upgrade head ; python -m flask run --host=0.0.0.0

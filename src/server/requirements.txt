@@ -12,3 +12,4 @@ requests
 pytest
 flask-jwt-extended
 alembic
+flask-cors

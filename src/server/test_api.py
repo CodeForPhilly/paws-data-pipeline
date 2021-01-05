@@ -15,7 +15,7 @@ import pytest, socket, requests, os
 
 
 if os.getenv("IS_LOCAL") == "True":
-    SERVER_URL = "http://localhost:3333"
+    SERVER_URL = "http://localhost:5000"
     IS_LOCAL = True
 else:
     SERVER_URL = "http://server:5000"

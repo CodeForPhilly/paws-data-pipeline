@@ -41,8 +41,17 @@ engine = db.create_engine(DB)
 
 if not database_exists(engine.url):
     create_database(engine.url)
-    with engine.connect() as connection:
-        models.Base.metadata.create_all(connection)
+
+with engine.connect() as connection:
+    models.Base.metadata.create_all(connection)
+    # This is safe: by default, will check first to ensure tables don't already exist
+
+# Run Alembic to create managed tables
+# from alembic.config import Config
+# from alembic import command
+
+# alembic_cfg = Config("alembic.ini")
+# command.stamp(alembic_cfg, "head")
 
 
 with engine.connect() as connection:

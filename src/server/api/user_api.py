@@ -5,7 +5,7 @@ import pytest, codecs, random
 from api.api import user_api
 from sqlalchemy.sql import text
 from config import engine
-from flask import request, redirect, jsonify, current_app, abort
+from flask import request, redirect, jsonify, current_app, abort, json
 
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc, select
 
@@ -16,6 +16,23 @@ metadata = MetaData()
 
 # Salt for hashing storing passwords
 SALT_LENGTH = 32
+
+
+# Keep a journal of user activity
+def log_user_action(user, event_class, detail):
+    """ Write log entry to db """
+
+    puj = Table("pdp_user_journal", metadata, autoload=True, autoload_with=engine)
+
+    with engine.connect() as connection:
+        ins_stmt = puj.insert().values(
+            username=user, event_type=event_class, detail=detail
+        )
+
+        try:
+            connection.execute(ins_stmt)
+        except Exception as e:
+            print(e)
 
 
 def hash_password(password):
@@ -42,6 +59,19 @@ def user_test():
     return jsonify("OK from User Test")
 
 
+@user_api.route("/user/test_fail", methods=["GET"])
+def user_test_fail():
+    """Liveness test, always fails"""
+    return jsonify("Here's your failure"), 401
+
+
+@user_api.route("/user/test_auth", methods=["GET"])
+@jwt_ops.jwt_required
+def user_test_auth():
+    """Liveness test, requires JWT"""
+    return jsonify("OK from User Test - Auth")
+
+
 # Verify username and password, return a JWT with role
 @user_api.route("/user/login", methods=["POST"])
 def user_login():
@@ -51,7 +81,7 @@ def user_login():
 
         pwhash = None
         s = text(
-            """select password, pdp_user_roles.role 
+            """select password, pdp_user_roles.role, active 
                 from pdp_users 
                 left join pdp_user_roles on pdp_users.role = pdp_user_roles._id 
                 where username=:u """
@@ -60,16 +90,67 @@ def user_login():
         result = connection.execute(s)
 
         if result.rowcount:  # Did we get a match on username?
-            pwhash, role = result.fetchone()
+            pwhash, role, is_active = result.fetchone()
         else:
+            log_user_action(request.form["username"], "Failure", "Invalid username")
             return jsonify("Bad credentials"), 401
 
-        if check_password(request.form["password"], pwhash):
-            # Yes, user is valid & password matches
+        # TODO: Check to see if active. If not, 401?
+
+        if is_active.lower() == "y" and check_password(
+            request.form["password"], pwhash
+        ):
+            # Yes, user is active and password matches
             token = jwt_ops.create_token(request.form["username"], role)
+            log_user_action(request.form["username"], "Success", "Logged in")
             return token
 
         else:
+            log_user_action(
+                request.form["username"], "Failure", "Bad password or inactive"
+            )
+            return jsonify("Bad credentials"), 401
+
+
+# JSON version JSON JSON JSON JSON JSON JSON JSON JSON JSON JSON JSON JSON
+
+
+@user_api.route("/user/login_json", methods=["POST"])
+def user_login_json():
+    """ Validate user in db, return JWT if legit"""
+
+    post_dict = json.loads(request.data)
+    username = post_dict["username"]
+    presentedpw = post_dict["password"]
+
+    with engine.connect() as connection:
+
+        pwhash = None
+        s = text(
+            """select password, pdp_user_roles.role, active 
+                from pdp_users 
+                left join pdp_user_roles on pdp_users.role = pdp_user_roles._id 
+                where username=:u """
+        )
+        s = s.bindparams(u=username)
+        result = connection.execute(s)
+
+        if result.rowcount:  # Did we get a match on username?
+            pwhash, role, is_active = result.fetchone()
+        else:
+            log_user_action(username, "Failure", "Invalid username")
+            return jsonify("Bad credentials"), 401
+
+        # TODO: Check to see if active. If not, 401?
+
+        if is_active.lower() == "y" and check_password(presentedpw, pwhash):
+            # Yes, user is active and password matches
+            token = jwt_ops.create_token(username, role)
+            log_user_action(username, "Success", "Logged in")
+            return token
+
+        else:
+            log_user_action(username, "Failure", "Bad password or inactive")
             return jsonify("Bad credentials"), 401
 
 
@@ -80,7 +161,7 @@ def user_logout():
     username = request.form["username"]
 
     # For now, just echo the data
-    log_user_action("Logged out " + username)
+    log_user_action(username, "Success", "Logged out ")
     return jsonify("Logged out " + username)
 
 
@@ -110,6 +191,8 @@ def user_create():
     userpw = request.form["password"]
     user_role = request.form["role"]
 
+    requesting_user = jwt_ops.get_jwt_user()
+
     pw_hash = hash_password(userpw)
 
     pu = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
@@ -129,6 +212,11 @@ def user_create():
             role_val = role_dict[user_role]
         except KeyError as e:
             print("Role not found", e)
+            log_user_action(
+                requesting_user,
+                "Failure",
+                "Bad role (" + user_role + ") in user_create for " + new_user,
+            )
             return jsonify("Bad role"), 422
 
         ins_stmt = pu.insert().values(
@@ -147,13 +235,9 @@ def user_create():
 
     # if created, 201
     log_user_action(
-        "DUMMY LOG: Created account for "
-        + new_user
-        + " ( "
-        + fullname
-        + " ) "
-        + " with role "
-        + user_role
+        requesting_user,
+        "Success",
+        "Created user " + new_user + " with role: " + user_role,
     )
     return jsonify(new_user), 201
 
@@ -209,13 +293,6 @@ def user_get_list():
         ul = str(row.keys()) + "," + user_list
 
     return jsonify(ul), 200
-
-
-# Keep a journal of user activity
-def log_user_action(action):
-
-    # for now, just print to stdout
-    print(action)
 
 
 def test_pw_hashing():

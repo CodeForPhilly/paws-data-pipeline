@@ -7,7 +7,8 @@ from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 
-app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+app.config["JWT_SECRET_KEY"] = "super-secret"  # TODO: SECURITY  Change this!
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 30  # Seconds for timeout. 60 for testing.
 jwt = JWTManager(app)
 
 
