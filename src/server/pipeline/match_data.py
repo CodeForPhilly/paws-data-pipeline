@@ -91,81 +91,53 @@ def _get_master_primary_key(source_name):
     return source_name + '_id'
 
 
+# todo: match and load
+#   Compare each new and updated item to all records in the DB
+#   (including all other items that are new and updated this iteration) - for each item:
+#       if it matches - it will get the same matching id as the match
+#       if it doesn't - generate matching id (some prefix with increment?)
+#       load it with created_at = now and archived_at = null
+
 def start(connection, added_or_updated_rows):
-    # Match newly identified records to each other and existing master data.
-
+    # Match new records to each other and existing pdp_contacts data.
+    # Assigns matching ID's to records, as well.
+    # WARNING: not thread-safe and could lead to concurrency issues if two users /execute simultaneously
     current_app.logger.info('Start record matching')
-    orig_master = pd.read_sql_table('master', connection)
-    input_matches = pd.DataFrame(columns=MATCH_FIELDS)
-    input_matches['source'] = []  # also initializing an empty source field, similar to user_info
-    master_cols_to_keep = [x for x in MATCH_FIELDS]
-    master_cols_to_keep.append('source')
-    
-    # TODO: handling row updates (possibly)
-    # Check consistency of updated_rows
-    # If the matching fields (name or email) are updated, then flag the row for human review and processing
-    # (e.g. deciding matching when a name changes)
-    #for table_name, table_json in added_or_updated_rows['updated_rows'].items():
-    #    if len(table_json) == 0:
-    #        continue  # empty df, so nothing to do
-    #    proposed_updates = pd.DataFrame(table_json)
-    # Then, map the proposed update ID back to master table to get the saved user_info name+email
-    # Only keep rows where there is a mismatch in name+email. Report these rows in the output dict.
-        
-    # Match records for new users
-    current_app.logger.info('   - Matching new rows of input data')
-    for table_name in MATCH_PRIORITY:
-        if table_name not in added_or_updated_rows['new_rows'].keys() or len(added_or_updated_rows['new_rows'][table_name]) == 0:
-            continue   # df is empty or not-updated, so there's nothing to do
-        
-        table_csv_key = _get_table_primary_key(table_name)
-        table_master_key = _get_master_primary_key(table_name)
-        table_cols = copy.deepcopy(MATCH_FIELDS)
-        table_cols.append(table_csv_key)
+    current_app.logger.warning('Matching updated records not yet handled')
+    # Will need to consider updating the existing row contents (filter by active), deactivate,
+    # try to match, and merge previous matching groups if applicable
+    pdp_contacts = pd.read_sql_table('pdp_contacts', connection)
 
-        # Normalize table and rename columns for compatibility with users
-        table_to_match = (
-            pd.DataFrame(added_or_updated_rows['new_rows'][table_name])
-            .pipe(_reassign_combined_fields, {master_col: DATASOURCE_MAPPING[table_name][table_col] for master_col, table_col in MATCH_MAPPING.items()})
-            [table_cols]
-            .rename(columns={table_csv_key: table_master_key})
-            .pipe(normalize_table_for_comparison, MATCH_FIELDS, orig_prefix='original_')
-            .drop_duplicates()
-        )
-        orig_compared_cols = ['original_' + col_name for col_name in MATCH_FIELDS]
+    if pdp_contacts.shape[0] == 0:
+        max_matching_group = 0
+    else:
+        max_matching_group = max(pdp_contacts["matching_id"]) + 1
 
-        input_matches = input_matches.merge(table_to_match, how='outer')
-        input_matches['source'].fillna(table_name, inplace=True)
-        for col in MATCH_FIELDS:  # also fill untransformed original_cols from source
-            if 'source_'+col not in input_matches.columns:
-                input_matches['source_'+col] = np.nan
-            input_matches['source_'+col].fillna(input_matches['original_'+col], inplace=True)
-            del input_matches['original_'+col]
-        master_cols_to_keep.append(table_master_key)
+    # todo: concat new and updated to iterate
+    #items_to_update = added_or_updated_rows["new"] + added_or_updated_rows["updated"]
 
-    # Resolve new vs. updated records in the master table
-    orig_users = pd.read_sql_table('user_info', connection)
-    updated_users, new_users, unused_users = join_on_all_columns(
-        input_matches,
-        normalize_table_for_comparison(orig_users, MATCH_FIELDS)
-    )
-    # Convert format of new_users -> master_table minus _id column plus name+email_source from user_info
-    new_users = (
-        new_users
-        .drop(columns=MATCH_FIELDS).rename(columns={'source_'+x: x for x in MATCH_FIELDS})
-        [master_cols_to_keep]
-        .copy()
-    )
-    # Convert format of updated_users -> master table. Reports the new table_id cols in terms of user_info
-    updated_users = (
-        updated_users
-        [[x for x in updated_users.columns if x.endswith('_id')]]
-        .drop(columns='_id')
-        .rename(columns={'master_id': '_id'})
-    )
+    for index, row in added_or_updated_rows["new"].iterrows():
+        # Exact matches based on specified columns
+        # Replacing: row[["first_name", "last_name", "email"]].merge(pdp_contacts, how="inner")
+        row_matches = pdp_contacts[
+            (pdp_contacts["first_name"] == row["first_name"]) &
+            (pdp_contacts["last_name"] == row["last_name"]) &
+            (pdp_contacts["email"] == row["email"])
+        ]
+        if row_matches.shape[0] == 0:  # new record, no matches
+            row_group = max_matching_group
+            max_matching_group += 1
+        else:  # existing match(es)
+            row_group = row_matches["matching_id"].values[0]
+            if not all(row_matches["matching_id"] == row_group):
+                current_app.logger.warning(
+                    "Source {} with ID {} is matching multiple groups in pdp_contacts ({})"
+                    .format(row["source_type"], row["source_id"], str(row_matches["matching_id"].drop_duplicates()))
+                )
+        row["created_at"] = "TODO NOW"
+        row["archived_at"] = np.nan
+        row["matching_id"] = row_group
 
-    return {
-        'new_matches': new_users.to_dict(orient='records'),
-        'updated_matches': updated_users.to_dict(orient='records')
-    }
-
+        # todo: fix load to sql - try row.toFrame
+        pd.DataFrame(row).to_sql('pdp_contacts', connection, index=False, if_exists='append')
+        pdp_contacts = pd.read_sql_table('pdp_contacts', connection)
