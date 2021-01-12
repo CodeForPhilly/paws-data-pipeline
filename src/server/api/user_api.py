@@ -1,6 +1,7 @@
 from hashlib import pbkdf2_hmac
 from os import urandom
 import pytest, codecs, random
+from datetime import datetime
 
 from api.api import user_api
 from sqlalchemy.sql import text
@@ -56,7 +57,7 @@ def check_password(password, salty_hash):
 @user_api.route("/user/test", methods=["GET"])
 def user_test():
     """Liveness test"""
-    return jsonify("OK from User Test")
+    return jsonify(("OK from User Test  @ " + str(datetime.now())))
 
 
 @user_api.route("/user/test_fail", methods=["GET"])
@@ -69,7 +70,7 @@ def user_test_fail():
 @jwt_ops.jwt_required
 def user_test_auth():
     """Liveness test, requires JWT"""
-    return jsonify("OK from User Test - Auth")
+    return jsonify(("OK from User Test - Auth  @" + str(datetime.now())))
 
 
 # Verify username and password, return a JWT with role
