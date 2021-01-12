@@ -1,4 +1,5 @@
 import copy
+import datetime
 import pandas as pd
 import numpy as np
 
@@ -106,25 +107,27 @@ def start(connection, added_or_updated_rows):
     current_app.logger.warning('Matching updated records not yet handled')
     # Will need to consider updating the existing row contents (filter by active), deactivate,
     # try to match, and merge previous matching groups if applicable
+    items_to_update = pd.concat([added_or_updated_rows["new"], added_or_updated_rows["updated"]], ignore_index=True)
     pdp_contacts = pd.read_sql_table('pdp_contacts', connection)
 
-    if pdp_contacts.shape[0] == 0:
+    if pdp_contacts["matching_id"].dropna().size == 0:
         max_matching_group = 0
     else:
-        max_matching_group = max(pdp_contacts["matching_id"]) + 1
+        max_matching_group = max(pdp_contacts["matching_id"].dropna()) + 1
 
-    # todo: concat new and updated to iterate
-    #items_to_update = added_or_updated_rows["new"] + added_or_updated_rows["updated"]
-
-    for index, row in added_or_updated_rows["new"].iterrows():
+    # Iterate over the dataframe using integer index location,
+    # because iterrows returns a type-inconsistent series, and itertuples would be more complex.
+    num_added_or_updated = items_to_update.shape[0]
+    for row_num in range(num_added_or_updated):
+        current_app.logger.info("- Matching row {} of {}".format(row_num+1, num_added_or_updated))
+        row = items_to_update.iloc[[row_num], :].copy()  # pd.DataFrame
         # Exact matches based on specified columns
-        # Replacing: row[["first_name", "last_name", "email"]].merge(pdp_contacts, how="inner")
         row_matches = pdp_contacts[
-            (pdp_contacts["first_name"] == row["first_name"]) &
-            (pdp_contacts["last_name"] == row["last_name"]) &
-            (pdp_contacts["email"] == row["email"])
+            (pdp_contacts["first_name"] == row["first_name"].values[0]) &
+            (pdp_contacts["last_name"] == row["last_name"].values[0]) &
+            (pdp_contacts["email"] == row["email"].values[0])
         ]
-        if row_matches.shape[0] == 0:  # new record, no matches
+        if row_matches.shape[0] == 0:  # new record, no matching rows
             row_group = max_matching_group
             max_matching_group += 1
         else:  # existing match(es)
@@ -134,10 +137,12 @@ def start(connection, added_or_updated_rows):
                     "Source {} with ID {} is matching multiple groups in pdp_contacts ({})"
                     .format(row["source_type"], row["source_id"], str(row_matches["matching_id"].drop_duplicates()))
                 )
-        row["created_at"] = "TODO NOW"
-        row["archived_at"] = np.nan
+        row["created_date"] = datetime.datetime.now()
+        row["archived_date"] = np.nan
         row["matching_id"] = row_group
+        if "_id" in row.columns:
+            del row["_id"]  # avoid specifying the _id field, so postgres will auto-increment for us
 
-        # todo: fix load to sql - try row.toFrame
-        pd.DataFrame(row).to_sql('pdp_contacts', connection, index=False, if_exists='append')
+        # Round-trip to the database on every loop iteration is inefficient and could be rewritten much faster
+        row.to_sql('pdp_contacts', connection, index=False, if_exists='append')
         pdp_contacts = pd.read_sql_table('pdp_contacts', connection)
