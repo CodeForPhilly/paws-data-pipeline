@@ -28,7 +28,7 @@ services:
     build: ./client
     container_name: paws-compose-client
     ports:
-      - "3000:3000"
+      - "3000:80"
     depends_on:
       - server
     environment:
