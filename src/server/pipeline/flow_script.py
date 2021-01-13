@@ -16,6 +16,7 @@ def start_flow():
 
             pdp_contacts_df = pd.read_sql_table('pdp_contacts', connection)
             pdp_contacts_df = pdp_contacts_df[pdp_contacts_df["archived_date"].isnull()]
+            pdp_contacts_df = pdp_contacts_df.drop(columns=['archived_date', 'created_date', '_id', 'matching_id'])
 
             current_app.logger.info('Loaded {} records from pdp_contacts table'.format(pdp_contacts_df.shape[0]))
 
