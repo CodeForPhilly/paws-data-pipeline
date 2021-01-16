@@ -1,4 +1,3 @@
-# from flask import current_app
 import re
 
 
@@ -69,3 +68,82 @@ DATASOURCE_MAPPING = {
         'should_drop_first_column': True
     }
 }
+
+
+def volgistics_address(index, street):
+    result = ""
+
+    for item in street:
+        if isinstance(item, str):
+            if " " in item:
+                result = item.split()[index]
+
+    return result
+
+
+SOURCE_NORMALIZATION_MAPPING = {
+    "salesforcecontacts": {
+        "source_id": "contact_id",
+        "first_name": "first_name",
+        "last_name": "last_name",
+        "email": "email",
+        "mobile": lambda df: df["mobile"].combine_first(df["phone"]),
+        "street_and_number": "mailing_street",
+        "apartment": "mailing_street",
+        "city": "mailing_city",
+        "state": "mailing_state_province",
+        "zip": "mailing_zip_postal_code",
+        "others": {
+            "additional_sources": [{
+                "salesforcedonations": {
+                        'should_drop_first_column': True
+                    }
+                }
+            ],
+            "should_drop_first_column": True
+        }
+
+    },
+    "shelterluvpeople": {
+        "source_id": "id",
+        "first_name": "firstname",
+        "last_name": "lastname",
+        "email": "email",
+        "mobile": "phone",
+        "street_and_number": "street",
+        "apartment": "apartment",
+        "city": "city",
+        "state": "state",
+        "zip": "zip",
+        "others": {
+            "should_drop_first_column": False
+        }
+    },
+    "volgistics": {
+        "source_id": "number",
+        "first_name": "first_name",
+        "last_name": "last_name",
+        "email": "email",
+        "mobile": lambda df: df["cell"].combine_first(df["home"]),
+        "street_and_number": lambda df: volgistics_address(1, df["street_1"]),
+        "apartment": lambda df: volgistics_address(0, df["street_1"]),
+        "city": "city",
+        "state": "state",
+        "zip": "zip",
+        "others": {
+            "additional_sources": [{
+                    "volgisticsshifts": {
+                        'should_drop_first_column': True
+                    }
+                }
+            ],
+            "should_drop_first_column": True
+        }
+
+    }
+}
+
+
+
+
+
