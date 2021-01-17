@@ -22,15 +22,9 @@ def get_contacts(search_text):
                 OR lower(last_name) like lower(:search_text)")
             query_result = connection.execute(query, search_text='{}%'.format(search_text))
 
-        # we only want to display one search result per matched group
-        id_list = []
-        results = []
-        for result in query_result:
-            if result['matching_id'] not in id_list:
-                results.append(dict(result))
-                id_list.append(result['matching_id'])
+        query_result_json = [dict(row) for row in query_result]
 
-        results = jsonify({'result': results})
+        results = jsonify({'result': query_result_json})
 
         return results
 
