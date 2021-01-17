@@ -9,7 +9,6 @@ def get_contacts(search_text):
     with engine.connect() as connection:
         search_text = search_text.lower()
 
-        #TODO: Is the client expecting the id labeled as contact_id?
         names = search_text.split(" ")
         if len(names) == 2:
             query = text("select * from pdp_contacts \
