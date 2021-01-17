@@ -40,9 +40,3 @@ def start_flow():
             # What does this do
             match_data.start(connection, rows_classified)
 
-            ## test:
-            #current_app.logger.info('Writing pdp_contacts to PostgreSQL')
-            #current_app.logger.info(' - Columns: {}'.format(rows_classified["new"].columns))
-            #rows_classified["new"].to_sql('pdp_contacts', connection, index=False, if_exists='append')
-            #current_app.logger.info(' - Finished writing table')
-

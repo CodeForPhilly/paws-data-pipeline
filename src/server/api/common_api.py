@@ -12,23 +12,24 @@ def get_contacts(search_text):
         #TODO: Is the client expecting the id labeled as contact_id?
         names = search_text.split(" ")
         if len(names) == 2:
-            query = text("select name, email, master_id as contact_id from user_info \
-                where (split_part(lower(name),' ',1) like lower(:name1) and split_part(lower(name),' ',2) like lower(:name2)) \
-                OR (split_part(lower(name),' ',1) like lower(:name2) and split_part(lower(name),' ',2) like lower(:name1)) order by name")
+            query = text("select * from pdp_contacts \
+                where lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2) \
+                OR lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)")
             query_result = connection.execute(query, name1='{}%'.format(names[0]), name2='{}%'.format(names[1]))
         elif len(names) == 1:
-            query = text("select name, email, master_id as contact_id from user_info \
-                WHERE split_part(lower(name),' ',1) like :search_text \
-                OR split_part(lower(name),' ',2) like :search_text order by name")
+            query = text("select * from pdp_contacts \
+                WHERE lower(first_name) like lower(:search_text) \
+                OR lower(last_name) like lower(:search_text)")
             query_result = connection.execute(query, search_text='{}%'.format(search_text))
 
-        # we only want to display one search result per master id
-        id_set  = set()
+        # we only want to display one search result per matched group
+        id_list = []
         results = []
         for result in query_result:
-            if result['contact_id'] in id_set:
-                continue
-            results.append(dict(result))
+            if result['matching_id'] not in id_list:
+                results.append(dict(result))
+                id_list.append(result['matching_id'])
+
         results = jsonify({'result': results})
 
         return results
