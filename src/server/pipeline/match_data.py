@@ -18,7 +18,7 @@ def start(connection, added_or_updated_rows):
     if pdp_contacts["matching_id"].dropna().size == 0:
         max_matching_group = 0
     else:
-        max_matching_group = max(pdp_contacts["matching_id"].dropna()) + 1
+        max_matching_group = max(pdp_contacts["matching_id"].dropna())
 
     # Initialize column metadata we'll write to pdp_contacts
     items_to_update["matching_id"] = 0  # initializing an int and overwrite in the loop
@@ -28,7 +28,7 @@ def start(connection, added_or_updated_rows):
         del row["_id"]  # avoid specifying the _id field, so postgres will auto-increment for us
     
     rows = items_to_update.to_dict(orient="records")
-    row_print_freq = np.floor_divide(len(rows), 20)  # approx every 5%
+    row_print_freq = max(1, np.floor_divide(len(rows), 20))  # approx every 5% (or every row if small)
     for row_num, row in enumerate(rows):
         if row_num % row_print_freq == 0:
             current_app.logger.info("- Matching rows {}-{} of {}".format(
@@ -42,8 +42,8 @@ def start(connection, added_or_updated_rows):
             (pdp_contacts["email"] == row["email"]) # TODO: could transform this line into an "or" with phone number
         ]
         if row_matches.empty:  # new record, no matching rows
-            row_group = max_matching_group
             max_matching_group += 1
+            row_group = max_matching_group
         else:  # existing match(es)
             row_group = row_matches["matching_id"].values[0]
             if not all(row_matches["matching_id"] == row_group):
