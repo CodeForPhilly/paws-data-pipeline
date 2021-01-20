@@ -37,7 +37,7 @@ const customStyles = theme => ({
         fontWeight: "bold"
     },
     container: {
-        maxHeight: 700,
+        maxHeight: 600,
     },
 });
 
