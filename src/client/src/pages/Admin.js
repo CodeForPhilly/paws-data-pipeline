@@ -195,7 +195,7 @@ class Admin extends Component {
         </TableContainer>
 
         return (
-            <div>
+            <div style={{paddingLeft: 20}}>
                 <h2>Admin Portal</h2>
                     <Grid container spacing={3} direction="column"  style={{padding:30}}>
                         <Grid container spacing={3} direction="row">
