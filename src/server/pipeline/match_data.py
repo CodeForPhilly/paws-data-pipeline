@@ -51,7 +51,7 @@ def start(connection, added_or_updated_rows):
                     "Source {} with ID {} is matching multiple groups in pdp_contacts ({})"
                     .format(row["source_type"], row["source_id"], str(row_matches["matching_id"].drop_duplicates()))
                 )
-        items_to_update["matching_id"][row_num] = row_group
+        items_to_update.loc[row_num, "matching_id"] = row_group
         # Updating local pdp_contacts dataframe instead of a roundtrip to postgres within the loop.
         # Indexing by iloc and vector of rows to keep the pd.DataFrame class and avoid implicit
         # casting to a single-typed pd.Series.
