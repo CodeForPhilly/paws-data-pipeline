@@ -31,10 +31,12 @@ const customStyles = theme => ({
         width: '100%',
     },
     table: {
-        minWidth: 700,
+        minWidth: 700
     },
     headerCell: {
-        fontWeight: "bold"
+        fontWeight: "bold",
+        minWidth: 60,
+        backgroundColor: "#A9A9A9"
     },
     container: {
         maxHeight: 600,
@@ -74,7 +76,7 @@ class DataView360 extends Component {
 
     renderParticipantsTable() {
         const {classes} = this.props;
-        const tableRowColors = ["#a3ddcb", "#e8e9a1", "#e6b566", "#e5707e", "#00af91"]
+        const tableRowColors = ["#FFFFFF", "#E8E8E8"]
 
         let participantListGrouped = _.groupBy(this.state.participantList, "matching_id");
         participantListGrouped = _.reverse(_.sortBy(participantListGrouped, matching_group => {
@@ -84,7 +86,7 @@ class DataView360 extends Component {
         return (
             <Paper className={classes.tableCard}>
                 <TableContainer className={classes.container}>
-                    <Table className={classes.table} stickyHeader aria-label="sticky table">
+                    <Table className={classes.table} size="small" stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
                                 <TableCell align="left" className={classes.headerCell}>Match ID</TableCell>
