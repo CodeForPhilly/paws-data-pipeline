@@ -45,7 +45,7 @@ def hash_password(password):
 
 
 def check_password(password, salty_hash):
-    """Check presented cleartext password aginst DB-type salt+hash, return True if they match"""
+    """Check presented cleartext password against DB-type salt+hash, return True if they match"""
     salt = salty_hash[0:SALT_LENGTH]
     hash = salty_hash[SALT_LENGTH:]
     # Use salt from db to hash what user gave us
@@ -54,29 +54,31 @@ def check_password(password, salty_hash):
     return hash.hex() == hash_of_presented.hex()
 
 
-@user_api.route("/user/test", methods=["GET"])
+@user_api.route("/api/user/test", methods=["GET"])
 def user_test():
     """ Liveness test, does not require JWT """
     return jsonify(("OK from User Test  @ " + str(datetime.now())))
 
 
-@user_api.route("/user/test_fail", methods=["GET"])
+@user_api.route("/api/user/test_fail", methods=["GET"])
 def user_test_fail():
     """ Liveness test, always fails with 401"""
     return jsonify("Here's your failure"), 401
 
 
-@user_api.route("/user/test_auth", methods=["GET"])
+@user_api.route("/api/user/test_auth", methods=["GET"])
 @jwt_ops.jwt_required
 def user_test_auth():
     """ Liveness test, requires JWT """
     return jsonify(("OK from User Test - Auth  @" + str(datetime.now())))
 
 
-# Verify username and password, return a JWT with role
-@user_api.route("/user/login", methods=["POST"])
+# Verify username and password, return a JWT with role. Expects non-JSON form data.
+@user_api.route("/api/user/login", methods=["POST"])
 def user_login():
-    """ Validate user in db, return JWT if legit and active """
+    """ Validate user in db, return JWT if legit and active.
+        Expects non-json form data
+    """
 
     with engine.connect() as connection:
 
@@ -96,8 +98,6 @@ def user_login():
             log_user_action(request.form["username"], "Failure", "Invalid username")
             return jsonify("Bad credentials"), 401
 
-        # TODO: Check to see if active. If not, 401?
-
         if is_active.lower() == "y" and check_password(
             request.form["password"], pwhash
         ):
@@ -113,12 +113,12 @@ def user_login():
             return jsonify("Bad credentials"), 401
 
 
-# JSON version JSON JSON JSON JSON JSON JSON JSON JSON JSON JSON JSON JSON
-
-
-@user_api.route("/user/login_json", methods=["POST"])
+# JSON login version
+@user_api.route("/api/user/login_json", methods=["POST"])
 def user_login_json():
-    """ Validate user in db, return JWT if legit and active """
+    """ Validate user in db, return JWT if legit and active.
+        Expects json-encoded form data
+    """
 
     post_dict = json.loads(request.data)
     username = post_dict["username"]
@@ -142,8 +142,6 @@ def user_login_json():
             log_user_action(username, "Failure", "Invalid username")
             return jsonify("Bad credentials"), 401
 
-        # TODO: Check to see if active. If not, 401?
-
         if is_active.lower() == "y" and check_password(presentedpw, pwhash):
             # Yes, user is active and password matches
             token = jwt_ops.create_token(username, role)
@@ -155,8 +153,8 @@ def user_login_json():
             return jsonify("Bad credentials"), 401
 
 
-# Logout is not strictly neeed; client can just delete JWT, but good for logging
-@user_api.route("/user/logout", methods=["POST"])
+# Logout is not strictly needed; client can just delete JWT, but good for logging
+@user_api.route("/api/user/logout", methods=["POST"])
 def user_logout():
     # Lookup user in db
     username = request.form["username"]
@@ -166,7 +164,7 @@ def user_logout():
     return jsonify("Logged out " + username)
 
 
-@user_api.route("/user/create", methods=["POST"])
+@user_api.route("/api/user/create", methods=["POST"])
 @jwt_ops.admin_required
 def user_create():
     """Create user record 
@@ -249,26 +247,26 @@ def get_user_count():
         s = text("select count(user) from pdp_users;")
         result = connection.execute(s)
         user_count = result.fetchone()
-        return user_count[0]
+        return jsonify(user_count[0])
 
 
-@user_api.route("/user/deactivate", methods=["POST"])
+@user_api.route("/api/user/deactivate", methods=["POST"])
 @jwt_ops.admin_required
 def user_deactivate():
     """Mark user as inactive in DB"""
-
+    # TODO
     return "", 200
 
 
-@user_api.route("/user/activate", methods=["POST"])
+@user_api.route("/api/user/activate", methods=["POST"])
 @jwt_ops.admin_required
 def user_activate():
     """Mark user as active in DB"""
-
+    # TODO
     return "", 200
 
 
-@user_api.route("/user/get_users", methods=["GET"])
+@user_api.route("/api/user/get_users", methods=["GET"])
 @jwt_ops.admin_required
 def user_get_list():
     """Return list of users"""
