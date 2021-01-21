@@ -56,27 +56,27 @@ def check_password(password, salty_hash):
 
 @user_api.route("/user/test", methods=["GET"])
 def user_test():
-    """Liveness test"""
+    """ Liveness test, does not require JWT """
     return jsonify(("OK from User Test  @ " + str(datetime.now())))
 
 
 @user_api.route("/user/test_fail", methods=["GET"])
 def user_test_fail():
-    """Liveness test, always fails"""
+    """ Liveness test, always fails with 401"""
     return jsonify("Here's your failure"), 401
 
 
 @user_api.route("/user/test_auth", methods=["GET"])
 @jwt_ops.jwt_required
 def user_test_auth():
-    """Liveness test, requires JWT"""
+    """ Liveness test, requires JWT """
     return jsonify(("OK from User Test - Auth  @" + str(datetime.now())))
 
 
 # Verify username and password, return a JWT with role
 @user_api.route("/user/login", methods=["POST"])
 def user_login():
-    """ Validate user in db, return JWT if legit"""
+    """ Validate user in db, return JWT if legit and active """
 
     with engine.connect() as connection:
 
@@ -118,7 +118,7 @@ def user_login():
 
 @user_api.route("/user/login_json", methods=["POST"])
 def user_login_json():
-    """ Validate user in db, return JWT if legit"""
+    """ Validate user in db, return JWT if legit and active """
 
     post_dict = json.loads(request.data)
     username = post_dict["username"]
