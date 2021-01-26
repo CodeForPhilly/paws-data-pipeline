@@ -5,7 +5,6 @@ import {
     Container,
     Box,
     Button,
-    Link,
     Table,
     TableBody,
     TableCell,
@@ -35,6 +34,18 @@ const customStyles = theme => ({
     },
     table: {
         minWidth: 700
+    },
+    tableRowEven: {
+        backgroundColor: "#FFFFFF",
+        "&:hover": {
+            backgroundColor: "#E6F7FF"
+        }
+    },
+    tableRowOdd: {
+        backgroundColor: "#E8E8E8",
+        "&:hover": {
+            backgroundColor: "#CCEEFF"
+        }
     },
     headerCell: {
         fontWeight: "bold",
@@ -83,7 +94,7 @@ class DataView360 extends Component {
 
     renderParticipantsTable() {
         const {classes} = this.props;
-        const tableRowColors = ["#FFFFFF", "#E8E8E8"]
+        const tableRowColors = [classes.tableRowEven, classes.tableRowOdd]
 
         let participantListGrouped = _.groupBy(this.state.participantList, "matching_id");
         participantListGrouped = _.reverse(_.sortBy(participantListGrouped, matching_group => {
@@ -112,8 +123,9 @@ class DataView360 extends Component {
                                     _.map(participantListGrouped, (row_group, index) => {
                                         return _.map(row_group, row => {
                                             return <TableRow key={row.source_id}
-                                                            style={{backgroundColor: tableRowColors[index % _.size(tableRowColors)]}}>
-                                                <TableCell align="left"><Link href="#" onClick={() => this.handleGetParticipant(row.matching_id)}>{row.matching_id}</Link></TableCell>
+                                                            className={tableRowColors[index % _.size(tableRowColors)]}
+                                                            onClick={() => this.handleGetParticipant(row.matching_id)}>
+                                                <TableCell align="left">{row.matching_id}</TableCell>
                                                 <TableCell align="left">{row.first_name}</TableCell>
                                                 <TableCell align="left">{row.last_name}</TableCell>
                                                 <TableCell align="left">{row.email}</TableCell>
