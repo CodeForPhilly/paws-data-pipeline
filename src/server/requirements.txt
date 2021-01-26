@@ -6,7 +6,7 @@ sqlalchemy
 sqlalchemy_utils
 psycopg2-binary==2.8.4
 python-Levenshtein-wheels
-xlrd
+xlrd==1.2.0
 openpyxl
 requests
 pytest
