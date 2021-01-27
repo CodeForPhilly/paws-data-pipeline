@@ -8,12 +8,3 @@
 	background-color: initial;
 	box-shadow: none;
 }
-.back_button{
-	position: relative;
-	display: grid;
-	margin-left: 60px !important;
-	margin-right: 60px !important;
-	margin-top: 10px !important;
-	max-width: 175px;
-	max-height: 36.5px;
-}

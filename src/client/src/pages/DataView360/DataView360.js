@@ -5,6 +5,7 @@ import {
     Container,
     Box,
     Button,
+    Grid,
     Table,
     TableBody,
     TableCell,
@@ -38,13 +39,15 @@ const customStyles = theme => ({
     tableRowEven: {
         backgroundColor: "#FFFFFF",
         "&:hover": {
-            backgroundColor: "#E6F7FF"
+            backgroundColor: "#E6F7FF",
+            cursor: "pointer"
         }
     },
     tableRowOdd: {
         backgroundColor: "#E8E8E8",
         "&:hover": {
-            backgroundColor: "#CCEEFF"
+            backgroundColor: "#CCEEFF",
+            cursor: "pointer"
         }
     },
     headerCell: {
@@ -182,10 +185,15 @@ class DataView360 extends Component {
                 this.state.showParticipant === true) && (
                     <Paper className={styles.main} elevation={1} style={{"padding": "1em"}}>
                         <ContactInfo participant={_.get(this.state, 'participantData.contact_details')}/>
-                        <Button variant="contained" color="primary" className={styles.back_button} 
-                            onClick={() => { 
-                                this.setState({showParticipant: false, showTable: true, showSearchBar: true }) 
-                            }}>Back to Results</Button>
+                        <Container>
+                            <Grid container direction="row" justify="center" alignItems="center" style={{"margin-top": "1em"}}>
+                                <Button variant="contained" color="primary"
+                                    onClick={() => { 
+                                    this.setState({showParticipant: false, showTable: true, showSearchBar: true }) 
+                                    }}>Back to Results
+                                </Button>
+                            </Grid>
+                        </Container>
                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
                         <Adoptions adoptions={_.get(this.state, 'participantData.adoptions')}/>
                         <Volunteer volunteer={_.get(this.state, 'participantData.shifts')}
