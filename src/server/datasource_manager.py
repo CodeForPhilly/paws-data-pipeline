@@ -105,7 +105,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         }
     },
     "shelterluvpeople": {
-        "source_id": "id",
+        "source_id": "internal-id",
         "first_name": "firstname",
         "last_name": "lastname",
         "email": "email",
