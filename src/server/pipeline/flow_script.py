@@ -23,7 +23,7 @@ def start_flow():
             # Clean the input data and normalize
             # input - existing files in path
             # output - normalized object of all entries
-            normalized_data = clean_and_load_data.start(pdp_contacts_df, file_path_list)
+            normalized_data = clean_and_load_data.start(connection, pdp_contacts_df, file_path_list)
 
             # Standardize column data types
             # If additional inconsistencies are encountered, may need to enforce the schema of

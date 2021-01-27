@@ -37,24 +37,21 @@ def get_360(matching_id):
         query_result = connection.execute(query, matching_id=matching_id)
 
         result["contact_details"] = [dict(row) for row in query_result]
-        result["shifts"] = []
-        result["donations"] = []
-        result["adoptions"] = []
 
-        # todo: complete retrieving details for response
-        for row in query_result:
+        for row in result["contact_details"]:
+            if row["source_type"] == "salesforcecontacts":
+                donations_query = text("select * from salesforcedonations where contact_id like :salesforcecontacts_id")
+                query_result = connection.execute(donations_query, salesforcecontacts_id=row["source_id"] + "%")
+                salesforcedonations_results = [dict(row) for row in query_result]
+                result['donations'] = salesforcedonations_results
+
             if row["source_type"] == "volgistics":
-                query = text("select * from volgisticsshifts where number = :volgistics_id")
-                query_result = connection.execute(query, volgistics_id=row["source_id"])
-                result["shifts"] += [dict(row) for row in query_result]
+                shifts_query = text("select * from volgisticsshifts where number = :volgistics_id")
+                query_result = connection.execute(shifts_query, volgistics_id=row["source_id"])
+                volgisticsshifts_results = [dict(row) for row in query_result]
+                result['shifts'] = volgisticsshifts_results
 
-        '''
-        query = text("select * from salesforcedonations where contact_id = :salesforcecontacts_id")
-        query_result = connection.execute(query, salesforcecontacts_id=salesforcecontacts_id)
-        salesforcedonations_results = [dict(row) for row in query_result]
+            #todo: add adoptions
 
-        if salesforcedonations_results:
-            result['salesforcedonations'] = salesforcedonations_results
-        '''
 
         return jsonify({'result': result})
