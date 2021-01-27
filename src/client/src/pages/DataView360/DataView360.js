@@ -4,12 +4,15 @@ import {
     Paper,
     Container,
     Box,
+    Button,
+    Grid,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
-    TableRow
+    TableRow,
+    Typography
 } from '@material-ui/core';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import styles from "./styles/DataView360.module.css";
@@ -33,6 +36,20 @@ const customStyles = theme => ({
     table: {
         minWidth: 700
     },
+    tableRowEven: {
+        backgroundColor: "#FFFFFF",
+        "&:hover": {
+            backgroundColor: "#E6F7FF",
+            cursor: "pointer"
+        }
+    },
+    tableRowOdd: {
+        backgroundColor: "#E8E8E8",
+        "&:hover": {
+            backgroundColor: "#CCEEFF",
+            cursor: "pointer"
+        }
+    },
     headerCell: {
         fontWeight: "bold",
         minWidth: 60,
@@ -49,34 +66,38 @@ class DataView360 extends Component {
 
         this.state = {
             search_participant: '',
-            participantData: undefined,
+            participantData: {},
             isDataBusy: false,
             participantList: [],
-            participantTable: undefined
+            participantTable: undefined,
+            showParticipant: false,
+            showTable: true,
+            showSearchBar: true
         }
 
-        //this.handleGetParticipant = this.handleGetParticipant.bind(this);
+        this.handleGetParticipant = this.handleGetParticipant.bind(this);
         this.handleSearchChange = this.handleSearchChange.bind(this);
     }
 
-    /*
-    async handleGetParticipant(event) {
-        const participant = _.get(event, "target.value");
-        this.setState({participant: participant});
-        this.setState({isDataBusy: true});
+    async handleGetParticipant(matching_id) {
+        this.setState({isDataBusy: true, showSearchBar: false});
 
         await new Promise(resolve => setTimeout(resolve, 1000));
-        let response = await fetch(`/api/360/${participant}`);
+        let response = await fetch(`/api/360/${matching_id}`);
         response = await response.json();
 
-        this.setState({participantData: response});
-        this.setState({isDataBusy: false});
+        this.setState({
+            participantData: response.result, 
+            isDataBusy: false, 
+            showParticipant: true,
+            showTable: false,
+            showSearchBar: false
+        });
     }
-    */
 
     renderParticipantsTable() {
         const {classes} = this.props;
-        const tableRowColors = ["#FFFFFF", "#E8E8E8"]
+        const tableRowColors = [classes.tableRowEven, classes.tableRowOdd]
 
         let participantListGrouped = _.groupBy(this.state.participantList, "matching_id");
         participantListGrouped = _.reverse(_.sortBy(participantListGrouped, matching_group => {
@@ -84,45 +105,49 @@ class DataView360 extends Component {
         }));
 
         return (
-            <Paper className={classes.tableCard}>
-                <TableContainer className={classes.container}>
-                    <Table className={classes.table} size="small" stickyHeader aria-label="sticky table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="left" className={classes.headerCell}>Match ID</TableCell>
-                                <TableCell align="left" className={classes.headerCell}>First Name</TableCell>
-                                <TableCell align="left" className={classes.headerCell}>Last Name</TableCell>
-                                <TableCell align="left" className={classes.headerCell}>Email</TableCell>
-                                <TableCell align="left" className={classes.headerCell}>Mobile</TableCell>
-                                <TableCell align="left" className={classes.headerCell}>Source</TableCell>
-                                <TableCell align="left" className={classes.headerCell}>ID in Source</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {
-                                _.map(participantListGrouped, (row_group, index) => {
-                                    return _.map(row_group, row => {
-                                        return <TableRow key={row.source_id}
-                                                         style={{backgroundColor: tableRowColors[index % _.size(tableRowColors)]}}>
-                                            <TableCell align="left">{row.matching_id}</TableCell>
-                                            <TableCell align="left">{row.first_name}</TableCell>
-                                            <TableCell align="left">{row.last_name}</TableCell>
-                                            <TableCell align="left">{row.email}</TableCell>
-                                            <TableCell align="left">{row.mobile}</TableCell>
-                                            <TableCell align="left">{row.source_type}</TableCell>
-                                            <TableCell align="left">{row.source_id}</TableCell>
-                                        </TableRow>
+            <Container>
+                <Typography paragraph={true}>You searched for <b>{this.state.search_participant}</b></Typography>
+                <Paper className={classes.tableCard}>
+                    <TableContainer className={classes.container}>
+                        <Table className={classes.table} size="small" stickyHeader aria-label="sticky table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="left" className={classes.headerCell}>Match ID</TableCell>
+                                    <TableCell align="left" className={classes.headerCell}>First Name</TableCell>
+                                    <TableCell align="left" className={classes.headerCell}>Last Name</TableCell>
+                                    <TableCell align="left" className={classes.headerCell}>Email</TableCell>
+                                    <TableCell align="left" className={classes.headerCell}>Mobile</TableCell>
+                                    <TableCell align="left" className={classes.headerCell}>Source</TableCell>
+                                    <TableCell align="left" className={classes.headerCell}>ID in Source</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {
+                                    _.map(participantListGrouped, (row_group, index) => {
+                                        return _.map(row_group, row => {
+                                            return <TableRow key={row.source_id}
+                                                            className={tableRowColors[index % _.size(tableRowColors)]}
+                                                            onClick={() => this.handleGetParticipant(row.matching_id)}>
+                                                <TableCell align="left">{row.matching_id}</TableCell>
+                                                <TableCell align="left">{row.first_name}</TableCell>
+                                                <TableCell align="left">{row.last_name}</TableCell>
+                                                <TableCell align="left">{row.email}</TableCell>
+                                                <TableCell align="left">{row.mobile}</TableCell>
+                                                <TableCell align="left">{row.source_type}</TableCell>
+                                                <TableCell align="left">{row.source_id}</TableCell>
+                                            </TableRow>
+                                        })
                                     })
-                                })
-                            }
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Paper>)
+                                }
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Paper>
+            </Container>)
     }
 
     async handleSearchChange(search_participant) {
-        this.setState({isDataBusy: true});
+        this.setState({isDataBusy: true, search_participant: search_participant});
 
         await new Promise(resolve => setTimeout(resolve, 1000));
         let response = await fetch(`/api/contacts/${search_participant}`);
@@ -131,27 +156,47 @@ class DataView360 extends Component {
         await this.setState({participantList: response.result})
 
         this.state.participantTable = this.renderParticipantsTable();
-        this.setState({isDataBusy: false});
+        this.setState({
+            isDataBusy: false, 
+            showParticipant: false,
+            showTable: true
+        });
     }
 
     render() {
         const {classes} = this.props;
         return (
             <Container>
-                <SearchBar participant={this.state.participant}
+                {this.state.showSearchBar && 
+                (<SearchBar participant={this.state.participant}
                            handleParticipantChange={this.handleGetParticipant}
                            handleSearchChange={this.handleSearchChange}/>
-                {(_.isEmpty(this.state.participantTable) !== true && this.state.isDataBusy !== true) && (
+                )}
+                {(_.isEmpty(this.state.participantTable) !== true && 
+                this.state.isDataBusy !== true && 
+                this.state.showTable === true && 
+                this.state.showParticipant === false) && (
                     <Container className={styles.main} elevation={1} style={{"padding": "1em"}}>
                         {this.state.participantTable}
                     </Container>
                 )}
-                {(_.isEmpty(this.state.participantData) !== true && this.state.isDataBusy !== true) && (
+                {(_.isEmpty(this.state.participantData) !== true && 
+                this.state.isDataBusy !== true && 
+                this.state.showParticipant === true) && (
                     <Paper className={styles.main} elevation={1} style={{"padding": "1em"}}>
-                        <ContactInfo participant={_.get(this.state, "participantData.salesforcecontacts")}/>
-                        <Donations donations={_.get(this.state, 'participantData.salesforcedonations')}/>
-                        <Adoptions adoptions={_.get(this.state, 'participantData.shelterluvpeople')}/>
-                        <Volunteer volunteer={_.get(this.state, 'participantData.volgistics.json')}
+                        <ContactInfo participant={_.get(this.state, 'participantData.contact_details')}/>
+                        <Container>
+                            <Grid container direction="row" justify="center" alignItems="center" style={{"margin-top": "1em"}}>
+                                <Button variant="contained" color="primary"
+                                    onClick={() => { 
+                                    this.setState({showParticipant: false, showTable: true, showSearchBar: true }) 
+                                    }}>Back to Results
+                                </Button>
+                            </Grid>
+                        </Container>
+                        <Donations donations={_.get(this.state, 'participantData.donations')}/>
+                        <Adoptions adoptions={_.get(this.state, 'participantData.adoptions')}/>
+                        <Volunteer volunteer={_.get(this.state, 'participantData.shifts')}
                                    volunteerShifts={_.get(this.state, 'participantData.volgistics_shifts_results')}/>
 
                     </Paper>)}
