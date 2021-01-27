@@ -105,8 +105,8 @@ def get_statistics():
 
         # Need to iterate over the results proxy
         results = {
-            "matches count": [dict(row) for row in matches_count_query_result][0]["count"],
-            "total contacts count": [dict(row) for row in total_count_query_result][0]["count"]
+            "Distinct Matching Groups Count": [dict(row) for row in matches_count_query_result][0]["count"],
+            "Total Contacts Count": [dict(row) for row in total_count_query_result][0]["count"]
         }
 
         return results
