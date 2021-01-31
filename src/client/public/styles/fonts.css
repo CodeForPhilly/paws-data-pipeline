@@ -1,0 +1,7 @@
+@font-face {
+    font-family: 'Noway Round Regular';
+    font-style: normal;
+    font-weight: normal;
+    font-display: swap;
+    src: local('Noway Round Regular'), url('../font/NowayRound-Regular.woff') format('woff');
+}
