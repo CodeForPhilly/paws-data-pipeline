@@ -26,9 +26,7 @@ def log_user_action(user, event_class, detail):
     puj = Table("pdp_user_journal", metadata, autoload=True, autoload_with=engine)
 
     with engine.connect() as connection:
-        ins_stmt = puj.insert().values(
-            username=user, event_type=event_class, detail=detail
-        )
+        ins_stmt = puj.insert().values(username=user, event_type=event_class, detail=detail)
 
         try:
             connection.execute(ins_stmt)
@@ -54,6 +52,9 @@ def check_password(password, salty_hash):
     return hash.hex() == hash_of_presented.hex()
 
 
+###     No authorization required              ############################
+
+
 @user_api.route("/api/user/test", methods=["GET"])
 def user_test():
     """ Liveness test, does not require JWT """
@@ -66,14 +67,6 @@ def user_test_fail():
     return jsonify("Here's your failure"), 401
 
 
-@user_api.route("/api/user/test_auth", methods=["GET"])
-@jwt_ops.jwt_required
-def user_test_auth():
-    """ Liveness test, requires JWT """
-    return jsonify(("OK from User Test - Auth  @" + str(datetime.now())))
-
-
-# Verify username and password, return a JWT with role. Expects non-JSON form data.
 @user_api.route("/api/user/login", methods=["POST"])
 def user_login():
     """ Validate user in db, return JWT if legit and active.
@@ -98,22 +91,17 @@ def user_login():
             log_user_action(request.form["username"], "Failure", "Invalid username")
             return jsonify("Bad credentials"), 401
 
-        if is_active.lower() == "y" and check_password(
-            request.form["password"], pwhash
-        ):
+        if is_active.lower() == "y" and check_password(request.form["password"], pwhash):
             # Yes, user is active and password matches
             token = jwt_ops.create_token(request.form["username"], role)
             log_user_action(request.form["username"], "Success", "Logged in")
             return token
 
         else:
-            log_user_action(
-                request.form["username"], "Failure", "Bad password or inactive"
-            )
+            log_user_action(request.form["username"], "Failure", "Bad password or inactive")
             return jsonify("Bad credentials"), 401
 
 
-# JSON login version
 @user_api.route("/api/user/login_json", methods=["POST"])
 def user_login_json():
     """ Validate user in db, return JWT if legit and active.
@@ -153,18 +141,30 @@ def user_login_json():
             return jsonify("Bad credentials"), 401
 
 
+###    Unexpired JWT required               ############################
+
+
+@user_api.route("/api/user/test_auth", methods=["GET"])
+@jwt_ops.jwt_required
+def user_test_auth():
+    """ Liveness test, requires JWT """
+    return jsonify(("OK from User Test - Auth  @" + str(datetime.now())))
+
+
 # Logout is not strictly needed; client can just delete JWT, but good for logging
 @user_api.route("/api/user/logout", methods=["POST"])
+@jwt_ops.jwt_required
 def user_logout():
-    # Lookup user in db
-    username = request.form["username"]
-
-    # For now, just echo the data
+    username = request.form["username"]  # TODO: Should be JSON all throughout
+    # Log the request
     log_user_action(username, "Success", "Logged out ")
     return jsonify("Logged out " + username)
 
 
-@user_api.route("/api/user/create", methods=["POST"])
+###    Unexpired *Admin* JWT  required      ############################
+
+
+@user_api.route("/api/admin/user/create", methods=["POST"])
 @jwt_ops.admin_required
 def user_create():
     """Create user record 
@@ -234,13 +234,13 @@ def user_create():
 
     # if created, 201
     log_user_action(
-        requesting_user,
-        "Success",
-        "Created user " + new_user + " with role: " + user_role,
+        requesting_user, "Success", "Created user " + new_user + " with role: " + user_role,
     )
     return jsonify(new_user), 201
 
 
+@user_api.route("/api/admin/user/get_user_count", methods=["GET"])
+@jwt_ops.admin_required
 def get_user_count():
     """Return number of records in pdp_users table """
     with engine.connect() as connection:
@@ -250,7 +250,8 @@ def get_user_count():
         return jsonify(user_count[0])
 
 
-@user_api.route("/api/user/deactivate", methods=["POST"])
+# TODO: A single do-all update_user()
+@user_api.route("/api/admin/user/deactivate", methods=["POST"])
 @jwt_ops.admin_required
 def user_deactivate():
     """Mark user as inactive in DB"""
@@ -258,7 +259,7 @@ def user_deactivate():
     return "", 200
 
 
-@user_api.route("/api/user/activate", methods=["POST"])
+@user_api.route("/api/admin/user/activate", methods=["POST"])
 @jwt_ops.admin_required
 def user_activate():
     """Mark user as active in DB"""
@@ -266,7 +267,7 @@ def user_activate():
     return "", 200
 
 
-@user_api.route("/api/user/get_users", methods=["GET"])
+@user_api.route("/api/admin/user/get_users", methods=["GET"])
 @jwt_ops.admin_required
 def user_get_list():
     """Return list of users"""
@@ -293,16 +294,3 @@ def user_get_list():
 
     return jsonify(ul), 200
 
-
-def test_pw_hashing():
-    test_pw = codecs.encode("long complicated password ##$& λογοσ δοζα", "utf8")
-
-    print("Test pw:", test_pw)
-
-    db_hash = hash_password(test_pw)
-    print("DB hash", db_hash)
-
-    good = check_password(test_pw, db_hash)
-    bad = check_password(test_pw + b"xxx", db_hash)
-    print("Good, bad:", good, bad)
-    return good and not bad
