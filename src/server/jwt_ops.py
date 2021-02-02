@@ -58,18 +58,10 @@ def login():
 
 @jwt.user_claims_loader
 def add_claims_to_access_token(accesslevel):
-    print("Add claims")
     return {"role": accesslevel}
 
 
 def create_token(username, accesslevel):
-
-    print(jwt)
-    print("CREATE Token")
-    #  jwt = JWTManager(app)
-
-    # print("Add claims")
-    # return {"role": accesslevel, "user_id": user_id}
 
     # Identity can be any data that is json serializable
     new_token = create_access_token(identity=username)
