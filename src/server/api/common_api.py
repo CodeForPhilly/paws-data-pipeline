@@ -2,6 +2,9 @@ from api.api import common_api
 from config import engine
 from flask import jsonify
 from sqlalchemy.sql import text
+import requests
+import json
+from secrets import SHELTERLUV_SECRET_TOKEN
 
 
 @common_api.route('/api/contacts/<search_text>', methods=['GET'])
@@ -37,24 +40,45 @@ def get_360(matching_id):
         query_result = connection.execute(query, matching_id=matching_id)
 
         result["contact_details"] = [dict(row) for row in query_result]
-        result["shifts"] = []
-        result["donations"] = []
-        result["adoptions"] = []
 
-        # todo: complete retrieving details for response
-        for row in query_result:
+        for row in result["contact_details"]:
+            if row["source_type"] == "salesforcecontacts":
+                donations_query = text("select * from salesforcedonations where contact_id like :salesforcecontacts_id")
+                salesforce_contacts_query_result = connection.execute(donations_query,
+                                                                      salesforcecontacts_id=row["source_id"] + "%")
+                salesforce_donations_results = [dict(row) for row in salesforce_contacts_query_result]
+                result['donations'] = salesforce_donations_results
+
             if row["source_type"] == "volgistics":
-                query = text("select * from volgisticsshifts where number = :volgistics_id")
-                query_result = connection.execute(query, volgistics_id=row["source_id"])
-                result["shifts"] += [dict(row) for row in query_result]
+                shifts_query = text("select * from volgisticsshifts where number = :volgistics_id")
+                volgistics_shifts_query_result = connection.execute(shifts_query, volgistics_id=row["source_id"])
+                volgisticsshifts_results = [dict(row) for row in volgistics_shifts_query_result]
+                result['shifts'] = volgisticsshifts_results
 
-        '''
-        query = text("select * from salesforcedonations where contact_id = :salesforcecontacts_id")
-        query_result = connection.execute(query, salesforcecontacts_id=salesforcecontacts_id)
-        salesforcedonations_results = [dict(row) for row in query_result]
+            if row["source_type"] == "shelterluvpeople":
+                adoptions = []
+                person = requests.get("http://shelterluv.com/api/v1/people/{}".format(row["source_id"]),
+                                      headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
+                person_json = person.json()
+                animal_ids = person_json["Animal_ids"]
 
-        if salesforcedonations_results:
-            result['salesforcedonations'] = salesforcedonations_results
-        '''
+                for animal_id in animal_ids:
+                    animal_events = requests.get("http://shelterluv.com/api/v1/animals/{}/events".format(animal_id),
+                                                 headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
+                    animal_events_json = animal_events.json()
+
+                    for event in animal_events_json["events"]:
+                        for adoption in event["AssociatedRecords"]:
+                            if adoption["Type"] == "Person" and adoption["Id"] == row["source_id"]:
+                                del event["AssociatedRecords"]
+                                animal_details = requests.get(
+                                    "http://shelterluv.com/api/v1/animals/{}".format(animal_id),
+                                    headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
+
+                                animal_details_json = animal_details.json()
+                                event["animal_details"] = animal_details_json
+                                adoptions.append(event)
+
+                    result['adoptions'] = adoptions
 
         return jsonify({'result': result})

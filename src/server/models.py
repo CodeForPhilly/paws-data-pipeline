@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -89,42 +89,4 @@ class Volgistics(Base):
     json = Column(JSONB)
 
 
-class SalesForceDonations(Base):
-    __tablename__ = "salesforcedonations"
 
-    _id = Column(Integer, primary_key=True)
-    recurring_donor = Column(String)
-    opportunity_owner = Column(String)
-    account_id = Column(String)
-    account_name = Column(String)
-    opportunity_id = Column(String)
-    opportunity_name = Column(String)
-    stage = Column(String)
-    fiscal_period = Column(String)
-    amount = Column(String)
-    probability = Column(String)
-    age = Column(String)
-    close_date = Column(String)
-    created_date = Column(String)
-    next_step = Column(String)
-    lead_source = Column(String)
-    type = Column(String)
-    source = Column(String)
-    contact_id = Column(String)
-    primary_campaign_source = Column(String)
-
-
-class Volgistics_Shifts(Base):
-    __tablename__ = 'volgisticsshifts'
-
-    _id = Column(Integer, primary_key=True)
-    number = Column(String)
-    site = Column(String)
-    place = Column(String)
-    assignment = Column(String)
-    role = Column(String)
-    from_date = Column('from', DateTime)
-    to = Column(DateTime)
-    spare_date = Column(String)
-    spare_chechbox = Column(String)
-    coordinator = Column(String)

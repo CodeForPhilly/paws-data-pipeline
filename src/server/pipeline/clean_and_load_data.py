@@ -9,7 +9,7 @@ from flask import current_app
 from config import CURRENT_SOURCE_FILES_PATH
 
 
-def start(pdp_contacts_df, file_path_list):
+def start(connection, pdp_contacts_df, file_path_list):
     result = pd.DataFrame(columns=pdp_contacts_df.columns)
 
     for uploaded_file in file_path_list:
@@ -26,12 +26,16 @@ def start(pdp_contacts_df, file_path_list):
         normalization_without_others = copy.deepcopy(SOURCE_NORMALIZATION_MAPPING[table_name])
         normalization_without_others.pop("others")  # copy avoids modifying the imported mapping
 
-        source_df = create_normalized_df(df, normalization_without_others, table_name)
+        if "parent" not in normalization_without_others:
+            source_df = create_normalized_df(df, normalization_without_others, table_name)
 
-        if result.empty:
-            result = source_df
+            if result.empty:
+                result = source_df
+            else:
+                result = pd.concat([result, source_df])
+
         else:
-            result = pd.concat([result, source_df])
+            df.to_sql(table_name, connection, index=False, if_exists='append')
 
         current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)
 

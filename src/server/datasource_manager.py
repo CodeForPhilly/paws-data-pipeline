@@ -94,18 +94,18 @@ SOURCE_NORMALIZATION_MAPPING = {
         "state": "mailing_state_province",
         "zip": "mailing_zip_postal_code",
         "others": {
-            "additional_sources": [{
-                "salesforcedonations": {
-                        'should_drop_first_column': True
-                    }
-                }
-            ],
             "should_drop_first_column": True
         }
 
     },
+    "salesforcedonations": {
+        "parent": "salesforcecontacts",
+        "others": {
+            "should_drop_first_column": True
+        }
+    },
     "shelterluvpeople": {
-        "source_id": "id",
+        "source_id": "internal-id",
         "first_name": "firstname",
         "last_name": "lastname",
         "email": "email",
@@ -131,19 +131,13 @@ SOURCE_NORMALIZATION_MAPPING = {
         "state": "state",
         "zip": "zip",
         "others": {
-            "additional_sources": [{
-                    "volgisticsshifts": {
-                        'should_drop_first_column': True
-                    }
-                }
-            ],
             "should_drop_first_column": True
         }
-
+    },
+    "volgisticsshifts": {
+        "parent": "volgistics",
+        "others": {
+            "should_drop_first_column": True
+        }
     }
 }
-
-
-
-
-
