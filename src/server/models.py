@@ -1,34 +1,32 @@
 import datetime
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
 
-class Master(Base):
-    __tablename__ = "master"
+class PdpContacts(Base):
+    __tablename__ = "pdp_contacts"
 
-    _id = Column(Integer, primary_key=True)
-    salesforcecontacts_id = Column(String, default=None)
-    volgistics_id = Column(String, default=None)
-    shelterluvpeople_id = Column(String, default=None)
+    _id = Column(Integer, primary_key=True, autoincrement=True)
+    matching_id = Column(Integer)
+    source_type = Column(String)
+    source_id = Column(String)
+    first_name = Column(String, default=None)
+    last_name = Column(String, default=None)
+    email = Column(String, default=None)
+    mobile = Column(String, default=None)
+    street_and_number = Column(String, default=None)
+    apartment = Column(String)
+    city = Column(String, default=None)
+    state = Column(String, default=None)
+    zip = Column(String, default=None)
+    json = Column(JSONB)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
 
-
-class User(Base):
-    __tablename__ = "user_info"
-
-    _id = Column(Integer, primary_key=True)
-    master_id = Column(Integer, ForeignKey("master._id"))
-    name = Column(String)
-    email = Column(String)
-    source = Column(String)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
-    archived_date = Column(DateTime, default=None)
 
 
 class SalesForceContacts(Base):
@@ -47,8 +45,6 @@ class SalesForceContacts(Base):
     mobile = Column(String)
     email = Column(String)
     json = Column(JSONB)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
-    archived_date = Column(DateTime, default=None)
 
 
 class ShelterluvPeople(Base):
@@ -68,8 +64,6 @@ class ShelterluvPeople(Base):
     phone = Column(String)
     animal_ids = Column(JSONB)
     json = Column(JSONB)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
-    archived_date = Column(DateTime, default=None)
 
 
 class Volgistics(Base):
@@ -93,50 +87,6 @@ class Volgistics(Base):
     cell = Column(String)
     email = Column(String)
     json = Column(JSONB)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
-    archived_date = Column(DateTime, default=None)
 
 
-class SalesForceDonations(Base):
-    __tablename__ = "salesforcedonations"
 
-    _id = Column(Integer, primary_key=True)
-    recurring_donor = Column(String)
-    opportunity_owner = Column(String)
-    account_id = Column(String)
-    account_name = Column(String)
-    opportunity_id = Column(String)
-    opportunity_name = Column(String)
-    stage = Column(String)
-    fiscal_period = Column(String)
-    amount = Column(String)
-    probability = Column(String)
-    age = Column(String)
-    close_date = Column(String)
-    created_date = Column(String)
-    next_step = Column(String)
-    lead_source = Column(String)
-    type = Column(String)
-    source = Column(String)
-    contact_id = Column(String)
-    primary_campaign_source = Column(String)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
-    archived_date = Column(DateTime, default=None)
-
-
-class Volgistics_Shifts(Base):
-    __tablename__ = 'volgisticsshifts'
-
-    _id = Column(Integer, primary_key=True)
-    number = Column(String)
-    site = Column(String)
-    place = Column(String)
-    assignment = Column(String)
-    role = Column(String)
-    from_date = Column('from', DateTime)
-    to = Column(DateTime)
-    spare_date = Column(String)
-    spare_chechbox = Column(String)
-    coordinator = Column(String)
-    created_date = Column(DateTime, default=datetime.datetime.utcnow)
-    archived_date = Column(DateTime, default=None)

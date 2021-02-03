@@ -16,16 +16,17 @@ const StyledContact = withStyles((theme)=>({
 
 class ContactInfo extends Component {
     render() {
-        const phoneStr = _.get(this.props, "participant.phone");
+        const participantArray = _.get(this.props, "participant")
+        const participant = participantArray[0]
+        const phoneStr = participant.mobile;
         let phone = _.isEmpty(phoneStr) ? '-' : phoneStr.split(" ").join("");
-
         return (<Container className={styles.contact_info}>
                 <Paper variant='outlined' className={styles.contact_info_main} style={{padding:'1em'}}>
                     <div className={styles.contact_container}>
                         <Typography className={styles.contact_info_name}>
                             <span>
-                                {_.get(this.props, "participant.first_name")}{'\t'}
-                                {_.get(this.props, "participant.last_name")}
+                                {participant.first_name}{'\t'}
+                                {participant.last_name}
                             </span>
                         </Typography>
                         <StyledContact className={styles.contact_info_phone}>
@@ -35,13 +36,13 @@ class ContactInfo extends Component {
                         </StyledContact>
                         <Typography className={styles.contact_info_email}>
                             <span>
-                                {_.get(this.props, "participant.email")}
+                                {participant.email}
                             </span>
                         </Typography>
                         <Typography className={styles.contact_info_address}>
                             <span style={{"textTransform":"uppercase"}}>
-                                {_.get(this.props, "participant.mailing_street")}{'\t'}
-                                {_.get(this.props, "participant.mailing_city")}{'\t'}
+                                {participant.street_and_number}{'\t'}
+                                {participant.city}{'\t'}
                             </span>
                         </Typography>
                     </div>
