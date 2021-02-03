@@ -4,6 +4,7 @@ from flask import jsonify
 from sqlalchemy.sql import text
 import requests
 import json
+import dateutil.parser
 from secrets import SHELTERLUV_SECRET_TOKEN
 
 
@@ -52,7 +53,15 @@ def get_360(matching_id):
             if row["source_type"] == "volgistics":
                 shifts_query = text("select * from volgisticsshifts where number = :volgistics_id")
                 volgistics_shifts_query_result = connection.execute(shifts_query, volgistics_id=row["source_id"])
-                volgisticsshifts_results = [dict(row) for row in volgistics_shifts_query_result]
+                volgisticsshifts_results = []
+                for r in volgistics_shifts_query_result:
+                    shifts = dict(r)
+                    # normalize date string
+                    parsed_date_from = dateutil.parser.parse(shifts["from"], ignoretz=True)
+                    normalized_date_from = parsed_date_from.strftime("%Y-%m-%d")
+                    shifts["from"] = normalized_date_from
+                    volgisticsshifts_results.append(shifts)
+                
                 result['shifts'] = volgisticsshifts_results
 
             if row["source_type"] == "shelterluvpeople":

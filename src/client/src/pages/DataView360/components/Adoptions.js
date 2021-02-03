@@ -52,7 +52,7 @@ class Adoptions extends Component {
                             </TableHead>
                             <TableBody>
                                 <StyledTableRow>
-                                    <TableCell align="center"> {_.size(this.getAnimalIds())}</TableCell>
+                                    <TableCell align="center"> {_.size(this.props.adoptions)}</TableCell>
                                 </StyledTableRow>
                             </TableBody>
                         </Table>
