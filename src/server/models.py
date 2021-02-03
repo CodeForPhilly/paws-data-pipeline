@@ -122,24 +122,3 @@ class SalesForceDonations(Base):
     primary_campaign_source = Column(String)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
-
-
-##################   User DB stuff ########################################
-
-
-# class pdp_user_roles(Base):
-#     __tablename__ = "pdp_user_roles"
-
-#     _id = Column(Integer, primary_key=True)
-#     role = Column(String)
-
-
-# class pdp_users(Base):
-#     __tablename__ = "pdp_users"
-
-#     _id = Column(Integer, primary_key=True)
-#     username = Column(String)
-#     created = Column(DateTime, default=datetime.datetime.utcnow)
-#     active = Column(String)
-#     role = Column(String)
-#     password = Column(String)
