@@ -1,4 +1,6 @@
 import re
+import phonenumbers
+import numpy
 
 
 def __clean_csv_headers(header):
@@ -80,6 +82,11 @@ def volgistics_address(index, street):
 
     return result
 
+def normalize_phone_number(number):
+    if str(number) == 'nan':
+        return ""
+    parsed_number = phonenumbers.parse(number, "US")
+    return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL)
 
 SOURCE_NORMALIZATION_MAPPING = {
     "salesforcecontacts": {
@@ -87,7 +94,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         "first_name": "first_name",
         "last_name": "last_name",
         "email": "email",
-        "mobile": lambda df: df["mobile"].combine_first(df["phone"]),
+        "mobile": lambda df: df["mobile"].combine_first(df["phone"]).apply(normalize_phone_number),
         "street_and_number": "mailing_street",
         "apartment": "mailing_street",
         "city": "mailing_city",
@@ -109,7 +116,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         "first_name": "firstname",
         "last_name": "lastname",
         "email": "email",
-        "mobile": "phone",
+        "mobile": lambda df: df["phone"].apply(normalize_phone_number),
         "street_and_number": "street",
         "apartment": "apartment",
         "city": "city",
@@ -124,7 +131,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         "first_name": "first_name",
         "last_name": "last_name",
         "email": "email",
-        "mobile": lambda df: df["cell"].combine_first(df["home"]),
+        "mobile": lambda df: df["cell"].combine_first(df["home"]).apply(normalize_phone_number),
         "street_and_number": lambda df: volgistics_address(1, df["street_1"]),
         "apartment": lambda df: volgistics_address(0, df["street_1"]),
         "city": "city",
