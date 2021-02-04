@@ -10,7 +10,7 @@ from flask import request, redirect, jsonify, current_app, abort, json
 
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc, select
 
-import jwt_ops
+from api import jwt_ops
 
 
 metadata = MetaData()
