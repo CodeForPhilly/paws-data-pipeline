@@ -15,7 +15,7 @@ def get_contacts(search_text):
         names = search_text.split(" ")
         if len(names) == 2:
             query = text("select * from pdp_contacts where archived_date is null AND\
-                where lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2) \
+                lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2) \
                 OR lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)")
             query_result = connection.execute(query, name1='{}%'.format(names[0]), name2='{}%'.format(names[1]))
         elif len(names) == 1:
