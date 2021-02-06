@@ -6,6 +6,7 @@ import copy
 
 from datasource_manager import DATASOURCE_MAPPING, SOURCE_NORMALIZATION_MAPPING
 from flask import current_app
+import sqlalchemy
 from config import CURRENT_SOURCE_FILES_PATH
 
 
@@ -35,7 +36,12 @@ def start(connection, pdp_contacts_df, file_path_list):
                 result = pd.concat([result, source_df])
 
         else:
-            df.to_sql(table_name, connection, index=False, if_exists='append')
+            if table_name in sqlalchemy.inspect(connection).get_table_names():
+                # Only retain new/updated records in secondary tables (shifts, donations, etc.)
+                current_app.logger.info('   - Deduplicating old records')
+                old_data = pd.read_sql_table(table_name, connection)
+                df = old_data.append(df, ignore_index=True).drop_duplicates()
+            df.to_sql(table_name, connection, index=False, if_exists='replace')
 
         current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)
 
