@@ -1,6 +1,5 @@
 import re
 import phonenumbers
-import numpy
 
 
 def __clean_csv_headers(header):
