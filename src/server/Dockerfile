@@ -1,5 +1,7 @@
 FROM python:3.7
 
+RUN apt-get update && apt-get install -y vim
+
 WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -32,6 +34,9 @@ RUN chmod 777 /paws-data-pipeline/server
 
 WORKDIR /app
 
-CMD python app.py
+# we may want to switch this to a script which logs output, etc?
+# CMD python app.py
 
-
+RUN set FLASK_APP=server/app.py
+RUN export FLASK_APP
+CMD alembic upgrade head ; python -m flask run --host=0.0.0.0

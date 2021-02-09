@@ -2,6 +2,12 @@ import os
 import sqlalchemy as db
 from sqlalchemy_utils import database_exists, create_database
 
+import models
+
+
+# from user_mgmt import base_users
+
+
 # Determine if app is ran from docker or local by testing the env var "IS_LOCAL"
 IS_LOCAL = os.getenv("IS_LOCAL")
 BASE_PATH = "../local_files/" if IS_LOCAL == "True" else "/app/static/"
@@ -36,6 +42,25 @@ engine = db.create_engine(DB)
 if not database_exists(engine.url):
     create_database(engine.url)
 
+with engine.connect() as connection:
+    models.Base.metadata.create_all(connection)
+    # This is safe: by default, will check first to ensure tables don't already exist
+
+# Run Alembic to create managed tables
+# from alembic.config import Config
+# from alembic import command
+
+# alembic_cfg = Config("alembic.ini")
+# command.stamp(alembic_cfg, "head")
+
+
+with engine.connect() as connection:
+    import user_mgmt.base_users
+
+    user_mgmt.base_users.create_base_roles()  # IFF there are no roles already
+    user_mgmt.base_users.create_base_users()  # IFF there are no users already
+
+
 # Initiate local file system
 RAW_DATA_PATH = BASE_PATH + "raw_data/"
 OUTPUT_PATH = BASE_PATH + "output/"
@@ -52,7 +77,9 @@ os.makedirs(CURRENT_SOURCE_FILES_PATH, exist_ok=True)
 os.makedirs(REPORT_PATH, exist_ok=True)
 os.makedirs(ZIPPED_FILES, exist_ok=True)
 
-if not (os.path.exists(LOGS_PATH + "last_execution.json")): 
-    f = open(LOGS_PATH + "last_execution.json", "w")  # Prevent 500 error from /api/statistics
+if not (os.path.exists(LOGS_PATH + "last_execution.json")):
+    f = open(
+        LOGS_PATH + "last_execution.json", "w"
+    )  # Prevent 500 error from /api/statistics
     f.write("{}")
     f.close()
