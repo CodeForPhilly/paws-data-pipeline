@@ -72,7 +72,7 @@ class Volunteer extends Component {
                     </TableContainer>
                 </Container>
                 <Container className={styles.volonteer_history} style={{"marginTop":"1em"}}>
-                    <Typography className={styles.volonteer_history_title} variant='h4'>Volunteer History(Top 3)</Typography>
+                    <Typography className={styles.volonteer_history_title} variant='h4'>Volunteer History (Top 3)</Typography>
                     <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                         <Table className="main_table">
                             <TableHead>

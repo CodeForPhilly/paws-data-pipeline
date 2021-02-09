@@ -42,7 +42,7 @@ class Adoptions extends Component {
         // todo: update when we add pet info
         // todo: clean array of animal_id
         return (<Container className={styles.adoptions} style={{"marginTop":"1em"}}>
-                    <Typography className={styles.adoptions_title} variant='h4'>Adoption/Foster Records(Top 3)</Typography>
+                    <Typography className={styles.adoptions_title} variant='h4'>Adoption/Foster Records (Top 3)</Typography>
                     <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                         <Table className="main_table">
                             <TableHead>
