@@ -12,9 +12,6 @@ services:
       POSTGRES_PASSWORD: thispasswordisverysecure
       POSTGRES_DB: paws
 
-
-
-
   server:
     container_name: paws-compose-server
     build: ./server
@@ -27,7 +24,6 @@ services:
     environment: 
       FLASK_ENV: development
 
-
   client:
     build: ./client
     container_name: paws-compose-client
@@ -38,21 +34,6 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     stdin_open: true
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #using named volumes fixs a windows docker bug relating to container permissions
