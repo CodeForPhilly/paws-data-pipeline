@@ -84,6 +84,8 @@ def volgistics_address(index, street):
 def normalize_phone_number(number):
     if str(number) == 'nan':
         return ""
+    if number is None or len(number) < 2:
+        return ""
     parsed_number = phonenumbers.parse(number, "US")
     return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL)
 
