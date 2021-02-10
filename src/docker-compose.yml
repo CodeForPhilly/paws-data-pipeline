@@ -10,6 +10,10 @@ services:
       - postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: thispasswordisverysecure
+      POSTGRES_DB: paws
+
+
+
 
   server:
     container_name: paws-compose-server
@@ -35,8 +39,27 @@ services:
       - CHOKIDAR_USEPOLLING=true
     stdin_open: true
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #using named volumes fixs a windows docker bug relating to container permissions
 #https://stackoverflow.com/questions/49148754/docker-container-shuts-down-giving-data-directory-has-wrong-ownership-error-wh
 volumes:
   postgres:
   src_archive:
+
+
+
