@@ -124,8 +124,8 @@ class DataView360 extends Component {
                             <TableBody>
                                 {
                                     _.map(participantListGrouped, (row_group, index) => {
-                                        return _.map(row_group, row => {
-                                            return <TableRow key={row.source_id}
+                                        return _.map(row_group, (row, idx) => {
+                                            return <TableRow key={`${row.source_id}${idx}`}
                                                             className={tableRowColors[index % _.size(tableRowColors)]}
                                                             onClick={() => this.handleGetParticipant(row.matching_id)}>
                                                 <TableCell align="left">{row.matching_id}</TableCell>
@@ -185,15 +185,15 @@ class DataView360 extends Component {
                 this.state.showParticipant === true) && (
                     <Paper className={styles.main} elevation={1} style={{"padding": "1em"}}>
                         <ContactInfo participant={_.get(this.state, 'participantData.contact_details')}/>
-                        <Container>
-                            <Grid container direction="row" justify="center" alignItems="center" style={{"margin-top": "1em"}}>
-                                <Button variant="contained" color="primary"
-                                    onClick={() => { 
-                                    this.setState({showParticipant: false, showTable: true, showSearchBar: true }) 
-                                    }}>Back to Results
-                                </Button>
+                            <Grid container direction="row" justify="center">
+                                <Grid item style={{"marginTop": "1em", "position": "fixed"}}>
+                                    <Button variant="contained" color="primary"
+                                        onClick={() => { 
+                                        this.setState({showParticipant: false, showTable: true, showSearchBar: true }) 
+                                        }}>Back to Results
+                                    </Button>
+                                </Grid>
                             </Grid>
-                        </Container>
                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
                         <Adoptions adoptions={_.get(this.state, 'participantData.adoptions')}/>
                         <Volunteer volunteer={_.get(this.state, 'participantData.shifts')}
