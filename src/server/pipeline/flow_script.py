@@ -43,9 +43,17 @@ def start_flow():
             # write these rows to the database.
             match_data.start(connection, rows_classified)
 
-            # TODO: also writing the json field from clean_and_load_data to the pdp_contacts table.
-            # Will need to filter by source_type, source_id, and check that the rows are active by timestamp.
-            # Maybe also an assert that all the records are properly identified (no missing IDs).
-            # Might also need to remove the json field temporarily when doing the Venn diagram classification.
-            print(source_json)  # writing source_json to update pdp_records table TODO
+            # Copy raw input rows to json fields in pdp_contacts,
+            # using a temporary table to simplify the update code.
+            source_json.to_sql('_temp_pdp_contacts_loader', connection, index=False, if_exists='replace')
+            # https://www.postgresql.org/docs/8.4/sql-update.html
+            connection.execute('''
+                UPDATE pdp_contacts pdp
+                SET json = to_json(temp.json)
+                FROM _temp_pdp_contacts_loader temp
+                WHERE
+                    pdp.source_type = temp.source_type AND
+                    pdp.source_id = temp.source_id AND
+                    pdp.archived_date IS NULL
+            ''')
 
