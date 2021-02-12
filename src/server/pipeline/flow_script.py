@@ -45,6 +45,7 @@ def start_flow():
 
             # Copy raw input rows to json fields in pdp_contacts,
             # using a temporary table to simplify the update code.
+            current_app.logger.info('Saving json of original rows to pdp_contacts')
             source_json.to_sql('_temp_pdp_contacts_loader', connection, index=False, if_exists='replace')
             # https://www.postgresql.org/docs/8.4/sql-update.html
             connection.execute('''
@@ -56,4 +57,6 @@ def start_flow():
                     pdp.source_id = temp.source_id AND
                     pdp.archived_date IS NULL
             ''')
+
+            current_app.logger.info('Finished flow script run')
 
