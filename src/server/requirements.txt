@@ -10,7 +10,7 @@ xlrd==1.2.0  # currently used for xlsx, but we should consider adjusting code to
 openpyxl
 requests
 pytest
-flask-jwt-extended
+flask-jwt-extended=3.25.0  # Breaking change in 4.0
 alembic
 flask-cors
 phonenumbers
