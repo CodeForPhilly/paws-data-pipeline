@@ -108,9 +108,16 @@ def user_login_json():
         Expects json-encoded form data
     """
 
-    post_dict = json.loads(request.data)
-    username = post_dict["username"]
-    presentedpw = post_dict["password"]
+    try:
+        post_dict = json.loads(request.data)
+        username = post_dict["username"]
+        presentedpw = post_dict["password"]
+    except:
+        return jsonify("Bad credentials"), 401
+
+    if not (isinstance(username, str) and isinstance(presentedpw, str) ):
+        return jsonify("Bad credentials"), 401   # Don't give us ints, arrays, etc.
+
 
     with engine.connect() as connection:
 
