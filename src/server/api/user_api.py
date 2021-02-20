@@ -67,40 +67,6 @@ def user_test_fail():
     return jsonify("Here's your failure"), 401
 
 
-@user_api.route("/api/user/login", methods=["POST"])
-def user_login():
-    """ Validate user in db, return JWT if legit and active.
-        Expects non-json form data
-    """
-
-    with engine.connect() as connection:
-
-        pwhash = None
-        s = text(
-            """select password, pdp_user_roles.role, active 
-                from pdp_users 
-                left join pdp_user_roles on pdp_users.role = pdp_user_roles._id 
-                where username=:u """
-        )
-        s = s.bindparams(u=request.form["username"])
-        result = connection.execute(s)
-
-        if result.rowcount:  # Did we get a match on username?
-            pwhash, role, is_active = result.fetchone()
-        else:
-            log_user_action(request.form["username"], "Failure", "Invalid username")
-            return jsonify("Bad credentials"), 401
-
-        if is_active.lower() == "y" and check_password(request.form["password"], pwhash):
-            # Yes, user is active and password matches
-            token = jwt_ops.create_token(request.form["username"], role)
-            log_user_action(request.form["username"], "Success", "Logged in")
-            return token
-
-        else:
-            log_user_action(request.form["username"], "Failure", "Bad password or inactive")
-            return jsonify("Bad credentials"), 401
-
 
 @user_api.route("/api/user/login_json", methods=["POST"])
 def user_login_json():
