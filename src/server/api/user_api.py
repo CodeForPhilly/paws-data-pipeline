@@ -108,6 +108,7 @@ def user_login_json():
             pwhash, role, is_active = result.fetchone()
         else:
             log_user_action(username, "Failure", "Invalid username")
+            dummy_check()
             return jsonify("Bad credentials"), 401
 
         if is_active.lower() == "y" and check_password(presentedpw, pwhash):
