@@ -119,6 +119,7 @@ def user_login_json():
 
         else:
             log_user_action(username, "Failure", "Bad password or inactive")
+            # No dummy_check needed as we ran a real one to get here
             return jsonify("Bad credentials"), 401
 
 
