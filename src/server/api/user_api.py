@@ -108,14 +108,21 @@ def user_login_json():
         Expects json-encoded form data
     """
 
+    def dummy_check():
+        """Perform a fake password hash check to take as much time as a real one."""
+        pw_bytes = bytes('password', "utf8")
+        check_password('password', pw_bytes)
+
     try:
         post_dict = json.loads(request.data)
         username = post_dict["username"]
         presentedpw = post_dict["password"]
     except:
+        dummy_check()    # Take the same time as with well-formed requests 
         return jsonify("Bad credentials"), 401
 
     if not (isinstance(username, str) and isinstance(presentedpw, str) ):
+        dummy_check()  # Take the same time as with well-formed requests 
         return jsonify("Bad credentials"), 401   # Don't give us ints, arrays, etc.
 
 
