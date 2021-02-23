@@ -145,7 +145,7 @@ def user_login_json():
 
 
 @user_api.route("/api/user/test_auth", methods=["GET"])
-@jwt_ops.jwt_required
+@jwt_ops.jwt_required()
 def user_test_auth():
     """ Liveness test, requires JWT """
     return jsonify(("OK from User Test - Auth  @" + str(datetime.now())))
@@ -153,7 +153,7 @@ def user_test_auth():
 
 # Logout is not strictly needed; client can just delete JWT, but good for logging
 @user_api.route("/api/user/logout", methods=["POST"])
-@jwt_ops.jwt_required
+@jwt_ops.jwt_required()
 def user_logout():
     username = request.form["username"]  # TODO: Should be JSON all throughout
     # Log the request
