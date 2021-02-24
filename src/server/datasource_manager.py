@@ -76,7 +76,11 @@ def volgistics_address(street, index):
 
     if isinstance(street, str):
         if " " in street:
-            result = street.split()[index]
+            if index == 1:
+                result = " ".join(street.split()[1:])
+            else:
+                result = street.split()[index]
+
 
     return result
 
@@ -94,7 +98,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         "first_name": "first_name",
         "last_name": "last_name",
         "email": "email",
-        "mobile": lambda df: df["mobile"].combine_first(df["phone"]).apply(normalize_phone_number),
+        "mobile": lambda df: df["mobile"].combine_first(df["phone"]),
         "street_and_number": "mailing_street",
         "apartment": "mailing_street",
         "city": "mailing_city",
@@ -116,7 +120,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         "first_name": "firstname",
         "last_name": "lastname",
         "email": "email",
-        "mobile": lambda df: df["phone"].apply(normalize_phone_number),
+        "mobile": lambda df: df["phone"],
         "street_and_number": "street",
         "apartment": "apartment",
         "city": "city",
@@ -131,7 +135,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         "first_name": "first_name",
         "last_name": "last_name",
         "email": "email",
-        "mobile": lambda df: df["cell"].combine_first(df["home"]).apply(normalize_phone_number),
+        "mobile": lambda df: df["cell"].combine_first(df["home"]),
         "street_and_number": lambda df: df["street_1"].apply(volgistics_address, index=1),
         "apartment": lambda df: df["street_1"].apply(volgistics_address, index=0),
         "city": "city",
