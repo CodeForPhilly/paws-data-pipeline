@@ -82,13 +82,33 @@ def volgistics_address(index, street):
     return result
 
 def normalize_phone_number(number):
-    if str(number) == 'nan' or number is None:
-        return ""
-    num_digits = sum(c.isdigit() for c in number)
-    if num_digits < 2:
-        return ""
-    parsed_number = phonenumbers.parse(number, "US")
-    return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL)
+    result = ''
+
+    if number and str(number) != 'nan':
+        if number[0] == '+':
+            number = number[1:]
+        if '(' in number:
+            number = number.replace('(', '')
+        if ')' in number:
+            number = number.replace(')', '')
+        if ' ' in number:
+            number = number.replace(' ', '')
+        if '-' in number:
+            number = number.replace('-', '')
+        if '.' in number:
+            number = number.replace('.', '')
+
+        if number.isdigit() and (len(number) == 10 or (number[0] == '1' and len(number) == 11)):
+            try:
+                parsed_number = phonenumbers.parse(number, "US")
+                result = phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL)
+            except Exception as e:
+                print(str(number), "Phone number caused an exception: ", e)
+
+        else:
+            print("Invalid phone number was not loaded: " + number)
+
+    return result
 
 SOURCE_NORMALIZATION_MAPPING = {
     "salesforcecontacts": {
