@@ -68,10 +68,10 @@ def user_test_fail():
 
 
 
-@user_api.route("/api/user/login_json", methods=["POST"])
-def user_login_json():
+@user_api.route("/api/user/login", methods=["POST"])
+def user_login():
     """ Validate user in db, return JWT if legit and active.
-        Expects json-encoded form data
+        Expects json-encoded form data {"username" :, "password": }
     """
 
     def dummy_check():
