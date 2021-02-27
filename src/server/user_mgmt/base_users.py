@@ -3,6 +3,9 @@ from config import engine
 from api import user_api
 import sqlalchemy as sa
 
+from secrets import BASEUSER_PW, BASEEDITOR_PW, BASEADMIN_PW
+
+
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
 
 metadata = sa.MetaData()
@@ -35,30 +38,30 @@ def create_base_users():  # TODO: Just call create_user for each
             pu = sa.Table("pdp_users", metadata, autoload=True, autoload_with=engine)
 
             # user
-            pw_hash = user_api.hash_password("userpw")
+            pw_hash = user_api.hash_password(BASEUSER_PW)
             ins_stmt = pu.insert().values(
-                username="user", password=pw_hash, active="Y", role=1,
+                username="base_user", password=pw_hash, active="Y", role=1,
             )
             connection.execute(ins_stmt)
 
             # INactive user
             # Reuse pw hash
             ins_stmt = pu.insert().values(
-                username="user_inact", password=pw_hash, active="N", role=1,
+                username="base_user_inact", password=pw_hash, active="N", role=1,
             )
             connection.execute(ins_stmt)
 
             # editor
-            pw_hash = user_api.hash_password("editorpw")
+            pw_hash = user_api.hash_password(BASEEDITOR_PW)
             ins_stmt = pu.insert().values(
-                username="editor", password=pw_hash, active="Y", role=2,
+                username="base_editor", password=pw_hash, active="Y", role=2,
             )
             connection.execute(ins_stmt)
 
             # admin
-            pw_hash = user_api.hash_password("adminpw")
+            pw_hash = user_api.hash_password(BASEADMIN_PW)
             ins_stmt = pu.insert().values(
-                username="admin", password=pw_hash, active="Y", role=9,
+                username="base_admin", password=pw_hash, active="Y", role=9,
             )
             connection.execute(ins_stmt)
 

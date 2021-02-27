@@ -4,16 +4,17 @@ from flask import Flask
 
 from flask_jwt_extended import JWTManager
 
+from secrets import JWT_SECRET, APP_SECRET_KEY
 
 app = Flask(__name__)
 
-app.config["JWT_SECRET_KEY"] = "super-secret"  # TODO: SECURITY  Change this!
+app.config["JWT_SECRET_KEY"] = JWT_SECRET  
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 300  # Seconds for timeout. 60 for testing.
 jwt = JWTManager(app)
 
 
 # def create_app():
-app.secret_key = "1u9L#*&I3Ntc"  # TODO: SECURITY  Change this!
+app.secret_key = APP_SECRET_KEY  
 app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024  # 500 Megs
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 from api.admin_api import admin_api
