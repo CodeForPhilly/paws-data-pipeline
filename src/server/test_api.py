@@ -105,7 +105,7 @@ def test_userlogin(state: State):
     """Verify base_user can log in/get JWT."""
     data = {"username":"base_user", "password" : BASEUSER_PW}
 
-    response = requests.post(SERVER_URL + "/api/user/login_json", json=data)
+    response = requests.post(SERVER_URL + "/api/user/login", json=data)
     assert response.status_code == 200
 
     try:
@@ -135,7 +135,7 @@ def test_user_bad_pw():
     """Verify base_user with bad pw fails"""
     data = {"username":"base_user", "password" : 'some_bad_password'}
 
-    response = requests.post(SERVER_URL + "/api/user/login_json", json=data)
+    response = requests.post(SERVER_URL + "/api/user/login", json=data)
     assert response.status_code == 401
 
 
@@ -143,7 +143,7 @@ def test_inact_userblocked(state: State):
     """Verify base_user_inact can't login because marked inactive."""
     # Same pw as base_user
     data = {"username":"base_user_inact", "password" : BASEUSER_PW}
-    response = requests.post(SERVER_URL + "/api/user/login_json", json=data)
+    response = requests.post(SERVER_URL + "/api/user/login", json=data)
     assert response.status_code == 401
 
 
@@ -153,7 +153,7 @@ def test_adminlogin(state: State):
     """Verify base_admin can log in/get JWT."""
     data = {"username":"base_admin", "password" : BASEADMIN_PW}
 
-    response = requests.post(SERVER_URL + "/api/user/login_json", json=data)
+    response = requests.post(SERVER_URL + "/api/user/login", json=data)
     assert response.status_code == 200
 
     try:
