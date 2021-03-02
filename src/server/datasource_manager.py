@@ -87,16 +87,7 @@ def normalize_phone_number(number):
     if number and str(number) != 'nan':
         if number[0] == '+':
             number = number[1:]
-        if '(' in number:
-            number = number.replace('(', '')
-        if ')' in number:
-            number = number.replace(')', '')
-        if ' ' in number:
-            number = number.replace(' ', '')
-        if '-' in number:
-            number = number.replace('-', '')
-        if '.' in number:
-            number = number.replace('.', '')
+        number = re.sub('[() -.]', '', number)
 
         if number.isdigit() and (len(number) == 10 or (number[0] == '1' and len(number) == 11)):
             try:
