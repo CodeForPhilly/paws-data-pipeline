@@ -67,50 +67,30 @@ def user_test_fail():
     return jsonify("Here's your failure"), 401
 
 
+
 @user_api.route("/api/user/login", methods=["POST"])
 def user_login():
     """ Validate user in db, return JWT if legit and active.
-        Expects non-json form data
+        Expects json-encoded form data {"username" :, "password": }
     """
 
-    with engine.connect() as connection:
+    def dummy_check():
+        """Perform a fake password hash check to take as much time as a real one."""
+        pw_bytes = bytes('password', "utf8")
+        check_password('password', pw_bytes)
 
-        pwhash = None
-        s = text(
-            """select password, pdp_user_roles.role, active 
-                from pdp_users 
-                left join pdp_user_roles on pdp_users.role = pdp_user_roles._id 
-                where username=:u """
-        )
-        s = s.bindparams(u=request.form["username"])
-        result = connection.execute(s)
+    try:
+        post_dict = json.loads(request.data)
+        username = post_dict["username"]
+        presentedpw = post_dict["password"]
+    except:
+        dummy_check()    # Take the same time as with well-formed requests 
+        return jsonify("Bad credentials"), 401
 
-        if result.rowcount:  # Did we get a match on username?
-            pwhash, role, is_active = result.fetchone()
-        else:
-            log_user_action(request.form["username"], "Failure", "Invalid username")
-            return jsonify("Bad credentials"), 401
+    if not (isinstance(username, str) and isinstance(presentedpw, str) ):
+        dummy_check()  # Take the same time as with well-formed requests 
+        return jsonify("Bad credentials"), 401   # Don't give us ints, arrays, etc.
 
-        if is_active.lower() == "y" and check_password(request.form["password"], pwhash):
-            # Yes, user is active and password matches
-            token = jwt_ops.create_token(request.form["username"], role)
-            log_user_action(request.form["username"], "Success", "Logged in")
-            return token
-
-        else:
-            log_user_action(request.form["username"], "Failure", "Bad password or inactive")
-            return jsonify("Bad credentials"), 401
-
-
-@user_api.route("/api/user/login_json", methods=["POST"])
-def user_login_json():
-    """ Validate user in db, return JWT if legit and active.
-        Expects json-encoded form data
-    """
-
-    post_dict = json.loads(request.data)
-    username = post_dict["username"]
-    presentedpw = post_dict["password"]
 
     with engine.connect() as connection:
 
@@ -128,6 +108,7 @@ def user_login_json():
             pwhash, role, is_active = result.fetchone()
         else:
             log_user_action(username, "Failure", "Invalid username")
+            dummy_check()
             return jsonify("Bad credentials"), 401
 
         if is_active.lower() == "y" and check_password(presentedpw, pwhash):
@@ -138,6 +119,7 @@ def user_login_json():
 
         else:
             log_user_action(username, "Failure", "Bad password or inactive")
+            # No dummy_check needed as we ran a real one to get here
             return jsonify("Bad credentials"), 401
 
 
