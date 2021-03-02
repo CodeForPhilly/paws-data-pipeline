@@ -175,15 +175,9 @@ class Admin extends Component {
         : _.isEmpty(this.state.statistics) !== true &&
         <TableContainer component={Paper} className="statisticsData">
             <Table aria-label="simple table" className={classes.table}>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Sources Matched</TableCell>
-                        <TableCell align="left">Number of Matches</TableCell>
-                    </TableRow>
-                </TableHead>
                 <TableBody>
-                {this.state.statistics.map((row) => (
-                    <TableRow key={row[0]}>
+                {this.state.statistics.map((row, index) => (
+                    <TableRow key={index}>
                     <TableCell align="left" component="th" scope="row">
                         {row[0]}
                     </TableCell>
@@ -195,7 +189,7 @@ class Admin extends Component {
         </TableContainer>
 
         return (
-            <div>
+            <div style={{paddingLeft: 20}}>
                 <h2>Admin Portal</h2>
                     <Grid container spacing={3} direction="column"  style={{padding:30}}>
                         <Grid container spacing={3} direction="row">

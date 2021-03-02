@@ -18,3 +18,4 @@ start_env.sh
 
 /src/server/venv/
 /src/local_files/
+/src/server/secrets.py

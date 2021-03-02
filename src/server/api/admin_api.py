@@ -68,7 +68,7 @@ def files(destination):
 
 
 @admin_api.route("/api/listCurrentFiles", methods=["GET"])
-def listCurrentFiles():
+def list_current_files():
     result = None
 
     current_app.logger.info("Start returning file list")
@@ -86,7 +86,7 @@ def execute():
     flow_script.start_flow()
 
     current_time = datetime.now().ctime()
-    statistics = getStatistics()
+    statistics = get_statistics()
 
     last_execution_details = {"executionTime": current_time, "stats": statistics}
 
@@ -97,23 +97,24 @@ def execute():
     return jsonify(success=True)
 
 
-"""
-@admin_api.route('/api/status', methods=['GET'])
-def checkStatus():
+def get_statistics():
     with engine.connect() as connection:
-        query = text("SELECT now()")
-        query_result = connection.execute(query)
+        query_matches = text("SELECT count(*) FROM (SELECT distinct matching_id from pdp_contacts) as a;")
+        query_total_count = text("SELECT count(*) FROM pdp_contacts;")
+        matches_count_query_result = connection.execute(query_matches)
+        total_count_query_result = connection.execute(query_total_count)
 
         # Need to iterate over the results proxy
-        results = {}
-        for row in query_result:
-            results = dict(row)
-        return jsonify(results)
-"""
+        results = {
+            "Distinct Matching Groups Count": [dict(row) for row in matches_count_query_result][0]["count"],
+            "Total Contacts Count": [dict(row) for row in total_count_query_result][0]["count"]
+        }
+
+        return results
 
 
 @admin_api.route("/api/statistics", methods=["GET"])
-def listStatistics():
+def list_statistics():
     try:
         last_execution_file = open(LOGS_PATH + "last_execution.json", "r")
         last_execution_details = json.loads(last_execution_file.read())
@@ -136,24 +137,16 @@ def listStatistics():
     return jsonify(last_execution_details)
 
 
-def getStatistics():
+"""
+@admin_api.route('/api/status', methods=['GET'])
+def checkStatus():
     with engine.connect() as connection:
-        query = text(
-            'SELECT \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is null and shelterluvpeople_id is null THEN 1 ELSE 0 END) AS "Only SalesForce Contacts", \
-            SUM(CASE WHEN volgistics_id is not null and shelterluvpeople_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS "Only Volgistics Contacts", \
-            SUM(CASE WHEN shelterluvpeople_id is not null and volgistics_id is null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS "Only Shelterluv Contacts", \
-            SUM(CASE WHEN salesforcecontacts_id is not null and shelterluvpeople_id is not null and volgistics_id is null THEN 1 ELSE 0 END) AS "Only Salesforcec & Shelterluv", \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and shelterluvpeople_id is null THEN 1 ELSE 0 END) AS "Only Salesforce & Volgistics", \
-            SUM(CASE WHEN volgistics_id is not null and shelterluvpeople_id is not null and salesforcecontacts_id is null THEN 1 ELSE 0 END) AS "Only Shelterluv & Volgistics", \
-            SUM(CASE WHEN salesforcecontacts_id is not null and volgistics_id is not null and shelterluvpeople_id is not null THEN 1 ELSE 0 END) AS "Salesforcec & Shelterluv & Volgistics" \
-            FROM master'
-        )
+        query = text("SELECT now()")
         query_result = connection.execute(query)
 
         # Need to iterate over the results proxy
         results = {}
         for row in query_result:
             results = dict(row)
-
-        return results
+        return jsonify(results)
+"""
