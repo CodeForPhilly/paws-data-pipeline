@@ -1,5 +1,4 @@
 import re
-import phonenumbers
 
 
 def __clean_csv_headers(header):
@@ -81,6 +80,7 @@ def volgistics_address(index, street):
 
     return result
 
+
 def normalize_phone_number(number):
     result = ''
 
@@ -90,16 +90,12 @@ def normalize_phone_number(number):
         number = re.sub('[() -.]', '', number)
 
         if number.isdigit() and (len(number) == 10 or (number[0] == '1' and len(number) == 11)):
-            try:
-                parsed_number = phonenumbers.parse(number, "US")
-                result = phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL)
-            except Exception as e:
-                print(str(number), "Phone number caused an exception: ", e)
-
+            result = number
         else:
             print("Invalid phone number was not loaded: " + number)
 
     return result
+
 
 SOURCE_NORMALIZATION_MAPPING = {
     "salesforcecontacts": {
