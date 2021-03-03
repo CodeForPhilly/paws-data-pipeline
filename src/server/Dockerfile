@@ -39,4 +39,9 @@ WORKDIR /app
 
 RUN set FLASK_APP=server/app.py
 RUN export FLASK_APP
-CMD alembic upgrade head ; python -m flask run --host=0.0.0.0
+
+# This abomination ensures that the PG server has finished its restart cycle
+CMD echo "SLEEPING 10"; sleep 10; echo "WAKING"; alembic upgrade head ; python -m flask run --host=0.0.0.0 --no-reload
+
+# --no-reload prevents Flask restart, which usually happens in middle of create_base_users()
+#TODO: SECURITY - ensure we are not running in debug mode in production
