@@ -13,6 +13,7 @@
 ## Running just the client (front-end)
 
 - navigate to src directory `cd .../PAWS-DATA-PIPELINE/src/client`
+- set the PAWS_API_HOST=localhost or your ip
 - docker compose `docker-compose up`
 - access the client going to `http://localhost:3000`
 
