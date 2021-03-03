@@ -1,4 +1,5 @@
 import re
+import phonenumbers
 
 
 def __clean_csv_headers(header):
@@ -70,15 +71,28 @@ DATASOURCE_MAPPING = {
 }
 
 
-def volgistics_address(index, street):
+def volgistics_address(street, index):
     result = ""
 
-    for item in street:
-        if isinstance(item, str):
-            if " " in item:
-                result = item.split()[index]
+    if isinstance(street, str):
+        if " " in street:
+            if index == 1:
+                result = " ".join(street.split()[1:])
+            else:
+                result = street.split()[index]
+
 
     return result
+
+
+def normalize_phone_number(number):
+    if str(number) == 'nan':
+        return ""
+    try:
+        parsed_number = phonenumbers.parse(number, "US")
+    except phonenumbers.phonenumberutil.NumberParseException:
+        return ""
+    return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL)
 
 
 SOURCE_NORMALIZATION_MAPPING = {
@@ -109,7 +123,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         "first_name": "firstname",
         "last_name": "lastname",
         "email": "email",
-        "mobile": "phone",
+        "mobile": lambda df: df["phone"],
         "street_and_number": "street",
         "apartment": "apartment",
         "city": "city",
@@ -125,8 +139,8 @@ SOURCE_NORMALIZATION_MAPPING = {
         "last_name": "last_name",
         "email": "email",
         "mobile": lambda df: df["cell"].combine_first(df["home"]),
-        "street_and_number": lambda df: volgistics_address(1, df["street_1"]),
-        "apartment": lambda df: volgistics_address(0, df["street_1"]),
+        "street_and_number": lambda df: df["street_1"].apply(volgistics_address, index=1),
+        "apartment": lambda df: df["street_1"].apply(volgistics_address, index=0),
         "city": "city",
         "state": "state",
         "zip": "zip",

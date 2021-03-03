@@ -88,5 +88,3 @@ class Volgistics(Base):
     email = Column(String)
     json = Column(JSONB)
 
-
-
