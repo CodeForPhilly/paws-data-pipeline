@@ -12,6 +12,7 @@ from config import CURRENT_SOURCE_FILES_PATH
 
 def start(connection, pdp_contacts_df, file_path_list):
     result = pd.DataFrame(columns=pdp_contacts_df.columns)
+    json_rows = pd.DataFrame(columns=["source_type", "source_id", "json"])
 
     for uploaded_file in file_path_list:
         file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
@@ -27,15 +28,23 @@ def start(connection, pdp_contacts_df, file_path_list):
         normalization_without_others = copy.deepcopy(SOURCE_NORMALIZATION_MAPPING[table_name])
         normalization_without_others.pop("others")  # copy avoids modifying the imported mapping
 
-        if "parent" not in normalization_without_others:
+        if "parent" not in normalization_without_others:  # not a child table
             source_df = create_normalized_df(df, normalization_without_others, table_name)
+            df_jsonl = df.to_json(orient="records", lines=True)  # original df with normalized column names
+            source_json = pd.DataFrame({
+                "source_type": table_name,
+                "source_id": source_df["source_id"].astype(str),
+                "json": df_jsonl.split("\n")  # list of jsons, one per row
+            })
 
             if result.empty:
                 result = source_df
+                json_rows = source_json
             else:
                 result = pd.concat([result, source_df])
+                json_rows = pd.concat([json_rows, source_json])
 
-        else:
+        else:  # it is a child table
             if table_name in sqlalchemy.inspect(connection).get_table_names():
                 # Only retain new/updated records in secondary tables (shifts, donations, etc.)
                 current_app.logger.info('   - Deduplicating old records')
@@ -45,7 +54,7 @@ def start(connection, pdp_contacts_df, file_path_list):
 
         current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)
 
-    return result
+    return result, json_rows
 
 
 def create_normalized_df(df, normalized_df, table_name):
