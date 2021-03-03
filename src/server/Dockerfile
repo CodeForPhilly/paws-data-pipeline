@@ -41,4 +41,4 @@ WORKDIR /app
 
 # CMD python app.py
 # --uid uwsgi
-CMD uwsgi --http-socket :5000 --plugin python38 --module wsgi:app
+CMD uwsgi --http-socket :5000 --plugin python38 --module wsgi:app --chdir /app --pythonpath .
