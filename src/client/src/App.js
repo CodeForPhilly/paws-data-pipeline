@@ -99,14 +99,14 @@ function AuthenticatedApp() {
 
   return (
     <>
-<Router>
-            {user.role == 'admin' ?  <AdminHeader/> : <Header /> }
-            <h3>{user.username} is a {user.role}</h3>
+        <Router>
+            {user.role === 'admin' ?  <AdminHeader /> : <Header /> }
+            <h3>TEST: {user.username} is a {user.role}</h3>
             <Switch>
                 <Route exact path="/">
                     <HomePage/>
                 </Route>
-                {user.role == 'admin' && 
+                {user.role === 'admin' && 
                     <Route path="/upload">
                         <Admin/>
                     </Route>
