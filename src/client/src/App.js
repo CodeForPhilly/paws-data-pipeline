@@ -8,6 +8,7 @@ import HomePage from './pages/Home';
 import Admin from './pages/Admin';
 import DataView from './pages/DataView360/DataView360';
 import About from './pages/About';
+import Login from './components/Login/Login';
 
 
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
