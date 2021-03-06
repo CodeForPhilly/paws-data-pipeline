@@ -16,8 +16,19 @@ const StyledContact = withStyles((theme)=>({
 
 class ContactInfo extends Component {
     render() {
-        const participantArray = _.get(this.props, "participant")
-        const participant = participantArray[0]
+        // TODO: move to the backend
+        let participantArray = _.get(this.props, "participant");
+        let participant = {};
+        if (participantArray.length === 1) {
+            participant = participantArray[0];
+        } else {
+            participantArray = _.filter(participantArray, function(p) {
+                if (p["source_type"] === "salesforcecontacts") { 
+                    return p;
+                }
+            });
+            participant = participantArray[0];
+        }
         const phoneStr = participant.mobile;
         let phone = _.isEmpty(phoneStr) ? '-' : phoneStr.split(" ").join("");
         return (<Container className={styles.contact_info}>
