@@ -26,6 +26,9 @@ class ContactInfo extends Component {
                 if (p["source_type"] === "salesforcecontacts") { 
                     return p;
                 }
+                if (p["source_type"] === "shelterluvpeople") {
+                    return p;
+                }
             });
             participant = participantArray[0];
         }
