@@ -87,11 +87,11 @@ def normalize_phone_number(number):
     if number and str(number) != 'nan':
         number = re.sub('[() -.+]', '', number)
 
-        if number.isdigit() and (len(number) == 10 or (number[0] == '1' and len(number) == 11)):
-            if number[0] == '1' and len(number) == 11:
-                result = number[1:]
-            else:
-                result = number
+        if number[0] == '1':
+            number = number[1:]
+
+        if number.isdigit() and len(number) == 10:
+            result = number
         else:
             print("Invalid phone number was not loaded: " + number)
 
