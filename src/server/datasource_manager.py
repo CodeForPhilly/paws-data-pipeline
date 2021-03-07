@@ -84,7 +84,7 @@ def volgistics_address(street, index):
 
 
 def normalize_phone_number(number):
-    result = ''
+    result = None
 
     if number and str(number) != 'nan':
         if number[0] == '+':
