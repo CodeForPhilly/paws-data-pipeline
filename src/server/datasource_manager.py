@@ -70,13 +70,15 @@ DATASOURCE_MAPPING = {
 }
 
 
-def volgistics_address(index, street):
+def volgistics_address(street, index):
     result = ""
 
-    for item in street:
-        if isinstance(item, str):
-            if " " in item:
-                result = item.split()[index]
+    if isinstance(street, str):
+        if " " in street:
+            if index == 1:
+                result = " ".join(street.split()[1:])
+            else:
+                result = street.split()[index]
 
     return result
 
@@ -142,8 +144,8 @@ SOURCE_NORMALIZATION_MAPPING = {
         "last_name": "last_name",
         "email": "email",
         "mobile": lambda df: df["cell"].combine_first(df["home"]).apply(normalize_phone_number),
-        "street_and_number": lambda df: volgistics_address(1, df["street_1"]),
-        "apartment": lambda df: volgistics_address(0, df["street_1"]),
+        "street_and_number": lambda df: df["street_1"].apply(volgistics_address, index=1),
+        "apartment": lambda df: df["street_1"].apply(volgistics_address, index=0),
         "city": "city",
         "state": "state",
         "zip": "zip",
