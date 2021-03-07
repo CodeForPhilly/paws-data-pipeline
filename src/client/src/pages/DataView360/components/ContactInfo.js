@@ -23,16 +23,14 @@ class ContactInfo extends Component {
 
 
     populate_participant_with_data_source(participant, participantData) {
-        if (participant) {
-            return {
-                first_name: participantData.first_name || participant.first_name,
-                last_name: participantData.last_name || participant.last_name,
-                email: participantData.email || participant.email,
-                mobile: participantData.mobile || participant.mobile,
-                city: participantData.city || participant.city,
-                street_and_number: participantData.street_and_number || participant.street_and_number
-            };
-        }
+        return {
+            first_name: _.get(participantData, "first_name") || _.get(participant, "first_name"),
+            last_name: _.get(participantData, "last_name") || _.get(participant, "last_name"),
+            email: _.get(participantData, "email") || _.get(participant, "email"),
+            mobile: _.get(participantData, "mobile") || _.get(participant, "mobile"),
+            city: _.get(participantData, "city") || _.get(participant, "city"),
+            street_and_number: _.get(participantData, "street_and_number") || _.get(participant, "street_and_number")
+        };
     }
 
     //populates by the order of the source types array
@@ -81,8 +79,7 @@ class ContactInfo extends Component {
                     </div>
                 </Paper>
             </Container>
-        )
-            ;
+        );
     }
 }
 
