@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { Paper, Typography, Container} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import styles from "./styles/ContactInfo.module.css";
-
 import _ from 'lodash';
+import {formatPhoneNumber} from "../../../utils/utils";
 
 const StyledContact = withStyles((theme)=>({
     root:{
@@ -42,7 +42,7 @@ class ContactInfo extends Component {
                         </Typography>
                         <StyledContact className={styles.contact_info_phone}>
                             <span>
-                                {phone}
+                                {formatPhoneNumber(phone)}
                             </span>
                         </StyledContact>
                         <Typography className={styles.contact_info_email}>

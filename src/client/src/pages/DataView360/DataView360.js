@@ -17,12 +17,12 @@ import {
 import CircularProgress from '@material-ui/core/CircularProgress';
 import styles from "./styles/DataView360.module.css";
 import _ from 'lodash';
-
 import SearchBar from './components/SearchBar';
 import ContactInfo from './components/ContactInfo';
 import Volunteer from './components/Volunteer';
 import Donations from './components/Donations';
 import Adoptions from './components/Adoptions';
+import {formatPhoneNumber} from "../../utils/utils";
 
 
 const customStyles = theme => ({
@@ -87,8 +87,8 @@ class DataView360 extends Component {
         response = await response.json();
 
         this.setState({
-            participantData: response.result, 
-            isDataBusy: false, 
+            participantData: response.result,
+            isDataBusy: false,
             showParticipant: true,
             showTable: false,
             showSearchBar: false
@@ -126,13 +126,13 @@ class DataView360 extends Component {
                                     _.map(participantListGrouped, (row_group, index) => {
                                         return _.map(row_group, (row, idx) => {
                                             return <TableRow key={`${row.source_id}${idx}`}
-                                                            className={tableRowColors[index % _.size(tableRowColors)]}
-                                                            onClick={() => this.handleGetParticipant(row.matching_id)}>
+                                                             className={tableRowColors[index % _.size(tableRowColors)]}
+                                                             onClick={() => this.handleGetParticipant(row.matching_id)}>
                                                 <TableCell align="left">{row.matching_id}</TableCell>
                                                 <TableCell align="left">{row.first_name}</TableCell>
                                                 <TableCell align="left">{row.last_name}</TableCell>
                                                 <TableCell align="left">{row.email}</TableCell>
-                                                <TableCell align="left">{row.mobile}</TableCell>
+                                                <TableCell align="left">{formatPhoneNumber(row.mobile)}</TableCell>
                                                 <TableCell align="left">{row.source_type}</TableCell>
                                                 <TableCell align="left">{row.source_id}</TableCell>
                                             </TableRow>
@@ -157,7 +157,7 @@ class DataView360 extends Component {
 
         this.state.participantTable = this.renderParticipantsTable();
         this.setState({
-            isDataBusy: false, 
+            isDataBusy: false,
             showParticipant: false,
             showTable: true
         });
@@ -167,33 +167,37 @@ class DataView360 extends Component {
         const {classes} = this.props;
         return (
             <Container>
-                {this.state.showSearchBar && 
+                {this.state.showSearchBar &&
                 (<SearchBar participant={this.state.participant}
-                           handleParticipantChange={this.handleGetParticipant}
-                           handleSearchChange={this.handleSearchChange}/>
+                            handleParticipantChange={this.handleGetParticipant}
+                            handleSearchChange={this.handleSearchChange}/>
                 )}
-                {(_.isEmpty(this.state.participantTable) !== true && 
-                this.state.isDataBusy !== true && 
-                this.state.showTable === true && 
-                this.state.showParticipant === false) && (
+                {(_.isEmpty(this.state.participantTable) !== true &&
+                    this.state.isDataBusy !== true &&
+                    this.state.showTable === true &&
+                    this.state.showParticipant === false) && (
                     <Container className={styles.main} elevation={1} style={{"padding": "1em"}}>
                         {this.state.participantTable}
                     </Container>
                 )}
-                {(_.isEmpty(this.state.participantData) !== true && 
-                this.state.isDataBusy !== true && 
-                this.state.showParticipant === true) && (
+                {(_.isEmpty(this.state.participantData) !== true &&
+                    this.state.isDataBusy !== true &&
+                    this.state.showParticipant === true) && (
                     <Paper className={styles.main} elevation={1} style={{"padding": "1em"}}>
                         <ContactInfo participant={_.get(this.state, 'participantData.contact_details')}/>
-                            <Grid container direction="row" justify="center">
-                                <Grid item style={{"marginTop": "1em", "position": "fixed"}}>
-                                    <Button variant="contained" color="primary"
-                                        onClick={() => { 
-                                        this.setState({showParticipant: false, showTable: true, showSearchBar: true }) 
+                        <Grid container direction="row" justify="center">
+                            <Grid item style={{"marginTop": "1em", "position": "fixed"}}>
+                                <Button variant="contained" color="primary"
+                                        onClick={() => {
+                                            this.setState({
+                                                showParticipant: false,
+                                                showTable: true,
+                                                showSearchBar: true
+                                            })
                                         }}>Back to Results
-                                    </Button>
-                                </Grid>
+                                </Button>
                             </Grid>
+                        </Grid>
                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
                         <Adoptions adoptions={_.get(this.state, 'participantData.adoptions')}/>
                         <Volunteer volunteer={_.get(this.state, 'participantData.shifts')}
