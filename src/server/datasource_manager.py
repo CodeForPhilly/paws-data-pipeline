@@ -1,5 +1,4 @@
 import re
-import phonenumbers
 
 
 def __clean_csv_headers(header):
@@ -71,28 +70,32 @@ DATASOURCE_MAPPING = {
 }
 
 
-def volgistics_address(street, index):
+def volgistics_address(index, street):
     result = ""
 
-    if isinstance(street, str):
-        if " " in street:
-            if index == 1:
-                result = " ".join(street.split()[1:])
-            else:
-                result = street.split()[index]
-
+    for item in street:
+        if isinstance(item, str):
+            if " " in item:
+                result = item.split()[index]
 
     return result
 
 
 def normalize_phone_number(number):
-    if str(number) == 'nan':
-        return ""
-    try:
-        parsed_number = phonenumbers.parse(number, "US")
-    except phonenumbers.phonenumberutil.NumberParseException:
-        return ""
-    return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL)
+    result = None
+
+    if number and str(number) != 'nan':
+        number = re.sub('[() -.+]', '', number)
+
+        if number.isdigit() and (len(number) == 10 or (number[0] == '1' and len(number) == 11)):
+            if number[0] == '1' and len(number) == 11:
+                result = number[1:]
+            else:
+                result = number
+        else:
+            print("Invalid phone number was not loaded: " + number)
+
+    return result
 
 
 SOURCE_NORMALIZATION_MAPPING = {
@@ -101,7 +104,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         "first_name": "first_name",
         "last_name": "last_name",
         "email": "email",
-        "mobile": lambda df: df["mobile"].combine_first(df["phone"]),
+        "mobile": lambda df: df["mobile"].combine_first(df["phone"]).apply(normalize_phone_number),
         "street_and_number": "mailing_street",
         "apartment": "mailing_street",
         "city": "mailing_city",
@@ -123,7 +126,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         "first_name": "firstname",
         "last_name": "lastname",
         "email": "email",
-        "mobile": lambda df: df["phone"],
+        "mobile": lambda df: df["phone"].apply(normalize_phone_number),
         "street_and_number": "street",
         "apartment": "apartment",
         "city": "city",
@@ -138,9 +141,9 @@ SOURCE_NORMALIZATION_MAPPING = {
         "first_name": "first_name",
         "last_name": "last_name",
         "email": "email",
-        "mobile": lambda df: df["cell"].combine_first(df["home"]),
-        "street_and_number": lambda df: df["street_1"].apply(volgistics_address, index=1),
-        "apartment": lambda df: df["street_1"].apply(volgistics_address, index=0),
+        "mobile": lambda df: df["cell"].combine_first(df["home"]).apply(normalize_phone_number),
+        "street_and_number": lambda df: volgistics_address(1, df["street_1"]),
+        "apartment": lambda df: volgistics_address(0, df["street_1"]),
         "city": "city",
         "state": "state",
         "zip": "zip",
