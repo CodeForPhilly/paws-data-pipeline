@@ -74,10 +74,17 @@ def get_360(matching_id):
                 animal_ids = person_json["Animal_ids"]
 
                 for animal_id in animal_ids:
-                    animal_events = requests.get("http://shelterluv.com/api/v1/animals/{}/events".format(animal_id),
-                                                 headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
-                    animal_events_json = animal_events.json()
+                    animal_details = requests.get(
+                        "http://shelterluv.com/api/v1/animals/{}".format(animal_id),
+                        headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
 
+                    animal_details_json = animal_details.json()
+                    adoptions.append(animal_details_json)
+
+                    '''
+                    animal_events = requests.get("http://shelterluv.com/api/v1/animals/{}/events".format(animal_id),
+                                             headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
+                    animal_events_json = animal_events.json()
                     for event in animal_events_json["events"]:
                         for adoption in event["AssociatedRecords"]:
                             if adoption["Type"] == "Person" and adoption["Id"] == row["source_id"]:
@@ -89,7 +96,7 @@ def get_360(matching_id):
                                 animal_details_json = animal_details.json()
                                 event["animal_details"] = animal_details_json
                                 adoptions.append(event)
-
+                                '''
                     result['adoptions'] = adoptions
 
         return jsonify({'result': result})
