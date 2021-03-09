@@ -94,8 +94,6 @@ def normalize_phone_number(number):
 
         if number.isdigit() and len(number) == 10:
             result = number
-        else:
-            print("Invalid phone number was not loaded: " + number)
 
     return result
 
