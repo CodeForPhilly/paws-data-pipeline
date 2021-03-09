@@ -42,7 +42,10 @@ class Adoptions extends Component {
     getLatestPets(petList) {
         let retVal;
 
-        retVal = petList.slice(0, PET_COUNT);
+        if (petList) {
+            retVal = petList.slice(0, PET_COUNT);
+        }
+
 
         return retVal;
     }
