@@ -17,6 +17,7 @@ import {
 import CircularProgress from '@material-ui/core/CircularProgress';
 import styles from "./styles/DataView360.module.css";
 import _ from 'lodash';
+import moment from 'moment';
 import SearchBar from './components/SearchBar';
 import ContactInfo from './components/ContactInfo';
 import Volunteer from './components/Volunteer';
@@ -75,6 +76,7 @@ class DataView360 extends Component {
             showSearchBar: true
         }
 
+        this.extractVolunteerActivity = this.extractVolunteerActivity.bind(this);
         this.handleGetParticipant = this.handleGetParticipant.bind(this);
         this.handleSearchChange = this.handleSearchChange.bind(this);
     }
@@ -93,6 +95,20 @@ class DataView360 extends Component {
             showTable: false,
             showSearchBar: false
         });
+    }
+
+    extractVolunteerActivity() {
+        const volgistics = _.find(this.state.participantData.contact_details, {"source_type": "volgistics"}) || {};
+        let volunteerActivity = {"life_hours": 0, "ytd_hours": 0, "start_date": "N/A"}
+        
+        if (Object.keys(volgistics).length > 0) {
+            const volgisticsJson = JSON.parse(volgistics.json);
+            volunteerActivity = _.pick(volgisticsJson, Object.keys(volunteerActivity));
+            if (volunteerActivity["start_date"] !== "") {
+                volunteerActivity["start_date"] = moment(volunteerActivity["start_date"], "MM-DD-YYYY").format("YYYY-MM-DD");
+            }
+        }
+        return volunteerActivity;
     }
 
     renderParticipantsTable() {
@@ -200,7 +216,7 @@ class DataView360 extends Component {
                         </Grid>
                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
                         <Adoptions adoptions={_.get(this.state, 'participantData.adoptions')}/>
-                        <Volunteer volunteer={_.get(this.state, 'participantData.shifts')}
+                        <Volunteer volunteer={this.extractVolunteerActivity()}
                                    volunteerShifts={_.get(this.state, 'participantData.shifts')}/>
 
                     </Paper>)}

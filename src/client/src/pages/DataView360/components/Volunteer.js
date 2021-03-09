@@ -48,8 +48,8 @@ class Volunteer extends Component {
 
         return (
             <React.Fragment>
-                <Container className={styles.volonteer_activity} style={{"marginTop":"1em"}}>
-                    <Typography className={styles.volonteer_activity_title} variant='h4'>Volunteer Activity</Typography>
+                <Container className={styles.volunteer_activity} style={{"marginTop":"1em"}}>
+                    <Typography className={styles.volunteer_activity_title} variant='h4'>Volunteer Activity</Typography>
                     <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper}>
                         <Table className="main_table">
                             <TableHead>
@@ -71,8 +71,8 @@ class Volunteer extends Component {
                         </Table>
                     </TableContainer>
                 </Container>
-                <Container className={styles.volonteer_history} style={{"marginTop":"1em"}}>
-                    <Typography className={styles.volonteer_history_title} variant='h4'>Volunteer History (Top 3)</Typography>
+                <Container className={styles.volunteer_history} style={{"marginTop":"1em"}}>
+                    <Typography className={styles.volunteer_history_title} variant='h4'>Volunteer History (Top 3)</Typography>
                     <TableContainer className="main_table_container" style={{"marginTop":"1em"}} component={Paper} variant='outlined'>
                         <Table className="main_table">
                             <TableHead>
