@@ -24,8 +24,6 @@ def start(connection, added_or_updated_rows):
     items_to_update["matching_id"] = 0  # initializing an int and overwrite in the loop
     items_to_update["archived_date"] = np.nan
     items_to_update["created_date"] = datetime.datetime.now()
-    if "_id" in items_to_update.columns:
-        del row["_id"]  # avoid specifying the _id field, so postgres will auto-increment for us
     
     rows = items_to_update.to_dict(orient="records")
     row_print_freq = max(1, np.floor_divide(len(rows), 20))  # approx every 5% (or every row if small)
@@ -39,7 +37,7 @@ def start(connection, added_or_updated_rows):
         row_matches = pdp_contacts[
             (pdp_contacts["first_name"] == row["first_name"]) &
             (pdp_contacts["last_name"] == row["last_name"]) &
-            (pdp_contacts["email"] == row["email"]) # TODO: could transform this line into an "or" with phone number
+            ((pdp_contacts["email"] == row["email"]) | (pdp_contacts["mobile"] == row["mobile"]))
         ]
         if row_matches.empty:  # new record, no matching rows
             max_matching_group += 1
