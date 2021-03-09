@@ -9,11 +9,13 @@ import Admin from './pages/Admin';
 import DataView from './pages/DataView360/DataView360';
 import About from './pages/About';
 import Login from './components/Login/Login';
+import Check from './components/Check/Check';
+import useToken from './components/Login/useToken';
 
-
+// Testing only
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
-
 const getUser = () => sleep(1000).then(() => ({username: 'PAWS_user', role:'admin'})) //.then(() =>  Error)
+//  End testing 
 
 const AuthContext = React.createContext()
 function AuthProvider({children}) {
@@ -62,33 +64,12 @@ function useAuthState() {
   }
 }
 
-function Footer() {
-  return <p>This is an awesome app!</p>
-}
 
-// function Header() {
-//   const {user} = useAuthState()
-//   return <p>Hello {user.username}</p>
-// }
-
-function Content() {
-  const {user} = useAuthState()
-  return <p>I am so happy to have you here as a  {user.role}.</p>
-}
-
-function UnauthenticatedHeader() {
-  return <p>Please login</p>
-}
-
-function UnauthenticatedContent() {
-  return <p>You must login to read the message</p>
-}
 
 function UnauthenticatedApp() {
   return (
     <>
-      <UnauthenticatedHeader />
-      <UnauthenticatedContent />
+      <h3>Unauthorized</h3>
     </>
   )
 }
@@ -96,6 +77,12 @@ function UnauthenticatedApp() {
 function AuthenticatedApp() {
 
     const {user} = useAuthState()
+
+    const { access_token, setToken } = useToken();
+
+    if (!access_token) {
+      return <Login setToken={setToken} />
+    }
 
 
   return (
@@ -118,6 +105,9 @@ function AuthenticatedApp() {
                 <Route path="/dataView">
                     <DataView/>
                 </Route>
+              <Route path="/check"> 
+                <Check />
+              </Route>
             </Switch>
         </Router>
     </>
