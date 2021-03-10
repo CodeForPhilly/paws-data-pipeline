@@ -38,18 +38,10 @@ RUN chmod -R 777 /app/static
 COPY . /paws-data-pipeline/server
 
 RUN chmod 777 /paws-data-pipeline/server
+
+RUN chmod +x  bin/startServer.sh
 # RUN ufw allow 5000
 WORKDIR /app
 
-# --uid uwsgi
-CMD uwsgi --http-socket :5000 --plugin python38 --module wsgi:app --chdir /app --pythonpath .
-# we may want to switch this to a script which logs output, etc?
-
-RUN set FLASK_APP=server/app.py
-RUN export FLASK_APP
-
-# This abomination ensures that the PG server has finished its restart cycle
-CMD echo "SLEEPING 10"; sleep 10; echo "WAKING"; alembic upgrade head ; python -m flask run --host=0.0.0.0 --no-reload
-
-# --no-reload prevents Flask restart, which usually happens in middle of create_base_users()
-#TODO: SECURITY - ensure we are not running in debug mode in production
+CMD bin/startServer.sh
+#>> start.log 2>&1 
