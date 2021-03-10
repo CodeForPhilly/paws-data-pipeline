@@ -1,4 +1,4 @@
-div.volonteer_activity {
+div.volunteer_activity {
 	grid-area: 3 / 2 / 4 / 3;
 	margin-bottom: 40px;
 	padding: 0;
@@ -8,7 +8,7 @@ div.volonteer_activity {
 	overflow: hidden;
 }
 
-div.volonteer_history {
+div.volunteer_history {
 	grid-area: 4 / 2 / 5 / 3;
 	margin-bottom: 40px;
 	padding: 0;
@@ -18,14 +18,14 @@ div.volonteer_history {
 	overflow: hidden;
 }
 
-h4.volonteer_activity_title {
+h4.volunteer_activity_title {
 	position: relative;
 	margin: 15px 20px;
 	padding-left: 23px;
 	font-size: 16px;
 	text-align: left;
 }
-h4.volonteer_activity_title::before {
+h4.volunteer_activity_title::before {
 	content: '';
 	position: absolute;
 	top: -3px;
@@ -38,14 +38,14 @@ h4.volonteer_activity_title::before {
 	background-size: contain;
 }
 
-h4.volonteer_history_title {
+h4.volunteer_history_title {
 	position: relative;
 	margin: 15px 20px;
 	padding-left: 23px;
 	font-size: 16px;
 	text-align: left;
 }
-h4.volonteer_history_title::before {
+h4.volunteer_history_title::before {
 	content: '';
 	position: absolute;
 	top: -9px;
