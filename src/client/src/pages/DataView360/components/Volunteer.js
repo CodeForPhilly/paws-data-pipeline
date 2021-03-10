@@ -63,8 +63,8 @@ class Volunteer extends Component {
                                 { this.props.volunteer && (
                                 <StyledTableRow>
                                     <TableCell>{this.props.volunteer.start_date}</TableCell>
-                                    <TableCell>{this.props.volunteer.life_hours}</TableCell>
-                                    <TableCell>{this.props.volunteer.ytd_hours}</TableCell>
+                                    <TableCell>{this.props.volunteer.life_hours.toFixed(2)}</TableCell>
+                                    <TableCell>{this.props.volunteer.ytd_hours.toFixed(2)}</TableCell>
                                 </StyledTableRow>
                                 )}
                             </TableBody>
