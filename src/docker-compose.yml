@@ -29,7 +29,7 @@ services:
     build: ./client
     container_name: paws-compose-client
     ports:
-      - "3000:80"
+      - "80:80"
     depends_on:
       - server
     environment:
@@ -43,6 +43,3 @@ services:
 volumes:
   postgres:
   src_archive:
-
-
-
