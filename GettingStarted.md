@@ -5,19 +5,15 @@
 - Install Docker Compose - `https://docs.docker.com/compose/install/`      
 
 ## Running everything (server and client)
-
 - navigate to src directory `cd .../PAWS-DATA-PIPELINE/src`
 - docker compose `docker-compose up`
 - access the client going to `http://localhost:3000`
+## Running the client (front-end) locally
+- navigate to src directory `cd .../PAWS-DATA-PIPELINE/src`
+- docker compose `docker-compose run server`
+- start the frontend with the proxy`npm run start:local`
 
-## Running just the client (front-end)
-
-- navigate to src directory `cd .../PAWS-DATA-PIPELINE/src/client`
-- set the PAWS_API_HOST=localhost or your ip
-- docker compose `docker-compose up`
-- access the client going to `http://localhost:3000`
-
-## Running just the server (back-end)
-
-- navigate to src directory `cd .../PAWS-DATA-PIPELINE/src/server`
-- docker compose `docker-compose up`
+## Running just server (back-end) locally
+- navigate to src directory `cd .../PAWS-DATA-PIPELINE/src`
+- set the PAWS_API_HOST=localhost or your ip in `docker-compose.yml`
+- docker compose `docker-compose up` and stop the server
