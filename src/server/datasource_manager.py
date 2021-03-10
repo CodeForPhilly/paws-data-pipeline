@@ -26,7 +26,7 @@ CSV_HEADERS = {
 
 DATASOURCE_MAPPING = {
     'salesforcecontacts': {
-        'id': 'contact_id',
+        'id': 'contact_id_18',
         'csv_names': CSV_HEADERS['salesforcecontacts'],
         'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['salesforcecontacts'])),
         'table_email': 'email',
@@ -102,7 +102,7 @@ def normalize_phone_number(number):
 
 SOURCE_NORMALIZATION_MAPPING = {
     "salesforcecontacts": {
-        "source_id": "contact_id",
+        "source_id": "contact_id_18",
         "first_name": "first_name",
         "last_name": "last_name",
         "email": "email",
