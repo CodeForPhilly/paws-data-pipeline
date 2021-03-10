@@ -16,7 +16,7 @@ import "./styles/table.css";
 import _ from 'lodash';
 import moment from "moment";
 
-/* I don't khow, how to remove it. So I changed background-color on 'initial' */
+
 const StyledTableCell = withStyles((theme) => ({
     head: {
         backgroundColor: 'initial', // here
@@ -45,7 +45,6 @@ class Adoptions extends Component {
         if (petList) {
             retVal = petList.slice(0, PET_COUNT);
         }
-
 
         return retVal;
     }
