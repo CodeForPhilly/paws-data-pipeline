@@ -34,7 +34,7 @@ function AuthProvider({children}) {
   return (
     <AuthContext.Provider value={state}>
       {state.status === 'pending' ? (
-        'Loading...'
+        'App ACP: Loading...'
       ) : state.status === 'error' ? (
         <div>
           Oh no
