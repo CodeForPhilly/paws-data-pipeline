@@ -1,5 +1,5 @@
 from hashlib import pbkdf2_hmac
-from os import urandom
+from os import urandom, environ
 import pytest, codecs, random
 from datetime import datetime
 
@@ -130,7 +130,19 @@ def user_login():
 @jwt_ops.jwt_required()
 def user_test_auth():
     """ Liveness test, requires JWT """
-    return jsonify(("OK from User Test - Auth  @" + str(datetime.now())))
+    sysname = ''    # Ensure we are talking to the right host
+    try:
+        sysname = environ['computername'] 
+    except:
+        pass
+    
+    try:
+        sysname =  environ['HOSTNAME']
+    except:
+        pass
+
+
+    return jsonify(("OK from User Test - Auth [" + sysname + "] @" + str(datetime.now())))
 
 
 # Logout is not strictly needed; client can just delete JWT, but good for logging
