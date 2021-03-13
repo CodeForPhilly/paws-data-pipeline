@@ -10,7 +10,7 @@ import TableRow from '@material-ui/core/TableRow';
 import { withStyles } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { UploadForm, DownloadForm, ExecuteForm } from '../components/Forms';
+import { UploadForm, ExecuteForm } from '../components/Forms';
 import _ from 'lodash';
 
 
@@ -151,9 +151,6 @@ class Admin extends Component {
               <UploadForm filesInput={this.state.filesInput} handleUpload={this.handleUpload}/>
             </TabPanel>
             <TabPanel value={this.state.activeIndex} index={1}>
-              <DownloadForm />
-            </TabPanel>
-            <TabPanel value={this.state.activeIndex} index={2}>
               <ExecuteForm handleExecute={this.handleExecute}/>
             </TabPanel>
         </div>
@@ -197,7 +194,6 @@ class Admin extends Component {
                                 <Paper style={{padding: 5}}>
                                     <Tabs value={this.state.activeIndex} onChange={this.handleIndexChange}>
                                         <Tab label="Upload" />
-                                        <Tab label="Download" />
                                         <Tab label="Execute" />
                                     </Tabs>
                                     {currentTabWithState}
