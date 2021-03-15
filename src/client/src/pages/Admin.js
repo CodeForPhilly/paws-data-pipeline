@@ -18,28 +18,12 @@ import {withStyles} from '@material-ui/core/styles';
 import _ from 'lodash';
 import moment from "moment";
 
-
 const styles = theme => ({
     backdrop: {
         zIndex: theme.zIndex.drawer + 1,
         color: '#fff',
     }
 });
-
-const StyledTableCell = withStyles((theme) => ({
-    head: {
-        backgroundColor: 'initial', // here
-        fontWeight: 600,
-    }
-}))(TableCell);
-
-const StyledTableRow = withStyles((theme) => ({
-    root: {
-        '&:nth-of-type(even)': {
-            backgroundColor: 'initial', // and here
-        }
-    }
-}))(TableRow);
 
 
 class Admin extends Component {
@@ -159,8 +143,8 @@ class Admin extends Component {
                                     <Table aria-label="simple table" className={classes.table}>
                                         <TableHead>
                                             <TableRow>
-                                                <StyledTableCell>File Type</StyledTableCell>
-                                                <StyledTableCell>Last Updated</StyledTableCell>
+                                                <TableCell><b>File Type</b></TableCell>
+                                                <TableCell><b>Last Updated</b></TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -171,10 +155,10 @@ class Admin extends Component {
                                                 let fileDateFormatted = moment(fileDateOnlyNumbers, "YYYYMMDDhmmss").format("MMMM Do YYYY, h:mm:ss a");
 
                                                 return (
-                                                    <StyledTableRow>
+                                                    <TableRow>
                                                         <TableCell>{fileName}</TableCell>
                                                         <TableCell>{fileDateFormatted}</TableCell>
-                                                    </StyledTableRow>
+                                                    </TableRow>
                                                 )
                                             })
                                             }
@@ -201,10 +185,10 @@ class Admin extends Component {
                                         <TableBody>
                                             <TableRow key='time'>
                                                 <TableCell align="left" component="th" scope="row">
-                                                    Last Analysis
+                                                    <b>Last Analysis</b>
                                                 </TableCell>
                                                 <TableCell align="left">
-                                                    {moment(this.state.lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
+                                                    <b>{moment(this.state.lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}</b>
                                                 </TableCell>
                                             </TableRow>
                                             {this.state.statistics.map((row, index) => (
