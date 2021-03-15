@@ -1,26 +1,28 @@
 import React, {Component} from 'react';
-import {Paper, Button, TableHead} from "@material-ui/core";
-import Grid from '@material-ui/core/Grid';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
+import {
+    Grid,
+    Paper,
+    Button,
+    TableHead,
+    Backdrop,
+    CircularProgress,
+    CardContent,
+    TableRow,
+    TableContainer,
+    TableCell,
+    TableBody,
+    Table
+} from "@material-ui/core";
+
 import {withStyles} from '@material-ui/core/styles';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import _ from 'lodash';
-import CardContent from "@material-ui/core/CardContent";
 import moment from "moment";
 
 
 const styles = theme => ({
-    loader: {
-        marginTop: "40px"
-    },
-    spinner: {
-        marginLeft: theme.spacing(2),
-        display: 'flex', justifyContent: 'center', position: 'absolute', left: '50%', top: '50%',
-        transform: 'translate(-50%, -50%)'
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+        color: '#fff',
     }
 });
 
@@ -77,7 +79,7 @@ class Admin extends Component {
 
         this.setState({isLoading: true});
 
-        var formData = new FormData();
+        let formData = new FormData();
 
         let files = _.get(event, 'target.[0].files');
         _.forEach(files, element => {
@@ -145,11 +147,9 @@ class Admin extends Component {
         return (
             <div style={{paddingLeft: 20}}>
                 <h1>Admin Portal</h1>
-                {this.state.isLoading === true ?
-                    <div className={classes.spinner}>
+                    <Backdrop  className={classes.backdrop} open={this.state.isLoading === true}>
                         <CircularProgress size={60}/>
-                    </div>
-                    :
+                    </Backdrop>
                     <Grid container spacing={3} direction="column" style={{padding: 30}}>
                         <Grid container spacing={3} direction="row">
                             <Grid item sm={6}>
@@ -227,16 +227,12 @@ class Admin extends Component {
                                         </form>
                                     </CardContent>
                                 </Paper>
-
                             </Grid>
-
                         </Grid>
-
-                    </Grid>}
+                    </Grid>
             </div>
         );
     }
-
 }
 
 export default withStyles(styles)(Admin);
