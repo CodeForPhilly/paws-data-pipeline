@@ -1,17 +1,16 @@
-import React, { Component } from 'react';
-import {Tabs, Tab, Paper } from "@material-ui/core";
-import TabPanel from '../components/TabPanel';
+import React, {Component} from 'react';
+import {Paper, Button, TableHead} from "@material-ui/core";
 import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
-import { withStyles } from '@material-ui/core/styles';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import {withStyles} from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { UploadForm, ExecuteForm } from '../components/Forms';
 import _ from 'lodash';
+import CardContent from "@material-ui/core/CardContent";
+import moment from "moment";
 
 
 const styles = theme => ({
@@ -19,19 +18,34 @@ const styles = theme => ({
         marginTop: "40px"
     },
     spinner: {
-        display: 'flex',
-        marginLeft: theme.spacing(2)
+        marginLeft: theme.spacing(2),
+        display: 'flex', justifyContent: 'center', position: 'absolute', left: '50%', top: '50%',
+        transform: 'translate(-50%, -50%)'
     }
 });
+
+const StyledTableCell = withStyles((theme) => ({
+    head: {
+        backgroundColor: 'initial', // here
+        fontWeight: 600,
+    }
+}))(TableCell);
+
+const StyledTableRow = withStyles((theme) => ({
+    root: {
+        '&:nth-of-type(even)': {
+            backgroundColor: 'initial', // and here
+        }
+    }
+}))(TableRow);
+
 
 class Admin extends Component {
     constructor(props) {
         super(props);
         this.state = {
             activeIndex: 0,
-            loading: false,
-            loadingCurrentFiles: false,
-            loadingStatistics: false,
+            isLoading: false,
             statistics: [],
             filesInput: undefined,
             fileListHtml: undefined,
@@ -50,42 +64,42 @@ class Admin extends Component {
         this.handleGetStatistics();
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.refreshPage();
     }
 
-    handleIndexChange(event, newIndex){
+    handleIndexChange(event, newIndex) {
         this.setState({activeIndex: newIndex});
     };
 
-    async handleUpload(event){
+    async handleUpload(event) {
         event.preventDefault();
 
-        this.setState({loading: true});
+        this.setState({isLoading: true});
 
         var formData = new FormData();
 
         let files = _.get(event, 'target.[0].files');
         _.forEach(files, element => {
-           formData.append('file', element, element.name)
+            formData.append('file', element, element.name)
         })
 
-        await fetch("/api/file", { method:'POST', body:formData })
+        await fetch("/api/file", {method: 'POST', body: formData})
 
         await this.handleGetFileList();
 
-        this.setState({loading: false});
+        this.setState({isLoading: false});
     };
 
     async handleExecute(event) {
         event.preventDefault();
-        // TODO: it looks like it handles it, but may want to tie events into stats too (like set loadingStatistics: true)
-        this.setState({loading: true});
+
+        this.setState({isLoading: true});
 
         const response = await fetch('/api/execute');
         const result = await response.json();
 
-        this.setState({loading: false});
+        this.setState({isLoading: false});
 
         this.refreshPage();
 
@@ -93,7 +107,7 @@ class Admin extends Component {
     }
 
     async handleGetStatistics() {
-        this.setState({loadingStatistics: true})
+        this.setState({isLoading: true})
 
         try {
             const statsData = await fetch("/api/statistics");
@@ -104,116 +118,125 @@ class Admin extends Component {
                 lastExecution: statsResponse.executionTime
             });
 
-            console.log("statisticsListHtml", this.state.statistics);
-            // this.setState({statisticsListHtml: stats});
-            this.setState({loadingStatistics: false})
-        }
-        finally {
-            this.setState({loadingStatistics: false})
+            this.setState({isLoading: false})
+        } finally {
+            this.setState({isLoading: false})
         }
 
     }
 
     async handleGetFileList() {
-        this.setState({loadingCurrentFiles: true})
+        this.setState({isLoading: true})
 
-        try{
+        try {
             const filesData = await fetch("/api/listCurrentFiles");
             const filesResponse = await filesData.json();
 
-            // this.setState({fileList: filesResponse});
+            this.setState({fileListHtml: filesResponse});
 
-            this.setState({fileListHtml: _.map(filesResponse, (fileName) => {
-                return (<li key={fileName}> {fileName}</li>)
-            })});
-
-            console.log("fileListHtml", this.state.fileListHtml);
-            //just a UX indication that a new list has been loaded
-            //await new Promise(resolve => setTimeout(resolve, 1000));
+        } finally {
+            this.setState({isLoading: false})
         }
-
-        finally {
-            this.setState({loadingCurrentFiles: false})
-        }
-
     }
 
     render() {
-        const { classes } = this.props;
-
-        let currentTabWithState = this.state.loading === true ?
-        <div className={classes.loader}>
-            <LinearProgress />
-        </div>
-        :
-        <div>
-            <TabPanel value={this.state.activeIndex} index={0}>
-              <UploadForm filesInput={this.state.filesInput} handleUpload={this.handleUpload}/>
-            </TabPanel>
-            <TabPanel value={this.state.activeIndex} index={1}>
-              <ExecuteForm handleExecute={this.handleExecute}/>
-            </TabPanel>
-        </div>
-
-        let currentListWithState = this.state.loadingCurrentFiles === true ?
-        <div className={classes.spinner}>
-            <CircularProgress />
-        </div>
-        :
-        <Paper style={{padding: 5}}>
-            <ul>{this.state.fileListHtml}</ul>
-        </Paper>
-
-        let currentStatistics = this.state.loadingStatistics === true ?
-        <div className={classes.spinner}>
-            <CircularProgress />
-        </div>
-        : _.isEmpty(this.state.statistics) !== true &&
-        <TableContainer component={Paper} className="statisticsData">
-            <Table aria-label="simple table" className={classes.table}>
-                <TableBody>
-                {this.state.statistics.map((row, index) => (
-                    <TableRow key={index}>
-                    <TableCell align="left" component="th" scope="row">
-                        {row[0]}
-                    </TableCell>
-                        <TableCell align="left">{row[1]}</TableCell>
-                    </TableRow>
-                ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
+        const {classes} = this.props;
 
         return (
             <div style={{paddingLeft: 20}}>
-                <h2>Admin Portal</h2>
-                    <Grid container spacing={3} direction="column"  style={{padding:30}}>
+                <h1>Admin Portal</h1>
+                {this.state.isLoading === true ?
+                    <div className={classes.spinner}>
+                        <CircularProgress size={60}/>
+                    </div>
+                    :
+                    <Grid container spacing={3} direction="column" style={{padding: 30}}>
                         <Grid container spacing={3} direction="row">
-                            <Grid item sm={5} >
-                                <h3>Options</h3>
-                                <Paper style={{padding: 5}}>
-                                    <Tabs value={this.state.activeIndex} onChange={this.handleIndexChange}>
-                                        <Tab label="Upload" />
-                                        <Tab label="Execute" />
-                                    </Tabs>
-                                    {currentTabWithState}
+                            <Grid item sm={6}>
+                                <h2>Latest Files</h2>
+                                {_.isEmpty(this.state.fileListHtml) !== true &&
+                                <TableContainer component={Paper} className="statisticsData">
+                                    <Table aria-label="simple table" className={classes.table}>
+                                        <TableHead>
+                                            <TableRow>
+                                                <StyledTableCell>File Type</StyledTableCell>
+                                                <StyledTableCell>Last Updated</StyledTableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {_.map(this.state.fileListHtml, file => {
+                                                const fileName = file.split("-")[0];
+                                                let fileDate = file.split("-").slice(1).join().split(".")[0];
+                                                let fileDateOnlyNumbers = fileDate.replaceAll(",", "");
+                                                let fileDateFormatted = moment(fileDateOnlyNumbers, "YYYYMMDDhmmss").format("MMMM Do YYYY, h:mm:ss a");
+
+                                                return (
+                                                    <StyledTableRow>
+                                                        <TableCell>{fileName}</TableCell>
+                                                        <TableCell>{fileDateFormatted}</TableCell>
+                                                    </StyledTableRow>
+                                                )
+                                            })
+                                            }
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>}
+
+                                <Paper style={{padding: 5, marginTop: 10}}>
+                                    <CardContent>
+                                        <h3 style={{marginTop: 0}}>Upload Files</h3>
+                                        <form onSubmit={this.handleUpload}>
+                                            <input type="file" value={this.state.filesInput} multiple/>
+                                            <Button type="submit" variant="contained" color="primary">Upload</Button>
+                                        </form>
+                                    </CardContent>
                                 </Paper>
                             </Grid>
-                            <Grid item sm={4}>
-                                <h3>Current Files</h3>
-                                {currentListWithState}
+
+                            <Grid item sm={6}>
+                                <h2> Data Analysis </h2>
+                                {_.isEmpty(this.state.statistics) !== true &&
+                                <TableContainer component={Paper} className="statisticsData">
+                                    <Table aria-label="simple table" className={classes.table}>
+                                        <TableBody>
+                                            <TableRow key='time'>
+                                                <TableCell align="left" component="th" scope="row">
+                                                    Last Analysis
+                                                </TableCell>
+                                                <TableCell align="left">
+                                                    {moment(this.state.lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
+                                                </TableCell>
+                                            </TableRow>
+                                            {this.state.statistics.map((row, index) => (
+                                                <TableRow key={index}>
+                                                    <TableCell align="left" component="th" scope="row">
+                                                        {row[0]}
+                                                    </TableCell>
+                                                    <TableCell align="left">{row[1]}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>}
+                                <Paper style={{padding: 5, marginTop: 10}}>
+                                    <CardContent>
+                                        <h3 style={{marginTop: 0}}>Run New Analysis</h3>
+                                        <form onSubmit={this.handleExecute}>
+                                            <Button type="submit" variant="contained"
+                                                    color="primary">Run Data Analysis</Button>
+                                        </form>
+                                    </CardContent>
+                                </Paper>
+
                             </Grid>
+
                         </Grid>
-                        <Grid container spacing={3} direction="row">
-                            <Grid item sm={4}>
-                                <h3>Matching Stats from last Execution: {this.state.lastExecution}</h3>
-                                {currentStatistics}
-                            </Grid>
-                        </Grid>
-                    </Grid>
+
+                    </Grid>}
             </div>
         );
     }
+
 }
 
 export default withStyles(styles)(Admin);
