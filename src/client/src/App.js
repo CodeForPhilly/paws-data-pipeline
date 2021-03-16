@@ -11,11 +11,25 @@ import About from './pages/About';
 import Login from './components/Login/Login';
 import Check from './components/Check/Check';
 import useToken from './components/Login/useToken';
+var jwt = require('jsonwebtoken');
 
 // Testing only
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
 const getUser = () => sleep(1000).then(() => ({username: 'PAWS_user', role:'admin'})) //.then(() =>  Error)
 //  End testing 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const AuthContext = React.createContext()
 function AuthProvider({children}) {
@@ -80,16 +94,27 @@ function AuthenticatedApp() {
 
     const { access_token, setToken } = useToken();
 
-    if (!access_token) {
-      return <Login setToken={setToken} />
-    }
+
+    var decoded = jwt.decode(access_token, { complete: true });
+    const userName = decoded?.payload.sub;
+    const userRole = decoded?.payload.role;
+    const expTime =  decoded?.payload.exp -  Date.now()/1000;
+    
+    console.log('User: ' + userName + ' / Role:' + userRole + ' JWT expires: '  + expTime.toFixed(1) + ' secs' );
+
+
+
+    if (!access_token | expTime < 0) {
+        return <Login setToken={setToken} />
+    } 
 
 
   return (
     <>
         <Router>
-            {user.role === 'admin' ?  <AdminHeader /> : <Header /> }
-            <h3>TEST: {user.username} is a {user.role}</h3>
+
+            {userRole === 'admin' ?  <AdminHeader /> : <Header /> }
+            <h3>TEST: {userName} is a {userRole}</h3>
             <Switch>
                 <Route exact path="/">
                     <HomePage/>
