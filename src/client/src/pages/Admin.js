@@ -152,7 +152,7 @@ class Admin extends Component {
                                                 const fileName = file.split("-")[0];
                                                 let fileDate = file.split("-").slice(1).join().split(".")[0];
                                                 let fileDateOnlyNumbers = fileDate.replaceAll(",", "");
-                                                let fileDateFormatted = moment(fileDateOnlyNumbers, "YYYYMMDDhmmss").format("MMMM Do YYYY, h:mm:ss a");
+                                                let fileDateFormatted = moment(fileDateOnlyNumbers, "YYYYMMDDhmmss").local().format("MMMM Do YYYY, h:mm:ss a");
 
                                                 return (
                                                     <TableRow>
@@ -178,7 +178,7 @@ class Admin extends Component {
                             </Grid>
 
                             <Grid item sm={6}>
-                                <h2> Data Analysis </h2>
+                                <h2> Last Match Analysis </h2>
                                 {_.isEmpty(this.state.statistics) !== true &&
                                 <TableContainer component={Paper} className="statisticsData">
                                     <Table aria-label="simple table" className={classes.table}>
