@@ -23,14 +23,6 @@ const getUser = () => sleep(1000).then(() => ({username: 'PAWS_user', role:'admi
 
 
 
-
-
-
-
-
-
-
-
 const AuthContext = React.createContext()
 function AuthProvider({children}) {
   const [state, setState] = React.useState({
@@ -98,7 +90,7 @@ function AuthenticatedApp() {
     var decoded = jwt.decode(access_token, { complete: true });
     const userName = decoded?.payload.sub;
     const userRole = decoded?.payload.role;
-    const expTime =  decoded?.payload.exp -  Date.now()/1000;
+    var expTime =  decoded?.payload.exp -  Date.now()/1000;
     
     console.log('User: ' + userName + ' / Role:' + userRole + ' JWT expires: '  + expTime.toFixed(1) + ' secs' );
 
@@ -111,13 +103,13 @@ function AuthenticatedApp() {
 
   return (
     <>
+        {/* {expTime =  decoded?.payload.exp -  Date.now()/1000}  */}
         <Router>
 
             {userRole === 'admin' ?  <AdminHeader /> : <Header /> }
-            <Switch>
+            <p>{expTime.toFixed(1)}</p>
 
-            {(!access_token | expTime < 0) &&
-               <Login setToken={setToken} /> }
+            {(!access_token | expTime <= 0) ?  <Login setToken={setToken} /> :    <Switch>
 
                 <Route exact path="/">
                     <HomePage/>
@@ -137,6 +129,10 @@ function AuthenticatedApp() {
                 <Check />
               </Route>
             </Switch>
+
+              }
+
+
         </Router>
     </>
   )
