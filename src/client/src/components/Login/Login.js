@@ -29,6 +29,8 @@ async function loginUser(credentials) {
 export default function Login({ setToken }) {
     const [username, setUserName] = useState();
     const [password, setPassword] = useState();
+    // eslint-disable-next-line no-unused-vars
+    const [authcode, setAuthCode] = useState();  // For future use
 
     const handleSubmit = async e => {
         e.preventDefault();
@@ -50,6 +52,10 @@ export default function Login({ setToken }) {
                 <label>
                     <p>Password</p>
                     <input type="password" onChange={e => setPassword(e.target.value)} />
+                </label>
+                <label>
+                    <p>Authenticator code</p>
+                    <input type="text" onChange={e => setAuthCode(e.target.value)} />
                 </label>
                 <div>
                     <button type="submit">Submit</button>

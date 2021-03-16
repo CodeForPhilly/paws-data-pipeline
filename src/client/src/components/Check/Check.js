@@ -5,17 +5,6 @@ var jwt = require('jsonwebtoken');
 
 const { DateTime } = require("luxon");
 
-// USeful for generating 'expired token' errors
-const old_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTYxNDcxNjk5NCwianRpIjoiY2Y2Y2U5OTAtZGExNS00ZjZmLTljNGUtNzdjZWJjZmFlZjU0IiwibmJmIjoxNjE0NzE2OTk0LCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoiYmFzZV91c2VyIiwiZXhwIjoxNjE0NzE3Mjk0LCJyb2xlIjoidXNlciJ9.WyFfP40lINcjeNvWEmNhoBr1wYyjniNQuIdMjuwyY0s"
-
-
-
-
-
-
-
-
-
 
 export default function Check() {
 
