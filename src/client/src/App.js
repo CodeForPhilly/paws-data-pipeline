@@ -104,9 +104,9 @@ function AuthenticatedApp() {
 
 
 
-    if (!access_token | expTime < 0) {
-        return <Login setToken={setToken} />
-    } 
+    // if (!access_token | expTime < 0) {
+    //     return <Login setToken={setToken} />
+    // } 
 
 
   return (
@@ -114,8 +114,11 @@ function AuthenticatedApp() {
         <Router>
 
             {userRole === 'admin' ?  <AdminHeader /> : <Header /> }
-            <h3>TEST: {userName} is a {userRole}</h3>
             <Switch>
+
+            {(!access_token | expTime < 0) &&
+               <Login setToken={setToken} /> }
+
                 <Route exact path="/">
                     <HomePage/>
                 </Route>
