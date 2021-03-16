@@ -2,7 +2,7 @@ Flask==1.1.2
 pandas==1.0.0
 numpy==1.18.1
 fuzzywuzzy==0.17.0
-sqlalchemy
+sqlalchemy==1.3.23     # Import error with 1.4.0 on _ColumnEntity
 sqlalchemy_utils
 psycopg2-binary==2.8.4
 python-Levenshtein-wheels
