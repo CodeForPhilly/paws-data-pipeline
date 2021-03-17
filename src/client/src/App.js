@@ -15,31 +15,33 @@ var jwt = require('jsonwebtoken');
 
 // Testing only
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
-const getUser = () => sleep(1000).then(() => ({username: 'PAWS_user', role:'admin'})) //.then(() =>  Error)
+const expTimer = () => sleep(1000).then(() => ({})) //.then(() =>  Error)
 //  End testing 
 
 
 
 
 
-
 const AuthContext = React.createContext()
+
+
+
 function AuthProvider({children}) {
   const [state, setState] = React.useState({
     status: 'pending',
     error: null,
-    user: null,
-  })
+    user: null,  })
+
   React.useEffect(() => {
-    getUser().then(
+    expTimer().then(
       user => setState({status: 'success', error: null, user}),
       error => setState({status: 'error', error, user: null}),
     )
-  }, [])
+  }, )
 
   return (
     <AuthContext.Provider value={state}>
-      {state.status === 'pending' ? (
+        {state.status === 'pending' ? (
         'App ACP: Loading...'
       ) : state.status === 'error' ? (
         <div>
@@ -82,7 +84,7 @@ function UnauthenticatedApp() {
 
 function AuthenticatedApp() {
 
-    const {user} = useAuthState()
+    // const {user} = useAuthState()
 
     const { access_token, setToken } = useToken();
 
@@ -91,8 +93,10 @@ function AuthenticatedApp() {
     const userName = decoded?.payload.sub;
     const userRole = decoded?.payload.role;
     var expTime =  decoded?.payload.exp -  Date.now()/1000;
+
+
     
-    console.log('User: ' + userName + ' / Role:' + userRole + ' JWT expires: '  + expTime.toFixed(1) + ' secs' );
+    // console.log('User: ' + userName + ' / Role:' + userRole + ' JWT expires: '  + expTime.toFixed(1) + ' secs' );
 
 
 
@@ -114,7 +118,7 @@ function AuthenticatedApp() {
                 <Route exact path="/">
                     <HomePage/>
                 </Route>
-                {user.role === 'admin' && 
+                {userRole === 'admin' && 
                     <Route path="/upload">
                         <Admin/>
                     </Route>
@@ -138,20 +142,25 @@ function AuthenticatedApp() {
   )
 }
 
+
+
+
+
+
 function Home() {
   const {user} = useAuthState()
-  return user ? <AuthenticatedApp /> : <UnauthenticatedApp />
+  const { access_token, setToken } = useToken();
+  return user ? <AuthenticatedApp /> : <Login setToken={setToken} />
 }
 
 function App() {
-
+  const { access_token, setToken } = useToken();
   // const {username, role} = useAuthState()
 
   return (
     <AuthProvider>
       <div>
-         {/* <p>(AuthProvider) Hi , you big</p> */}
-        <Home />
+         <Home />
       </div>
     </AuthProvider>
   )
