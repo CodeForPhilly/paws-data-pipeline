@@ -55,16 +55,33 @@ def list_current_files():
 @admin_api.route("/api/execute", methods=["GET"])
 def execute():
     current_app.logger.info("Execute flow")
-    flow_script.start_flow()
 
-    current_time = datetime.now().ctime()
-    statistics = get_statistics()
+    try:
+        last_execution_file = open(LOGS_PATH + "last_execution.json", "r")
+        last_execution_details = json.loads(last_execution_file.read())
 
-    last_execution_details = {"executionTime": current_time, "stats": statistics}
+        if last_execution_details != "Running":
+            last_execution_file = open(LOGS_PATH + "last_execution.json", "w")
+            last_execution_file.write(json.dumps("Running"))
+            last_execution_file.close()
 
-    last_execution_file = open(LOGS_PATH + "last_execution.json", "w")
-    last_execution_file.write(json.dumps(last_execution_details))
-    last_execution_file.close()
+            flow_script.start_flow()
+
+            statistics = get_statistics()
+
+            last_execution_details = {"stats": statistics}
+
+    except Exception as e:
+        last_execution_details = {"stats": {"Execution Error": str(e)}}
+        return abort(500)
+
+    finally:
+        current_time = datetime.now().ctime()
+
+        last_execution_details["executionTime"] = current_time
+        last_execution_file = open(LOGS_PATH + "last_execution.json", "w")
+        last_execution_file.write(json.dumps(last_execution_details))
+        last_execution_file.close()
 
     return jsonify(success=True)
 
