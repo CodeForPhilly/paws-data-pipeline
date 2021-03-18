@@ -4,6 +4,8 @@ import os
 from datetime import datetime
 import json
 from sqlalchemy.sql import text
+
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc, select
 from pipeline import flow_script
 from config import engine
@@ -72,12 +74,17 @@ def execute():
     last_ex_json = (json.dumps(last_execution_details))
 
     with engine.connect() as connection:
-        ins_stmt = kvt.insert().values(
+        ins_stmt = insert(kvt).values(
             keycol = 'last_execution_time',
             valcol = last_ex_json,
+            )
+
+        upsert = ins_stmt.on_conflict_do_update(
+                constraint='kv_unique_keycol_key',
+                set_=dict(valcol=last_ex_json)
         )
 
-        connection.execute(ins_stmt)
+        connection.execute(upsert)
 
 
     return jsonify(success=True)
