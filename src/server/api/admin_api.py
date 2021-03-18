@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 import json
 from sqlalchemy.sql import text
+from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc, select
 from pipeline import flow_script
 from config import engine
 from flask import request, redirect, jsonify, current_app, abort
@@ -16,9 +17,15 @@ from config import (
 
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
 
+metadata = MetaData()
 
 def __allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+
+kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
+
 
 
 # file upload tutorial
@@ -62,9 +69,16 @@ def execute():
 
     last_execution_details = {"executionTime": current_time, "stats": statistics}
 
-    last_execution_file = open(LOGS_PATH + "last_execution.json", "w")
-    last_execution_file.write(json.dumps(last_execution_details))
-    last_execution_file.close()
+    last_ex_json = (json.dumps(last_execution_details))
+
+    with engine.connect() as connection:
+        ins_stmt = kvt.insert().values(
+            keycol = 'last_execution_time',
+            valcol = last_ex_json,
+        )
+
+        connection.execute(ins_stmt)
+
 
     return jsonify(success=True)
 
@@ -88,9 +102,17 @@ def get_statistics():
 @admin_api.route("/api/statistics", methods=["GET"])
 def list_statistics():
     try:
-        last_execution_file = open(LOGS_PATH + "last_execution.json", "r")
-        last_execution_details = json.loads(last_execution_file.read())
-        last_execution_file.close()
+
+
+        with engine.connect() as connection:
+            s = text("select valcol from kv_unique where keycol = 'last_execution_time';")
+            result = connection.execute(s)
+            last_execution_details  = result.fetchone()[0]
+
+
+       # last_execution_file = open(LOGS_PATH + "last_execution.json", "r")
+      #   last_execution_details = json.loads(last_execution_file.read())
+        # last_execution_file.close()
 
     except (FileNotFoundError):
         current_app.logger.error("last_execution.json file was missing")
@@ -106,7 +128,7 @@ def list_statistics():
         current_app.logger.error("Failure reading last_execution.json: ", e)
         return abort(500)
 
-    return jsonify(last_execution_details)
+    return last_execution_details
 
 
 """
