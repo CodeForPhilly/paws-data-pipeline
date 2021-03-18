@@ -70,7 +70,8 @@ def execute():
     last_execution_details = {"executionTime": current_time, "stats": statistics}
     last_ex_json = (json.dumps(last_execution_details))
 
-    # Write Last Execution stats to DB 
+    # Write Last Execution stats to DB  
+    # See Alembic Revision ID: 05e0693f8cbb for table definition
     with engine.connect() as connection:
         ins_stmt = insert(kvt).values(
             keycol = 'last_execution_time',
@@ -114,7 +115,7 @@ def list_statistics():
 
     last_execution_details = '{}'  # Empty but valid JSON
 
-    try:
+    try:    # See Alembic Revision ID: 05e0693f8cbb for table definition
         with engine.connect() as connection:
             s = text("select valcol from kv_unique where keycol = 'last_execution_time';")
             result = connection.execute(s)
