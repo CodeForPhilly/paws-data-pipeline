@@ -1,4 +1,5 @@
 import datetime
+import copy
 
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
@@ -26,6 +27,10 @@ class PdpContacts(Base):
     json = Column(JSONB)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
     archived_date = Column(DateTime, default=None)
+
+
+TempPdpContactsLoader = copy.deepcopy(PdpContacts)
+TempPdpContactsLoader.__tablename__ = "_temp_pdp_contacts_loader"
 
 
 
