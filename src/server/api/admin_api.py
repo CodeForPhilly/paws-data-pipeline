@@ -1,5 +1,4 @@
 from api.api import admin_api
-import shutil
 import os
 from datetime import datetime
 import json
