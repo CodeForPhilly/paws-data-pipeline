@@ -15,7 +15,7 @@ var jwt = require('jsonwebtoken');
 
 // Testing only
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
-const expTimer = () => sleep(1000).then(() => ({})) //.then(() =>  Error)
+const expTimer = () => sleep(500).then(() => ({})) //.then(() =>  Error)
 //  End testing 
 
 
@@ -34,7 +34,7 @@ function AuthProvider({children}) {
 
   React.useEffect(() => {
     expTimer().then(
-      user => setState({status: 'success', error: null, user}),
+      user => setState({status: 'success', error: null, user}),   // Should go 
       error => setState({status: 'error', error, user: null}),
     )
   }, )
@@ -104,16 +104,21 @@ function AuthenticatedApp() {
     //     return <Login setToken={setToken} />
     // } 
 
+    const jwtExpired = expTime <= 0
+
+    const hdr = userRole === 'admin' ?  <AdminHeader /> : <Header /> // If we're going to display a header, which one
 
   return (
     <>
         {/* {expTime =  decoded?.payload.exp -  Date.now()/1000}  */}
         <Router>
 
-            {userRole === 'admin' ?  <AdminHeader /> : <Header /> }
+          
+            { !jwtExpired && hdr ?  hdr : '' /* Previously chosen header, or if logged out, no header */ } 
+
             <p>{expTime.toFixed(1)}</p>
 
-            {(!access_token | expTime <= 0) ?  <Login setToken={setToken} /> :    <Switch>
+            {(!access_token | jwtExpired) ?  <Login setToken={setToken} /> :    <Switch>
 
                 <Route exact path="/">
                     <HomePage/>
