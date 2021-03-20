@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHistory } from "react-router-dom";
-import useToken from '../Login/useToken';
+import useToken from '../../components/Login/useToken';
 var jwt = require('jsonwebtoken');
 
 const { DateTime } = require("luxon");
@@ -17,7 +17,7 @@ export default function Check() {
     let history = useHistory()
  
     function authCheck() {
-        console.log('authCheck startfetch @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
+     //   console.log('authCheck startfetch @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
         fetch('http://localhost:5000/api/user/test_auth',
         {
             method: 'GET',
@@ -28,7 +28,7 @@ export default function Check() {
         })
     
         .then((response) => {
-            console.log('authCheck handle response @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
+         //   console.log('authCheck handle response @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
             if (!response.ok) {
                 //throw (String(response.status + ':' + response.statusText))
                 throw (response)
@@ -36,7 +36,7 @@ export default function Check() {
             return response.json()
         } )
         .then((data) => {
-            console.log('authCheck data  @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
+          //  console.log('authCheck data  @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
             setProcessStatus('complete');
             setData(data);
         })
@@ -62,21 +62,19 @@ export default function Check() {
     const userName = decoded?.payload.sub
     const userRole = decoded?.payload.role
     const expTime = decoded?.payload.exp
-    console.log('User: ' + userName + ' / Role:' + userRole + '->' +  processStatus + ' @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
+    // console.log('User: ' + userName + ' / Role:' + userRole + '->' +  processStatus + ' @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
 
-
-   
+ 
 
     React.useEffect(() => {
-
 
         if (! access_token){
            console.log("In Check w/o a token")
         }
 
-    console.log('Running authCheck @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
+   // console.log('Running authCheck @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
      authCheck();
-    console.log('After authCheck @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
+   //  console.log('After authCheck @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
 
            
     }, [ processStatus, access_token]);
@@ -93,7 +91,7 @@ export default function Check() {
 
 
 
-    console.log("About to return")
+    // console.log("About to return")
     return (
         <div>
             <h2>Check</h2>

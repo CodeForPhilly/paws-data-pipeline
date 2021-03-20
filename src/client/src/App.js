@@ -9,7 +9,7 @@ import Admin from './pages/Admin';
 import DataView from './pages/DataView360/DataView360';
 import About from './pages/About';
 import Login from './components/Login/Login';
-import Check from './components/Check/Check';
+import Check from './pages/Check/Check';
 import useToken from './components/Login/useToken';
 var jwt = require('jsonwebtoken');
 
