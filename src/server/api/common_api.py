@@ -4,6 +4,7 @@ from flask import jsonify
 from sqlalchemy.sql import text
 import requests
 import json
+import dateutil.parser
 from secrets import SHELTERLUV_SECRET_TOKEN
 
 
@@ -14,9 +15,9 @@ def get_contacts(search_text):
 
         names = search_text.split(" ")
         if len(names) == 2:
-            query = text("select * from pdp_contacts where archived_date is null AND\
-                lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2) \
-                OR lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)")
+            query = text("select * from pdp_contacts where archived_date is null AND ( \
+                (lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2)) \
+                OR (lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)) )")
             query_result = connection.execute(query, name1='{}%'.format(names[0]), name2='{}%'.format(names[1]))
         elif len(names) == 1:
             query = text("select * from pdp_contacts \
@@ -52,7 +53,17 @@ def get_360(matching_id):
             if row["source_type"] == "volgistics":
                 shifts_query = text("select * from volgisticsshifts where number = :volgistics_id")
                 volgistics_shifts_query_result = connection.execute(shifts_query, volgistics_id=row["source_id"])
-                volgisticsshifts_results = [dict(row) for row in volgistics_shifts_query_result]
+                volgisticsshifts_results = []
+
+                # todo: temporary fix until formatted in the pipeline
+                for r in volgistics_shifts_query_result:
+                    shifts = dict(r)
+                    # normalize date string
+                    parsed_date_from = dateutil.parser.parse(shifts["from"], ignoretz=True)
+                    normalized_date_from = parsed_date_from.strftime("%Y-%m-%d")
+                    shifts["from"] = normalized_date_from
+                    volgisticsshifts_results.append(shifts)
+
                 result['shifts'] = volgisticsshifts_results
 
             if row["source_type"] == "shelterluvpeople":
@@ -63,21 +74,12 @@ def get_360(matching_id):
                 animal_ids = person_json["Animal_ids"]
 
                 for animal_id in animal_ids:
-                    animal_events = requests.get("http://shelterluv.com/api/v1/animals/{}/events".format(animal_id),
-                                                 headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
-                    animal_events_json = animal_events.json()
+                    animal_details = requests.get(
+                        "http://shelterluv.com/api/v1/animals/{}".format(animal_id),
+                        headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
 
-                    for event in animal_events_json["events"]:
-                        for adoption in event["AssociatedRecords"]:
-                            if adoption["Type"] == "Person" and adoption["Id"] == row["source_id"]:
-                                del event["AssociatedRecords"]
-                                animal_details = requests.get(
-                                    "http://shelterluv.com/api/v1/animals/{}".format(animal_id),
-                                    headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
-
-                                animal_details_json = animal_details.json()
-                                event["animal_details"] = animal_details_json
-                                adoptions.append(event)
+                    animal_details_json = animal_details.json()
+                    adoptions.append(animal_details_json)
 
                     result['adoptions'] = adoptions
 

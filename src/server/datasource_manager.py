@@ -1,5 +1,4 @@
 import re
-import phonenumbers
 
 
 def __clean_csv_headers(header):
@@ -13,9 +12,9 @@ CSV_HEADERS = {
                          'Apartment', 'City', 'State', 'Zip', 'Email', 'Phone', 'Animal_ids'],
     'volgistics': ['Last name', 'First name', 'Middle name', 'Number', 'Complete address', 'Street 1', 'Street 2',
                    'Street 3', 'City', 'State', 'Zip', 'All phone numbers', 'Home', 'Work', 'Cell', 'Email'],
-    'salesforcecontacts': ['Contact ID', 'First Name', 'Last Name', 'Mailing Street', 'Mailing City',
+    'salesforcecontacts': ['Contact ID 18', 'First Name', 'Last Name', 'Mailing Street', 'Mailing City',
                            'Mailing State/Province', 'Mailing Zip/Postal Code', 'Mailing Country', 'Phone', 'Mobile',
-                           'Email'],
+                           'Email', 'Account ID 18', 'Volgistics ID', 'Person ID'],
     'volgisticsshifts': ['Number', 'Site', 'Place', 'Assignment', 'Role', 'From', 'To', 'Spare date', 'Spare dropdown',
                          'Spare checkbox', 'Coordinator'],
     'salesforcedonations': ['Recurring donor', 'Opportunity Owner', 'Account Name', 'Opportunity ID (18 Digit)',
@@ -27,7 +26,7 @@ CSV_HEADERS = {
 
 DATASOURCE_MAPPING = {
     'salesforcecontacts': {
-        'id': 'contact_id',
+        'id': 'contact_id_18',
         'csv_names': CSV_HEADERS['salesforcecontacts'],
         'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['salesforcecontacts'])),
         'table_email': 'email',
@@ -81,27 +80,31 @@ def volgistics_address(street, index):
             else:
                 result = street.split()[index]
 
-
     return result
 
 
 def normalize_phone_number(number):
-    if str(number) == 'nan':
-        return ""
-    try:
-        parsed_number = phonenumbers.parse(number, "US")
-    except phonenumbers.phonenumberutil.NumberParseException:
-        return ""
-    return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.NATIONAL)
+    result = None
+
+    if number and str(number) != 'nan':
+        number = re.sub('[() -.+]', '', str(number))
+
+        if number and number[0] == '1':
+            number = number[1:]
+
+        if number.isdigit() and len(number) == 10:
+            result = number
+
+    return result
 
 
 SOURCE_NORMALIZATION_MAPPING = {
     "salesforcecontacts": {
-        "source_id": "contact_id",
+        "source_id": "contact_id_18",
         "first_name": "first_name",
         "last_name": "last_name",
         "email": "email",
-        "mobile": lambda df: df["mobile"].combine_first(df["phone"]),
+        "mobile": lambda df: df["mobile"].combine_first(df["phone"]).apply(normalize_phone_number),
         "street_and_number": "mailing_street",
         "apartment": "mailing_street",
         "city": "mailing_city",
@@ -123,7 +126,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         "first_name": "firstname",
         "last_name": "lastname",
         "email": "email",
-        "mobile": lambda df: df["phone"],
+        "mobile": lambda df: df["phone"].apply(normalize_phone_number),
         "street_and_number": "street",
         "apartment": "apartment",
         "city": "city",
@@ -138,7 +141,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         "first_name": "first_name",
         "last_name": "last_name",
         "email": "email",
-        "mobile": lambda df: df["cell"].combine_first(df["home"]),
+        "mobile": lambda df: df["cell"].combine_first(df["home"]).apply(normalize_phone_number),
         "street_and_number": lambda df: df["street_1"].apply(volgistics_address, index=1),
         "apartment": lambda df: df["street_1"].apply(volgistics_address, index=0),
         "city": "city",

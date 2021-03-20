@@ -6,13 +6,11 @@ import json
 from sqlalchemy.sql import text
 from pipeline import flow_script
 from config import engine
-from flask import send_file, request, redirect, jsonify, current_app, abort
+from flask import request, redirect, jsonify, current_app, abort
 from api.file_uploader import validate_and_arrange_upload
 from config import (
     RAW_DATA_PATH,
-    OUTPUT_PATH,
     CURRENT_SOURCE_FILES_PATH,
-    ZIPPED_FILES,
     LOGS_PATH,
 )
 
@@ -39,31 +37,6 @@ def uploadCSV():
                 file.close()
 
     return redirect("/")
-
-
-@admin_api.route("/api/files/<destination>", methods=["GET"])
-def files(destination):
-    current_app.logger.info("Start returning zip of all data")
-    if request.args.get("download_current_btn"):
-        source = RAW_DATA_PATH + destination
-    if request.args.get("download_archived_btn"):
-        source = RAW_DATA_PATH
-    if request.args.get("download_output_btn"):
-        source = OUTPUT_PATH
-
-    zip_name = destination + "_data_out"
-
-    try:
-        current_app.logger.info(
-            shutil.make_archive(ZIPPED_FILES + zip_name, "zip", source)
-        )
-        return send_file(
-            ZIPPED_FILES + zip_name + ".zip",
-            as_attachment=True,
-            attachment_filename=zip_name + ".zip",
-        )
-    except Exception as e:
-        return str(e)
 
 
 @admin_api.route("/api/listCurrentFiles", methods=["GET"])

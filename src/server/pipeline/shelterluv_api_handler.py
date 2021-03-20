@@ -1,7 +1,26 @@
 import requests
-import json
-import config
+import csv
+from config import RAW_DATA_PATH
 from secrets import SHELTERLUV_SECRET_TOKEN
+
+
+def write_csv(json_data):
+    result = open(RAW_DATA_PATH + "shelterluv_people.csv", "w")
+
+    csv_writer = csv.writer(result)
+    count = 0
+
+    for item in json_data:
+        if count == 0:
+            # Writing headers of CSV file
+            header = item.keys()
+            csv_writer.writerow(header)
+            count += 1
+
+        # Writing data of CSV file
+        csv_writer.writerow(item.values())
+
+    result.close()
 
 #################################
 # This script is used to fetch data from shelterluv API.
@@ -31,8 +50,7 @@ def store_shelterluv_people_all():
         has_more = response["has_more"]
         offset += 100
 
-    with open(config.RAW_DATA_PATH + "shelterLuv_people.json", "w") as outfile:
-        json.dump(shelterluv_people, outfile, indent=4)
+    write_csv(shelterluv_people)
 
 
 if __name__ == "__main__":
