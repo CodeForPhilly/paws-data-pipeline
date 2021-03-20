@@ -9,7 +9,7 @@ from secrets import JWT_SECRET, APP_SECRET_KEY
 app = Flask(__name__)
 
 app.config["JWT_SECRET_KEY"] = JWT_SECRET  
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 300  # Seconds for timeout. 60 for testing.
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 45  #TODO: See to full value   # Seconds for timeout. 60 for testing.
 jwt = JWTManager(app)
 
 
