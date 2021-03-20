@@ -73,7 +73,7 @@ def execute():
     # Write Last Execution stats to DB  
     # See Alembic Revision ID: 05e0693f8cbb for table definition
     with engine.connect() as connection:
-        ins_stmt = insert(kvt).values(
+        ins_stmt = insert(kvt).values(               # Postgres-specific insert() supporting ON CONFLICT 
             keycol = 'last_execution_time',
             valcol = last_ex_json,
             )
@@ -93,7 +93,7 @@ def execute():
 
 
 def get_statistics():
-    """ Write Last Execution stats to DB. """
+
     with engine.connect() as connection:
         query_matches = text("SELECT count(*) FROM (SELECT distinct matching_id from pdp_contacts) as a;")
         query_total_count = text("SELECT count(*) FROM pdp_contacts;")
@@ -112,7 +112,7 @@ def get_statistics():
 @admin_api.route("/api/statistics", methods=["GET"])
 def list_statistics():
     """ Pull Last Execution stats from DB. """
-
+    current_app.logger.info("list_statistics() request")
     last_execution_details = '{}'  # Empty but valid JSON
 
     try:    # See Alembic Revision ID: 05e0693f8cbb for table definition
