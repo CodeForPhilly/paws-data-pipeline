@@ -110,20 +110,20 @@ function AuthenticatedApp() {
 
   return (
     <>
-        {/* {expTime =  decoded?.payload.exp -  Date.now()/1000}  */}
+       
         <Router>
-
           
-            { !jwtExpired && hdr ?  hdr : '' /* Previously chosen header, or if logged out, no header */ } 
-
-            <p>{expTime.toFixed(1)}</p>
-
-            {(!access_token | jwtExpired) ?  <Login setToken={setToken} /> :    <Switch>
+            { !jwtExpired && hdr ?  hdr : '' /* Above-chosen header, or if logged out, no header */ } 
+           
+            {  /* If not logged in, show login screen */
+              (!access_token | jwtExpired) ?  <Login setToken={setToken} /> :    <Switch>  
 
                 <Route exact path="/">
                     <HomePage/>
                 </Route>
-                {userRole === 'admin' && 
+
+                {  /* If an admin, render Upload page       */
+                  userRole === 'admin' && 
                     <Route path="/upload">
                         <Admin/>
                     </Route>
