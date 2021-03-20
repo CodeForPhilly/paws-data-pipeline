@@ -27,8 +27,7 @@ function AuthProvider({children}) {
 
   React.useEffect(() => {
     expTimer().then(
-      user => setState({status: 'success', error: null, user}),   // Should go 
-      error => setState({status: 'error', error, user: null}),
+      user => setState({status: 'success', error: null, user})  // 
     )
   }, )
 
@@ -66,15 +65,6 @@ function useAuthState() {
 }
 
 
-
-function UnauthenticatedApp() {
-  return (
-    <>
-      <h3>Unauthorized</h3>
-    </>
-  )
-}
-
 function AuthenticatedApp() {
 
     const { access_token, setToken } = useToken();
@@ -87,7 +77,7 @@ function AuthenticatedApp() {
 
     const jwtExpired = expTime <= 0
 
-    const hdr = userRole === 'admin' ?  <AdminHeader /> : <Header /> // If we're going to display a header, which one
+    const hdr = userRole === 'admin' ?  <AdminHeader /> : <Header /> // If we're going to display a header, which one?
 
   return (
     <>
@@ -107,26 +97,26 @@ function AuthenticatedApp() {
                     <Route path="/upload">
                         <Admin/>
                     </Route>
-                }               
+                    }               
+
                 <Route path="/about">
                     <About/>
                 </Route>
+
                 <Route path="/dataView">
                     <DataView/>
                 </Route>
-              <Route path="/check"> 
-                <Check />
-              </Route>
+
+                <Route path="/check"> 
+                  <Check />
+                </Route>
             </Switch>
-
-              }
-
+            }
 
         </Router>
     </>
   )
 }
-
 
 
 function Home() {
@@ -137,7 +127,6 @@ function Home() {
 
 function App() {
   const { access_token, setToken } = useToken();
-  // const {username, role} = useAuthState()
 
   return (
     <AuthProvider>
