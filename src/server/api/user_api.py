@@ -138,7 +138,7 @@ def user_login():
 @jwt_ops.jwt_required()
 def user_test_auth():
     """ Liveness test, requires JWT """
-    sysname = ''    # Ensure we are talking to the right host
+    sysname = '?'    # Ensure we are talking to the expected host
     try:
         sysname = environ['computername'] 
     except:
