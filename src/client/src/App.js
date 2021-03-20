@@ -13,18 +13,11 @@ import Check from './components/Check/Check';
 import useToken from './components/Login/useToken';
 var jwt = require('jsonwebtoken');
 
-// Testing only
+// Triggers token expiration check 
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
-const expTimer = () => sleep(500).then(() => ({})) //.then(() =>  Error)
-//  End testing 
-
-
-
-
+const expTimer = () => sleep(500).then(() => ({})) 
 
 const AuthContext = React.createContext()
-
-
 
 function AuthProvider({children}) {
   const [state, setState] = React.useState({
@@ -84,8 +77,6 @@ function UnauthenticatedApp() {
 
 function AuthenticatedApp() {
 
-    // const {user} = useAuthState()
-
     const { access_token, setToken } = useToken();
 
 
@@ -94,23 +85,12 @@ function AuthenticatedApp() {
     const userRole = decoded?.payload.role;
     var expTime =  decoded?.payload.exp -  Date.now()/1000;
 
-
-    
-    // console.log('User: ' + userName + ' / Role:' + userRole + ' JWT expires: '  + expTime.toFixed(1) + ' secs' );
-
-
-
-    // if (!access_token | expTime < 0) {
-    //     return <Login setToken={setToken} />
-    // } 
-
     const jwtExpired = expTime <= 0
 
     const hdr = userRole === 'admin' ?  <AdminHeader /> : <Header /> // If we're going to display a header, which one
 
   return (
     <>
-       
         <Router>
           
             { !jwtExpired && hdr ?  hdr : '' /* Above-chosen header, or if logged out, no header */ } 
@@ -146,9 +126,6 @@ function AuthenticatedApp() {
     </>
   )
 }
-
-
-
 
 
 
