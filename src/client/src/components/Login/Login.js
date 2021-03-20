@@ -55,7 +55,7 @@ export default function Login({ setToken }) {
                 </label>
                 <label>
                     <p>Authenticator code</p>
-                    <input type="text" onChange={e => setAuthCode(e.target.value)} />
+                    <input type="text" placeholder="IGNORE ME"   onChange={e => setAuthCode(e.target.value)} />
                 </label>
                 <div>
                     <button type="submit">Submit</button>
