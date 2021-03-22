@@ -6,15 +6,14 @@ import json
 from sqlalchemy.sql import text
 
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc, select
+from sqlalchemy import Table, MetaData
 from pipeline import flow_script
 from config import engine
-from flask import request, redirect, jsonify, current_app, abort
+from flask import request, redirect, jsonify, current_app
 from api.file_uploader import validate_and_arrange_upload
 from config import (
     RAW_DATA_PATH,
-    CURRENT_SOURCE_FILES_PATH,
-    LOGS_PATH,
+    CURRENT_SOURCE_FILES_PATH
 )
 
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
@@ -120,8 +119,10 @@ def list_statistics():
         with engine.connect() as connection:
             s = text("select valcol from kv_unique where keycol = 'last_execution_time';")
             result = connection.execute(s)
-            last_execution_details  = result.fetchone()[0]
 
+            fetch_result = result.fetchone()
+            if fetch_result:
+                last_execution_details = result.fetchone()[0]
 
     except Exception as e:
         current_app.logger.error("Failure reading Last Execution stats from DB")

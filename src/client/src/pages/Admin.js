@@ -39,7 +39,8 @@ class Admin extends Component {
             statistics: undefined,
             filesInput: undefined,
             fileListHtml: undefined,
-            lastExecution: undefined
+            lastExecution: undefined,
+            serverBusy: false
         }
 
         this.handleIndexChange = this.handleIndexChange.bind(this);
@@ -85,7 +86,7 @@ class Admin extends Component {
         this.setState({isLoading: false});
     };
 
-    async handleExecute(event) {
+    handleExecute(event) {
         event.preventDefault();
 
         this.setState({isLoading: true});
@@ -93,7 +94,7 @@ class Admin extends Component {
 
         setTimeout(() => {
             this.refreshPage();
-        }, 3000);
+        }, 1500);
     }
 
     async handleGetStatistics() {
@@ -184,7 +185,9 @@ class Admin extends Component {
                                                 <b>Last Analysis</b>
                                             </TableCell>
                                             <TableCell align="left">
-                                                <b>{moment(this.state.lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}</b>
+                                                <b>
+                                                    {moment(this.state.lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
+                                                </b>
                                             </TableCell>
                                         </TableRow>
                                         {this.state.statistics.map((row, index) => (
