@@ -76,10 +76,3 @@ os.makedirs(LOGS_PATH, exist_ok=True)
 os.makedirs(CURRENT_SOURCE_FILES_PATH, exist_ok=True)
 os.makedirs(REPORT_PATH, exist_ok=True)
 os.makedirs(ZIPPED_FILES, exist_ok=True)
-
-# if not (os.path.exists(LOGS_PATH + "last_execution.json")):
-#     f = open(
-#         LOGS_PATH + "last_execution.json", "w"
-#     )  # Prevent 500 error from /api/statistics
-#     f.write("{}")
-#     f.close()
