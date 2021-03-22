@@ -17,6 +17,7 @@ def start(connection, added_or_updated_rows):
 
     job_id = str(int(time.time()))
     log_db.log_exec_status(job_id,{'status': 'starting', 'at_row':  0, 'of_rows':0})
+    current_app.logger.info("Running execute job ID " + job_id)
     items_to_update = pd.concat([added_or_updated_rows["new"], added_or_updated_rows["updated"]], ignore_index=True)
     pdp_contacts = pd.read_sql_table('pdp_contacts', connection)
 
