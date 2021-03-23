@@ -53,13 +53,13 @@ export default function Login({ setToken }) {
                     <p>Password</p>
                     <input type="password" onChange={e => setPassword(e.target.value)} />
                 </label>
-                <label>
+                {/* <label>
                     <p>Authenticator code</p>
                     <input type="text" placeholder="IGNORE ME"   onChange={e => setAuthCode(e.target.value)} />
-                </label>
+                </label> */}
                 <div>
                     <button type="submit">Submit</button>
-                </div>
+                </div> 
                 <div>
                     <p id="loginErrorMsg"></p>
                 </div>
