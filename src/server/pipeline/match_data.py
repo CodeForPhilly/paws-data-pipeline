@@ -1,8 +1,10 @@
-import datetime
+import datetime, time
 import pandas as pd
 import numpy as np
 
 from flask import current_app
+from pipeline import log_db
+
 
 
 def start(connection, added_or_updated_rows):
@@ -12,6 +14,10 @@ def start(connection, added_or_updated_rows):
     current_app.logger.info('Start record matching')
     # Will need to consider updating the existing row contents (filter by active), deactivate,
     # try to match, and merge previous matching groups if applicable
+
+    job_id = str(int(time.time()))
+    log_db.log_exec_status(job_id,{'status': 'starting', 'at_row':  0, 'of_rows':0})
+    current_app.logger.info("Running execute job ID " + job_id)
     items_to_update = pd.concat([added_or_updated_rows["new"], added_or_updated_rows["updated"]], ignore_index=True)
     pdp_contacts = pd.read_sql_table('pdp_contacts', connection)
 
@@ -30,8 +36,9 @@ def start(connection, added_or_updated_rows):
     for row_num, row in enumerate(rows):
         if row_num % row_print_freq == 0:
             current_app.logger.info("- Matching rows {}-{} of {}".format(
-                row_num + 1, min(len(rows), row_num + row_print_freq), len(rows))
+                row_num+1, min(len(rows), row_num+row_print_freq), len(rows))
             )
+            log_db.log_exec_status(job_id,{'status': 'executing', 'at_row':  row_num+1, 'of_rows':len(rows)})
 
         # Exact matches based on specified columns
         row_matches = pdp_contacts[
@@ -66,3 +73,5 @@ def start(connection, added_or_updated_rows):
     current_app.logger.info("- Writing data to pdp_contacts table")
     items_to_update.to_sql('pdp_contacts', connection, index=False, if_exists='append')
     current_app.logger.info("- Finished load to pdp_contacts table")
+
+    log_db.log_exec_status(job_id,{'status': 'complete', 'at_row':  len(rows), 'of_rows':len(rows)})

@@ -131,6 +131,20 @@ def list_statistics():
     return last_execution_details
 
 
+@admin_api.route("/api/get_execution_status/<int:job_id>", methods=["GET"])
+def get_exec_status(job_id):
+    kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
+    with engine.connect() as connection:
+        s_jobid = 'job-' + str(job_id)        
+        s = text("select valcol from kv_unique where keycol = :j ;")
+        s = s.bindparams(j=s_jobid)
+        result = connection.execute(s)
+        exec_status  = result.fetchone()[0]
+
+    return exec_status
+
+
+
 """
 @admin_api.route('/api/status', methods=['GET'])
 def checkStatus():

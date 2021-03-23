@@ -16,6 +16,7 @@ jwt = JWTManager(app)
 app.secret_key = APP_SECRET_KEY
 app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024  # 500 Megs
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
+
 from api.admin_api import admin_api
 from api.common_api import common_api
 from api.user_api import user_api
@@ -23,6 +24,8 @@ from api.user_api import user_api
 app.register_blueprint(admin_api)
 app.register_blueprint(common_api)
 app.register_blueprint(user_api)
+
+app.logger.setLevel('INFO')
 
 # init_db_schema.start(connection)
 
