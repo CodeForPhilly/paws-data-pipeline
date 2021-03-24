@@ -30,6 +30,8 @@ const styles = theme => ({
 });
 
 
+const executing = "executing"
+
 class Admin extends Component {
     constructor(props) {
         super(props);
@@ -86,22 +88,21 @@ class Admin extends Component {
         this.setState({isLoading: false});
     };
 
-    handleExecute(event) {
+    async handleExecute(event) {
         event.preventDefault();
 
         this.setState({isLoading: true});
-        fetch('/api/execute');
 
-        setTimeout(() => {
-            this.refreshPage();
-        }, 1500);
+        await fetch('/api/execute');
+
+        this.refreshPage();
     }
 
     async handleGetStatistics() {
         const statsData = await fetch("/api/statistics");
-        const statsResponse = await statsData.json();
+        const statsResponse = await statsData.json()
 
-        if (statsResponse !== 'Running') {
+        if (statsResponse !== 'executing') {
             this.setState({
                 statistics: _.toPairsIn(statsResponse.stats),
                 lastExecution: statsResponse.executionTime

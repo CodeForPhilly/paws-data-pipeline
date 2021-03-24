@@ -6,14 +6,15 @@ import json
 from sqlalchemy.sql import text
 
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import Table, MetaData
+from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc, select
 from pipeline import flow_script
 from config import engine
-from flask import request, redirect, jsonify, current_app
+from flask import request, redirect, jsonify, current_app, abort
 from api.file_uploader import validate_and_arrange_upload
 from config import (
     RAW_DATA_PATH,
-    CURRENT_SOURCE_FILES_PATH
+    CURRENT_SOURCE_FILES_PATH,
+    LOGS_PATH,
 )
 
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
@@ -30,9 +31,8 @@ kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
 # file upload tutorial
 @admin_api.route("/api/file", methods=["POST"])
 def uploadCSV():
-    current_app.logger.info("Uploading CSV")
     if "file" not in request.files:
-        return jsonify({"error": "no file supplied"});
+        return redirect(request.url)
 
     for file in request.files.getlist("file"):
         if __allowed_file(file.filename):
@@ -119,10 +119,8 @@ def list_statistics():
         with engine.connect() as connection:
             s = text("select valcol from kv_unique where keycol = 'last_execution_time';")
             result = connection.execute(s)
+            last_execution_details  = result.fetchone()[0]
 
-            fetch_result = result.fetchone()
-            if fetch_result:
-                last_execution_details = result.fetchone()[0]
 
     except Exception as e:
         current_app.logger.error("Failure reading Last Execution stats from DB")
