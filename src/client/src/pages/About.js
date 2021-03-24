@@ -5,10 +5,10 @@ export default function About(props){
   return (
 <Container>
 <Container style={{"padding":"1em"}}>
-  <h1><a href="phillypaws.org">
+  <h1><a href="https://phillypaws.org/">
     The Philadelphia Animal Welfare Society(PAWS)
   </a></h1>
-  <p>As the city’s largest animal rescue partner and no-kill animal shelter, the <a href="phillypaws.org">Philadelphia
+  <p>As the city’s largest animal rescue partner and no-kill animal shelter, the <a href="https://phillypaws.org/">Philadelphia
       Animal Welfare Society (PAWS)</a> is working to make Philadelphia a place where every healthy and treatable pet is
     guaranteed a home. Since inception over 10 years ago, PAWS has rescued and placed 27,000+ animals in adoptive and
     foster homes, and has worked to prevent pet homelessness by providing 86,000+ low-cost spay/neuter services and
