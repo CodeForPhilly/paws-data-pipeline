@@ -24,6 +24,9 @@ app.register_blueprint(admin_api)
 app.register_blueprint(common_api)
 app.register_blueprint(user_api)
 
+app.logger.setLevel('INFO')  # By default, Docker appears to set at INFO but VSCode at WARNING 
+
+
 # init_db_schema.start(connection)
 
 
