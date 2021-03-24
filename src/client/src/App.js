@@ -17,7 +17,7 @@ export default function App(props) {
                 <Route exact path="/">
                     <HomePage/>
                 </Route>
-                <Route path="/upload">
+                <Route path="/admin">
                     <Admin/>
                 </Route>
                 <Route path="/about">
