@@ -31,8 +31,9 @@ kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
 # file upload tutorial
 @admin_api.route("/api/file", methods=["POST"])
 def uploadCSV():
+    current_app.logger.info("Uploading CSV")
     if "file" not in request.files:
-        return redirect(request.url)
+        return jsonify({"error": "no file supplied"});
 
     for file in request.files.getlist("file"):
         if __allowed_file(file.filename):
@@ -43,7 +44,7 @@ def uploadCSV():
             finally:
                 file.close()
 
-    return redirect("/")
+    return jsonify({"success": "uploaded file"});
 
 
 @admin_api.route("/api/listCurrentFiles", methods=["GET"])
