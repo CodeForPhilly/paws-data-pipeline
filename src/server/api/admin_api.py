@@ -121,23 +121,29 @@ def list_statistics():
             result = connection.execute(s)
             last_execution_details  = result.fetchone()[0]
 
-
     except Exception as e:
-        current_app.logger.error("Failure reading Last Execution stats from DB")
-       # return abort(500)    # Weird but not worth a 500
+        current_app.logger.warning("Failure reading Last Execution stats from DB")
+        # Will heppen on first run, shouldn't after
 
     return last_execution_details
 
 
 @admin_api.route("/api/get_execution_status/<int:job_id>", methods=["GET"])
 def get_exec_status(job_id):
-    kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
+    """ Get the execution status record from the DB for the specified job_id """
+    kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)  #TODO: Don't think we need this or Metadata import
+    
+    exec_status = '{}'
+
     with engine.connect() as connection:
         s_jobid = 'job-' + str(job_id)        
         s = text("select valcol from kv_unique where keycol = :j ;")
         s = s.bindparams(j=s_jobid)
         result = connection.execute(s)
-        exec_status  = result.fetchone()[0]
+        if result.rowcount > 0:
+            exec_status  = result.fetchone()[0]
+        else:
+            current_app.logger.warning("Failure reading Execution Status from DB")
 
     return exec_status
 
