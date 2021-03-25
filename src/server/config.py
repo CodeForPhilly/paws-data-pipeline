@@ -1,6 +1,5 @@
 import os
 import sqlalchemy as db
-from sqlalchemy_utils import database_exists, create_database
 
 import models
 
@@ -38,9 +37,6 @@ else:
     )
 
 engine = db.create_engine(DB)
-
-if not database_exists(engine.url):
-    create_database(engine.url)
 
 with engine.connect() as connection:
     models.Base.metadata.create_all(connection)
