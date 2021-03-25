@@ -31,9 +31,8 @@ kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
 # file upload tutorial
 @admin_api.route("/api/file", methods=["POST"])
 def uploadCSV():
-    current_app.logger.info("Uploading CSV")
     if "file" not in request.files:
-        return jsonify({"error": "no file supplied"});
+        return redirect(request.url)
 
     for file in request.files.getlist("file"):
         if __allowed_file(file.filename):
@@ -44,7 +43,7 @@ def uploadCSV():
             finally:
                 file.close()
 
-    return jsonify({"success": "uploaded file"});
+    return redirect("/")
 
 
 @admin_api.route("/api/listCurrentFiles", methods=["GET"])
@@ -71,14 +70,14 @@ def execute():
     last_execution_details = {"executionTime": current_time, "stats": statistics}
     last_ex_json = (json.dumps(last_execution_details))
 
-    # Write Last Execution stats to DB  
+    # Write Last Execution stats to DB
     # See Alembic Revision ID: 05e0693f8cbb for table definition
     with engine.connect() as connection:
-        ins_stmt = insert(kvt).values(               # Postgres-specific insert() supporting ON CONFLICT 
+        ins_stmt = insert(kvt).values(               # Postgres-specific insert() supporting ON CONFLICT
             keycol = 'last_execution_time',
             valcol = last_ex_json,
             )
-        # If key already present in DB, do update instead 
+        # If key already present in DB, do update instead
         upsert = ins_stmt.on_conflict_do_update(
                 constraint='kv_unique_keycol_key',
                 set_=dict(valcol=last_ex_json)

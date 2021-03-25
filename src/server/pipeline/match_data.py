@@ -30,7 +30,7 @@ def start(connection, added_or_updated_rows):
     items_to_update["matching_id"] = 0  # initializing an int and overwrite in the loop
     items_to_update["archived_date"] = np.nan
     items_to_update["created_date"] = datetime.datetime.now()
-    
+
     rows = items_to_update.to_dict(orient="records")
     row_print_freq = max(1, np.floor_divide(len(rows), 20))  # approx every 5% (or every row if small)
     for row_num, row in enumerate(rows):
@@ -39,12 +39,19 @@ def start(connection, added_or_updated_rows):
                 row_num+1, min(len(rows), row_num+row_print_freq), len(rows))
             )
             log_db.log_exec_status(job_id,{'status': 'executing', 'at_row':  row_num+1, 'of_rows':len(rows)})
-        
+
         # Exact matches based on specified columns
         row_matches = pdp_contacts[
-            (pdp_contacts["first_name"] == row["first_name"]) &
-            (pdp_contacts["last_name"] == row["last_name"]) &
-            ((pdp_contacts["email"] == row["email"]) | (pdp_contacts["mobile"] == row["mobile"]))
+            (
+                    ((pdp_contacts["first_name"] == row["first_name"]) &
+                    (pdp_contacts["last_name"] == row["last_name"]))
+                    |
+                    ((pdp_contacts["first_name"] == row["last_name"]) &
+                    (pdp_contacts["last_name"] == row["first_name"]))
+                    &
+                    ((pdp_contacts["email"] == row["email"]) | (pdp_contacts["mobile"] == row["mobile"]))
+            )
+
         ]
         if row_matches.empty:  # new record, no matching rows
             max_matching_group += 1
@@ -54,14 +61,14 @@ def start(connection, added_or_updated_rows):
             if not all(row_matches["matching_id"] == row_group):
                 current_app.logger.warning(
                     "Source {} with ID {} is matching multiple groups in pdp_contacts ({})"
-                    .format(row["source_type"], row["source_id"], str(row_matches["matching_id"].drop_duplicates()))
+                        .format(row["source_type"], row["source_id"], str(row_matches["matching_id"].drop_duplicates()))
                 )
         items_to_update.loc[row_num, "matching_id"] = row_group
         # Updating local pdp_contacts dataframe instead of a roundtrip to postgres within the loop.
         # Indexing by iloc and vector of rows to keep the pd.DataFrame class and avoid implicit
         # casting to a single-typed pd.Series.
         pdp_contacts = pdp_contacts.append(items_to_update.iloc[[row_num], :], ignore_index=True)
-    
+
     # Write new data and matching ID's to postgres in bulk, instead of line-by-line
     current_app.logger.info("- Writing data to pdp_contacts table")
     items_to_update.to_sql('pdp_contacts', connection, index=False, if_exists='append')
