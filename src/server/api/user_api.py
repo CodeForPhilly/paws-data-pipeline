@@ -143,6 +143,38 @@ def user_logout():
     return jsonify("Logged out " + username)
 
 
+# Generate a new access token 
+
+@user_api.route("/api/user/refresh", methods=["GET"])
+@jwt_ops.jwt_required()
+def user_refresh():
+    """ If user still active, send back an access_token with a new expiration stamp """
+    old_jwt = jwt_ops.validate_decode_jwt()   
+
+    # If token bad, should be handled & error message sent by jwt_required() and we won't get here
+    if old_jwt:
+        user_name = old_jwt['sub']
+        with engine.connect() as connection:
+
+            s = text( """select active from pdp_users where username=:u """ )
+            s = s.bindparams(u=user_name)
+            result = connection.execute(s)
+
+            if result.rowcount:  # Did we get a match on username?
+                is_active = result.fetchone()
+            else:
+                log_user_action(user_name, "Failure", "Valid JWT presented for refesh attempt on unknown username")
+                return jsonify("Bad credentials"), 401
+
+            if is_active[0].lower() == 'y':    # In the user DB and still Active?
+                token = jwt_ops.create_token(user_name,old_jwt['role'])
+                return token
+
+    else:
+        return jsonify("Bad credentials"), 401
+
+
+
 ###    Unexpired *Admin* JWT  required      ############################
 
 

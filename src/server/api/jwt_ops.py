@@ -34,6 +34,12 @@ def create_token(username, accesslevel):
     return jsonify(access_token=new_token)
 
 
-def get_jwt_user():
-    """ Read the JWT and return the associated username """
-    return get_jwt_identity()
+def validate_decode_jwt():
+    """ If valid, return jwt fields as a dictionary, else None """
+    jwtdict = None
+    try:
+        jwtdict =  verify_jwt_in_request()[1]
+    except:
+        pass   # Wasn't valid - either expired or failed validation 
+
+    return jwtdict
