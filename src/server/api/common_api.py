@@ -4,9 +4,21 @@ from flask import jsonify
 from sqlalchemy.sql import text
 import requests
 import json
+import time
+from datetime import datetime
 import dateutil.parser
 from secrets import SHELTERLUV_SECRET_TOKEN
 
+
+@common_api.route('/api/timeout_test/<duration>', methods=['GET'])
+def get_timeout(duration):
+    start = datetime.now().strftime("%H:%M:%S");
+    time.sleep(int(duration))
+
+    stop = datetime.now().strftime("%H:%M:%S");
+    results = jsonify({'result': 'success', 'duration': duration, 'start': start, 'stop': stop})
+
+    return results
 
 @common_api.route('/api/contacts/<search_text>', methods=['GET'])
 def get_contacts(search_text):

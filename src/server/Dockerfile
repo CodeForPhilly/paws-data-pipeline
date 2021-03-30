@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM python:3.8
 
 RUN apt-get update && apt-get install -y vim
 
@@ -8,11 +8,18 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update
+
+RUN apt-get install -y python3-dev uwsgi uwsgi-src libcap-dev uwsgi-plugin-python3
 RUN pip install --upgrade pip
 
 COPY requirements.txt /
 
 RUN pip install --no-cache-dir -r /requirements.txt
+
+RUN export PYTHON=python3.8
+RUN uwsgi --build-plugin "/usr/src/uwsgi/plugins/python python38"
+RUN mv python38_plugin.so /usr/lib/uwsgi/plugins/python38_plugin.so
+RUN chmod 666 /usr/lib/uwsgi/plugins/python38_plugin.so
 
 COPY . .
 
@@ -30,16 +37,9 @@ COPY . /paws-data-pipeline/server
 
 RUN chmod 777 /paws-data-pipeline/server
 
+RUN chmod +x  bin/startServer.sh
+# RUN ufw allow 5000
 WORKDIR /app
 
-# we may want to switch this to a script which logs output, etc?
-# CMD python app.py
-
-RUN set FLASK_APP=server/app.py
-RUN export FLASK_APP
-
-# This abomination ensures that the PG server has finished its restart cycle
-CMD echo "SLEEPING 10"; sleep 10; echo "WAKING"; alembic upgrade head ; python -m flask run --host=0.0.0.0 --no-reload
-
-# --no-reload prevents Flask restart, which usually happens in middle of create_base_users()
-#TODO: SECURITY - ensure we are not running in debug mode in production
+CMD bin/startServer.sh
+#>> start.log 2>&1 
