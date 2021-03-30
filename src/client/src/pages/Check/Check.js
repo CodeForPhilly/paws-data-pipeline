@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import useToken from '../../components/Login/useToken';
 var jwt = require('jsonwebtoken');
 
-const { DateTime } = require("luxon");
+// const { DateTime } = require("luxon");  /* Enable if you enable console logging below */ 
 
 
 export default function Check() {

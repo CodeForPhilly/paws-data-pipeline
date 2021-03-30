@@ -11,7 +11,6 @@
         "@testing-library/user-event": "^7.2.1",
         "jsonwebtoken": "^8.5.1",
         "lodash": "^4.17.20",
-        "luxon": "^1.26.0",
         "moment": "^2.29.1",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
@@ -19,8 +18,8 @@
         "react-scripts": "3.4.1"
     },
     "scripts": {
-        "start": " react-scripts start",
-        "start:local": "set IS_LOCAL=true react-scripts start",
+        "start": "IS_LOCAL=false react-scripts start",
+        "start:local": "IS_LOCAL=true react-scripts start",
         "start-api": "cd api && ../../venv/bin/flask run --no-debugger",
         "build": "react-scripts build",
         "test": "react-scripts test",
