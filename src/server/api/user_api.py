@@ -66,12 +66,15 @@ def user_test_fail():
     """ Liveness test, always fails with 401"""
     return jsonify("Here's your failure"), 401
 
-##    DANGER    DANGER    DANGER   DANGER  DANGER    for testing only   DANGER  DANGER
+
 @user_api.route("/api/user/timeout/<int:new_timeout>", methods=["GET"])
 def user_override_timeout(new_timeout):
-    """ Override JWT expiration setting for testing """   #TODO:  SECURITY - remove this giant hole
-    if (new_timeout > 300 ) : 
-        new_timeout = 300
+    """ Override JWT expiration setting for testing.
+        Allows a value up to JWT_MAX_TIMEOUT (from app.py).
+        This will affect, of course, only future tokens.
+    """  
+    if (new_timeout > current_app.config["JWT_MAX_TIMEOUT"] ) : 
+        new_timeout = current_app.config["JWT_MAX_TIMEOUT"]
     current_app.config["JWT_ACCESS_TOKEN_EXPIRES"] = new_timeout
     return jsonify("Timeout set to " + str(new_timeout) + " seconds"), 200
 
