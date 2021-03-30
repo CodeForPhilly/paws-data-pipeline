@@ -92,12 +92,14 @@ function AuthenticatedApp() {
                     <HomePage/>
                 </Route>
 
+
                 {  /* If an admin, render Upload page       */
                   userRole === 'admin' && 
-                    <Route path="/upload">
+                    <Route path="/admin">
                         <Admin/>
                     </Route>
                     }               
+
 
                 <Route path="/about">
                     <About/>
