@@ -1,6 +1,5 @@
 import os
 import sqlalchemy as db
-from sqlalchemy_utils import database_exists, create_database
 
 import models
 
@@ -39,9 +38,6 @@ else:
 
 engine = db.create_engine(DB)
 
-if not database_exists(engine.url):
-    create_database(engine.url)
-
 with engine.connect() as connection:
     models.Base.metadata.create_all(connection)
     # This is safe: by default, will check first to ensure tables don't already exist
@@ -76,10 +72,3 @@ os.makedirs(LOGS_PATH, exist_ok=True)
 os.makedirs(CURRENT_SOURCE_FILES_PATH, exist_ok=True)
 os.makedirs(REPORT_PATH, exist_ok=True)
 os.makedirs(ZIPPED_FILES, exist_ok=True)
-
-if not (os.path.exists(LOGS_PATH + "last_execution.json")):
-    f = open(
-        LOGS_PATH + "last_execution.json", "w"
-    )  # Prevent 500 error from /api/statistics
-    f.write("{}")
-    f.close()

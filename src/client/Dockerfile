@@ -1,5 +1,5 @@
 # pull official base image
-FROM node:13.12.0-alpine
+FROM node:13.12.0-alpine as builder
 
 # set working directory
 WORKDIR /app
@@ -13,8 +13,15 @@ COPY package-lock.json ./
 
 RUN npm install --silent
 
-# add app
-COPY . ./
+COPY public ./public
+COPY src ./src
 
-# start app
-CMD ["npm", "start"]
+RUN npm run build
+
+# add app
+FROM nginx:latest AS host
+
+# COPY nginx-client.conf /etc/nginx/conf.d/default.conf
+COPY default.conf.template /etc/nginx/templates/
+
+COPY --from=builder /app/build/ /usr/share/nginx/html

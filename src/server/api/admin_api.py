@@ -4,6 +4,9 @@ import os
 from datetime import datetime
 import json
 from sqlalchemy.sql import text
+
+from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc, select
 from pipeline import flow_script
 from config import engine
 from flask import request, redirect, jsonify, current_app, abort
@@ -16,9 +19,13 @@ from config import (
 
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
 
+metadata = MetaData()
 
 def __allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
+
 
 
 # file upload tutorial
@@ -61,15 +68,32 @@ def execute():
     statistics = get_statistics()
 
     last_execution_details = {"executionTime": current_time, "stats": statistics}
+    last_ex_json = (json.dumps(last_execution_details))
 
-    last_execution_file = open(LOGS_PATH + "last_execution.json", "w")
-    last_execution_file.write(json.dumps(last_execution_details))
-    last_execution_file.close()
+    # Write Last Execution stats to DB
+    # See Alembic Revision ID: 05e0693f8cbb for table definition
+    with engine.connect() as connection:
+        ins_stmt = insert(kvt).values(               # Postgres-specific insert() supporting ON CONFLICT
+            keycol = 'last_execution_time',
+            valcol = last_ex_json,
+            )
+        # If key already present in DB, do update instead
+        upsert = ins_stmt.on_conflict_do_update(
+                constraint='kv_unique_keycol_key',
+                set_=dict(valcol=last_ex_json)
+                )
+
+        try:
+            connection.execute(upsert)
+        except Exception as e:
+            current_app.logger.error("Insert/Update failed on Last Execution stats")
+            current_app.logger.exception(e)
 
     return jsonify(success=True)
 
 
 def get_statistics():
+
     with engine.connect() as connection:
         query_matches = text("SELECT count(*) FROM (SELECT distinct matching_id from pdp_contacts) as a;")
         query_total_count = text("SELECT count(*) FROM pdp_contacts;")
@@ -87,26 +111,42 @@ def get_statistics():
 
 @admin_api.route("/api/statistics", methods=["GET"])
 def list_statistics():
-    try:
-        last_execution_file = open(LOGS_PATH + "last_execution.json", "r")
-        last_execution_details = json.loads(last_execution_file.read())
-        last_execution_file.close()
+    """ Pull Last Execution stats from DB. """
+    current_app.logger.info("list_statistics() request")
+    last_execution_details = '{}'  # Empty but valid JSON
 
-    except (FileNotFoundError):
-        current_app.logger.error("last_execution.json file was missing")
-        return abort(500)
-
-    except (json.JSONDecodeError):
-        current_app.logger.error(
-            "last_execution.json could not be decoded - possible corruption"
-        )
-        return abort(500)
+    try:    # See Alembic Revision ID: 05e0693f8cbb for table definition
+        with engine.connect() as connection:
+            s = text("select valcol from kv_unique where keycol = 'last_execution_time';")
+            result = connection.execute(s)
+            last_execution_details  = result.fetchone()[0]
 
     except Exception as e:
-        current_app.logger.error("Failure reading last_execution.json: ", e)
-        return abort(500)
+        current_app.logger.warning("Failure reading Last Execution stats from DB")
+        # Will heppen on first run, shouldn't after
 
-    return jsonify(last_execution_details)
+    return last_execution_details
+
+
+@admin_api.route("/api/get_execution_status/<int:job_id>", methods=["GET"])
+def get_exec_status(job_id):
+    """ Get the execution status record from the DB for the specified job_id """
+    kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)  #TODO: Don't think we need this or Metadata import
+    
+    exec_status = '{}'
+
+    with engine.connect() as connection:
+        s_jobid = 'job-' + str(job_id)        
+        s = text("select valcol from kv_unique where keycol = :j ;")
+        s = s.bindparams(j=s_jobid)
+        result = connection.execute(s)
+        if result.rowcount > 0:
+            exec_status  = result.fetchone()[0]
+        else:
+            current_app.logger.warning("Failure reading Execution Status from DB")
+
+    return exec_status
+
 
 
 """
