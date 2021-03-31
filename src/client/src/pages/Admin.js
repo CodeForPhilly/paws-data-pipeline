@@ -85,7 +85,11 @@ class Admin extends Component {
 
         await this.handleGetFileList();
 
-        this.setState({isLoading: false});
+        await this.setState({
+            isLoading: false,
+            filesInput: []
+        });
+
     };
 
     async handleExecute(event) {
