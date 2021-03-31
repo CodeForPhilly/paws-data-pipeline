@@ -1,5 +1,5 @@
 from hashlib import pbkdf2_hmac
-from os import urandom
+from os import urandom, environ
 import pytest, codecs, random
 from datetime import datetime
 
@@ -67,6 +67,17 @@ def user_test_fail():
     return jsonify("Here's your failure"), 401
 
 
+@user_api.route("/api/user/timeout/<int:new_timeout>", methods=["GET"])
+def user_override_timeout(new_timeout):
+    """ Override JWT expiration setting for testing.
+        Allows a value up to JWT_MAX_TIMEOUT (from app.py).
+        This will affect, of course, only future tokens.
+    """  
+    if (new_timeout > current_app.config["JWT_MAX_TIMEOUT"] ) : 
+        new_timeout = current_app.config["JWT_MAX_TIMEOUT"]
+    current_app.config["JWT_ACCESS_TOKEN_EXPIRES"] = new_timeout
+    return jsonify("Timeout set to " + str(new_timeout) + " seconds"), 200
+
 
 @user_api.route("/api/user/login", methods=["POST"])
 def user_login():
@@ -130,7 +141,19 @@ def user_login():
 @jwt_ops.jwt_required()
 def user_test_auth():
     """ Liveness test, requires JWT """
-    return jsonify(("OK from User Test - Auth  @" + str(datetime.now())))
+    sysname = '?'    # Ensure we are talking to the expected host
+    try:
+        sysname = environ['computername'] 
+    except:
+        pass
+    
+    try:
+        sysname =  environ['HOSTNAME']
+    except:
+        pass
+
+
+    return jsonify(("OK from User Test - Auth [" + sysname + "] @" + str(datetime.now())))
 
 
 # Logout is not strictly needed; client can just delete JWT, but good for logging

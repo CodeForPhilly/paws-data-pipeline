@@ -19,12 +19,8 @@ from config import (
 
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
 
-metadata = MetaData()
-
 def __allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
 
 
 
@@ -69,6 +65,9 @@ def execute():
 
     last_execution_details = {"executionTime": current_time, "stats": statistics}
     last_ex_json = (json.dumps(last_execution_details))
+    
+    metadata = MetaData()
+    kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
 
     # Write Last Execution stats to DB
     # See Alembic Revision ID: 05e0693f8cbb for table definition
@@ -115,15 +114,21 @@ def list_statistics():
     current_app.logger.info("list_statistics() request")
     last_execution_details = '{}'  # Empty but valid JSON
 
-    try:    # See Alembic Revision ID: 05e0693f8cbb for table definition
-        with engine.connect() as connection:
-            s = text("select valcol from kv_unique where keycol = 'last_execution_time';")
-            result = connection.execute(s)
-            last_execution_details  = result.fetchone()[0]
+    engine.dispose() # we don't want other process's conn pool
 
-    except Exception as e:
-        current_app.logger.warning("Failure reading Last Execution stats from DB")
-        # Will heppen on first run, shouldn't after
+
+    with engine.connect() as conn:
+    
+        try:    # See Alembic Revision ID: 05e0693f8cbb for table definition
+        
+            s = text("select valcol from kv_unique where keycol = 'last_execution_time';")
+            result = conn.execute(s)
+            if result.rowcount > 0:
+                last_execution_details  = result.fetchone()[0]
+
+        except Exception as e:
+            current_app.logger.error("Failure reading Last Execution stats from DB - OK on first run")
+        # Will happen on first run, shouldn't after 
 
     return last_execution_details
 
@@ -131,11 +136,12 @@ def list_statistics():
 @admin_api.route("/api/get_execution_status/<int:job_id>", methods=["GET"])
 def get_exec_status(job_id):
     """ Get the execution status record from the DB for the specified job_id """
-    kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)  #TODO: Don't think we need this or Metadata import
-    
-    exec_status = '{}'
+
+
+    engine.dispose() # we don't want other process's conn pool
 
     with engine.connect() as connection:
+
         s_jobid = 'job-' + str(job_id)        
         s = text("select valcol from kv_unique where keycol = :j ;")
         s = s.bindparams(j=s_jobid)
@@ -143,9 +149,11 @@ def get_exec_status(job_id):
         if result.rowcount > 0:
             exec_status  = result.fetchone()[0]
         else:
-            current_app.logger.warning("Failure reading Execution Status from DB")
+            current_app.logger.warning("0 results for exec status query")
+            exec_status = '{}'
 
     return exec_status
+
 
 
 
