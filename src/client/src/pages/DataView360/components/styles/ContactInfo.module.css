@@ -1,8 +1,6 @@
 div.contact_info {
-	position: sticky;
-	top: 74px;
 	margin-top: 55px;
-	grid-area: 1 / 1 / 1 / 1;
+	max-height: 100px;
 }
 
 div.contact_info_main {

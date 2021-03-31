@@ -87,9 +87,10 @@ class Admin extends Component {
 
         await this.setState({
             isLoading: false,
-            filesInput: []
+            filesInput: undefined
         });
 
+        await this.refreshPage()
     };
 
     async handleExecute(event) {
