@@ -146,7 +146,7 @@ class Admin extends Component {
                                             const fileName = file.split("-")[0];
                                             let fileDate = file.split("-").slice(1).join().split(".")[0];
                                             let fileDateOnlyNumbers = fileDate.replaceAll(",", "");
-                                            let fileDateFormatted = moment(fileDateOnlyNumbers, "YYYYMMDDhmmss").local().format("MMMM Do YYYY, h:mm:ss a");
+                                            let fileDateFormatted = moment.utc(fileDateOnlyNumbers, "YYYYMMDDhmmss").local().format("MMMM Do YYYY, h:mm:ss a");
 
                                             return (
                                                 <TableRow key={index}>

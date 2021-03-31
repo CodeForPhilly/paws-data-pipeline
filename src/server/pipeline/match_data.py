@@ -39,8 +39,18 @@ def start(connection, added_or_updated_rows):
     items_to_update["archived_date"] = np.nan
     items_to_update["created_date"] = datetime.datetime.now()
 
+    # Create Normalized columns for matching
+    items_to_update["first_name_normalized"] = items_to_update["first_name"].apply(normalize_before_match)
+    items_to_update["last_name_normalized"] = items_to_update["last_name"].apply(normalize_before_match)
+    items_to_update["email_normalized"] = items_to_update["email"].apply(normalize_before_match)
+
+    pdp_contacts["first_name_normalized"] = pdp_contacts["first_name"].apply(normalize_before_match)
+    pdp_contacts["last_name_normalized"] = pdp_contacts["last_name"].apply(normalize_before_match)
+    pdp_contacts["email_normalized"] = pdp_contacts["email"].apply(normalize_before_match)
+
     rows = items_to_update.to_dict(orient="records")
     row_print_freq = max(1, np.floor_divide(len(rows), 20))  # approx every 5% (or every row if small)
+
     for row_num, row in enumerate(rows):
         if row_num % row_print_freq == 0:
             current_app.logger.info("- Matching rows {}-{} of {}".format(
@@ -51,24 +61,15 @@ def start(connection, added_or_updated_rows):
             })
 
         # Exact matches based on specified columns
-
         row_matches = pdp_contacts[
             (
-                    ((pdp_contacts["first_name"].apply(lambda x: normalize_before_match(x)) == normalize_before_match(
-                        row["first_name"])) &
-                     (pdp_contacts["last_name"].apply(lambda x: normalize_before_match(x)) == normalize_before_match(
-                         row["last_name"])))
+                    ((pdp_contacts["first_name_normalized"] == row["first_name_normalized"]) &
+                     (pdp_contacts["last_name_normalized"] == row["last_name_normalized"]))
                     |
-                    ((pdp_contacts["first_name"].apply(lambda x: normalize_before_match(x)) == normalize_before_match(
-                        row[
-                            "last_name"])) &
-                     (pdp_contacts["last_name"].apply(lambda x: normalize_before_match(x)) == normalize_before_match(
-                         row[
-                             "first_name"])))
+                    ((pdp_contacts["first_name_normalized"] == row["last_name_normalized"]) &
+                     (pdp_contacts["last_name_normalized"] == row["first_name_normalized"]))
                     &
-                    ((pdp_contacts["email"].apply(lambda x: normalize_before_match(x)) == normalize_before_match(
-                        row["email"])) | (
-                             pdp_contacts["mobile"] == row["mobile"]))
+                    ((pdp_contacts["email_normalized"] == row["email_normalized"]) | (pdp_contacts["mobile"] == row["mobile"]))
             )
         ]
         if row_matches.empty:  # new record, no matching rows
@@ -89,6 +90,8 @@ def start(connection, added_or_updated_rows):
 
     # Write new data and matching ID's to postgres in bulk, instead of line-by-line
     current_app.logger.info("- Writing data to pdp_contacts table")
+    items_to_update = items_to_update.drop(
+        columns=["first_name_normalized", "last_name_normalized", "email_normalized"])
     items_to_update.to_sql('pdp_contacts', connection, index=False, if_exists='append')
     current_app.logger.info("- Finished load to pdp_contacts table")
 

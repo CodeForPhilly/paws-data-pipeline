@@ -202,7 +202,7 @@ class DataView360 extends Component {
                     <Paper className={styles.main} elevation={1} style={{"padding": "1em"}}>
                         <ContactInfo participant={_.get(this.state, 'participantData.contact_details')}/>
                         <Grid container direction="row" justify="center">
-                            <Grid item style={{"marginTop": "1em", "position": "fixed"}}>
+                            <Grid item style={{"marginTop": "1em"}}>
                                 <Button variant="contained" color="primary"
                                         onClick={() => {
                                             this.setState({
