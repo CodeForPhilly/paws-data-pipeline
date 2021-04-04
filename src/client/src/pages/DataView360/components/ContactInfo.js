@@ -17,10 +17,6 @@ const StyledContact = withStyles((theme) => ({
 
 
 class ContactInfo extends Component {
-    constructor(props) {
-        super(props);
-    }
-
 
     populate_participant_with_data_source(participant, participantData) {
         return {

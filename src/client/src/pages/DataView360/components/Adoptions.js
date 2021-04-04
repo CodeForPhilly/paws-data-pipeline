@@ -35,9 +35,6 @@ const StyledTableRow = withStyles((theme) => ({
 const PET_COUNT = 3;
 
 class Adoptions extends Component {
-    constructor(props) {
-        super(props);
-    }
 
     getLatestPets(petList) {
         let retVal;
@@ -79,7 +76,7 @@ class Adoptions extends Component {
                             {_.map(latestPets, (adoptionInfo, index) => {
 
                                 const photoLink = _.get(adoptionInfo, "Photos.[0]");
-                                const photo = <img src={photoLink} style={{"maxWidth": "100px"}}/>
+                                const photo = <img src={photoLink} alt="animal" style={{"maxWidth": "100px"}}/>
 
                                 return <StyledTableRow key={index}>
                                     <TableCell align="center">{adoptionInfo["Name"]}</TableCell>

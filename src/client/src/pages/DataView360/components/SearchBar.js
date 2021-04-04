@@ -66,12 +66,10 @@ class SearchBar extends Component {
     }
 
     selectParticipant() {
-        let participants;
-
         if (this.state.participantList != null) {
             const participantList = this.state.participantList.slice(0, LIST_LIMIT);
 
-            participants = _.map(participantList, person => {
+            _.map(participantList, person => {
                 return (<MenuItem value={person.contact_id} key={person.contact_id}>
                     {person.name}
                     {" "}
