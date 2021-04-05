@@ -1,7 +1,6 @@
 import React from 'react'
 
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
-
 import Header, {AdminHeader} from "./components/Header";
 
 import HomePage from './pages/Home';
@@ -71,7 +70,7 @@ function AuthenticatedApp() {
 
 
     var decoded = jwt.decode(access_token, { complete: true });
-    const userName = decoded?.payload.sub;
+    
     const userRole = decoded?.payload.role;
     var expTime =  decoded?.payload.exp -  Date.now()/1000;
 
@@ -123,13 +122,13 @@ function AuthenticatedApp() {
 
 function Home() {
   const {user} = useAuthState()
+  /*eslint no-unused-vars: ["warn", { "varsIgnorePattern": "access_token" }]*/
   const { access_token, setToken } = useToken();
   return user ? <AuthenticatedApp /> : <Login setToken={setToken} />
 }
 
 function App() {
-  const { access_token, setToken } = useToken();
-
+ 
   return (
     <AuthProvider>
       <div>
