@@ -1,20 +1,23 @@
-import React from 'react'
+import React from 'react';
 
-import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import {BrowserRouter as Router, Switch, Route, useHistory} from 'react-router-dom';
+
 import Header, {AdminHeader} from "./components/Header";
 
 import HomePage from './pages/Home';
 import Admin from './pages/Admin';
-import DataView from './pages/DataView360/DataView360';
+import Search360 from './pages/DataView360/Search/Search';
+import View360 from './pages/DataView360/View/View';
 import About from './pages/About';
 import Login from './components/Login/Login';
 import Check from './pages/Check/Check';
 import useToken from './components/Login/useToken';
 var jwt = require('jsonwebtoken');
 
-// Triggers token expiration check 
+
+// Triggers token expiration check
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
-const expTimer = () => sleep(500).then(() => ({})) 
+const expTimer = () => sleep(500).then(() => ({}))
 
 const AuthContext = React.createContext()
 
@@ -26,7 +29,7 @@ function AuthProvider({children}) {
 
   React.useEffect(() => {
     expTimer().then(
-      user => setState({status: 'success', error: null, user})  // 
+      user => setState({status: 'success', error: null, user})  //
     )
   }, )
 
@@ -70,7 +73,7 @@ function AuthenticatedApp() {
 
 
     var decoded = jwt.decode(access_token, { complete: true });
-    
+
     const userRole = decoded?.payload.role;
     var expTime =  decoded?.payload.exp -  Date.now()/1000;
 
@@ -78,14 +81,16 @@ function AuthenticatedApp() {
 
     const hdr = userRole === 'admin' ?  <AdminHeader /> : <Header /> // If we're going to display a header, which one?
 
+    const history = useHistory();
+
   return (
     <>
         <Router>
-          
-            { !jwtExpired && hdr ?  hdr : '' /* Above-chosen header, or if logged out, no header */ } 
-           
+
+            { !jwtExpired && hdr ?  hdr : '' /* Above-chosen header, or if logged out, no header */ }
+
             {  /* If not logged in, show login screen */
-              (!access_token | jwtExpired) ?  <Login setToken={setToken} /> :    <Switch>  
+              (!access_token | jwtExpired) ?  <Login setToken={setToken} /> :    <Switch>
 
                 <Route exact path="/">
                     <HomePage/>
@@ -93,22 +98,26 @@ function AuthenticatedApp() {
 
 
                 {  /* If an admin, render Upload page       */
-                  userRole === 'admin' && 
+                  userRole === 'admin' &&
                     <Route path="/admin">
                         <Admin/>
                     </Route>
-                    }               
+                    }
 
 
                 <Route path="/about">
                     <About/>
                 </Route>
 
-                <Route path="/dataView">
-                    <DataView/>
+                <Route path="/360view/search">
+                    <Search360/>
                 </Route>
 
-                <Route path="/check"> 
+                  <Route path="/360view/view">
+                      <View360/>
+                  </Route>
+
+                <Route path="/check">
                   <Check />
                 </Route>
             </Switch>
@@ -128,7 +137,7 @@ function Home() {
 }
 
 function App() {
- 
+
   return (
     <AuthProvider>
       <div>
