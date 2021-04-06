@@ -8,7 +8,10 @@ import Admin from './pages/Admin';
 import DataView from './pages/DataView360/DataView360';
 import About from './pages/About';
 import Login from './components/Login/Login';
+import CDialog from './components/CDialog';
 import Check from './pages/Check/Check';
+
+
 import useToken from './components/Login/useToken';
 var jwt = require('jsonwebtoken');
 
@@ -76,6 +79,8 @@ function AuthenticatedApp() {
 
     const jwtExpired = expTime <= 0
 
+    const popRefreshAlert = expTime < 30;
+
     const hdr = userRole === 'admin' ?  <AdminHeader /> : <Header /> // If we're going to display a header, which one?
 
   return (
@@ -84,6 +89,9 @@ function AuthenticatedApp() {
           
             { !jwtExpired && hdr ?  hdr : '' /* Above-chosen header, or if logged out, no header */ } 
            
+            {popRefreshAlert && <CDialog /> }
+
+
             {  /* If not logged in, show login screen */
               (!access_token | jwtExpired) ?  <Login setToken={setToken} /> :    <Switch>  
 
