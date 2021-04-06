@@ -33,6 +33,7 @@ jobs:
     - name: 'Build Docker container image: server'
       run: |
         docker build \
+            --file src/server/Dockerfile
             --cache-from "${DOCKER_REPOSITORY}/server:latest" \
             --tag "${DOCKER_REPOSITORY}/server:latest" \
             --tag "${DOCKER_REPOSITORY}/server:${DOCKER_TAG}" \
