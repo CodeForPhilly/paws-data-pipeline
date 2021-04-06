@@ -1,0 +1,45 @@
+name: Release Containers
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+
+jobs:
+  release-containers:
+    name: Build and Push
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Login to ghcr.io Docker registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Compute Docker container image addresses
+      run: |
+        DOCKER_REPOSITORY="ghcr.io/${GITHUB_REPOSITORY,,}"
+        DOCKER_TAG="${GITHUB_REF:11}"
+        echo "DOCKER_REPOSITORY=${DOCKER_REPOSITORY}" >> $GITHUB_ENV
+        echo "DOCKER_TAG=${DOCKER_TAG}" >> $GITHUB_ENV
+        echo "Using: ${DOCKER_REPOSITORY}/*:${DOCKER_TAG}"
+    - name: 'Pull latest existing Docker container image: server'
+      run: docker pull "${DOCKER_REPOSITORY}/server:latest" || true
+
+    - name: 'Build Docker container image: server'
+      run: |
+        docker build \
+            --cache-from "${DOCKER_REPOSITORY}/server:latest" \
+            --tag "${DOCKER_REPOSITORY}/server:latest" \
+            --tag "${DOCKER_REPOSITORY}/server:${DOCKER_TAG}" \
+            .
+
+    - name: Push Docker container image server:latest"
+      run: docker push "${DOCKER_REPOSITORY}/server:latest"
+
+    - name: Push Docker container image server:v*"
+      run: docker push "${DOCKER_REPOSITORY}/server:${DOCKER_TAG}"
