@@ -16,44 +16,7 @@ export default function Check() {
 
     let history = useHistory()
  
-    function authCheck() {
-     //   console.log('authCheck startfetch @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
-        fetch('http://localhost:5000/api/user/test_auth',
-        {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + access_token
-            }
-        })
-    
-        .then((response) => {
-         //   console.log('authCheck handle response @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
-            if (!response.ok) {
-                //throw (String(response.status + ':' + response.statusText))
-                throw (response)
-            }
-            return response.json()
-        } )
-        .then((data) => {
-          //  console.log('authCheck data  @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
-            setProcessStatus('complete');
-            setData(data);
-        })
-        .catch((e) => {
-            let errCode = e.status
-            let errText = e.statusText
-    
-            setToken(null)  // Clear the token to force login again
-            let errStr = String(e)
-            setProcessStatus('error');
-            setError(errStr);
-            console.log(errCode + ':' + errText)
-            history.push('/')
-            return e
-        });
-    
-    }  // 
+     
 
    
 
@@ -68,6 +31,59 @@ export default function Check() {
 
     React.useEffect(() => {
 
+
+
+        function authCheck() {
+            //   console.log('authCheck startfetch @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
+               fetch('http://localhost:5000/api/user/test_auth',
+               {
+                   method: 'GET',
+                   headers: {
+                       'Content-Type': 'application/json',
+                       'Authorization': 'Bearer ' + access_token
+                   }
+               })
+           
+               .then((response) => {
+                //   console.log('authCheck handle response @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
+                   if (!response.ok) {
+                       //throw (String(response.status + ':' + response.statusText))
+                       throw (response)
+                   }
+                   return response.json()
+               } )
+               .then((data) => {
+                 //  console.log('authCheck data  @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
+                   setProcessStatus('complete');
+                   setData(data);
+               })
+               .catch((e) => {
+                   let errCode = e.status
+                   let errText = e.statusText
+           
+                   setToken(null)  // Clear the token to force login again
+                   let errStr = String(e)
+                   setProcessStatus('error');
+                   setError(errStr);
+                   console.log(errCode + ':' + errText)
+                   history.push('/')
+                   return e
+               });
+           
+           }  //
+
+
+
+
+
+
+
+
+
+
+
+
+
         if (! access_token){
            console.log("In Check w/o a token")
         }
@@ -77,7 +93,9 @@ export default function Check() {
    //  console.log('After authCheck @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
 
            
-    }, [ processStatus, access_token]);
+    }, 
+    // eslint-disable-next-line 
+    [ processStatus, access_token, history ]);
 
     // if (processStatus === 'loading') {
     //     console.log('Check: if pc=l loading...')

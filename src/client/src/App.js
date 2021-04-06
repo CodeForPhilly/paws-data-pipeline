@@ -15,7 +15,7 @@ import useToken from './components/Login/useToken';
 var jwt = require('jsonwebtoken');
 
 
-// Triggers token expiration check 
+// Triggers token expiration check
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
 const expTimer = () => sleep(500).then(() => ({}))
 
@@ -73,7 +73,7 @@ function AuthenticatedApp() {
 
 
     var decoded = jwt.decode(access_token, { complete: true });
-    const userName = decoded?.payload.sub;
+
     const userRole = decoded?.payload.role;
     var expTime =  decoded?.payload.exp -  Date.now()/1000;
 
@@ -131,12 +131,12 @@ function AuthenticatedApp() {
 
 function Home() {
   const {user} = useAuthState()
+  /*eslint no-unused-vars: ["warn", { "varsIgnorePattern": "access_token" }]*/
   const { access_token, setToken } = useToken();
   return user ? <AuthenticatedApp /> : <Login setToken={setToken} />
 }
 
 function App() {
-  const { access_token, setToken } = useToken();
 
   return (
     <AuthProvider>
