@@ -186,6 +186,11 @@ class Search360 extends Component {
 
         return (
             <Container>
+                <Grid container direction={"row"} justify={"center"}>
+                    <Grid item style={{"padding": "1em"}}>
+                        <Typography variant={"h4"}>PAWS Contact Search</Typography>
+                    </Grid>
+                </Grid>
                 <SearchBar participant={this.state.participant}
                            handleParticipantChange={this.onRowClick}
                            handleSearchChange={this.handleSearchChange}/>

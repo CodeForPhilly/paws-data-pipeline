@@ -8,7 +8,7 @@ import {
     Button,
     Grid,
     Backdrop,
-    CircularProgress
+    CircularProgress, Box, Typography
 } from '@material-ui/core';
 
 import _ from 'lodash';
@@ -20,7 +20,6 @@ import Adoptions from './components/Adoptions';
 import {matchPath} from "react-router";
 
 
-
 const customStyles = theme => ({
     backdrop: {
         zIndex: theme.zIndex.drawer + 1,
@@ -28,7 +27,8 @@ const customStyles = theme => ({
     },
     stickyContainer: {
         position: 'fixed',
-        paddingTop: 25
+        paddingTop: 25,
+        left: '-25em'
     }
 });
 
@@ -61,6 +61,7 @@ class View360 extends Component {
             participantData: response.result,
             isDataBusy: false
         });
+
     }
 
     extractVolunteerActivity() {
@@ -95,26 +96,32 @@ class View360 extends Component {
                 {(_.isEmpty(this.state.participantData) !== true &&
                     this.state.isDataBusy !== true && (
                         <Paper elevation={1} style={{"padding": "2em"}}>
-                            <Grid container justify={"center"}>
+                            <Grid container direction={"row"} justify={"center"}>
+                                <Grid item>
+                                    <Typography variant={"h4"}>Person 360 View</Typography>
+                                </Grid>
+                            </Grid>
+                            <Grid container direction={"row"} spacing={3}>
                                 <Grid item sm={4}>
-                                    <Grid sm={2} className={classes.stickyContainer} container direction="column"
-                                          alignItems={"center"}>
+                                    <Grid className={classes.stickyContainer} container direction={"column"} alignItems={"center"}>
                                         <Grid item>
                                             <ContactInfo
                                                 participant={_.get(this.state, 'participantData.contact_details')}/>
                                         </Grid>
                                         <Grid item style={{"padding": "1em"}}>
                                             <Button elevation={2} variant="contained" color="primary"
-                                                    onClick={() => {this.onBackClick()}}>Back to Results
+                                                    onClick={() => {
+                                                        this.onBackClick()
+                                                    }}>Back to Results
                                             </Button>
                                         </Grid>
                                     </Grid>
-
                                 </Grid>
                                 <Grid item sm>
                                     <Grid container direction="column" style={{"marginTop": "1em"}}>
                                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
-                                        <Adoptions adoptions={_.get(this.state, 'participantData.adoptions')}/>
+                                        <Adoptions adoptions={_.get(this.state, 'participantData.adoptions')}
+                                                   adoption_person_id={_.get(this.state, 'participantData.adoptions_person_id')}/>
                                         <Volunteer volunteer={this.extractVolunteerActivity()}
                                                    volunteerShifts={_.get(this.state, 'participantData.shifts')}/>
                                     </Grid>
@@ -131,4 +138,11 @@ class View360 extends Component {
     }
 }
 
-export default withRouter(withStyles(customStyles)(View360));
+export default withRouter(withStyles
+
+(
+    customStyles
+)(
+    View360
+))
+;

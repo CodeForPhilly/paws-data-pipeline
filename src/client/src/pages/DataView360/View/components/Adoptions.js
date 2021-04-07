@@ -52,6 +52,7 @@ class Adoptions extends Component {
         const {classes} = this.props;
         const numOfPets = _.size(this.props.adoptions);
         const latestPets = this.getLatestPets(this.props.adoptions);
+        const shelterLuvPersonURL = `https://www.shelterluv.com/phlp-p-${this.props.adoption_person_id}`
 
         return (<Container component={Paper} style={{"marginTop": "1em"}}>
                 <Typography variant='h5'>
@@ -62,11 +63,15 @@ class Adoptions extends Component {
                         <Grid item>
                             Adoption/Foster Records {(numOfPets > 3) && "(Showing 3 Pets out of " + numOfPets + ")"}
                         </Grid>
-                        <Grid item>
-                            <IconButton style={{'padding': 0, 'paddingLeft': 5}} color="primary" aria-label="link" component="span">
-                                <LinkIcon />
-                            </IconButton>
-                        </Grid>
+                        {
+                            this.props.adoption_person_id &&
+                            <Grid item>
+                                <IconButton style={{'padding': 0, 'paddingLeft': 5}} color="primary" aria-label="link" href={shelterLuvPersonURL}>
+                                    <LinkIcon  />
+                                </IconButton>
+                            </Grid>
+                        }
+
                     </Grid>
                 </Typography>
 
