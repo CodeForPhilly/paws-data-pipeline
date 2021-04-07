@@ -103,7 +103,8 @@ class View360 extends Component {
                             </Grid>
                             <Grid container direction={"row"} spacing={3}>
                                 <Grid item sm={4}>
-                                    <Grid className={classes.stickyContainer} container direction={"column"} alignItems={"center"}>
+                                    <Grid className={classes.stickyContainer} container direction={"column"}
+                                          alignItems={"center"}>
                                         <Grid item>
                                             <ContactInfo
                                                 participant={_.get(this.state, 'participantData.contact_details')}/>
@@ -138,11 +139,4 @@ class View360 extends Component {
     }
 }
 
-export default withRouter(withStyles
-
-(
-    customStyles
-)(
-    View360
-))
-;
+export default withRouter(withStyles(customStyles)(View360));
