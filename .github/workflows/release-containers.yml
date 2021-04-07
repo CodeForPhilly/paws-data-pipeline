@@ -27,8 +27,12 @@ jobs:
         echo "DOCKER_REPOSITORY=${DOCKER_REPOSITORY}" >> $GITHUB_ENV
         echo "DOCKER_TAG=${DOCKER_TAG}" >> $GITHUB_ENV
         echo "Using: ${DOCKER_REPOSITORY}/*:${DOCKER_TAG}"
+
     - name: 'Pull latest existing Docker container image: server'
       run: docker pull "${DOCKER_REPOSITORY}/server:latest" || true
+
+    - name: 'Pull latest existing Docker container image: client'
+      run: docker pull "${DOCKER_REPOSITORY}/client:latest" || true
 
     - name: 'Build Docker container image: server'
       run: |
@@ -43,3 +47,17 @@ jobs:
 
     - name: Push Docker container image server:v*"
       run: docker push "${DOCKER_REPOSITORY}/server:${DOCKER_TAG}"
+
+    - name: 'Build Docker container image: client'
+      run: |
+        docker build \
+            --cache-from "${DOCKER_REPOSITORY}/client:latest" \
+            --tag "${DOCKER_REPOSITORY}/client:latest" \
+            --tag "${DOCKER_REPOSITORY}/client:${DOCKER_TAG}" \
+            ./src/client
+
+    - name: Push Docker container image client:latest"
+      run: docker push "${DOCKER_REPOSITORY}/client:latest"
+
+    - name: Push Docker container image client:v*"
+      run: docker push "${DOCKER_REPOSITORY}/client:${DOCKER_TAG}"
