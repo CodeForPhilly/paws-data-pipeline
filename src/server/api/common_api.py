@@ -78,7 +78,6 @@ def get_360(matching_id):
 
                 result['shifts'] = volgisticsshifts_results
 
-
             if row["source_type"] == "shelterluvpeople":
                 adoptions = []
                 person = requests.get("http://shelterluv.com/api/v1/people/{}".format(row["source_id"]),
@@ -95,5 +94,8 @@ def get_360(matching_id):
                     adoptions.append(animal_details_json)
 
                     result['adoptions'] = adoptions
-                result['adoptions_person_id'] = person_json["ID"]
+
+                if "ID" in person_json:
+                    result['adoptions_person_id'] = person_json["ID"]
+
         return jsonify({'result': result})
