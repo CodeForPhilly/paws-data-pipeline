@@ -10,7 +10,7 @@ import About from './pages/About';
 import Login from './components/Login/Login';
 import CDialog from './components/CDialog';
 import Check from './pages/Check/Check';
-
+import Refresh from './components/Refresh';
 
 import useToken from './components/Login/useToken';
 var jwt = require('jsonwebtoken');
@@ -71,6 +71,7 @@ function AuthenticatedApp() {
 
     const { access_token, setToken } = useToken();
 
+    console.log("AA - token = " + String(access_token).slice(-8))
 
     var decoded = jwt.decode(access_token, { complete: true });
     
@@ -119,6 +120,11 @@ function AuthenticatedApp() {
                 <Route path="/check"> 
                   <Check />
                 </Route>
+
+                <Route path="/ref">
+                  <Refresh />
+                </Route>
+
             </Switch>
             }
 

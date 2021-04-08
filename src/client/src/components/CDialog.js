@@ -6,16 +6,26 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-export default function CDialog() {
+import useToken from '../components/Login/useToken';
+
+import Refresh from './Refresh';
+
+export default function  CDialog() {
   const [open, setOpen] = React.useState(true);
+  const { access_token, setToken } = useToken();
+
 
   const handleClickOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = (shouldRefresh) => {
+  const handleClose = async (shouldRefresh) => {
     setOpen(false);
     console.log("Refresh? " + String(shouldRefresh));
+    if (shouldRefresh){
+      const new_at =  await Refresh(access_token);
+      setToken(new_at);
+    }
   };
 
 
@@ -27,7 +37,7 @@ export default function CDialog() {
       </Button> */}
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={() => handleClose(false)}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
