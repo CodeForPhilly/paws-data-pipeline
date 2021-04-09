@@ -17,7 +17,6 @@ export default function  CDialog(props) {
   const handleClose = async (shouldRefresh) => {
     // Could be closed with Yes, No, outclick (which equals No)
     setOpen(false);
-    console.log("Refresh? " + String(props.shouldOpen));
     if (props.shouldOpen){
       const new_at =  await Refresh(access_token);
       props.setToken(new_at);
