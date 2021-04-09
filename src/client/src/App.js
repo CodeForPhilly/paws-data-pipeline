@@ -8,7 +8,7 @@ import Admin from './pages/Admin';
 import DataView from './pages/DataView360/DataView360';
 import About from './pages/About';
 import Login from './components/Login/Login';
-import CDialog from './components/CDialog';
+import RefreshDlg from './components/RefreshDlg';
 import Check from './pages/Check/Check';
 import Refresh from './components/Refresh';
 
@@ -17,7 +17,7 @@ var jwt = require('jsonwebtoken');
 
 // Triggers token expiration check 
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
-const expTimer = () => sleep(5000).then(() => ({})) 
+const expTimer = () => sleep(500).then(() => ({})) 
 
 const AuthContext = React.createContext()
 
@@ -87,9 +87,9 @@ function AuthenticatedApp() {
           
             { !jwtExpired && hdr ?  hdr : '' /* Above-chosen header, or if logged out, no header */ } 
            
-            {popRefreshAlert && <CDialog shouldOpen={true} setToken={setToken} /> }  {/* Pop up the refresh dialog */}
+            {popRefreshAlert && <RefreshDlg shouldOpen={true} setToken={setToken} /> }  {/* Pop up the refresh dialog */}
 
-            {jwtExpired &&  <CDialog shouldOpen={false} setToken={setToken} /> }     { /* Too late, expired: close the dialog */}
+            {jwtExpired &&  <RefreshDlg shouldOpen={false} setToken={setToken} /> }     { /* Too late, expired: close the dialog */}
 
 
             {  /* If not logged in, show login screen */

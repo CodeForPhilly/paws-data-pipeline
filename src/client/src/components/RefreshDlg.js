@@ -6,11 +6,11 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-import useToken from '../components/Login/useToken';
+import useToken from './Login/useToken';
 
 import Refresh from './Refresh';
 
-export default function  CDialog(props) {
+export default function  RefreshDlg(props) {
   const [open, setOpen] = React.useState(props.shouldOpen);
   const { access_token } = useToken();  // We want to use the passed-in top-level setToken
 
