@@ -8,7 +8,7 @@ var jwt = require('jsonwebtoken');
 
 export default function Check({access_token}) {
 
-    const { local_a_t, setToken } = useToken();
+    const {  setToken } = useToken();
 
     const [processStatus, setProcessStatus] = React.useState('loading');
     const [error, setError] = React.useState('');

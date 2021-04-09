@@ -10,21 +10,23 @@ import useToken from '../components/Login/useToken';
 
 import Refresh from './Refresh';
 
-export default function  CDialog({setToken}) {
-  const [open, setOpen] = React.useState(true);
-  const { access_token, setT } = useToken();
+export default function  CDialog(props) {
+  const [open, setOpen] = React.useState(props.shouldOpen);
+  const { access_token, setT } = useToken();  // We want to use the passed-in top-level setToken
 
 
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+
   const handleClose = async (shouldRefresh) => {
+    // Could be closed with Yes, No, outclick (which equals No)
     setOpen(false);
-    console.log("Refresh? " + String(shouldRefresh));
-    if (shouldRefresh){
+    console.log("Refresh? " + String(props.shouldOpen));
+    if (props.shouldOpen){
       const new_at =  await Refresh(access_token);
-      setToken(new_at);
+      props.setToken(new_at);
     }
   };
 

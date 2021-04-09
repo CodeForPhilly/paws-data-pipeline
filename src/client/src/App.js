@@ -82,7 +82,7 @@ function AuthenticatedApp() {
     console.log("expTime:" + String(expTime).fixed(1))
     const jwtExpired = expTime <= 0
 
-    const popRefreshAlert = expTime < 30;
+    const popRefreshAlert = expTime > 0 && expTime < 30;
     if (popRefreshAlert) console.log("Time to refresh !!!!!!!!!!! ");
 
     const hdr = userRole === 'admin' ?  <AdminHeader /> : <Header /> // If we're going to display a header, which one?
@@ -93,7 +93,9 @@ function AuthenticatedApp() {
           
             { !jwtExpired && hdr ?  hdr : '' /* Above-chosen header, or if logged out, no header */ } 
            
-            {popRefreshAlert && <CDialog setToken={setToken} /> }
+            {popRefreshAlert && <CDialog shouldOpen={true} setToken={setToken} /> }  {/* Pop up the refresh dialog */}
+
+            {jwtExpired &&  <CDialog shouldOpen={false} setToken={setToken} /> }     { /* Too late, expired: close the dialog */}
 
 
             {  /* If not logged in, show login screen */
