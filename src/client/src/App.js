@@ -17,7 +17,7 @@ var jwt = require('jsonwebtoken');
 
 // Triggers token expiration check 
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
-const expTimer = () => sleep(500).then(() => ({})) 
+const expTimer = () => sleep(5000).then(() => ({})) 
 
 const AuthContext = React.createContext()
 
@@ -69,18 +69,21 @@ function useAuthState() {
 
 function AuthenticatedApp() {
 
+    console.log("AA SS: " + String(sessionStorage.access_token).slice(-9,-1) );
+   
     const { access_token, setToken } = useToken();
 
-    console.log("AA - token = " + String(access_token).slice(-8))
+    console.log("AA token : " + String(access_token).slice(-9,-1))
 
     var decoded = jwt.decode(access_token, { complete: true });
     
     const userRole = decoded?.payload.role;
     var expTime =  decoded?.payload.exp -  Date.now()/1000;
-
+    console.log("expTime:" + String(expTime).fixed(1))
     const jwtExpired = expTime <= 0
 
     const popRefreshAlert = expTime < 30;
+    if (popRefreshAlert) console.log("Time to refresh !!!!!!!!!!! ");
 
     const hdr = userRole === 'admin' ?  <AdminHeader /> : <Header /> // If we're going to display a header, which one?
 
@@ -90,7 +93,7 @@ function AuthenticatedApp() {
           
             { !jwtExpired && hdr ?  hdr : '' /* Above-chosen header, or if logged out, no header */ } 
            
-            {popRefreshAlert && <CDialog /> }
+            {popRefreshAlert && <CDialog setToken={setToken} /> }
 
 
             {  /* If not logged in, show login screen */
@@ -138,6 +141,7 @@ function Home() {
   const {user} = useAuthState()
   /*eslint no-unused-vars: ["warn", { "varsIgnorePattern": "access_token" }]*/
   const { access_token, setToken } = useToken();
+  console.log("Home - AT: " + String(access_token).slice(-9,-1));
   return user ? <AuthenticatedApp /> : <Login setToken={setToken} />
 }
 

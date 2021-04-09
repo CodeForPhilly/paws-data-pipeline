@@ -41,9 +41,9 @@ export default async function Refresh(old_token) {
             return '{}'
         });
 
-        console.log("New AT " + String(new_at.access_token).slice(-8) );
+        console.log(">>>>>>>>>>>>>>>>>>>> Refreshed, New AT: " + String(new_at.access_token).slice(-8) );
             
-        return(new_at.access_token);
+        return(new_at);
 
 
 

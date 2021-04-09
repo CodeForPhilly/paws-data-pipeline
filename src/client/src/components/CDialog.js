@@ -10,9 +10,9 @@ import useToken from '../components/Login/useToken';
 
 import Refresh from './Refresh';
 
-export default function  CDialog() {
+export default function  CDialog({setToken}) {
   const [open, setOpen] = React.useState(true);
-  const { access_token, setToken } = useToken();
+  const { access_token, setT } = useToken();
 
 
   const handleClickOpen = () => {

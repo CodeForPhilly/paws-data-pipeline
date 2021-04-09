@@ -4,6 +4,11 @@ export default function useToken() {
     const getToken = () => {
         const tokenString = sessionStorage.getItem('access_token');  // getItem(key)
         const userToken = JSON.parse(tokenString);
+
+        console.log("UT - uT:" + String(userToken?.access_token).slice(-9,-1) );
+        // if (access_token) console.log("UT AT" +  String(access_token).slice(-9,-1) ) ;
+
+        console.log("Returning AT:" + String(userToken?.access_token).slice(-9,-1));
         return userToken?.access_token
     };
 
