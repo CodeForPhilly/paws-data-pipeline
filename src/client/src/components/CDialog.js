@@ -12,13 +12,7 @@ import Refresh from './Refresh';
 
 export default function  CDialog(props) {
   const [open, setOpen] = React.useState(props.shouldOpen);
-  const { access_token, setT } = useToken();  // We want to use the passed-in top-level setToken
-
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
+  const { access_token } = useToken();  // We want to use the passed-in top-level setToken
 
   const handleClose = async (shouldRefresh) => {
     // Could be closed with Yes, No, outclick (which equals No)
@@ -34,9 +28,6 @@ export default function  CDialog(props) {
 
   return (
     <div>
-      {/* <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-        Open alert dialog
-      </Button> */}
       <Dialog
         open={open}
         onClose={() => handleClose(false)}

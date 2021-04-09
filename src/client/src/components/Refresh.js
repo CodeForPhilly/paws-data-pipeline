@@ -1,7 +1,3 @@
-import React from 'react';
-import useToken from '../components/Login/useToken';
-var jwt = require('jsonwebtoken');
-
 
 export default async function Refresh(old_token) {
 
@@ -9,10 +5,8 @@ export default async function Refresh(old_token) {
         console.log("Top of Refresh, old_token = " + String(old_token).slice(-8) );
 
         // get the decoded payload and header
-        var decoded = jwt.decode(old_token, { complete: true });
-        const expTime = decoded?.payload.exp
-        // console.log('User: ' + userName + ' / Role:' + userRole + '->' +  processStatus + ' @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
-
+        // var decoded = jwt.decode(old_token, { complete: true });
+       
     
 
 
