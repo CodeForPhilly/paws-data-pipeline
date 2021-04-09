@@ -121,7 +121,7 @@ function AuthenticatedApp() {
                 </Route>
 
                 <Route path="/check"> 
-                  <Check />
+                  <Check access_token = {access_token}/>
                 </Route>
 
                 <Route path="/ref">
