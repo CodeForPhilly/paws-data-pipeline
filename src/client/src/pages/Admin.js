@@ -78,7 +78,13 @@ class Admin extends Component {
             formData.append('file', element, element.name)
         })
 
-        await fetch("/api/file", {method: 'POST', body: formData})
+        await fetch("/api/file", {method: 'POST', body: formData, 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.props.access_token
+            }})
+
+
 
         await this.handleGetFileList();
 
@@ -95,13 +101,27 @@ class Admin extends Component {
 
         this.setState({isLoading: true});
 
-        await fetch('/api/execute');
+        await fetch('/api/execute',
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.access_token
+                }
+            });
 
         this.refreshPage();
     }
 
     async handleGetStatistics() {
-        const statsData = await fetch("/api/statistics");
+        const statsData = await fetch("/api/statistics",
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.access_token
+                }
+            });
         const statsResponse = await statsData.json()
 
         if (statsResponse !== 'executing') {
@@ -115,7 +135,14 @@ class Admin extends Component {
     }
 
     async handleGetFileList() {
-        const filesData = await fetch("/api/listCurrentFiles");
+        const filesData = await fetch("/api/listCurrentFiles",
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.access_token
+                }
+            });
         const filesResponse = await filesData.json();
         this.setState({fileListHtml: filesResponse});
     }
