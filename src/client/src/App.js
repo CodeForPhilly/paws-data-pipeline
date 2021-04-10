@@ -102,14 +102,14 @@ function AuthenticatedApp() {
               (!access_token | jwtExpired) ?  <Login setToken={setToken} /> :    <Switch>
 
                 <Route exact path="/">
-                    <HomePage/>
+                    <HomePage access_token = {access_token}/>
                 </Route>
 
 
                 {  /* If an admin, render Upload page       */
                   userRole === 'admin' &&
                     <Route path="/admin">
-                        <Admin/>
+                        <Admin access_token = {access_token}/>
                     </Route>
                     }
 
@@ -119,11 +119,11 @@ function AuthenticatedApp() {
                 </Route>
 
                 <Route path="/360view/search">
-                    <Search360/>
+                    <Search360 access_token = {access_token} />
                 </Route>
 
                 <Route path="/360view/view">
-                     <View360/>
+                     <View360 access_token = {access_token} />
                 </Route>
   
                 <Route path="/check"> 
