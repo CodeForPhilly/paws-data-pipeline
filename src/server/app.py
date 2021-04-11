@@ -13,7 +13,7 @@ app.config["JWT_SECRET_KEY"] = JWT_SECRET
 app.config["JWT_MAX_TIMEOUT"] = 7200 #Seconds
 
  # We'll use max for default but can be reduced for testing
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 60               # app.config["JWT_MAX_TIMEOUT"] 
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] =  app.config["JWT_MAX_TIMEOUT"] 
 
 jwt = JWTManager(app)
 
