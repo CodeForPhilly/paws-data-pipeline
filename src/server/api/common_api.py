@@ -9,6 +9,8 @@ from datetime import datetime
 import dateutil.parser
 from secrets import SHELTERLUV_SECRET_TOKEN
 
+from api import jwt_ops
+
 
 @common_api.route('/api/timeout_test/<duration>', methods=['GET'])
 def get_timeout(duration):
@@ -21,6 +23,7 @@ def get_timeout(duration):
     return results
 
 @common_api.route('/api/contacts/<search_text>', methods=['GET'])
+@jwt_ops.jwt_required()
 def get_contacts(search_text):
     with engine.connect() as connection:
         search_text = search_text.lower()
@@ -45,6 +48,7 @@ def get_contacts(search_text):
 
 
 @common_api.route('/api/360/<matching_id>', methods=['GET'])
+@jwt_ops.jwt_required()
 def get_360(matching_id):
     result = {}
 

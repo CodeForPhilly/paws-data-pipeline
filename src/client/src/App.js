@@ -17,6 +17,7 @@ import Refresh from './components/Refresh';
 import useToken from './components/Login/useToken';
 var jwt = require('jsonwebtoken');
 
+const REFRESH_POPUP_TIME = 300 // seconds
 
 // Triggers token expiration check
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
@@ -80,7 +81,7 @@ function AuthenticatedApp() {
     var expTime =  decoded?.payload.exp -  Date.now()/1000;
     const jwtExpired = expTime <= 0
 
-    const popRefreshAlert = expTime > 0 && expTime < 30;  // Time in secs to pop up refresh dialog
+    const popRefreshAlert = expTime > 0 && expTime < REFRESH_POPUP_TIME;  // Time in secs to pop up refresh dialog
 
     const hdr = userRole === 'admin' ?  <AdminHeader /> : <Header /> // If we're going to display a header, which one?
 
@@ -102,14 +103,14 @@ function AuthenticatedApp() {
               (!access_token | jwtExpired) ?  <Login setToken={setToken} /> :    <Switch>
 
                 <Route exact path="/">
-                    <HomePage/>
+                    <HomePage access_token = {access_token}/>
                 </Route>
 
 
                 {  /* If an admin, render Upload page       */
                   userRole === 'admin' &&
                     <Route path="/admin">
-                        <Admin/>
+                        <Admin access_token = {access_token}/>
                     </Route>
                     }
 
@@ -119,11 +120,11 @@ function AuthenticatedApp() {
                 </Route>
 
                 <Route path="/360view/search">
-                    <Search360/>
+                    <Search360 access_token = {access_token} />
                 </Route>
 
                 <Route path="/360view/view">
-                     <View360/>
+                     <View360 access_token = {access_token} />
                 </Route>
   
                 <Route path="/check"> 

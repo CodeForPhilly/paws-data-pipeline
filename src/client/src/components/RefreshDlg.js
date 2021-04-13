@@ -17,7 +17,7 @@ export default function  RefreshDlg(props) {
   const handleClose = async (shouldRefresh) => {
     // Could be closed with Yes, No, outclick (which equals No)
     setOpen(false);
-    if (props.shouldOpen){
+    if (shouldRefresh){
       const new_at =  await Refresh(access_token);
       props.setToken(new_at);
     }

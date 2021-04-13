@@ -54,7 +54,14 @@ class View360 extends Component {
         });
 
         await new Promise(resolve => setTimeout(resolve, 1000));
-        let response = await fetch(`/api/360/${this.state.matchId}`);
+        let response = await fetch(`/api/360/${this.state.matchId}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.access_token
+                }
+            }  );
         response = await response.json();
 
         this.setState({
