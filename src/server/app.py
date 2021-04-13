@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 
 app.config["JWT_SECRET_KEY"] = JWT_SECRET  
-app.config["JWT_MAX_TIMEOUT"] = 7200 #Seconds
+app.config["JWT_MAX_TIMEOUT"] = 30*60 #Seconds
 
  # We'll use max for default but can be reduced for testing
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] =  app.config["JWT_MAX_TIMEOUT"] 
