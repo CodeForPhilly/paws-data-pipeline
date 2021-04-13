@@ -10,7 +10,10 @@ import Search360 from './pages/DataView360/Search/Search';
 import View360 from './pages/DataView360/View/View';
 import About from './pages/About';
 import Login from './components/Login/Login';
+import RefreshDlg from './components/RefreshDlg';
 import Check from './pages/Check/Check';
+import Refresh from './components/Refresh';
+
 import useToken from './components/Login/useToken';
 var jwt = require('jsonwebtoken');
 
@@ -68,16 +71,16 @@ function useAuthState() {
 
 
 function AuthenticatedApp() {
-
+      
     const { access_token, setToken } = useToken();
-
 
     var decoded = jwt.decode(access_token, { complete: true });
 
     const userRole = decoded?.payload.role;
     var expTime =  decoded?.payload.exp -  Date.now()/1000;
-
     const jwtExpired = expTime <= 0
+
+    const popRefreshAlert = expTime > 0 && expTime < 30;  // Time in secs to pop up refresh dialog
 
     const hdr = userRole === 'admin' ?  <AdminHeader /> : <Header /> // If we're going to display a header, which one?
 
@@ -86,8 +89,14 @@ function AuthenticatedApp() {
   return (
     <>
         <Router>
+          
+            { !jwtExpired && hdr ?  hdr : '' /* Above-chosen header, or if logged out, no header */ } 
+           
+            {popRefreshAlert && <RefreshDlg shouldOpen={true} setToken={setToken} /> }  {/* Pop up the refresh dialog */}
 
-            { !jwtExpired && hdr ?  hdr : '' /* Above-chosen header, or if logged out, no header */ }
+            {jwtExpired &&  <RefreshDlg shouldOpen={false} setToken={setToken} /> }     { /* Too late, expired: close the dialog */}
+
+
 
             {  /* If not logged in, show login screen */
               (!access_token | jwtExpired) ?  <Login setToken={setToken} /> :    <Switch>
@@ -113,13 +122,18 @@ function AuthenticatedApp() {
                     <Search360/>
                 </Route>
 
-                  <Route path="/360view/view">
-                      <View360/>
-                  </Route>
-
-                <Route path="/check">
-                  <Check />
+                <Route path="/360view/view">
+                     <View360/>
                 </Route>
+  
+                <Route path="/check"> 
+                  <Check access_token = {access_token}/>
+                </Route>
+
+                <Route path="/ref">
+                  <Refresh />
+                </Route>
+
             </Switch>
             }
 

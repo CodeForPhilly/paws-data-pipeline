@@ -6,9 +6,9 @@ var jwt = require('jsonwebtoken');
 // const { DateTime } = require("luxon");  /* Enable if you enable console logging below */ 
 
 
-export default function Check() {
+export default function Check({access_token}) {
 
-    const { access_token, setToken } = useToken();
+    const {  setToken } = useToken();
 
     const [processStatus, setProcessStatus] = React.useState('loading');
     const [error, setError] = React.useState('');
