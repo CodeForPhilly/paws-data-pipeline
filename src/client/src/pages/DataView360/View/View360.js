@@ -26,9 +26,11 @@ const customStyles = theme => ({
         color: '#fff',
     },
     stickyContainer: {
-        position: 'fixed',
-        paddingTop: 25,
-        left: '-25em'
+        position: 'sticky',
+        top: 100
+    },
+    tablesCol: {
+        minWidth: '600px'
     }
 });
 
@@ -61,7 +63,7 @@ class View360 extends Component {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + this.props.access_token
                 }
-            }  );
+            });
         response = await response.json();
 
         this.setState({
@@ -109,7 +111,7 @@ class View360 extends Component {
                                 </Grid>
                             </Grid>
                             <Grid container direction={"row"} spacing={3}>
-                                <Grid item sm={4}>
+                                <Grid item xs={4}>
                                     <Grid className={classes.stickyContainer} container direction={"column"}
                                           alignItems={"center"}>
                                         <Grid item>
@@ -117,7 +119,8 @@ class View360 extends Component {
                                                 participant={_.get(this.state, 'participantData.contact_details')}/>
                                         </Grid>
                                         <Grid item style={{"padding": "1em"}}>
-                                            <Button elevation={2} variant="contained" color="primary"
+                                            <Button style={{"minWidth": "180"}} elevation={2} variant="contained"
+                                                    color="primary"
                                                     onClick={() => {
                                                         this.onBackClick()
                                                     }}>Back to Results
@@ -125,7 +128,7 @@ class View360 extends Component {
                                         </Grid>
                                     </Grid>
                                 </Grid>
-                                <Grid item sm>
+                                <Grid item xs={8} className={classes.tablesCol}>
                                     <Grid container direction="column" style={{"marginTop": "1em"}}>
                                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
                                         <Adoptions adoptions={_.get(this.state, 'participantData.adoptions')}
