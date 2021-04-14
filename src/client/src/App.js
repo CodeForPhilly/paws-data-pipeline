@@ -2,7 +2,7 @@ import React from 'react';
 
 import {BrowserRouter as Router, Switch, Route, useHistory} from 'react-router-dom';
 
-import Header, {AdminHeader} from "./components/Header";
+import Header, {AdminHeader, LoginHeader} from "./components/Header";
 
 import HomePage from './pages/Home';
 import Admin from './pages/Admin';
@@ -79,7 +79,7 @@ function AuthenticatedApp() {
 
     const userRole = decoded?.payload.role;
     var expTime =  decoded?.payload.exp -  Date.now()/1000;
-    const jwtExpired = expTime <= 0
+    const jwtExpired = !expTime || expTime <= 0
 
     const popRefreshAlert = expTime > 0 && expTime < REFRESH_POPUP_TIME;  // Time in secs to pop up refresh dialog
 
@@ -91,13 +91,15 @@ function AuthenticatedApp() {
     <>
         <Router>
           
-            { !jwtExpired && hdr ?  hdr : '' /* Above-chosen header, or if logged out, no header */ } 
+            { !jwtExpired && hdr ?  hdr : <LoginHeader /> /* Above-chosen header, or if logged out, no header */ } 
            
             {popRefreshAlert && <RefreshDlg shouldOpen={true} setToken={setToken} /> }  {/* Pop up the refresh dialog */}
 
             {jwtExpired &&  <RefreshDlg shouldOpen={false} setToken={setToken} /> }     { /* Too late, expired: close the dialog */}
 
-
+            <Route path="/about">
+                    <About/>
+                </Route>
 
             {  /* If not logged in, show login screen */
               (!access_token | jwtExpired) ?  <Login setToken={setToken} /> :    <Switch>
@@ -115,9 +117,6 @@ function AuthenticatedApp() {
                     }
 
 
-                <Route path="/about">
-                    <About/>
-                </Route>
 
                 <Route path="/360view/search">
                     <Search360 access_token = {access_token} />
