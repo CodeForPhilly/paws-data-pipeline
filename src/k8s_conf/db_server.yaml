@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: \temp\kompose -f docker-compose.yml convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: paws-compose-db
+  name: paws-compose-db
+spec:
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+  selector:
+    io.kompose.service: paws-compose-db
+status:
+  loadBalancer: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: \temp\kompose -f docker-compose.yml convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: paws-compose-db
+  name: paws-compose-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: paws-compose-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: \temp\kompose -f docker-compose.yml convert
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: paws-compose-db
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_PASSWORD
+              value: thispasswordisverysecure
+          image: localhost:5000/postgres:11.3-alpine
+          imagePullPolicy: ""
+          name: paws-compose-db
+          ports:
+            - containerPort: 5432
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+        - name: postgres
+          persistentVolumeClaim:
+            claimName: postgres
+status: {}
