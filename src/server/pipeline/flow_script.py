@@ -25,7 +25,7 @@ def start_flow():
             # Populate new records in secondary tables (donations, volunteer shifts)
             # input - existing files in path
             # output - normalized object of all entries, as well as the input json rows for primary sources
-            normalized_data, source_json = clean_and_load_data.start(connection, pdp_contacts_df, file_path_list)
+            normalized_data, source_json, manual_matches_df = clean_and_load_data.start(connection, pdp_contacts_df, file_path_list)
 
             # Standardize column data types via postgres (e.g. reading a csv column as int vs. str)
             # (If additional inconsistencies are encountered, may need to enforce the schema of
@@ -41,7 +41,7 @@ def start_flow():
 
             # Match new+updated records against previous version of pdp_contacts database, and
             # write these rows to the database.
-            match_data.start(connection, rows_classified)
+            match_data.start(connection, rows_classified, manual_matches_df)
 
             # Copy raw input rows to json fields in pdp_contacts,
             # using a temporary table to simplify the update code.

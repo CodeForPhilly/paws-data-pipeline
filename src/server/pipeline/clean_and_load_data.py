@@ -17,6 +17,10 @@ def start(connection, pdp_contacts_df, file_path_list):
     for uploaded_file in file_path_list:
         file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
         table_name = file_path.split('/')[-1].split('-')[0]
+        if table_name == 'manual_matches':
+            manual_matches_df = pd.read_csv((io.BytesIO(open(file_path, "rb").read())), encoding='iso-8859-1')
+            continue
+            
         current_app.logger.info('Running load_paws_data on: ' + uploaded_file)
 
         df = pd.read_csv((io.BytesIO(open(file_path, "rb").read())), encoding='iso-8859-1')
@@ -54,7 +58,7 @@ def start(connection, pdp_contacts_df, file_path_list):
 
         current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)
 
-    return result, json_rows
+    return result, json_rows, manual_matches_df
 
 
 def create_normalized_df(df, normalized_df, table_name):
