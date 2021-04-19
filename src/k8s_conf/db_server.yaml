@@ -19,6 +19,18 @@ status:
   loadBalancer: {}
 
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-configuration
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: paws
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: thispasswordisverysecure
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -47,9 +59,12 @@ spec:
     spec:
       containers:
         - env:
+            - name: POSTGRES_DB
+              value: paws
             - name: POSTGRES_PASSWORD
               value: thispasswordisverysecure
-          image: localhost:5000/postgres:11.3-alpine
+
+          image: postgres:11-alpine     # localhost:5000/postgres:11.3-alpine
           imagePullPolicy: ""
           name: paws-compose-db
           ports:
