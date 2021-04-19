@@ -49,9 +49,9 @@ spec:
         - env:
             - name: FLASK_ENV
               value: development
-          image: localhost:5000/src-server:latest
+          image: localhost:5000/server:1.2
           imagePullPolicy: ""
-          name: paws-compose-server
+          name: server #paws-compose-server
           ports:
             - containerPort: 5000
           resources: {}
