@@ -48,8 +48,10 @@ spec:
         - env:
             - name: CHOKIDAR_USEPOLLING
               value: "true"
-          image: ghcr.io/codeforphilly/paws-data-pipeline/client:1.2
-          imagePullPolicy: ""
+            - name: PAWS_API_HOST
+              value: "server"
+          image: localhost:5000/src-client:latest
+          imagePullPolicy: "IfNotPresent"
           name: paws-compose-client
           ports:
             - containerPort: 3000

@@ -49,8 +49,8 @@ spec:
         - env:
             - name: FLASK_ENV
               value: development
-          image: localhost:5000/server:1.2
-          imagePullPolicy: ""
+          image: localhost:5000/src-server:latest
+          imagePullPolicy: "IfNotPresent"
           name: server #paws-compose-server
           ports:
             - containerPort: 5000

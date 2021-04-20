@@ -34,7 +34,7 @@ services:
       - server
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PAWS_API_HOST=paws-compose-server
+      - PAWS_API_HOST=server    # paws-compose-server
     stdin_open: true
 
 
