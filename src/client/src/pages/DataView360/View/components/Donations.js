@@ -77,7 +77,7 @@ class Donations extends Component {
                             <TableRow>
                                 <TableCell className={classes.headerCell}>Date of Donation</TableCell>
                                 <TableCell className={classes.headerCell}>Amount</TableCell>
-                                <TableCell className={classes.headerCell}>Campaign Type</TableCell>
+                                <TableCell className={classes.headerCell}>Primary Campaign Source</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
