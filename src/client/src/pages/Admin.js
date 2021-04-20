@@ -55,7 +55,7 @@ class Admin extends Component {
         await this.handleGetFileList();
         await this.handleGetStatistics();
 
-        this.setState({isLoading: false})
+        await this.setState({isLoading: false})
     }
 
     componentDidMount() {
@@ -78,13 +78,12 @@ class Admin extends Component {
             formData.append('file', element, element.name)
         })
 
-        await fetch("/api/file", {method: 'POST', body: formData, 
+        await fetch("/api/file", {
+            method: 'POST',
+            body: formData,
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + this.props.access_token
             }})
-
-
 
         await this.handleGetFileList();
 
@@ -105,7 +104,6 @@ class Admin extends Component {
             {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + this.props.access_token
                 }
             });
@@ -118,7 +116,6 @@ class Admin extends Component {
             {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + this.props.access_token
                 }
             });
@@ -139,7 +136,6 @@ class Admin extends Component {
             {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + this.props.access_token
                 }
             });
