@@ -40,7 +40,7 @@ class Volunteer extends Component {
 
         const result = _.map(lastShifts, (shift, index) => {
             return(<TableRow key={index}>
-                    <TableCell>{moment(shift.from).format("YYYY-MM-DD")}</TableCell>
+                    <TableCell>{moment(shift.from).format("MM-DD-YYYY")}</TableCell>
                     <TableCell>{shift.assignment}</TableCell>
                 </TableRow>);
 
@@ -77,7 +77,7 @@ class Volunteer extends Component {
                             <TableBody>
                                 { this.props.volunteer && (
                                 <TableRow>
-                                    <TableCell>{this.props.volunteer.start_date}</TableCell>
+                                    <TableCell>{moment(this.props.volunteer.start_date).format("MM-DD-YYYY")}</TableCell>
                                     <TableCell>{this.props.volunteer.life_hours.toFixed(2)}</TableCell>
                                     <TableCell>{this.props.volunteer.ytd_hours.toFixed(2)}</TableCell>
                                 </TableRow>
