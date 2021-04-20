@@ -33,8 +33,8 @@ class Volunteer extends Component {
 
     createShiftRows(shifts) {
         const shiftsSorted = _.sortBy(shifts, shift => {
-            return new Date(shift.from).getTime();
-        });
+            return new moment(shift.from);
+        }).reverse();
 
         const lastShifts = shiftsSorted.slice(shiftsSorted.length - SHIFTS_TO_SHOW, shiftsSorted.length)
 
