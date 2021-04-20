@@ -17,6 +17,7 @@ import ContactInfo from './components/ContactInfo';
 import Volunteer from './components/Volunteer';
 import Donations from './components/Donations';
 import Adoptions from './components/Adoptions';
+import Fosters from './components/Fosters';
 import {matchPath} from "react-router";
 
 
@@ -38,6 +39,7 @@ class View360 extends Component {
 
         this.state = {
             participantData: {},
+            animalData: {},
             matchId: undefined,
             isDataBusy: false,
         }
@@ -57,10 +59,32 @@ class View360 extends Component {
         let response = await fetch(`/api/360/${this.state.matchId}`);
         response = await response.json();
 
+        let animalInfo = await fetch(`/api/person/${this.state.matchId}/animals`);
+        animalInfo = await animalInfo.json()
+        const animalIds = _.keys(animalInfo);
+
+        for (let id of animalIds) {
+            this.getAnimalEvents(id).then((events) => {
+                animalInfo[id]["events"] = events[id]
+                animalInfo[id]["adoptionEvents"] = _.filter(events[id], function(e) {
+                    return e["Type"] && e["Type"].toLowerCase().includes("adopt");
+                });
+                animalInfo[id]["fosterEvents"] = _.filter(events[id], function(e) {
+                    return e["Type"] && e["Type"].toLowerCase().includes("foster");
+                });
+            })
+        }
+
         this.setState({
             participantData: response.result,
+            animalData: animalInfo,
             isDataBusy: false
         });
+    }
+
+    async getAnimalEvents(animalId) {
+        let response = await fetch(`/api/animal/${animalId}/events`);
+        return await response.json()
     }
 
     extractVolunteerActivity() {
@@ -114,7 +138,8 @@ class View360 extends Component {
                                 <Grid item sm>
                                     <Grid container direction="column" style={{"marginTop": "1em"}}>
                                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
-                                        <Adoptions adoptions={_.get(this.state, 'participantData.adoptions')}/>
+                                        <Adoptions adoptions={_.get(this.state, 'animalData')}/>
+                                        <Fosters fosters={_.get(this.state, 'animalData')}/>
                                         <Volunteer volunteer={this.extractVolunteerActivity()}
                                                    volunteerShifts={_.get(this.state, 'participantData.shifts')}/>
                                     </Grid>

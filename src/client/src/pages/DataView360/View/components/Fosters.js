@@ -30,15 +30,7 @@ const customStyles = theme => ({
     },
     headerCell: {
         fontWeight: "bold",
-    },
-    paper: {
-        position: 'absolute',
-        width: 400,
-        backgroundColor: theme.palette.background.paper,
-        border: '2px solid #000',
-        boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
-      }
+    }
 });
 
 const PET_COUNT = 5;
@@ -46,7 +38,7 @@ const PET_COUNT = 5;
 let modalIsOpen = false;
 let modalData = [];
 
-class Adoptions extends Component {
+class Fosters extends Component {
 
     handleOpen(data) {
         modalIsOpen = true;
@@ -69,8 +61,8 @@ class Adoptions extends Component {
 
     render() {
         const {classes} = this.props;
-        const numOfPets = _.size(this.props.adoptions);
-        const latestPets = this.getLatestPets(this.props.adoptions);
+        const numOfPets = _.size(this.props.fosters);
+        const latestPets = this.getLatestPets(this.props.fosters);
 
         return (<Container component={Paper} style={{"marginTop": "1em"}}>
                 <Typography variant='h5'>
@@ -79,7 +71,7 @@ class Adoptions extends Component {
                             <PetsIcon color='primary' fontSize='inherit'/>
                         </Grid>
                         <Grid item>
-                            Adoption Records {(numOfPets > PET_COUNT) && "(Showing " + PET_COUNT + " Pets out of " + numOfPets + ")"}
+                            Foster Records {(numOfPets > PET_COUNT) && `(Showing ${PET_COUNT} Pets out of " + numOfPets + ")`}
                         </Grid>
                         <Grid item>
                             <IconButton style={{'padding': 0, 'paddingLeft': 5}} color="primary" aria-label="link" component="span">
@@ -112,19 +104,19 @@ class Adoptions extends Component {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {_.map(latestPets, (adoptionInfo, index) => {
-                                const photoLink = _.get(adoptionInfo, "Photos.[0]");
+                            {_.map(latestPets, (fosterInfo, index) => {
+                                const photoLink = _.get(fosterInfo, "Photos.[0]");
                                 const photo = <img src={photoLink} alt="animal" style={{"maxWidth": "100px"}}/>
 
                                 return <TableRow key={index}>
-                                    <TableCell align="center">{adoptionInfo["Name"]}</TableCell>
-                                    <TableCell align="center">{adoptionInfo["Type"]}</TableCell>
-                                    <TableCell align="center">{adoptionInfo["Breed"]}</TableCell>
+                                    <TableCell align="center">{fosterInfo["Name"]}</TableCell>
+                                    <TableCell align="center">{fosterInfo["Type"]}</TableCell>
+                                    <TableCell align="center">{fosterInfo["Breed"]}</TableCell>
                                     <TableCell
-                                        align="center">{this.getAnimalAge(adoptionInfo["DOBUnixTime"])}</TableCell>
+                                        align="center">{this.getAnimalAge(fosterInfo["DOBUnixTime"])}</TableCell>
                                     <TableCell align="center">{photo}</TableCell>
                                     <TableCell align="center">
-                                        <Button variant="contained" color="primary" onClick={() => this.handleOpen(adoptionInfo.adoptionEvents)}>
+                                        <Button variant="contained" color="primary" onClick={() => this.handleOpen(fosterInfo.fosterEvents)}>
                                             More
                                         </Button>
                                     </TableCell>
@@ -139,4 +131,4 @@ class Adoptions extends Component {
 }
 
 
-export default withStyles(customStyles)(Adoptions);
+export default withStyles(customStyles)(Fosters);
