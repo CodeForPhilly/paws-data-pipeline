@@ -27,7 +27,7 @@ const customStyles = theme => ({
     },
 });
 
-const SHIFTS_TO_SHOW = 3;
+const SHIFTS_TO_SHOW = 5;
 
 class Volunteer extends Component {
 
@@ -93,7 +93,7 @@ class Volunteer extends Component {
                                 <TimelineIcon color='primary' fontSize='inherit'/>
                             </Grid>
                             <Grid item>
-                                Volunteer History (Top 3)
+                                Volunteer History (Top 5)
                             </Grid>
                         </Grid>
                     </Typography>

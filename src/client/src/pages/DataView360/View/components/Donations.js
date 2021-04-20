@@ -26,7 +26,7 @@ const customStyles = theme => ({
     }
 });
 
-const ROWS_TO_SHOW = 3
+const ROWS_TO_SHOW = 5
 
 class Donations extends Component {
     constructor(props) {
@@ -66,7 +66,7 @@ class Donations extends Component {
                             <AttachMoneyIcon color='primary' fontSize='inherit'/>
                         </Grid>
                         <Grid item>
-                            Financial Support Activity (Top 3)
+                            Financial Support Activity (Top 5)
                         </Grid>
                     </Grid>
                 </Typography>
