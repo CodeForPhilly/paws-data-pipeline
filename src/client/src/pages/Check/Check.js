@@ -35,7 +35,7 @@ export default function Check({access_token}) {
 
         function authCheck() {
             //   console.log('authCheck startfetch @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
-               fetch('http://localhost:5000/api/user/test_auth',
+               fetch('/api/user/test_auth',
                {
                    method: 'GET',
                    headers: {

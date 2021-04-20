@@ -2,7 +2,7 @@ export default async function Refresh(old_token) {
     
     // Use exisiting token to get a new fresh token
 
-        const new_at = await fetch('http://localhost:5000/api/user/refresh',
+        const new_at = await fetch('/api/user/refresh',
         {
             method: 'GET',
             headers: {
