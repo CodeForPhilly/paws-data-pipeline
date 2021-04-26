@@ -4,7 +4,21 @@ from flask import Flask
 
 from flask_jwt_extended import JWTManager
 
-from secrets import JWT_SECRET, APP_SECRET_KEY
+try:   
+    from secrets import JWT_SECRET, APP_SECRET_KEY
+except ImportError:   
+    # Not running locally
+    print("Could not get secrets from file, trying environment **********")
+    from os import environ
+
+    try:
+        JWT_SECRET = environ['JWT_SECRET']
+        APP_SECRET_KEY = environ['APP_SECRET_KEY']
+    except KeyError:
+        # Nor in environment
+        # You're SOL for now
+        print("Couldn't get secrets from file or environment")
+
 
 app = Flask(__name__)
 

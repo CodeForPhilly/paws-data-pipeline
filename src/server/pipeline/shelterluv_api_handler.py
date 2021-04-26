@@ -1,7 +1,21 @@
 import requests
 import csv
 from config import RAW_DATA_PATH
-from secrets import SHELTERLUV_SECRET_TOKEN
+
+try:   
+    from secrets import SHELTERLUV_SECRET_TOKEN
+except ImportError:   
+    # Not running locally
+    print("Couldn't get SL_TOKEN from file, trying environment **********")
+    from os import environ
+
+    try:
+        SHELTERLUV_SECRET_TOKEN = environ['SHELTERLUV_SECRET_TOKEN']
+    except KeyError:
+        # Nor in environment
+        # You're SOL for now
+        print("Couldn't get secrets from file or environment")
+
 
 
 def write_csv(json_data):

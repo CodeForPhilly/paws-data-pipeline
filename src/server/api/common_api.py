@@ -7,7 +7,23 @@ import json
 import time
 from datetime import datetime
 import dateutil.parser
-from secrets import SHELTERLUV_SECRET_TOKEN
+
+
+try:   
+    from secrets import SHELTERLUV_SECRET_TOKEN
+except ImportError:   
+    # Not running locally
+    print("Couldn't get SL_TOKEN from file, trying environment **********")
+    from os import environ
+
+    try:
+        SHELTERLUV_SECRET_TOKEN = environ['SHELTERLUV_SECRET_TOKEN']
+    except KeyError:
+        # Nor in environment
+        # You're SOL for now
+        print("Couldn't get secrets from file or environment")
+
+
 
 from api import jwt_ops
 
