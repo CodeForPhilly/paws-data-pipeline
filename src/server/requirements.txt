@@ -1,10 +1,8 @@
 Flask==1.1.2
 pandas==1.0.0
 numpy==1.18.1
-fuzzywuzzy==0.17.0
 sqlalchemy < 1.4.0   # Import error with 1.4.0 on _ColumnEntity
 psycopg2-binary==2.8.4
-python-Levenshtein-wheels
 xlrd==1.2.0  # currently used for xlsx, but we should consider adjusting code to openpyxl for xlsx
 openpyxl
 requests
