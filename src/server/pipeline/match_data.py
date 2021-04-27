@@ -22,8 +22,6 @@ def start(connection, added_or_updated_rows, manual_matches_df):
     current_app.logger.info('Start record matching')
     # Will need to consider updating the existing row contents (filter by active), deactivate,
     # try to match, and merge previous matching groups if applicable
-    current_app.logger.info('Manual matches DF: ' + manual_matches_df)
-
     job_id = str(int(time.time()))
     log_db.log_exec_status(job_id, {'status': 'starting', 'at_row': 0, 'of_rows': 0})
     current_app.logger.info("***** Running execute job ID " + job_id + " *****")
@@ -73,6 +71,13 @@ def start(connection, added_or_updated_rows, manual_matches_df):
                 ((pdp_contacts["email_normalized"] == row["email_normalized"]) | (pdp_contacts["mobile"] == row["mobile"]))
             )
         ]
+        #collect other linked ids from manual matches source
+        linked_ids = manual_matches_df[(manual_matches_df[row["source_type"]] == row["source_id"])]
+        ids = linked_ids.to_dict(orient="records")
+        for id_num, row_dict in enumerate(ids):
+            for column, value in row_dict.items():
+                row_matches = row_matches.append(pdp_contacts[(pdp_contacts["source_type"] == column) & (pdp_contacts["source_id"] == value)])
+        
         if row_matches.empty:  # new record, no matching rows
             max_matching_group += 1
             row_group = max_matching_group
