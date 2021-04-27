@@ -12,7 +12,7 @@ function checkLoginResponse(response) {
 
 
 async function loginUser(credentials) {
-    return fetch('http://localhost:5000/api/user/login', {
+    return fetch('/api/user/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

@@ -1,5 +1,4 @@
 from api.api import admin_api
-import shutil
 import os
 from datetime import datetime
 import json
@@ -16,23 +15,19 @@ from api import jwt_ops
 from config import (
     RAW_DATA_PATH,
     CURRENT_SOURCE_FILES_PATH,
-    LOGS_PATH,
 )
 
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
+
 
 def __allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-
 # file upload tutorial
 @admin_api.route("/api/file", methods=["POST"])
 @jwt_ops.admin_required
-def uploadCSV():
-    if "file" not in request.files:
-        return redirect(request.url)
-
+def upload_csv():
     for file in request.files.getlist("file"):
         if __allowed_file(file.filename):
             try:
