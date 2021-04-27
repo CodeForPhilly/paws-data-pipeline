@@ -28,7 +28,7 @@ metadata:
 data:
   POSTGRES_DB: paws
   POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: thispasswordisverysecure
+  
 ---
 
 apiVersion: apps/v1
@@ -61,9 +61,9 @@ spec:
         - env:
             - name: POSTGRES_DB
               value: paws
-            - name: POSTGRES_PASSWORD
-              value: thispasswordisverysecure
-
+          envFrom:
+            - secretRef:
+                name: db-pass-762dk6hmhm
           image: postgres:11-alpine     # localhost:5000/postgres:11.3-alpine
           imagePullPolicy: ""
           name: paws-compose-db

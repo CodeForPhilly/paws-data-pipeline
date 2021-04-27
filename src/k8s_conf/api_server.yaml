@@ -58,6 +58,11 @@ spec:
           volumeMounts:
             - mountPath: /app/static/raw_data
               name: src-archive
+          envFrom:
+            - secretRef:
+                name: api-server-pws-7c66bb2cf7
+            - secretRef:
+                name: db-pass-762dk6hmhm
       restartPolicy: Always
       serviceAccountName: ""
       imagePullSecrets:
