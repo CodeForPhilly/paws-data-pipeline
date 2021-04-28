@@ -40,6 +40,8 @@ class View360 extends Component {
         this.state = {
             participantData: {},
             animalData: {},
+            adoptionEvents: {},
+            fosterEvents: {},
             matchId: undefined,
             isDataBusy: false,
         }
@@ -63,13 +65,15 @@ class View360 extends Component {
         animalInfo = await animalInfo.json()
         const animalIds = _.keys(animalInfo);
 
+        let adoptionEvents = {};
+        let fosterEvents = {};
+
         for (let id of animalIds) {
             this.getAnimalEvents(id).then((events) => {
-                animalInfo[id]["events"] = events[id]
-                animalInfo[id]["adoptionEvents"] = _.filter(events[id], function(e) {
+                adoptionEvents[id] = _.filter(events[id], function(e) {
                     return e["Type"] && e["Type"].toLowerCase().includes("adopt");
                 });
-                animalInfo[id]["fosterEvents"] = _.filter(events[id], function(e) {
+                fosterEvents[id] = _.filter(events[id], function(e) {
                     return e["Type"] && e["Type"].toLowerCase().includes("foster");
                 });
             })
@@ -78,6 +82,8 @@ class View360 extends Component {
         this.setState({
             participantData: response.result,
             animalData: animalInfo,
+            adoptionEvents: adoptionEvents,
+            fosterEvents: fosterEvents,
             isDataBusy: false
         });
     }
@@ -138,8 +144,10 @@ class View360 extends Component {
                                 <Grid item sm>
                                     <Grid container direction="column" style={{"marginTop": "1em"}}>
                                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
-                                        <Adoptions adoptions={_.get(this.state, 'animalData')}/>
-                                        <Fosters fosters={_.get(this.state, 'animalData')}/>
+                                        <Adoptions adoptions={_.get(this.state, 'animalData')} 
+                                                    events={_.get(this.state, 'adoptionEvents')} />
+                                        <Fosters fosters={_.get(this.state, 'animalData')}
+                                                    events={_.get(this.state, 'fosterEvents')} />
                                         <Volunteer volunteer={this.extractVolunteerActivity()}
                                                    volunteerShifts={_.get(this.state, 'participantData.shifts')}/>
                                     </Grid>

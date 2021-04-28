@@ -1,15 +1,7 @@
 import React, {Component} from 'react';
 import {
-    Button,
-    Dialog,
     Paper,
     Typography,
-    Table,
-    TableContainer,
-    TableHead,
-    TableBody,
-    TableRow,
-    TableCell,
     Container,
     IconButton
 } from '@material-ui/core';
@@ -20,7 +12,7 @@ import moment from "moment";
 import Grid from "@material-ui/core/Grid";
 import PetsIcon from "@material-ui/icons/Pets";
 
-import EventsModal from './EventsModal';
+import CollapsibleTable from './CollapsibleTable';
 
 
 const customStyles = theme => ({
@@ -35,20 +27,7 @@ const customStyles = theme => ({
 
 const PET_COUNT = 5;
 
-let modalIsOpen = false;
-let modalData = [];
-
 class Fosters extends Component {
-
-    handleOpen(data) {
-        modalIsOpen = true;
-        modalData = data;
-    }
-
-    handleClose() {
-        modalIsOpen = false;
-        modalData = [];
-    }
 
     getLatestPets(petObject) {
         return petObject;
@@ -63,7 +42,7 @@ class Fosters extends Component {
         const {classes} = this.props;
         const numOfPets = _.size(this.props.fosters);
         const latestPets = this.getLatestPets(this.props.fosters);
-
+        const events = this.props.events;
         return (<Container component={Paper} style={{"marginTop": "1em"}}>
                 <Typography variant='h5'>
                     <Grid container style={{"margin": "0.5em"}} direction={'row'}>
@@ -80,51 +59,7 @@ class Fosters extends Component {
                         </Grid>
                     </Grid>
                 </Typography>
-                <Dialog
-                    open={modalIsOpen}
-                    onClose={this.handleClose}
-                    aria-labelledby="simple-dialog-title"
-                    aria-describedby="simple-dialog-description"
-                >
-                    <EventsModal data={modalData}/>
-                    <Button variant="contained" color="primary" onClick={this.handleClose}>
-                        Close
-                    </Button>
-                </Dialog>
-                <TableContainer component={Paper} style={{"marginBottom": "1em"}} variant='outlined'>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell className={classes.headerCell} align="center">Name</TableCell>
-                                <TableCell className={classes.headerCell} align="center">Animal Type</TableCell>
-                                <TableCell className={classes.headerCell} align="center">Breed</TableCell>
-                                <TableCell className={classes.headerCell} align="center">Age</TableCell>
-                                <TableCell className={classes.headerCell} align="center">Photo</TableCell>
-                                <TableCell className={classes.headerCell} align="center"></TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {_.map(latestPets, (fosterInfo, index) => {
-                                const photoLink = _.get(fosterInfo, "Photos.[0]");
-                                const photo = <img src={photoLink} alt="animal" style={{"maxWidth": "100px"}}/>
-
-                                return <TableRow key={index}>
-                                    <TableCell align="center">{fosterInfo["Name"]}</TableCell>
-                                    <TableCell align="center">{fosterInfo["Type"]}</TableCell>
-                                    <TableCell align="center">{fosterInfo["Breed"]}</TableCell>
-                                    <TableCell
-                                        align="center">{this.getAnimalAge(fosterInfo["DOBUnixTime"])}</TableCell>
-                                    <TableCell align="center">{photo}</TableCell>
-                                    <TableCell align="center">
-                                        <Button variant="contained" color="primary" onClick={() => this.handleOpen(fosterInfo.fosterEvents)}>
-                                            More
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            })}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                <CollapsibleTable data={latestPets} events={events} />
             </Container>
         );
     }
