@@ -45,6 +45,14 @@ spec:
       labels:
         io.kompose.service: server
     spec:
+      initContainers:
+        - name: wait-for-db
+          image: groundnuty/k8s-wait-for:v1.3
+          imagePullPolicy: Always
+          args:
+            - "service"
+            - "paws-compose-db"      
+
       containers:
         - env:
             - name: FLASK_ENV
