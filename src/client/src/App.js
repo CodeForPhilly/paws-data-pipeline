@@ -16,7 +16,7 @@ import Refresh from './components/Refresh';
 
 import useToken from './pages/Login/useToken';
 
-var jwt = require('jsonwebtoken');
+let jwt = require('jsonwebtoken');
 
 const REFRESH_POPUP_TIME = 300 // seconds
 
@@ -77,10 +77,10 @@ function AuthenticatedApp() {
 
     const {access_token, setToken} = useToken();
 
-    var decoded = jwt.decode(access_token, {complete: true});
+    let decoded = jwt.decode(access_token, {complete: true});
 
     const userRole = decoded?.payload.role;
-    var expTime = decoded?.payload.exp - Date.now() / 1000;
+    let expTime = decoded?.payload.exp - Date.now() / 1000;
     const jwtExpired = !expTime || expTime <= 0
 
     const popRefreshAlert = expTime > 0 && expTime < REFRESH_POPUP_TIME;  // Time in secs to pop up refresh dialog
@@ -90,72 +90,60 @@ function AuthenticatedApp() {
     const history = useHistory();
 
     return (
-        <>
-            <Router>
+        <Router>
 
-                {!jwtExpired && hdr ? hdr : <LoginHeader/> /* Above-chosen header, or if logged out, no header */}
+            {!jwtExpired && hdr ? hdr : <LoginHeader/> /* Above-chosen header, or if logged out, no header */}
 
-                {popRefreshAlert &&
-                <RefreshDlg shouldOpen={true} setToken={setToken}/>} {/* Pop up the refresh dialog */}
+            {popRefreshAlert &&
+            <RefreshDlg shouldOpen={true} setToken={setToken}/>} {/* Pop up the refresh dialog */}
 
-                {jwtExpired &&
-                <RefreshDlg shouldOpen={false} setToken={setToken}/>} { /* Too late, expired: close the dialog */}
+            {jwtExpired &&
+            <RefreshDlg shouldOpen={false} setToken={setToken}/>} { /* Too late, expired: close the dialog */}
 
-                <Route path="/about">
-                    <About/>
-                </Route>
+            <Route path="/about">
+                <About/>
+            </Route>
 
-                {  /* If not logged in, show login screen */
-                    (!access_token | jwtExpired) ?
-                        <Switch>
-                            <Route exact path="/">
-                                <Redirect to="/login"/>
-                                <Login setToken={setToken}/>
+            {  /* If not logged in, show login screen */
+                (!access_token | jwtExpired) ?
+                    <Login setToken={setToken}/>
+
+                    : <Switch>
+                        <Route exact path="/login">
+                            <Redirect to="/"/>
+                        </Route>
+                        <Route exact path="/">
+                            <HomePage access_token={access_token}/>
+                        </Route>
+
+                        {  /* If an admin, render Upload page       */
+                            userRole === 'admin' &&
+                            <Route path="/admin">
+                                <Admin access_token={access_token}/>
                             </Route>
-
-                            <Route exact path="/login">
-                                <Redirect to="/login"/>
-                                <Login setToken={setToken}/>
-                            </Route>
-                        </Switch>
-
-                        : <Switch>
-                            <Route exact path="/login">
-                                <Redirect to="/"/>
-                            </Route>
-                            <Route exact path="/">
-                                <HomePage access_token={access_token}/>
-                            </Route>
-
-                            {  /* If an admin, render Upload page       */
-                                userRole === 'admin' &&
-                                <Route path="/admin">
-                                    <Admin access_token={access_token}/>
-                                </Route>
-                            }
+                        }
 
 
-                            <Route path="/360view/search">
-                                <Search360 access_token={access_token}/>
-                            </Route>
+                        <Route path="/360view/search">
+                            <Search360 access_token={access_token}/>
+                        </Route>
 
-                            <Route path="/360view/view">
-                                <View360 access_token={access_token}/>
-                            </Route>
+                        <Route path="/360view/view">
+                            <View360 access_token={access_token}/>
+                        </Route>
 
-                            <Route path="/check">
-                                <Check access_token={access_token}/>
-                            </Route>
+                        <Route path="/check">
+                            <Check access_token={access_token}/>
+                        </Route>
 
-                            <Route path="/ref">
-                                <Refresh/>
-                            </Route>
+                        <Route path="/ref">
+                            <Refresh/>
+                        </Route>
 
-                        </Switch>
-                }
+                    </Switch>
+            }
 
-            </Router>
-        </>
+        </Router>
     )
 }
 
