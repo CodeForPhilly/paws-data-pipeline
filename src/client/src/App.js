@@ -88,25 +88,29 @@ function AuthenticatedApp() {
     const hdr = userRole === 'admin' ? <AdminHeader/> : <Header/> // If we're going to display a header, which one?
 
     const history = useHistory();
+    debugger;
 
     return (
         <Router>
 
             {!jwtExpired && hdr ? hdr : <LoginHeader/> /* Above-chosen header, or if logged out, no header */}
-
             {popRefreshAlert &&
             <RefreshDlg shouldOpen={true} setToken={setToken}/>} {/* Pop up the refresh dialog */}
 
             {jwtExpired &&
             <RefreshDlg shouldOpen={false} setToken={setToken}/>} { /* Too late, expired: close the dialog */}
 
-            <Route path="/about">
-                <About/>
-            </Route>
 
             {  /* If not logged in, show login screen */
                 (!access_token | jwtExpired) ?
-                    <Login setToken={setToken}/>
+                    <Switch>
+                        <Route path="/about">
+                            <About/>
+                        </Route>
+                        <Route>
+                            <Login setToken={setToken}/>
+                        </Route>
+                    </Switch>
 
                     : <Switch>
                         <Route exact path="/login">
@@ -114,6 +118,9 @@ function AuthenticatedApp() {
                         </Route>
                         <Route exact path="/">
                             <HomePage access_token={access_token}/>
+                        </Route>
+                         <Route path="/about">
+                            <About/>
                         </Route>
 
                         {  /* If an admin, render Upload page       */
