@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import {
     Paper,
-    Typography,
     Container,
     IconButton
 } from '@material-ui/core';
 import LinkIcon from '@material-ui/icons/Link';
 import { withStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
-import moment from "moment";
 import Grid from "@material-ui/core/Grid";
 import PetsIcon from "@material-ui/icons/Pets";
 
@@ -36,24 +34,35 @@ const customStyles = theme => ({
 
 const PET_COUNT = 5;
 
-class Adoptions extends Component {
+class AnimalInfo extends Component {
 
-    getLatestPets(petObject) {
-        return petObject;
+    getLatestPets(petObject, events) {
+        function customizer(objValue, srcValue) {
+            if (_.isObject(objValue) && _.isObject(srcValue)) {
+                // sort according to date of most recent event
+                return _.set(objValue, 'Events', _.orderBy(srcValue, ['Time'], ['desc']));
+            }
+        }
+        // force null values to back of list because
+        // _.orderBy descending places null values first
+        // see: https://github.com/lodash/lodash/issues/4169
+        let result = _.mergeWith(petObject, events, customizer);
+        let emptyEvents = _.filter(result, function(pet) { return pet["Events"] && pet["Events"].length === 0 });
+        let nonEmptyEvents = _.filter(result, function(pet) { return pet["Events"] && pet["Events"].length > 0 });
+        result = [..._.orderBy(nonEmptyEvents, ['Events[0].Time'], ['desc']), ...emptyEvents]
+        return result.slice(0, PET_COUNT);
     }
 
     render() {
-        const { classes } = this.props;
-        const numOfPets = _.size(this.props.adoptions);
-        const latestPets = this.getLatestPets(this.props.adoptions);
+        const numOfPets = _.size(this.props.pets);
         const events = this.props.events;
-        const headerText = "Adoption Records"
+        const latestPets = this.getLatestPets(this.props.pets, events);
+        const headerText = this.props.headerText;
         const headerAddition = (numOfPets > PET_COUNT) ? " (Showing " + PET_COUNT + " Pets out of " + numOfPets + ")" : ""
 
         return (
             <Container component={Paper} style={{ "marginTop": "1em" }}>
-                <DataTableHeader
-                    headerText={headerText + headerAddition}
+                <DataTableHeader headerText={headerText + headerAddition}
                     emojiIcon={<PetsIcon color='primary' fontSize='inherit' />}
                 >
                     <Grid item>
@@ -69,4 +78,4 @@ class Adoptions extends Component {
 }
 
 
-export default withStyles(customStyles)(Adoptions);
+export default withStyles(customStyles)(AnimalInfo);

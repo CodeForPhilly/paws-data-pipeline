@@ -15,8 +15,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import ContactInfo from './components/ContactInfo';
 import Donations from './components/Donations';
-import Adoptions from './components/Adoptions';
-import Fosters from './components/Fosters';
+import AnimalInfo from './components/AnimalInfo';
 import VolunteerActivity from './components/VolunteerActivity';
 import VolunteerHistory from './components/VolunteerHistory';
 
@@ -143,10 +142,14 @@ class View360 extends Component {
                                 <Grid item sm>
                                     <Grid container direction="column" style={{"marginTop": "1em"}}>
                                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
-                                        <Adoptions adoptions={_.get(this.state, 'animalData')} 
-                                                    events={_.get(this.state, 'adoptionEvents')} />
-                                        <Fosters fosters={_.get(this.state, 'animalData')}
-                                                    events={_.get(this.state, 'fosterEvents')} />
+                                        <AnimalInfo pets={_.get(this.state, 'animalData')} 
+                                                    events={_.get(this.state, 'adoptionEvents')} 
+                                                    headerText={"Adoption Records"}
+                                        />
+                                        <AnimalInfo pets={_.get(this.state, 'animalData')}
+                                                    events={_.get(this.state, 'fosterEvents')} 
+                                                    headerText={"Foster Records"}
+                                        />
                                         <VolunteerActivity volunteer={this.extractVolunteerActivity()} />
                                         <VolunteerHistory volunteerShifts={_.get(this.state, 'participantData.shifts')} />
                                     </Grid>
