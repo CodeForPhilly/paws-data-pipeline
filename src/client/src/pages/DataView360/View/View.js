@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {withStyles} from '@material-ui/core/styles';
-import {withRouter} from "react-router";
+import {withRouter, matchPath} from "react-router";
 
 import {
     Paper,
@@ -14,12 +14,11 @@ import {
 import _ from 'lodash';
 import moment from 'moment';
 import ContactInfo from './components/ContactInfo';
-import Volunteer from './components/Volunteer';
 import Donations from './components/Donations';
 import Adoptions from './components/Adoptions';
 import Fosters from './components/Fosters';
-import {matchPath} from "react-router";
-
+import VolunteerActivity from './components/VolunteerActivity';
+import VolunteerHistory from './components/VolunteerHistory';
 
 
 const customStyles = theme => ({
@@ -148,8 +147,8 @@ class View360 extends Component {
                                                     events={_.get(this.state, 'adoptionEvents')} />
                                         <Fosters fosters={_.get(this.state, 'animalData')}
                                                     events={_.get(this.state, 'fosterEvents')} />
-                                        <Volunteer volunteer={this.extractVolunteerActivity()}
-                                                   volunteerShifts={_.get(this.state, 'participantData.shifts')}/>
+                                        <VolunteerActivity volunteer={this.extractVolunteerActivity()} />
+                                        <VolunteerHistory volunteerShifts={_.get(this.state, 'participantData.shifts')} />
                                     </Grid>
                                 </Grid>
                             </Grid>
