@@ -35,6 +35,9 @@ spec:
           env:
             - name: POSTGRES_DB
               value: paws
+          envFrom:
+            - secretRef:
+                name: db-pass
           ports:
             - name: postgresql
               containerPort: 5432
@@ -48,6 +51,11 @@ spec:
         - name: {{ $.Chart.Name }}-server
           image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ .image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: api-server-pws
+            - secretRef:
+                name: db-pass
           ports:
             - containerPort: 5000
               protocol: TCP
