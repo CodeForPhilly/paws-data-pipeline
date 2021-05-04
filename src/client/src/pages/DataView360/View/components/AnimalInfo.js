@@ -37,19 +37,17 @@ const PET_COUNT = 5;
 class AnimalInfo extends Component {
 
     getLatestPets(petObject, events) {
+
         function customizer(objValue, srcValue) {
             if (_.isObject(objValue) && _.isObject(srcValue)) {
                 // sort according to date of most recent event
                 return _.set(objValue, 'Events', _.orderBy(srcValue, ['Time'], ['desc']));
             }
         }
-        // force null values to back of list because
-        // _.orderBy descending places null values first
-        // see: https://github.com/lodash/lodash/issues/4169
+
         let result = _.mergeWith(petObject, events, customizer);
-        let emptyEvents = _.filter(result, function(pet) { return pet["Events"] && pet["Events"].length === 0 });
         let nonEmptyEvents = _.filter(result, function(pet) { return pet["Events"] && pet["Events"].length > 0 });
-        result = [..._.orderBy(nonEmptyEvents, ['Events[0].Time'], ['desc']), ...emptyEvents]
+        result = [..._.orderBy(nonEmptyEvents, ['Events[0].Time'], ['desc'])]
         return result.slice(0, PET_COUNT);
     }
 

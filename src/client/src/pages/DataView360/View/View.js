@@ -67,7 +67,7 @@ class View360 extends Component {
         let fosterEvents = {};
 
         for (let id of animalIds) {
-            this.getAnimalEvents(id).then((events) => {
+            this.getAnimalEvents(id, this.state.matchId).then((events) => {
                 adoptionEvents[id] = _.filter(events[id], function(e) {
                     return e["Type"] && e["Type"].toLowerCase().includes("adopt");
                 });
@@ -86,8 +86,8 @@ class View360 extends Component {
         });
     }
 
-    async getAnimalEvents(animalId) {
-        let response = await fetch(`/api/animal/${animalId}/events`);
+    async getAnimalEvents(animalId, matchId) {
+        let response = await fetch(`/api/person/${matchId}/animal/${animalId}/events`);
         return await response.json()
     }
 
