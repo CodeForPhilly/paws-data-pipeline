@@ -6,21 +6,21 @@ replicaCount: 1
 
 server:
   image:
-    repository: ghcr.io/codeforphilly/paws-data-pipeline/server:latest
+    repository: ghcr.io/codeforphilly/paws-data-pipeline/server
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "latest"
+    tag: "1.2"
 
 client:
   image:
-    repository: ghcr.io/codeforphilly/paws-data-pipeline/client:latest
+    repository: ghcr.io/codeforphilly/paws-data-pipeline/client
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "latest"
+    tag: "1.2"
 
 db:
   image:
-    repository: postgres:11-alpine
+    repository: postgres
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     tag: "11.3-alpine"

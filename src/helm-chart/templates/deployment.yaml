@@ -28,11 +28,43 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.db }}
+        - name: {{ $.Chart.Name }}-db
+          image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ .image.pullPolicy }}
+          env:
+            - name: POSTGRES_DB
+              value: paws
+          ports:
+            - name: postgresql
+              containerPort: 5432
+              protocol: TCP
+          # volumeMounts:
+          #   - name: {{ $.Release.Name }}-db
+          #     mountPath: /var/lib/postgresql/data
+          #     subPath: postgresql-data
+        {{- end }}
+        {{- with .Values.server }}
+        - name: {{ $.Chart.Name }}-server
+          image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ .image.pullPolicy }}
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/user/test
+              port: 5000
+          readinessProbe:
+            httpGet:
+              path: /api/user/test
+              port: 5000
+        {{- end }}
+
+        {{- with .Values.client }}
+        - name: {{ $.Chart.Name }}-client
+          image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ .image.pullPolicy }}
           ports:
             - name: http
               containerPort: 80
@@ -45,8 +77,7 @@ spec:
             httpGet:
               path: /
               port: http
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
