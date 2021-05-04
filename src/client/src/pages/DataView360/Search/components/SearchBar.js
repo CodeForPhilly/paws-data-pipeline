@@ -87,11 +87,6 @@ class SearchBar extends Component {
         return (
             <Grid container direction={"column"}>
                 <Grid container direction={"row"} justify={"center"}>
-                    <Grid item>
-                        <h1>PAWS Contact Search</h1>
-                    </Grid>
-                </Grid>
-                <Grid container direction={"row"} justify={"center"}>
                     <Grid item xs={8}>
                         <Paper className={classes.paper}>
                             {this.searchParticipant()}

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './Login.css';
 
-
 function checkLoginResponse(response) {
     let gotError = !response.ok;
     if (gotError) {
@@ -13,7 +12,7 @@ function checkLoginResponse(response) {
 
 
 async function loginUser(credentials) {
-    return fetch('http://localhost:5000/api/user/login', {
+    return fetch('/api/user/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -42,6 +41,7 @@ export default function Login({ setToken }) {
     }
 
     return (
+
         <div className="login-wrapper">
             <h1>Please Log In</h1>
             <form onSubmit={handleSubmit}>

@@ -46,6 +46,7 @@ class Adoptions extends Component {
         const { classes } = this.props;
         const numOfPets = _.size(this.props.adoptions);
         const latestPets = this.getLatestPets(this.props.adoptions);
+
         const events = this.props.events;
         const headerText = "Adoption Records"
         const headerAddition = (numOfPets > PET_COUNT) ? " (Showing " + PET_COUNT + " Pets out of " + numOfPets + ")" : ""
@@ -57,7 +58,7 @@ class Adoptions extends Component {
                     emojiIcon={<PetsIcon color='primary' fontSize='inherit' />}
                 >
                     <Grid item>
-                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" component="span">
+                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" href={shelterLuvPersonURL}>
                             <LinkIcon />
                         </IconButton>
                     </Grid>

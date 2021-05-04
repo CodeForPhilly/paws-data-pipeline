@@ -3,7 +3,25 @@ from config import engine
 from api import user_api
 import sqlalchemy as sa
 
-from secrets import BASEUSER_PW, BASEEDITOR_PW, BASEADMIN_PW
+try:   
+    from secrets import BASEUSER_PW, BASEEDITOR_PW, BASEADMIN_PW
+except ImportError:   
+    # Not running locally
+    print("Couldn't get BASE user PWs from file, trying environment **********")
+    from os import environ
+
+    try:
+        BASEUSER_PW = environ['BASEUSER_PW']
+        BASEEDITOR_PW = environ['BASEEDITOR_PW']
+        BASEADMIN_PW = environ['BASEADMIN_PW']
+
+    except KeyError:
+        # Nor in environment
+        # You're SOL for now
+        print("Couldn't get secrets from file or environment")
+
+
+
 
 
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey

@@ -170,7 +170,15 @@ class Search360 extends Component {
         this.setState({isDataBusy: true, search_participant: search_participant});
 
         await new Promise(resolve => setTimeout(resolve, 1000));
-        let response = await fetch(`/api/contacts/${search_participant}`);
+        let response = await fetch(`/api/contacts/${search_participant}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.access_token
+                }
+            }
+        );
         response = await response.json();
 
         await this.setState({participantList: response.result})
@@ -186,6 +194,11 @@ class Search360 extends Component {
 
         return (
             <Container>
+                <Grid container direction={"row"} justify={"center"}>
+                    <Grid item style={{"padding": "1em"}}>
+                        <Typography variant={"h4"}>PAWS Contact Search</Typography>
+                    </Grid>
+                </Grid>
                 <SearchBar participant={this.state.participant}
                            handleParticipantChange={this.onRowClick}
                            handleSearchChange={this.handleSearchChange}/>

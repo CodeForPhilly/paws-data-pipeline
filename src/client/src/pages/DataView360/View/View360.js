@@ -8,7 +8,7 @@ import {
     Button,
     Grid,
     Backdrop,
-    CircularProgress
+    CircularProgress, Box, Typography
 } from '@material-ui/core';
 
 import _ from 'lodash';
@@ -26,8 +26,11 @@ const customStyles = theme => ({
         color: '#fff',
     },
     stickyContainer: {
-        position: 'fixed',
-        paddingTop: 25
+        position: 'sticky',
+        top: 100
+    },
+    tablesCol: {
+        minWidth: '600px'
     }
 });
 
@@ -56,7 +59,14 @@ class View360 extends Component {
         });
 
         await new Promise(resolve => setTimeout(resolve, 1000));
-        let response = await fetch(`/api/360/${this.state.matchId}`);
+        let response = await fetch(`/api/360/${this.state.matchId}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.access_token
+                }
+            });
         response = await response.json();
 
         let animalInfo = await fetch(`/api/person/${this.state.matchId}/animals`);
@@ -76,7 +86,7 @@ class View360 extends Component {
                 });
             })
         }
-
+        debugger;
         this.setState({
             participantData: response.result,
             animalData: animalInfo,
@@ -84,6 +94,7 @@ class View360 extends Component {
             fosterEvents: fosterEvents,
             isDataBusy: false
         });
+
     }
 
     async getAnimalEvents(animalId, matchId) {
@@ -123,31 +134,41 @@ class View360 extends Component {
                 {(_.isEmpty(this.state.participantData) !== true &&
                     this.state.isDataBusy !== true && (
                         <Paper elevation={1} style={{"padding": "2em"}}>
-                            <Grid container justify={"center"}>
-                                <Grid item sm={4}>
-                                    <Grid sm={2} className={classes.stickyContainer} container direction="column"
+                            <Grid container direction={"row"} justify={"center"}>
+                                <Grid item>
+                                    <Typography variant={"h4"}>Person 360 View</Typography>
+                                </Grid>
+                            </Grid>
+                            <Grid container direction={"row"} spacing={3}>
+                                <Grid item xs={4}>
+                                    <Grid className={classes.stickyContainer} container direction={"column"}
                                           alignItems={"center"}>
                                         <Grid item>
                                             <ContactInfo
                                                 participant={_.get(this.state, 'participantData.contact_details')}/>
                                         </Grid>
                                         <Grid item style={{"padding": "1em"}}>
-                                            <Button elevation={2} variant="contained" color="primary"
-                                                    onClick={() => {this.onBackClick()}}>Back to Results
+                                            <Button style={{"minWidth": "180"}} elevation={2} variant="contained"
+                                                    color="primary"
+                                                    onClick={() => {
+                                                        this.onBackClick()
+                                                    }}>Back to Results
                                             </Button>
                                         </Grid>
                                     </Grid>
 
                                 </Grid>
-                                <Grid item sm>
+                                <Grid item xs={8} className={classes.tablesCol}>
                                     <Grid container direction="column" style={{"marginTop": "1em"}}>
                                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
-                                        <AnimalInfo pets={_.get(this.state, 'animalData')} 
-                                                    events={_.get(this.state, 'adoptionEvents')} 
+                                        <AnimalInfo pets={_.get(this.state, 'animalData')}
+                                                    events={_.get(this.state, 'adoptionEvents')}
                                                     headerText={"Adoption Records"}
+                                                    adoption_person_id=
+
                                         />
                                         <AnimalInfo pets={_.get(this.state, 'animalData')}
-                                                    events={_.get(this.state, 'fosterEvents')} 
+                                                    events={_.get(this.state, 'fosterEvents')}
                                                     headerText={"Foster Records"}
                                         />
                                         <VolunteerActivity volunteer={this.extractVolunteerActivity()} />

@@ -48,4 +48,4 @@ Brutally clean all docker related items from your machine
 --------------------------
 Troubleshooting
 ---------------------------------------
-See the [Troubleshooting page](https://github.com/CodeForPhilly/paws-data-pipeline/wiki/Troubleshooting) at the GitHub wiki.
+See the [Troubleshooting page](https://github.com/CodeForPhilly/paws-data-pipeline/wiki/Troubleshooting) at the GitHub wiki. 

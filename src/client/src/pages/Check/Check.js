@@ -1,14 +1,14 @@
 import React from 'react';
 import { useHistory } from "react-router-dom";
-import useToken from '../../components/Login/useToken';
+import useToken from '../../pages/Login/useToken';
 var jwt = require('jsonwebtoken');
 
 // const { DateTime } = require("luxon");  /* Enable if you enable console logging below */ 
 
 
-export default function Check() {
+export default function Check({access_token}) {
 
-    const { access_token, setToken } = useToken();
+    const {  setToken } = useToken();
 
     const [processStatus, setProcessStatus] = React.useState('loading');
     const [error, setError] = React.useState('');
@@ -35,7 +35,7 @@ export default function Check() {
 
         function authCheck() {
             //   console.log('authCheck startfetch @ ' + DateTime.local().toFormat('HH:mm:ss.SSS'))
-               fetch('http://localhost:5000/api/user/test_auth',
+               fetch('/api/user/test_auth',
                {
                    method: 'GET',
                    headers: {

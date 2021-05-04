@@ -1,5 +1,4 @@
 from api.api import admin_api
-import shutil
 import os
 from datetime import datetime
 import json
@@ -11,25 +10,24 @@ from pipeline import flow_script
 from config import engine
 from flask import request, redirect, jsonify, current_app, abort
 from api.file_uploader import validate_and_arrange_upload
+
+from api import jwt_ops
 from config import (
     RAW_DATA_PATH,
     CURRENT_SOURCE_FILES_PATH,
-    LOGS_PATH,
 )
 
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
+
 
 def __allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-
 # file upload tutorial
 @admin_api.route("/api/file", methods=["POST"])
-def uploadCSV():
-    if "file" not in request.files:
-        return redirect(request.url)
-
+@jwt_ops.admin_required
+def upload_csv():
     for file in request.files.getlist("file"):
         if __allowed_file(file.filename):
             try:
@@ -43,6 +41,7 @@ def uploadCSV():
 
 
 @admin_api.route("/api/listCurrentFiles", methods=["GET"])
+@jwt_ops.admin_required
 def list_current_files():
     result = None
 
@@ -56,6 +55,7 @@ def list_current_files():
 
 
 @admin_api.route("/api/execute", methods=["GET"])
+@jwt_ops.admin_required
 def execute():
     current_app.logger.info("Execute flow")
     flow_script.start_flow()
@@ -109,6 +109,7 @@ def get_statistics():
 
 
 @admin_api.route("/api/statistics", methods=["GET"])
+@jwt_ops.admin_required
 def list_statistics():
     """ Pull Last Execution stats from DB. """
     current_app.logger.info("list_statistics() request")
@@ -134,6 +135,7 @@ def list_statistics():
 
 
 @admin_api.route("/api/get_execution_status/<int:job_id>", methods=["GET"])
+@jwt_ops.admin_required
 def get_exec_status(job_id):
     """ Get the execution status record from the DB for the specified job_id """
 

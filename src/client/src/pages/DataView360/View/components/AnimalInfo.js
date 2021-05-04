@@ -57,14 +57,15 @@ class AnimalInfo extends Component {
         const latestPets = this.getLatestPets(this.props.pets, events);
         const headerText = this.props.headerText;
         const headerAddition = (numOfPets > PET_COUNT) ? " (Showing " + PET_COUNT + " Pets out of " + numOfPets + ")" : ""
+        const shelterLuvPersonURL = `https://www.shelterluv.com/phlp-p-${this.props.adoption_person_id}`
 
         return (
             <Container component={Paper} style={{ "marginTop": "1em" }}>
                 <DataTableHeader headerText={headerText + headerAddition}
-                    emojiIcon={<PetsIcon color='primary' fontSize='inherit' />}
+                    emojiIcon={<PetsIcon color='primary' fontSize='inherit'/>}
                 >
                     <Grid item>
-                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" component="span">
+                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" href={shelterLuvPersonURL}>
                             <LinkIcon />
                         </IconButton>
                     </Grid>
