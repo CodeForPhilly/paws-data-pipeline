@@ -31,8 +31,7 @@ const customStyles = theme => ({
 class volunteerActivity extends Component {
 
     render() {
-        const {classes} = this.props;
-
+        const {classes, volunteer} = this.props;
         return (
             <React.Fragment>
                 <Container component={Paper} style={{"marginTop": "1em"}}>
@@ -51,9 +50,14 @@ class volunteerActivity extends Component {
                             <TableBody>
                                 { this.props.volunteer && (
                                 <TableRow>
-                                    <TableCell>{moment(this.props.volunteer.start_date).format("MM-DD-YYYY")}</TableCell>
-                                    <TableCell>{this.props.volunteer.life_hours.toFixed(2)}</TableCell>
-                                    <TableCell>{this.props.volunteer.ytd_hours.toFixed(2)}</TableCell>
+                                    <TableCell>{
+                                        (volunteer.start_date === "N/A") 
+                                        ? "N/A" 
+                                        : moment(volunteer.start_date).format("MM-DD-YYYY")
+                                    }
+                                    </TableCell>
+                                    <TableCell>{volunteer.life_hours.toFixed(2)}</TableCell>
+                                    <TableCell>{volunteer.ytd_hours.toFixed(2)}</TableCell>
                                 </TableRow>
                                 )}
                             </TableBody>
