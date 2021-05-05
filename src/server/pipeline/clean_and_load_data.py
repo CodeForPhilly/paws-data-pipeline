@@ -13,7 +13,8 @@ from config import CURRENT_SOURCE_FILES_PATH
 def start(connection, pdp_contacts_df, file_path_list):
     result = pd.DataFrame(columns=pdp_contacts_df.columns)
     json_rows = pd.DataFrame(columns=["source_type", "source_id", "json"])
-
+    manual_matches_df = None
+    
     for uploaded_file in file_path_list:
         file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
         table_name = file_path.split('/')[-1].split('-')[0]
