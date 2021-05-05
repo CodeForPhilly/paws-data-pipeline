@@ -21,7 +21,8 @@ CSV_HEADERS = {
                             'Account ID (18 digit)',
                             'Opportunity Name', 'Stage', 'Fiscal Period', 'Amount', 'Probability (%)', 'Age',
                             'Close Date', 'Created Date', 'Type', 'Primary Campaign Source',
-                            'Source', 'Contact ID (18 Digit)', 'Primary Contact']
+                            'Source', 'Contact ID (18 Digit)', 'Primary Contact'],
+    'manualmatches': ['salesforcecontacts', 'volgistics', 'shelterluvpeople']
 }
 
 DATASOURCE_MAPPING = {
