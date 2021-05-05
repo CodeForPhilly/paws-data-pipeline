@@ -52,13 +52,12 @@ class View360 extends Component {
     }
 
     async componentDidMount() {
-        this.setState({
+        await this.setState({
             isDataBusy: true,
             showSearchBar: false,
             matchId: _.last(this.props.location.pathname.split('/'))
         });
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
         let response = await fetch(`/api/360/${this.state.matchId}`,
             {
                 method: 'GET',
@@ -77,14 +76,14 @@ class View360 extends Component {
         let fosterEvents = {};
 
         for (let id of animalIds) {
-            this.getAnimalEvents(id, this.state.matchId).then((events) => {
-                adoptionEvents[id] = _.filter(events[id], function(e) {
-                    return e["Type"] && e["Type"].toLowerCase().includes("adopt");
-                });
-                fosterEvents[id] = _.filter(events[id], function(e) {
-                    return e["Type"] && e["Type"].toLowerCase().includes("foster");
-                });
-            })
+            let events = await this.getAnimalEvents(id, this.state.matchId);
+
+            adoptionEvents[id] = _.filter(events[id], function(e) {
+                return e["Type"] && e["Type"].toLowerCase().includes("adopt");
+            });
+            fosterEvents[id] = _.filter(events[id], function(e) {
+                return e["Type"] && e["Type"].toLowerCase().includes("foster");
+            });
         }
         
         this.setState({
