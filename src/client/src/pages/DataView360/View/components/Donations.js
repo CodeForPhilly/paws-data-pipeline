@@ -26,7 +26,7 @@ const customStyles = theme => ({
     }
 });
 
-const ROWS_TO_SHOW = 3
+const ROWS_TO_SHOW = 5
 
 class Donations extends Component {
     constructor(props) {
@@ -66,7 +66,7 @@ class Donations extends Component {
                             <AttachMoneyIcon color='primary' fontSize='inherit'/>
                         </Grid>
                         <Grid item>
-                            Financial Support Activity (Top 3)
+                            Financial Support Activity (Top 5)
                         </Grid>
                     </Grid>
                 </Typography>
@@ -77,7 +77,7 @@ class Donations extends Component {
                             <TableRow>
                                 <TableCell className={classes.headerCell}>Date of Donation</TableCell>
                                 <TableCell className={classes.headerCell}>Amount</TableCell>
-                                <TableCell className={classes.headerCell}>Campaign Type</TableCell>
+                                <TableCell className={classes.headerCell}>Primary Campaign Source</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>

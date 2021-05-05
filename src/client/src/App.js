@@ -88,7 +88,6 @@ function AuthenticatedApp() {
     const hdr = userRole === 'admin' ? <AdminHeader/> : <Header/> // If we're going to display a header, which one?
 
     const history = useHistory();
-    debugger;
 
     return (
         <Router>
