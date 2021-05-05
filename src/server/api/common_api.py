@@ -98,6 +98,10 @@ def get_360(matching_id):
 
                 result['shifts'] = volgisticsshifts_results
 
+            if row["source_type"] == "shelterluvpeople":
+                shelterluv_id = row["source_id"]
+                result["shelterluv_id"] = shelterluv_id
+
     return jsonify({'result': result})
 
 

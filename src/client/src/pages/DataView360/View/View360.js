@@ -86,7 +86,7 @@ class View360 extends Component {
                 });
             })
         }
-        debugger;
+        
         this.setState({
             participantData: response.result,
             animalData: animalInfo,
@@ -164,12 +164,13 @@ class View360 extends Component {
                                         <AnimalInfo pets={_.get(this.state, 'animalData')}
                                                     events={_.get(this.state, 'adoptionEvents')}
                                                     headerText={"Adoption Records"}
-                                                    adoption_person_id=
+                                                    shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
 
                                         />
                                         <AnimalInfo pets={_.get(this.state, 'animalData')}
                                                     events={_.get(this.state, 'fosterEvents')}
                                                     headerText={"Foster Records"}
+                                                    shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
                                         />
                                         <VolunteerActivity volunteer={this.extractVolunteerActivity()} />
                                         <VolunteerHistory volunteerShifts={_.get(this.state, 'participantData.shifts')} />
