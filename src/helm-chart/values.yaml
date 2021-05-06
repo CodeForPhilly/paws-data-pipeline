@@ -57,6 +57,14 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+hostAliases:
+  - ip: "127.0.0.1"
+    hostnames:
+    - "server"
+    - "paws-compose-db"
+    - "client"
+
+
 service:
   type: NodePort #ClusterIP
   port: 80
