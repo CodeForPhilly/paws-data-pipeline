@@ -18,7 +18,7 @@ def admin_required(fn):
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
         claims = get_jwt()
-        if claims["role"] != "admin":  # TODO could be multiple
+        if claims["role"] != "admin":  
             return jsonify(msg="Admins only!"), 403
         else:
             return fn(*args, **kwargs)
