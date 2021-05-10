@@ -208,7 +208,7 @@ def user_create():
     
     Requires admin role  
 
-    Form POST Parameters  
+    Form POST JSON Parameters  
     ----------
     username : str  
     full_name : str  
@@ -222,12 +222,18 @@ def user_create():
     Duplicate user: 409 +  DB error  
 
     """
-    new_user = request.form["username"]
-    fullname = request.form["full_name"]
-    userpw = request.form["password"]
-    user_role = request.form["role"]
 
-    requesting_user = jwt_ops.get_jwt_user()
+    try:
+        post_dict = json.loads(request.data)
+        new_user = post_dict["username"]
+        fullname = post_dict["full_name"]
+        userpw = post_dict["password"]
+        user_role = post_dict["role"]
+    except:
+        return jsonify("Missing one or more parameters"), 400
+
+
+    requesting_user = jwt_ops.validate_decode_jwt()['sub'] 
 
     pw_hash = hash_password(userpw)
 
