@@ -1,73 +1,66 @@
 import React from 'react';
 import { Container } from '@material-ui/core';
 
-export default function About(props){
+export default function About(props) {
   return (
-<Container>
-<Container style={{"padding":"1em"}}>
-  <h1><a href="https://phillypaws.org/">
-    The Philadelphia Animal Welfare Society(PAWS)
-  </a></h1>
-  <p>As the city’s largest animal rescue partner and no-kill animal shelter, the <a href="https://phillypaws.org/">Philadelphia
-      Animal Welfare Society (PAWS)</a> is working to make Philadelphia a place where every healthy and treatable pet is
-    guaranteed a home. Since inception over 10 years ago, PAWS has rescued and placed 27,000+ animals in adoptive and
-    foster homes, and has worked to prevent pet homelessness by providing 86,000+ low-cost spay/neuter services and
-    affordable vet care to 227,000+ clinic patients. PAWS is funded 100% through donations, with 91 cents of every
-    dollar collected going directly to the animals. Therefore, PAWS’ rescue work (including 3 shelters and all rescue
-    and animal care programs), administration and development efforts are coordinated by only about 70 staff members
-    complemented by over 1500 volunteers.</p>
-  <h2><a href="https://codeforphilly.org/projects/paws_data_pipeline">
-    The Data Pipeline
-  </a></h2>
-  <p>This project seeks to provide PAWS with an easy-to-use and easy-to-support tool to extract data from multiple
-    source systems, confirm accuracy and appropriateness, clean/validate data where necessary (a data hygiene and
-    wrangling step), and then load relevant data into one or more repositories to facilitate (1) a highly-accurate and
-    rich 360-degree view of PAWS constituents (Salesforce is a likely candidate target system; already in use at PAWS)
-    and (2) flexible ongoing data analysis and insights discovery (e.g. a data lake / data warehouse).</p>
-  <p>Through all of its operational and service activities, PAWS accumulates data regarding donations, adoptions,
-    fosters, volunteers, merchandise sales, event attendees (to name a few), each in their own system and/or manual
-    (Google Sheet) tally. This vital data that can drive insights remains siloed and is usually difficult to extract,
-    manipulate, and analyze. Taking all of this data, making it readily available, and drawing inferences through
-    analysis can drive many benefits:</p>
-  <ul>
-    <li>PAWS operations can be better informed and use data-driven decisions to guide programs and maximize
-      effectiveness;<br />
-    </li>
-    <li>Supporters can be further engaged by suggesting additional opportunities for involvement based upon pattern
-      analysis;<br />
-    </li>
-    <li>Multi-dimensional supporters can be consistently (and accurately) acknowledged for all the ways they support
-      PAWS (i.e. a volunteer who donates and also fosters kittens), not to mention opportunities to further tap the
-      potential of these enthusiastic supporters.</li>
-  </ul>
-  <h2 id="code-of-conduct"><a href="https://codeforphilly.org/pages/code_of_conduct">Code of Conduct</a></h2>
-  <p>This is a Code for Philly project operating under their code of conduct.</p>
-  <h2 id="project-plan">Project Plan</h2>
-  <h3 id="phase-1-now---jan-15-2020">Phase 1 (now - Jan 15 2020)</h3>
-  <p><strong>Goal</strong>: Create a central storage of data where</p>
-  <ol type="1">
-    <li>Datasets from top 3 relevant sources can be uploaded as csvs to a central system: a) Donors, b) Volunteers,</li>
-  </ol>
-  <ol start="3" type="a">
-    <li>Adopters</li>
-  </ol>
-  <ol start="2" type="1">
-    <li>All datasets in the central system can be linked to each other on an ongoing basis</li>
-    <li>Notifications can be sent out to relevant parties when inconsistencies need to be handled by a human</li>
-    <li>Comprehensive report on a person’s interactions with PAWS can be pulled via a simple UI (must include full known
-      history)</li>
-  </ol>
-  <h3 id="phase-2-jan-15---may-15-2020">Phase 2 (Jan 15 - May 15 2020)</h3>
-  <p><strong>Goal</strong>: Expand above features to include all relevant datasets and further automate data uploads
-    Datasets from all other relevant sources can be uploaded as csvs to a central system ( a) Adoption and Foster
-    applicants, b) Foster Parents, c) Attendees, d) Clinic Clients e) Champions, f) Friends) Where APIs exist, create
-    automated calls to those APIs to pull data</p>
-  <h3 id="phase-3-may-15---sept-15-2020">Phase 3 (May 15 - Sept 15 2020)</h3>
-  <p><strong>Goal</strong>: Create more customizable analytics reports and features (eg noshow rates in clinicHQ)</p>
-  <h2 id="links">Links</h2>
-  <p><a href="https://codeforphilly.org/chat?channel=paws_data_pipeline">Slack Channel</a></p>
-  <p><a href="https://drive.google.com/open?id=1O8oPWLT5oDL8q_Tm4a0Gt8XCYYxEIcjiPJYHm33lXII">Google Drive</a></p>
-</Container>
-</Container>
+    <Container>
+      <Container style={{ "padding": "1em" }}>
+        <h2>
+          <a href="https://codeforphilly.org/projects/paws_data_pipeline" target="_blank">
+            The PAWS Data Pipeline
+          </a>
+        </h2>
+        <p>
+          The PAWS data pipeline (PDP) is community-driven and developed software that serves the 
+          Philadelphia Animal Welfare Society (PAWS), Philadelphia’s largest animal rescue partner 
+          and no-kill animal shelter. It is a project that began on Nov 24, 2019 and is being built 
+          through a volunteer effort coordinated by Code for Philly. PDP is free and open source 
+          software. The volunteers that have worked on this project come from diverse backgrounds, 
+          but are connected through a shared love for animals and a passion for technology.
+        </p>
+        <p>24 individuals and 2 organisations supported and contributed to the PDP between 2019/11/24 and 2021/05/01:</p>
+        <h3>Developers</h3>
+        <ul>
+          <li>Uri Rotem</li>
+          <li>Cris Simpson</li>
+          <li>Ben Bucior</li>
+          <li>Stephen Poserina</li>
+          <li>Mike Crnkovich</li>
+          <li>Mike Damert</li>
+          <li>Dave Salorio</li>
+          <li>Mike Bailey</li>
+          <li>Donna St. Louis</li>
+          <li>Joe Illuminati</li>
+          <li>Andrew Bishop</li>
+          <li>Akshat Vas</li>
+          <li>Dan Kelley</li>
+        </ul>
+        <h3>Project managers</h3>
+        <ul>
+          <li>JW Truver</li>
+          <li>Daniel Romero</li>
+          <li>Eudora Linde</li>
+          <li>Meg Niman</li>
+        </ul>
+        <h3>Project leads</h3>
+        <ul>
+          <li>Karla Fettich</li>
+          <li>Chris Kohl</li>
+        </ul>
+        <h3>External collaborators and supporters</h3>
+        <ul>
+          <li>Weston Welch</li>
+          <li>Tan Tan Chen</li>
+          <li>Faith Benamy</li>
+          <li>Jesse</li>
+          <li>Chris Alfano</li>
+        </ul>
+        <h3>Organisations providing support</h3>
+        <ul>
+          <li>Code for Philly</li>
+          <li>Linode</li>
+        </ul>
+      </Container>
+    </Container>
   );
 }
