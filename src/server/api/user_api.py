@@ -318,8 +318,35 @@ def check_username():
 
         return jsonify(user_exists)
 
+@user_api.route("/api/admin/user/update", methods=["POST"])
+# @jwt_ops.admin_required
+def user_update():
+    """Update existing user record 
+    """
 
+    post_dict = json.loads(request.data)
+   
+    try:
+        username = post_dict["username"]
+    except:
+        return jsonify("Must specify username"), 400
 
+    # We should get 1+ values to update 
+
+    update_dict = {"username": username}
+
+    # Need to be a bit defensive here & select what we want instead of taking what we're given
+    for key in ["full_name", "password", "role"]: 
+        try:
+            val = post_dict[key]
+            update_dict[key] = val
+        except:
+            pass
+
+    #TODO: WIP 
+    print(update_dict)
+
+    return jsonify("foo")
 
 # TODO: A single do-all update_user()
 @user_api.route("/api/admin/user/deactivate", methods=["POST"])
