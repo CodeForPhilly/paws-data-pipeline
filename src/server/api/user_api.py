@@ -293,6 +293,34 @@ def get_user_count():
         return jsonify(user_count[0])
 
 
+@user_api.route("/api/admin/user/check_name", methods=["POST"])
+@jwt_ops.admin_required
+def check_username():
+    """Return 1 if username exists already, else 0."""
+
+    try:
+        post_dict = json.loads(request.data)
+        test_username = post_dict["username"]
+    except:
+        return jsonify("Missing username"), 400
+
+    with engine.connect() as connection:
+
+        s = text( """select count(username)  from pdp_users where username=:u """ )
+        s = s.bindparams(u=test_username)
+        result = connection.execute(s)
+
+        if result.rowcount:  # As we're doing a count() we *should* get a result
+            user_exists = result.fetchone()[0]
+        else:
+            log_user_action(test_username, "Failure", "Error when checking username")
+            return jsonify("Error checking username"), 500
+
+        return jsonify(user_exists)
+
+
+
+
 # TODO: A single do-all update_user()
 @user_api.route("/api/admin/user/deactivate", methods=["POST"])
 @jwt_ops.admin_required
