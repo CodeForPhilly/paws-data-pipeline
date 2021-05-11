@@ -70,17 +70,6 @@ def test_client_dns():
 # Simple API tests  ################################################
 
 
-def test_currentFiles():
-    """360 view Current Files list"""
-    response = requests.get(SERVER_URL + "/api/listCurrentFiles")
-    assert response.status_code == 200
-
-
-def test_statistics():
-    """360 view Statistics"""
-    response = requests.get(SERVER_URL + "/api/statistics")
-    assert response.status_code == 200
-
 
 def test_usertest():
     """Verify liveness test works"""
@@ -181,6 +170,36 @@ def test_admingetusers(state: State):
     userlist = response.json()
     assert len(userlist) > 1
 
+def test_check_usernames(state: State):
+    """Verify logged-in base_admin can test usernames, gets correct result - existing user """
+    # Build auth string value including token from state
+    b_string = 'Bearer ' + state.state['base_admin']
+
+    assert len(b_string) > 24
+
+    auth_hdr = {'Authorization' : b_string}
+
+    data = {"username":"base_admin"}
+    response = requests.post(SERVER_URL + "/api/admin/user/check_name", headers=auth_hdr, json=data)
+    assert response.status_code == 200
+
+    is_user = response.json()
+    assert is_user == 1
+
+def test_check_badusernames(state: State):
+    """Verify logged-in base_admin can test usernames, gets correct result - nonexistant user  """
+    # Build auth string value including token from state
+    b_string = 'Bearer ' + state.state['base_admin']
+    assert len(b_string) > 24
+    auth_hdr = {'Authorization' : b_string}
+
+    data = {"username":"got_no_username_like_this"}
+    response = requests.post(SERVER_URL + "/api/admin/user/check_name", headers=auth_hdr, json=data)
+    assert response.status_code == 200
+
+    is_user = response.json()
+    assert is_user == 0
+
 
 def test_usergetusers(state: State):
     """Verify logged-in base_user *cannot* use JWT to get user list """
@@ -192,3 +211,25 @@ def test_usergetusers(state: State):
     auth_hdr = {'Authorization' : b_string}
     response = requests.get(SERVER_URL + "/api/admin/user/get_users", headers=auth_hdr)
     assert response.status_code == 403
+
+
+def test_currentFiles(state: State):
+    """360 view Current Files list"""
+
+    b_string = 'Bearer ' + state.state['base_admin']
+    assert len(b_string) > 24
+    auth_hdr = {'Authorization' : b_string}
+
+    response = requests.get(SERVER_URL + "/api/listCurrentFiles", headers=auth_hdr)
+    assert response.status_code == 200
+
+
+def test_statistics(state: State):
+    """360 view Statistics"""
+
+    b_string = 'Bearer ' + state.state['base_admin']
+    assert len(b_string) > 24
+    auth_hdr = {'Authorization' : b_string}
+    
+    response = requests.get(SERVER_URL + "/api/statistics", headers=auth_hdr)
+    assert response.status_code == 200
