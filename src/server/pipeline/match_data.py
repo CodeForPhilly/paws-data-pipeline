@@ -72,13 +72,13 @@ def start(connection, added_or_updated_rows, manual_matches_df):
             )
         ]
         #collect other linked ids from manual matches source
-        if manual_matches_df != None:
+        if not manual_matches_df.empty:
             linked_ids = manual_matches_df[(manual_matches_df[row["source_type"]] == row["source_id"])]
             ids = linked_ids.to_dict(orient="records")
-            for row_dict in enumerate(ids):
+            for id_num, row_dict in enumerate(ids):
                 for column, value in row_dict.items():
                     row_matches = row_matches.append(pdp_contacts[(pdp_contacts["source_type"] == column) & (pdp_contacts["source_id"] == value)])
-
+                    
         
         if row_matches.empty:  # new record, no matching rows
             max_matching_group += 1
