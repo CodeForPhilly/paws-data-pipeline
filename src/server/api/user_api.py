@@ -319,7 +319,7 @@ def check_username():
         return jsonify(user_exists)
 
 @user_api.route("/api/admin/user/update", methods=["POST"])
-@jwt_ops.admin_required 
+#@jwt_ops.admin_required  #TODO: remove comment
 def user_update():
     """Update existing user record 
     """
@@ -333,18 +333,47 @@ def user_update():
 
     # We should get 1+ values to update 
 
-    update_dict = {"username": username}
+    update_dict = {}
 
     # Need to be a bit defensive here & select what we want instead of taking what we're given
-    for key in ["full_name", "password", "role"]: 
+    for key in ["full_name", "active", "role", "password"]: 
         try:
             val = post_dict[key]
             update_dict[key] = val
         except:
             pass
 
-    #TODO: WIP 
     print(update_dict)
+    
+    # If updating password, need to hash first 
+
+
+    #  We have a variable number of columns to update.
+    #  We could generate a text query on the fly, but this seems the perfect place to use the ORM  
+    #  and let it handle the update for us. 
+
+
+    # with engine.connect() as connection:
+
+    #     for k,v in update_dict.items():  #TODO: Make less awful
+    #         s = text( """UPDATE pdp_users SET  :key=:val   where username=:u """ )
+    #         s = s.bindparams(u=username, key=k, val=v)
+    #         result = connection.execute(s)
+
+    from sqlalchemy import update
+    from sqlalchemy.orm import Session
+
+    with Session(engine) as session:
+
+        PU = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
+        #  pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
+
+
+        stmt = update(PU).where(PU.username == username).values(update_dict).\
+            execution_options(synchronize_session="fetch")
+
+        result = session.execute(stmt)
+
 
     return jsonify("Work in process")
 
