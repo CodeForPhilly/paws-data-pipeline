@@ -319,7 +319,7 @@ def check_username():
         return jsonify(user_exists)
 
 @user_api.route("/api/admin/user/update", methods=["POST"])
-# @jwt_ops.admin_required
+@jwt_ops.admin_required 
 def user_update():
     """Update existing user record 
     """
@@ -346,7 +346,7 @@ def user_update():
     #TODO: WIP 
     print(update_dict)
 
-    return jsonify("foo")
+    return jsonify("Work in process")
 
 # TODO: A single do-all update_user()
 @user_api.route("/api/admin/user/deactivate", methods=["POST"])
@@ -370,9 +370,6 @@ def user_activate():
 def user_get_list():
     """Return list of users"""
 
-    # pu = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
-    #  pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
-
     with engine.connect() as connection:
 
         s = text(
@@ -392,3 +389,27 @@ def user_get_list():
 
     return jsonify(ul), 200
 
+@user_api.route("/api/admin/user/get_info/<string:username>", methods=["GET"])
+@jwt_ops.admin_required  
+def user_get_info(username):
+    """Return info on a specified user"""
+
+    with engine.connect() as connection:
+
+        s = text(
+            """ select username, full_name, active, pr.role
+            from pdp_users as pu 
+            left join pdp_user_roles as pr on pu.role = pr._id
+            where username=:u
+            """
+        )
+        s = s.bindparams(u=username)
+        result = connection.execute(s)
+        
+        if result.rowcount:  
+            user_row = result.fetchone()
+        else:
+            log_user_action(username, "Failure", "Error when getting user info")
+            return jsonify("Username not found"), 400
+
+    return jsonify( dict(zip(result.keys(), user_row)) ), 200
