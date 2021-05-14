@@ -33,6 +33,31 @@ def log_user_action(user, event_class, detail):
         except Exception as e:
             print(e)
 
+def password_is_strong(password):
+    """ Check plain-text password against strength rules."""
+
+    def has_digit(test_string):
+        """Test if any character is a digit."""
+        for c in test_string:
+            if c.isdigit():
+                return True
+        return False
+
+    def has_alpha(test_string):
+        """Test if any character is  alphabetic."""
+        for c in test_string:
+            if c.isalpha():
+                return True
+        return False
+
+    if (len(password) > 11   
+        and has_alpha(password) 
+        and has_digit(password) ):
+        return True
+    
+    else:
+        return False
+
 
 def hash_password(password):
     """ Generate salt+hash for storing in db"""
@@ -331,8 +356,6 @@ def user_update():
     except:
         return jsonify("Must specify username"), 400
 
-    # We should get 1+ values to update 
-
     update_dict = {}
 
     # Need to be a bit defensive here & select what we want instead of taking what we're given
@@ -343,10 +366,17 @@ def user_update():
         except:
             pass
 
-    if not update_dict:
-        return jsonify("No changed items specified")
     
-    # TODO: If updating password, need to hash first 
+    if not update_dict:
+        return jsonify("No changed items specified")  # If nothing to do, declare victory
+
+    if "password" in update_dict.keys():
+
+        if password_is_strong(update_dict['password']):
+            update_dict['password'] = hash_password(update_dict['password'])
+        else:
+            return jsonify("Password too weak") 
+
 
 
     #  We have a variable number of columns to update.
@@ -364,6 +394,7 @@ def user_update():
     PU = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
     #  pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
 
+    #TODO: Check tendered role or join roles table for update
 
     stmt = update(PU).where(PU.columns.username == username).values(update_dict).\
         execution_options(synchronize_session="fetch")
