@@ -343,55 +343,37 @@ def user_update():
         except:
             pass
 
-    print(update_dict)
+    if not update_dict:
+        return jsonify("No changed items specified")
     
-    # If updating password, need to hash first 
+    # TODO: If updating password, need to hash first 
 
 
     #  We have a variable number of columns to update.
     #  We could generate a text query on the fly, but this seems the perfect place to use the ORM  
     #  and let it handle the update for us. 
 
-
-    # with engine.connect() as connection:
-
-    #     for k,v in update_dict.items():  #TODO: Make less awful
-    #         s = text( """UPDATE pdp_users SET  :key=:val   where username=:u """ )
-    #         s = s.bindparams(u=username, key=k, val=v)
-    #         result = connection.execute(s)
-
     from sqlalchemy import update
-    from sqlalchemy.orm import Session
+    from sqlalchemy.orm import Session, sessionmaker
 
-    with Session(engine) as session:
+    Session = sessionmaker(engine)
 
-        PU = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
-        #  pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
+    session =  Session()   
+   # #TODO: Figure out context manager doesn't work or do try/finally
 
-
-        stmt = update(PU).where(PU.username == username).values(update_dict).\
-            execution_options(synchronize_session="fetch")
-
-        result = session.execute(stmt)
+    PU = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
+    #  pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
 
 
-    return jsonify("Work in process")
+    stmt = update(PU).where(PU.columns.username == username).values(update_dict).\
+        execution_options(synchronize_session="fetch")
 
-# TODO: A single do-all update_user()
-@user_api.route("/api/admin/user/deactivate", methods=["POST"])
-@jwt_ops.admin_required
-def user_deactivate():
-    """Mark user as inactive in DB"""
-    # TODO
-    return "", 200
+    result = session.execute(stmt)
 
+    session.commit()
+    session.close()
 
-@user_api.route("/api/admin/user/activate", methods=["POST"])
-@jwt_ops.admin_required
-def user_activate():
-    """Mark user as active in DB"""
-    # TODO
-    return "", 200
+    return jsonify("Updated")
 
 
 @user_api.route("/api/admin/user/get_users", methods=["GET"])
