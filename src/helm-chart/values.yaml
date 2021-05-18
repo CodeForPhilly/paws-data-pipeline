@@ -23,7 +23,7 @@ db:
     repository: postgres
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "11.3-alpine"
+    tag: "13.2-alpine"
 
 
 storage:
@@ -56,6 +56,14 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
+
+hostAliases:
+  - ip: "127.0.0.1"
+    hostnames:
+    - "server"
+    - "paws-compose-db"
+    - "client"
+
 
 service:
   type: NodePort #ClusterIP
