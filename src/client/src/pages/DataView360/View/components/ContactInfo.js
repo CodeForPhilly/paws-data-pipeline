@@ -67,7 +67,7 @@ class ContactInfo extends Component {
                         </Box>
                         <Grid container className={classes.spacingRows} direction={'row'} spacing={2}>
                             <Grid item>
-                                <PhoneIcon color='secondary' fontSize='inherit'/>
+                                <PhoneIcon color='primary' fontSize='inherit'/>
                             </Grid>
                             <Grid item xs={8}>
                                 <Typography variant={'body2'}>
