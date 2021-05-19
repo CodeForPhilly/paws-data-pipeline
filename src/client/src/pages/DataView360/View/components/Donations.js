@@ -17,10 +17,6 @@ import Grid from "@material-ui/core/Grid";
 
 
 const customStyles = theme => ({
-    spaceIcon: {
-        marginTop: 3,
-        marginRight: 3
-    },
     headerCell: {
         fontWeight: "bold",
     }
@@ -62,7 +58,7 @@ class Donations extends Component {
             <Container component={Paper} style={{"marginTop": "1em"}}>
                 <Typography variant='h5'>
                     <Grid container style={{"margin": "0.5em"}} direction={'row'}>
-                        <Grid item className={classes.spaceIcon}>
+                        <Grid item>
                             <AttachMoneyIcon color='primary' fontSize='inherit'/>
                         </Grid>
                         <Grid item>

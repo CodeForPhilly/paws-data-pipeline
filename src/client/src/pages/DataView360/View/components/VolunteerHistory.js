@@ -16,10 +16,6 @@ import TimelineIcon from '@material-ui/icons/Timeline';
 import DataTableHeader from './DataTableHeader';
 
 const customStyles = theme => ({
-    spaceIcon: {
-        marginTop: 3,
-        marginRight: 3
-    },
     headerCell: {
         fontWeight: "bold"
     },

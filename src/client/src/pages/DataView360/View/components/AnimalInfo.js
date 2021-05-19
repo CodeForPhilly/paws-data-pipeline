@@ -15,10 +15,7 @@ import DataTableHeader from './DataTableHeader';
 
 
 const customStyles = theme => ({
-    spaceIcon: {
-        marginTop: 3,
-        marginRight: 3
-    },
+
     headerCell: {
         fontWeight: "bold",
     },
@@ -46,7 +43,7 @@ class AnimalInfo extends Component {
         }
 
         let result = _.mergeWith(petObject, events, customizer);
-        let nonEmptyEvents = _.filter(result, function(pet) { return pet["Events"] && pet["Events"].length > 0 });
+        let nonEmptyEvents = _.filter(result, function(pet) { return pet["Events"] && _.size(pet["Events"]) > 0 });
         result = [..._.orderBy(nonEmptyEvents, ['Events[0].Time'], ['desc'])]
         return result.slice(0, PET_COUNT);
     }

@@ -16,9 +16,6 @@ const customStyles = theme => ({
     spacingRows: {
         padding: 2
     },
-    spaceIcon: {
-        marginTop: 2
-    }
 });
 
 
@@ -69,8 +66,8 @@ class ContactInfo extends Component {
                             <Divider/>
                         </Box>
                         <Grid container className={classes.spacingRows} direction={'row'} spacing={2}>
-                            <Grid item xs={1}>
-                                <PhoneIcon className={classes.spaceIcon} color='primary' fontSize='inherit'/>
+                            <Grid item>
+                                <PhoneIcon color='secondary' fontSize='inherit'/>
                             </Grid>
                             <Grid item xs={8}>
                                 <Typography variant={'body2'}>
@@ -79,8 +76,8 @@ class ContactInfo extends Component {
                             </Grid>
                         </Grid>
                         <Grid container className={classes.spacingRows} direction={'row'} spacing={2}>
-                            <Grid item xs={1}>
-                                <MailOutlineIcon className={classes.spaceIcon} color='primary' fontSize='inherit'/>
+                            <Grid item>
+                                <MailOutlineIcon color='primary' fontSize='inherit'/>
                             </Grid>
                             <Grid item xs={8}>
                                 <Typography variant={'body2'}>
@@ -89,8 +86,8 @@ class ContactInfo extends Component {
                             </Grid>
                         </Grid>
                         <Grid container className={classes.spacingRows} direction={'row'} spacing={2}>
-                            <Grid item xs={1}>
-                                <HomeIcon className={classes.spaceIcon} color='primary' fontSize='inherit'/>
+                            <Grid item>
+                                <HomeIcon color='primary' fontSize='inherit'/>
                             </Grid>
                             <Grid item xs={8}>
                                 <Typography variant={'body2'}>
