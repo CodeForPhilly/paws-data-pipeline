@@ -62,11 +62,11 @@ def start(connection, added_or_updated_rows, manual_matches_df):
         # Exact matches based on specified columns
         row_matches = pdp_contacts[
             (
-                ((pdp_contacts["first_name_normalized"] == row["first_name_normalized"]) &
+                (((pdp_contacts["first_name_normalized"] == row["first_name_normalized"]) &
                 (pdp_contacts["last_name_normalized"] == row["last_name_normalized"]))
                 |
                 ((pdp_contacts["first_name_normalized"] == row["last_name_normalized"]) &
-                (pdp_contacts["last_name_normalized"] == row["first_name_normalized"]))
+                (pdp_contacts["last_name_normalized"] == row["first_name_normalized"])))
                 &
                 ((pdp_contacts["email_normalized"] == row["email_normalized"]) | (pdp_contacts["mobile"] == row["mobile"]))
             )
