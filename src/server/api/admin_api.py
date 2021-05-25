@@ -37,7 +37,7 @@ def upload_csv():
             finally:
                 file.close()
 
-    return redirect("/")
+    return redirect(request.origin)
 
 
 @admin_api.route("/api/listCurrentFiles", methods=["GET"])
