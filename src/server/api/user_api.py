@@ -51,8 +51,9 @@ def password_is_strong(password):
         return False
 
     if (len(password) > 11   
-        and has_alpha(password) 
-        and has_digit(password) ):
+        # and has_alpha(password) 
+        # and has_digit(password)
+         ):
         return True
     
     else:
@@ -344,7 +345,7 @@ def check_username():
         return jsonify(user_exists)
 
 @user_api.route("/api/admin/user/update", methods=["POST"])
-#@jwt_ops.admin_required  #TODO: remove comment
+@jwt_ops.admin_required  
 def user_update():
     """Update existing user record 
     """
@@ -389,7 +390,7 @@ def user_update():
     Session = sessionmaker(engine)
 
     session =  Session()   
-   # #TODO: Figure out context manager doesn't work or do try/finally
+   # #TODO: Figure out why context manager doesn't work or do try/finally
 
     PU = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
     #  pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
