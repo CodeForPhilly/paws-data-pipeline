@@ -217,6 +217,7 @@ def user_refresh():
 
             if is_active[0].lower() == 'y':    # In the user DB and still Active?
                 token = jwt_ops.create_token(user_name,old_jwt['role'])
+                log_user_action(user_name, "Success", "Refreshed token")
                 return token
 
     else:
