@@ -18,7 +18,7 @@ depends_on = None
 
 def upgrade():
     op.drop_column("pdp_users", "password")
-    op.add_column("pdp_users", sa.Column("password", sa.Binary, nullable=False))
+    op.add_column("pdp_users", sa.Column("password", sa.LargeBinary, nullable=False))
 
 
 def downgrade():

@@ -13,10 +13,16 @@ from config import CURRENT_SOURCE_FILES_PATH
 def start(connection, pdp_contacts_df, file_path_list):
     result = pd.DataFrame(columns=pdp_contacts_df.columns)
     json_rows = pd.DataFrame(columns=["source_type", "source_id", "json"])
-
+    manual_matches_df = pd.DataFrame()
+    
     for uploaded_file in file_path_list:
         file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
         table_name = file_path.split('/')[-1].split('-')[0]
+        if table_name == 'manualmatches':
+            manual_matches_df = pd.read_csv((io.BytesIO(open(file_path, "rb").read())), encoding='iso-8859-1')
+            manual_matches_df[["volgistics", "shelterluvpeople"]] = manual_matches_df[["volgistics", "shelterluvpeople"]].fillna(0).astype(int).astype(str)
+            continue
+            
         current_app.logger.info('Running load_paws_data on: ' + uploaded_file)
 
         df = pd.read_csv((io.BytesIO(open(file_path, "rb").read())), encoding='iso-8859-1')
@@ -54,7 +60,7 @@ def start(connection, pdp_contacts_df, file_path_list):
 
         current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)
 
-    return result, json_rows
+    return result, json_rows, manual_matches_df
 
 
 def create_normalized_df(df, normalized_df, table_name):

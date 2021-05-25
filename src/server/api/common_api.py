@@ -9,9 +9,9 @@ from datetime import datetime
 import dateutil.parser
 
 
-try:   
+try:
     from secrets import SHELTERLUV_SECRET_TOKEN
-except ImportError:   
+except ImportError:
     # Not running locally
     print("Couldn't get SL_TOKEN from file, trying environment **********")
     from os import environ
@@ -99,23 +99,60 @@ def get_360(matching_id):
                 result['shifts'] = volgisticsshifts_results
 
             if row["source_type"] == "shelterluvpeople":
-                adoptions = []
-                person = requests.get("http://shelterluv.com/api/v1/people/{}".format(row["source_id"]),
-                                      headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
-                person_json = person.json()
-                animal_ids = person_json["Animal_ids"]
+                shelterluv_id = row["source_id"]
+                result["shelterluv_id"] = shelterluv_id
 
-                for animal_id in animal_ids:
-                    animal_details = requests.get(
-                        "http://shelterluv.com/api/v1/animals/{}".format(animal_id),
-                        headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
+    return jsonify({'result': result})
 
-                    animal_details_json = animal_details.json()
-                    adoptions.append(animal_details_json)
 
-                    result['adoptions'] = adoptions
+@common_api.route('/api/person/<matching_id>/animals', methods=['GET'])
+def get_animals(matching_id):
+    result = {}
 
-                if "ID" in person_json:
-                    result['adoptions_person_id'] = person_json["ID"]
+    with engine.connect() as connection:
+        query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
+        query_result = connection.execute(query, matching_id=matching_id)
+        rows = [dict(row) for row in query_result]
+        if len(rows) > 0:
+            row = rows[0]
+            shelterluv_id = row["source_id"]
+            person_url = f"http://shelterluv.com/api/v1/people/{shelterluv_id}"
+            person_details = requests.get(person_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+            animal_ids = person_details["Animal_ids"]
+            for animal_id in animal_ids:
+                animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}"
+                animal_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+                result[animal_id] = animal_details
 
-        return jsonify({'result': result})
+    return result
+
+
+@common_api.route('/api/animal/<animal_id>/events', methods=['GET'])
+def get_animal_events(animal_id):
+    result = {}
+    animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}/events"
+    event_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+    result[animal_id] = event_details["events"]
+    return result
+
+
+@common_api.route('/api/person/<matching_id>/animal/<animal_id>/events', methods=['GET'])
+def get_person_animal_events(matching_id, animal_id):
+    result = {}
+    events = []
+    with engine.connect() as connection:
+        query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
+        query_result = connection.execute(query, matching_id=matching_id)
+        rows = [dict(row) for row in query_result]
+        if len(rows) > 0:
+            row = rows[0]
+            shelterluv_id = row["source_id"]
+            animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}/events"
+            event_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+            for event in event_details["events"]:
+                for record in event["AssociatedRecords"]:
+                    if record["Type"] == "Person" and record["Id"] == shelterluv_id:
+                        events.append(event)
+            result[animal_id] = events
+
+    return result

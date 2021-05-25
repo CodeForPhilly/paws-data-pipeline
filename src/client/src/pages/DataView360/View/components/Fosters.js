@@ -23,34 +23,29 @@ const customStyles = theme => ({
     },
     headerCell: {
         fontWeight: "bold",
-    },
-    paper: {
-        position: 'absolute',
-        width: 400,
-        backgroundColor: theme.palette.background.paper,
-        border: '2px solid #000',
-        boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
     }
 });
 
 const PET_COUNT = 5;
 
-class Adoptions extends Component {
+class Fosters extends Component {
 
     getLatestPets(petObject) {
         return petObject;
     }
 
+    getAnimalAge(epochTime) {
+        let dateOfBirth = moment(epochTime * 1000);
+        return moment().diff(dateOfBirth, 'years');
+    }
+
     render() {
         const { classes } = this.props;
-        const numOfPets = _.size(this.props.adoptions);
-        const latestPets = this.getLatestPets(this.props.adoptions);
-
+        const numOfPets = _.size(this.props.fosters);
+        const latestPets = this.getLatestPets(this.props.fosters);
         const events = this.props.events;
-        const headerText = "Adoption Records"
+        const headerText = "Foster Records"
         const headerAddition = (numOfPets > PET_COUNT) ? " (Showing " + PET_COUNT + " Pets out of " + numOfPets + ")" : ""
-
         return (
             <Container component={Paper} style={{ "marginTop": "1em" }}>
                 <DataTableHeader
@@ -58,7 +53,7 @@ class Adoptions extends Component {
                     emojiIcon={<PetsIcon color='primary' fontSize='inherit' />}
                 >
                     <Grid item>
-                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" href={shelterLuvPersonURL}>
+                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" component="span">
                             <LinkIcon />
                         </IconButton>
                     </Grid>
@@ -70,4 +65,4 @@ class Adoptions extends Component {
 }
 
 
-export default withStyles(customStyles)(Adoptions);
+export default withStyles(customStyles)(Fosters);

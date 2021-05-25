@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHistory } from "react-router-dom";
-import useToken from '../../components/Login/useToken';
+import useToken from '../../pages/Login/useToken';
 var jwt = require('jsonwebtoken');
 
 // const { DateTime } = require("luxon");  /* Enable if you enable console logging below */ 

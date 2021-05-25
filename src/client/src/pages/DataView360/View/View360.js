@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {withStyles} from '@material-ui/core/styles';
-import {withRouter} from "react-router";
+import {withRouter, matchPath} from "react-router";
 
 import {
     Paper,
@@ -14,10 +14,10 @@ import {
 import _ from 'lodash';
 import moment from 'moment';
 import ContactInfo from './components/ContactInfo';
-import Volunteer from './components/Volunteer';
 import Donations from './components/Donations';
-import Adoptions from './components/Adoptions';
-import {matchPath} from "react-router";
+import AnimalInfo from './components/AnimalInfo';
+import VolunteerActivity from './components/VolunteerActivity';
+import VolunteerHistory from './components/VolunteerHistory';
 
 
 const customStyles = theme => ({
@@ -40,6 +40,9 @@ class View360 extends Component {
 
         this.state = {
             participantData: {},
+            animalData: {},
+            adoptionEvents: {},
+            fosterEvents: {},
             matchId: undefined,
             isDataBusy: false,
         }
@@ -49,13 +52,12 @@ class View360 extends Component {
     }
 
     async componentDidMount() {
-        this.setState({
+        await this.setState({
             isDataBusy: true,
             showSearchBar: false,
             matchId: _.last(this.props.location.pathname.split('/'))
         });
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
         let response = await fetch(`/api/360/${this.state.matchId}`,
             {
                 method: 'GET',
@@ -66,11 +68,37 @@ class View360 extends Component {
             });
         response = await response.json();
 
+        let animalInfo = await fetch(`/api/person/${this.state.matchId}/animals`);
+        animalInfo = await animalInfo.json()
+        const animalIds = _.keys(animalInfo);
+
+        let adoptionEvents = {};
+        let fosterEvents = {};
+
+        for (let id of animalIds) {
+            let events = await this.getAnimalEvents(id, this.state.matchId);
+
+            adoptionEvents[id] = _.filter(events[id], function(e) {
+                return e["Type"] && e["Type"].toLowerCase().includes("adopt");
+            });
+            fosterEvents[id] = _.filter(events[id], function(e) {
+                return e["Type"] && e["Type"].toLowerCase().includes("foster");
+            });
+        }
+        
         this.setState({
             participantData: response.result,
+            animalData: animalInfo,
+            adoptionEvents: adoptionEvents,
+            fosterEvents: fosterEvents,
             isDataBusy: false
         });
 
+    }
+
+    async getAnimalEvents(animalId, matchId) {
+        let response = await fetch(`/api/person/${matchId}/animal/${animalId}/events`);
+        return await response.json()
     }
 
     extractVolunteerActivity() {
@@ -127,14 +155,24 @@ class View360 extends Component {
                                             </Button>
                                         </Grid>
                                     </Grid>
+
                                 </Grid>
                                 <Grid item xs={8} className={classes.tablesCol}>
                                     <Grid container direction="column" style={{"marginTop": "1em"}}>
                                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
-                                        <Adoptions adoptions={_.get(this.state, 'participantData.adoptions')}
-                                                   adoption_person_id={_.get(this.state, 'participantData.adoptions_person_id')}/>
-                                        <Volunteer volunteer={this.extractVolunteerActivity()}
-                                                   volunteerShifts={_.get(this.state, 'participantData.shifts')}/>
+                                        <AnimalInfo pets={_.get(this.state, 'animalData')}
+                                                    events={_.get(this.state, 'adoptionEvents')}
+                                                    headerText={"Adoption Records"}
+                                                    shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
+
+                                        />
+                                        <AnimalInfo pets={_.get(this.state, 'animalData')}
+                                                    events={_.get(this.state, 'fosterEvents')}
+                                                    headerText={"Foster Records"}
+                                                    shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
+                                        />
+                                        <VolunteerActivity volunteer={this.extractVolunteerActivity()} />
+                                        <VolunteerHistory volunteerShifts={_.get(this.state, 'participantData.shifts')} />
                                     </Grid>
                                 </Grid>
                             </Grid>
