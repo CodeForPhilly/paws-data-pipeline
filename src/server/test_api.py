@@ -1,11 +1,17 @@
 import pytest, socket, requests, os
 
-from secrets import BASEUSER_PW, BASEADMIN_PW
+
+try:
+    from secrets import BASEUSER_PW, BASEADMIN_PW
+except ImportError:
+    BASEUSER_PW = os.environ['BASEUSER_PW']
+    BASEADMIN_PW = os.environ['BASEADMIN_PW']
+
 
 jwt_token = ''
 
 #
-# Run 'pytest' from the command line
+# Run 'pytest' from the command line  (-v gives helpful details)
 #
 # Running pytest can result in six different exit codes:
 #   0 - All tests were collected and passed successfully
@@ -68,9 +74,6 @@ def test_client_dns():
     assert len(gai) > 0
 
 # Simple API tests  ################################################
-
-
-
 def test_usertest():
     """Verify liveness test works"""
     response = requests.get(SERVER_URL + "/api/user/test")
@@ -136,6 +139,10 @@ def test_inact_userblocked(state: State):
     assert response.status_code == 401
 
 
+
+
+
+
 ###   Admin-level tests ######################################
 
 def test_adminlogin(state: State):
@@ -199,6 +206,28 @@ def test_check_badusernames(state: State):
 
     is_user = response.json()
     assert is_user == 0
+
+
+def test_admin_currentFiles(state: State):
+    """Verify admin user can get Current Files list"""
+
+    b_string = 'Bearer ' + state.state['base_admin']
+    assert len(b_string) > 24
+    auth_hdr = {'Authorization' : b_string}
+
+    response = requests.get(SERVER_URL + "/api/listCurrentFiles",  headers=auth_hdr)
+    assert response.status_code == 200
+
+
+def test_admin_statistics(state: State):
+    """360 view Statistics"""
+
+    b_string = 'Bearer ' + state.state['base_admin']
+    assert len(b_string) > 24
+    auth_hdr = {'Authorization' : b_string}
+
+    response = requests.get(SERVER_URL + "/api/statistics", headers=auth_hdr)
+    assert response.status_code == 200
 
 
 def test_usergetusers(state: State):

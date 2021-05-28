@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: \temp\kompose -f docker-compose.yml convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: client
+  name: client
+spec:
+  ports:
+    - name: "80"
+      port: 80
+      targetPort: 80
+  selector:
+    io.kompose.service: client
+status:
+  loadBalancer: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: \temp\kompose -f docker-compose.yml convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: client
+  name: client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: client
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: \temp\kompose -f docker-compose.yml convert
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: client
+    spec:
+      containers:
+        - env:
+            - name: CHOKIDAR_USEPOLLING
+              value: "true"
+            - name: PAWS_API_HOST
+              value: "server"
+          image: localhost:5000/src-client:latest
+          imagePullPolicy: "IfNotPresent"
+          name: paws-compose-client
+          ports:
+            - containerPort: 3000
+          resources: {}
+          stdin: true
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+      imagePullSecrets:
+        - name: regcred
+status: {}

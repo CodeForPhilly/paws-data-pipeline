@@ -1,6 +1,6 @@
 upstream backend {
     #server paws-compose-server:5000;
-    server ${PAWS_API_HOST}:5000;
+    server server:5000;
 }
 
 server {
