@@ -54,7 +54,7 @@ def list_current_files():
     return jsonify(result)
 
 
-@admin_api.route("/api/execute", methods=["GET"])
+@admin_api.route("/api/execute", methods=["POST"])
 @jwt_ops.admin_required
 def execute():
     current_app.logger.info("Execute flow")
