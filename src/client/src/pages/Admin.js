@@ -102,7 +102,7 @@ class Admin extends Component {
 
         await fetch('/api/execute',
             {
-                method: 'GET',
+                method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + this.props.access_token
                 }

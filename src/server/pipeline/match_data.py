@@ -48,7 +48,7 @@ def start(connection, added_or_updated_rows, manual_matches_df):
     pdp_contacts["email_normalized"] = pdp_contacts["email"].apply(normalize_before_match)
 
     rows = items_to_update.to_dict(orient="records")
-    row_print_freq = max(1, np.floor_divide(len(rows), 20))  # approx every 5% (or every row if small)
+    row_print_freq = 1000 
 
     for row_num, row in enumerate(rows):
         if row_num % row_print_freq == 0:
