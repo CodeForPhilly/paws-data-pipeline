@@ -177,7 +177,6 @@ def test_admingetusers(state: State):
     userlist = response.json()
     assert len(userlist) > 1
 
-
 def test_check_usernames(state: State):
     """Verify logged-in base_admin can test usernames, gets correct result - existing user """
     # Build auth string value including token from state
