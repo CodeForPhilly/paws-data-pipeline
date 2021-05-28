@@ -170,37 +170,35 @@ def test_admingetusers(state: State):
     userlist = response.json()
     assert len(userlist) > 1
 
-# Endpoints not implemented yet
+def test_check_usernames(state: State):
+    """Verify logged-in base_admin can test usernames, gets correct result - existing user """
+    # Build auth string value including token from state
+    b_string = 'Bearer ' + state.state['base_admin']
 
-# def test_check_usernames(state: State):
-#     """Verify logged-in base_admin can test usernames, gets correct result - existing user """
-#     # Build auth string value including token from state
-#     b_string = 'Bearer ' + state.state['base_admin']
+    assert len(b_string) > 24
 
-#     assert len(b_string) > 24
+    auth_hdr = {'Authorization' : b_string}
 
-#     auth_hdr = {'Authorization' : b_string}
+    data = {"username":"base_admin"}
+    response = requests.post(SERVER_URL + "/api/admin/user/check_name", headers=auth_hdr, json=data)
+    assert response.status_code == 200
 
-#     data = {"username":"base_admin"}
-#     response = requests.post(SERVER_URL + "/api/admin/user/check_name", headers=auth_hdr, json=data)
-#     assert response.status_code == 200
+    is_user = response.json()
+    assert is_user == 1
 
-#     is_user = response.json()
-#     assert is_user == 1
+def test_check_badusernames(state: State):
+    """Verify logged-in base_admin can test usernames, gets correct result - nonexistant user  """
+    # Build auth string value including token from state
+    b_string = 'Bearer ' + state.state['base_admin']
+    assert len(b_string) > 24
+    auth_hdr = {'Authorization' : b_string}
 
-# def test_check_badusernames(state: State):
-#     """Verify logged-in base_admin can test usernames, gets correct result - nonexistant user  """
-#     # Build auth string value including token from state
-#     b_string = 'Bearer ' + state.state['base_admin']
-#     assert len(b_string) > 24
-#     auth_hdr = {'Authorization' : b_string}
+    data = {"username":"got_no_username_like_this"}
+    response = requests.post(SERVER_URL + "/api/admin/user/check_name", headers=auth_hdr, json=data)
+    assert response.status_code == 200
 
-#     data = {"username":"got_no_username_like_this"}
-#     response = requests.post(SERVER_URL + "/api/admin/user/check_name", headers=auth_hdr, json=data)
-#     assert response.status_code == 200
-
-#     is_user = response.json()
-#     assert is_user == 0
+    is_user = response.json()
+    assert is_user == 0
 
 
 def test_usergetusers(state: State):
