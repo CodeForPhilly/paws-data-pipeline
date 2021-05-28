@@ -33,10 +33,6 @@ RUN [ ! -f /app/static/logs/last_execution.json ] && printf {} > /app/static/log
 
 RUN chmod -R 777 /app/static
 
-COPY . /paws-data-pipeline/server
-
-RUN chmod 777 /paws-data-pipeline/server
-
 RUN chmod +x  bin/startServer.sh
 # RUN ufw allow 5000
 WORKDIR /app
