@@ -11,24 +11,37 @@ from config import engine
 
 metadata = MetaData()
 
-kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
+ex_stat = Table("execution_status", metadata, autoload=True, autoload_with=engine)
+
+# Alembic version bfb1262d3195
+
+# CREATE TABLE public.execution_status (
+# 	"_id" serial NOT NULL,
+# 	job_id int4 NOT NULL,
+# 	stage varchar(32) NOT NULL,
+# 	status varchar(32) NOT NULL,
+# 	details varchar(128) NOT NULL,
+# 	update_stamp timestamp NOT NULL DEFAULT now(),
+# 	CONSTRAINT execution_status_pkey null
+# );
 
 
 
-def log_exec_status(job_id: str, job_status: dict):
+def log_exec_status(job_id: str, exec_stage: str, exec_status: str, job_details: str):
+    """Log execution status (job_id, status, job_details) to DB """
 
-    # Write Last Execution stats to DB  
-    # See Alembic Revision ID: 05e0693f8cbb for table definition
     with engine.connect() as connection:
-        ins_stmt = insert(kvt).values(               # Postgres-specific insert() supporting ON CONFLICT 
-            keycol = 'job-' + job_id,
-            valcol = json.dumps(job_status)
+        ins_stmt = insert(ex_stat).values(               # Postgres-specific insert() supporting ON CONFLICT 
+            job_id =  job_id,
+            stage = exec_stage, 
+            status = exec_status,
+            details = json.dumps(job_details)
             )
 
         # If key already present in DB, do update instead 
         upsert = ins_stmt.on_conflict_do_update(
-                constraint='kv_unique_keycol_key',
-                set_=dict(valcol=json.dumps(job_status))
+                constraint='uq_job_id',
+                set_=dict( stage = exec_stage, status = exec_status,  details = json.dumps(job_details))
                 )
 
         try:

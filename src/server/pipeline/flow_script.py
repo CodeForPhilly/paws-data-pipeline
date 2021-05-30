@@ -1,7 +1,8 @@
 import os
+import datetime, time
 import pandas as pd
 from flask import current_app
-from pipeline import calssify_new_data, clean_and_load_data, archive_rows, match_data
+from pipeline import calssify_new_data, clean_and_load_data, archive_rows, match_data, log_db
 from config import CURRENT_SOURCE_FILES_PATH
 from config import engine
 from models import Base
@@ -9,6 +10,9 @@ from models import Base
 
 def start_flow():
     file_path_list = os.listdir(CURRENT_SOURCE_FILES_PATH)
+
+    job_id = str(int(time.time()))
+    log_db.log_exec_status(job_id, 'start_flow', 'executing', '')
 
     if file_path_list:
         with engine.connect() as connection:
@@ -25,6 +29,7 @@ def start_flow():
             # Populate new records in secondary tables (donations, volunteer shifts)
             # input - existing files in path
             # output - normalized object of all entries, as well as the input json rows for primary sources
+            log_db.log_exec_status(job_id, 'clean_and_load', 'executing', '')
             normalized_data, source_json, manual_matches_df = clean_and_load_data.start(connection, pdp_contacts_df, file_path_list)
 
             # Standardize column data types via postgres (e.g. reading a csv column as int vs. str)
@@ -34,6 +39,7 @@ def start_flow():
             normalized_data = pd.read_sql_table('_temp_pdp_contacts_loader', connection)
 
             # Classifies rows to old rows that haven't changed, updated rows and new rows - compared to the existing state of the DB
+            log_db.log_exec_status(job_id, 'classify', 'executing', '')
             rows_classified = calssify_new_data.start(pdp_contacts_df, normalized_data)
 
             # Archives rows the were updated in the current state of the DB (changes their archived_date to now)
@@ -41,7 +47,7 @@ def start_flow():
 
             # Match new+updated records against previous version of pdp_contacts database, and
             # write these rows to the database.
-            match_data.start(connection, rows_classified, manual_matches_df)
+            match_data.start(connection, rows_classified, manual_matches_df, job_id)
 
             # Copy raw input rows to json fields in pdp_contacts,
             # using a temporary table to simplify the update code.
@@ -60,3 +66,4 @@ def start_flow():
 
             current_app.logger.info('Finished flow script run')
 
+    log_db.log_exec_status(job_id, 'flow', 'complete', '' )
