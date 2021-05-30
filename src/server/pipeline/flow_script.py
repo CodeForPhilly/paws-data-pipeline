@@ -15,6 +15,8 @@ def start_flow():
 
     if (not job_id):
         current_app.logger.info('Failed to get job_id')
+        job_outcome = 'busy'
+
     else:
         log_db.log_exec_status(job_id, 'start_flow', 'executing', '')
 
@@ -72,6 +74,13 @@ def start_flow():
                         pdp.archived_date IS NULL
                 ''')
 
-                current_app.logger.info('Finished flow script run')
+            current_app.logger.info('Finished flow script run')
+            job_outcome = 'completed'
+
+        else: # No files in list
+            current_app.logger.info('No files to process')
+            job_outcome = 'nothing to do'  
 
         log_db.log_exec_status(job_id, 'flow', 'complete', '' )
+
+    return job_outcome
