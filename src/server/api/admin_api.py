@@ -59,8 +59,11 @@ def list_current_files():
 @jwt_ops.admin_required
 def execute():
     current_app.logger.info("Execute flow")
-    flow_script.start_flow()
+    job_outcome = flow_script.start_flow() # 'busy', 'completed', or 'nothing to do'
+    current_app.logger.info("Job outcome: " + str(job_outcome))
 
+
+    # --------   Skip update if 'busy' or 'nothing to do' as nothing changed ? ------
     current_time = datetime.now().ctime()
     statistics = get_statistics()
 
@@ -88,8 +91,19 @@ def execute():
         except Exception as e:
             current_app.logger.error("Insert/Update failed on Last Execution stats")
             current_app.logger.exception(e)
+    # -------------------------------------------------------------------------------
+    
+    if job_outcome == 'busy':
+        return jsonify({'outcome' : 'Already analyzing'}), 503   
 
-    return jsonify(success=True)
+    elif job_outcome == 'nothing to do':
+        return jsonify({'outcome' : 'No uploaded files to process'}), 200
+
+    elif job_outcome == 'completed' :
+        return jsonify({'outcome' : 'Analysis completed'}), 200
+
+    else:
+        return jsonify({'outcome' : 'Unknown status: ' + str(job_outcome)}), 200
 
 
 def get_statistics():
@@ -156,6 +170,23 @@ def get_exec_status(job_id):
             exec_status = '{}'
 
     return exec_status
+
+@admin_api.route("/api/job_in_progress", methods=["GET"])
+@jwt_ops.admin_required
+def is_job_in_progresss():
+    """Return True if there's a running execute, False if not. """
+
+    engine.dispose() # we don't want other process's conn pool
+
+    with engine.connect() as connection:
+        q = text("""SELECT job_id from execution_status WHERE status = 'executing' """)
+        result = connection.execute(q)
+
+        if result.rowcount > 0:
+            return jsonify(True)
+        else:
+            return jsonify(False)
+
 
 def start_job():
     """If no running jobs, create a job_id and execution status entry.
