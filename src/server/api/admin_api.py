@@ -1,5 +1,6 @@
 from api.api import admin_api
 import os
+import time
 from datetime import datetime
 import json
 from sqlalchemy.sql import text
@@ -156,19 +157,59 @@ def get_exec_status(job_id):
 
     return exec_status
 
+def start_job():
+    """If no running jobs, create a job_id and execution status entry.
+    This ensures only only one job runs at a time.
+    If there's a running job, return None.  """
+
+
+    engine.dispose() # we don't want other process's conn pool
+
+    job_id = str(int(time.time()))
+    q = text("""SELECT job_id from execution_status
+                    WHERE status = 'executing' """)
+
+    i = text("""INSERT INTO execution_status (job_id, stage, status, details) 
+                values(:j, :stg, :stat, :det) """)
+    i = i.bindparams(j = job_id, 
+                     stg ='initiating',
+                     stat ='executing',
+                     det = ''   )
+
+    running_job = None
+
+    with engine.begin() as connection:   # BEGIN TRANSACTION
+        q_result = connection.execute(q)
+        if q_result.rowcount == 0:
+            # No running jobs
+            ins_result = connection.execute(i)
+        else:
+            running_job = q_result.fetchone()[0]
+    # COMMIT TRANSACTION
+    #TODO: what would an exception look like here? 
+
+
+    if running_job :
+        # There was a running job already
+        current_app.logger.info("Request to start job, but job_id " + str(running_job) + " already executing")
+        return None
+    else:
+        current_app.logger.info("Assigned job_id " + job_id )
+        return job_id
 
 
 
-"""
-@admin_api.route('/api/status', methods=['GET'])
-def checkStatus():
-    with engine.connect() as connection:
-        query = text("SELECT now()")
-        query_result = connection.execute(query)
 
-        # Need to iterate over the results proxy
-        results = {}
-        for row in query_result:
-            results = dict(row)
-        return jsonify(results)
-"""
+# """
+# @admin_api.route('/api/status', methods=['GET'])
+# def checkStatus():
+#     with engine.connect() as connection:
+#         query = text("SELECT now()")
+#         query_result = connection.execute(query)
+
+#         # Need to iterate over the results proxy
+#         results = {}
+#         for row in query_result:
+#             results = dict(row)
+#         return jsonify(results)
+# """
