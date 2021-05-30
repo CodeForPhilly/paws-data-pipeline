@@ -22,6 +22,7 @@ def upgrade():
         "execution_status",
         sa.Column("_id", sa.Integer, primary_key=True),
         sa.Column("job_id", sa.Integer,  nullable=False),
+        sa.Column("stage", sa.String(32),   nullable=False),
         sa.Column("status", sa.String(32),   nullable=False),
         sa.Column("details", sa.String(128),  nullable=False),
         sa.Column("update_stamp", sa.DateTime,  nullable=False, server_default=func.now())
@@ -40,6 +41,7 @@ def upgrade():
                 EXECUTE PROCEDURE last_upd_trig();"""
                 )   # Postgres-specific, obviously 
 
+    op.create_unique_constraint("uq_job_id",  "execution_status", ["job_id"])
 
 def downgrade():
     op.drop_table("execution_status")
