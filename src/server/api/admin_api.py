@@ -149,27 +149,25 @@ def list_statistics():
     return last_execution_details
 
 
-@admin_api.route("/api/get_execution_status/<int:job_id>", methods=["GET"])
+@admin_api.route("/api/get_execution_status", methods=["GET"])
 @jwt_ops.admin_required
-def get_exec_status(job_id):
-    """ Get the execution status record from the DB for the specified job_id """
+def get_exec_status():
+    """ Get the execution status record from the DB for a running job, if present"""
 
 
     engine.dispose() # we don't want other process's conn pool
 
     with engine.connect() as connection:
+        q = text("""SELECT job_id, stage, status, details, update_stamp 
+                    FROM execution_status 
+                    WHERE status = 'executing' """)
+        result = connection.execute(q)
 
-        s_jobid = 'job-' + str(job_id)        
-        s = text("select valcol from kv_unique where keycol = :j ;")
-        s = s.bindparams(j=s_jobid)
-        result = connection.execute(s)
         if result.rowcount > 0:
-            exec_status  = result.fetchone()[0]
+           running_job = result.fetchone()
+           return jsonify(dict(zip(result.keys(), running_job)))
         else:
-            current_app.logger.warning("0 results for exec status query")
-            exec_status = '{}'
-
-    return exec_status
+            return jsonify('')
 
 @admin_api.route("/api/job_in_progress", methods=["GET"])
 @jwt_ops.admin_required
