@@ -21,4 +21,4 @@ def upgrade():
 
 
 def downgrade():
-    pass
+    op.drop_column("pdp_users", "full_name")

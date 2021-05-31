@@ -8,7 +8,7 @@ from datasource_manager import DATASOURCE_MAPPING, SOURCE_NORMALIZATION_MAPPING
 from flask import current_app
 import sqlalchemy
 from config import CURRENT_SOURCE_FILES_PATH
-
+from pipeline import log_db
 
 def start(connection, pdp_contacts_df, file_path_list):
     result = pd.DataFrame(columns=pdp_contacts_df.columns)
