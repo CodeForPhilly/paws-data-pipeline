@@ -18,7 +18,7 @@ import {
     CircularProgress
 } from '@material-ui/core';
 
-import _ from 'lodash';
+import _, { lowerCase } from 'lodash';
 import SearchBar from './components/SearchBar';
 import {formatPhoneNumber} from "../../../utils/utils";
 import Grid from "@material-ui/core/Grid";
@@ -104,14 +104,24 @@ class Search360 extends Component {
             })
     }
 
+    namesToLowerCase(participant) {
+        let first_name = participant.first_name
+        let last_name = participant.last_name
+
+        return {
+            ...participant, 
+            lower_first_name: lowerCase(first_name),
+            lower_last_name: lowerCase(last_name)
+        }
+    }
+
     renderParticipantsTable() {
         const {classes} = this.props;
         const tableRowColors = [classes.tableRowEven, classes.tableRowOdd]
 
-        let participantListGrouped = _.groupBy(this.state.participantList, "matching_id");
-        participantListGrouped = _.reverse(_.sortBy(participantListGrouped, matching_group => {
-            return _.size(matching_group);
-        }));
+        let participantListGrouped = _.map(this.state.participantList, this.namesToLowerCase)
+        participantListGrouped = _.groupBy(participantListGrouped, "matching_id");
+        participantListGrouped = _.orderBy(participantListGrouped, ['0.lower_last_name', '0.lower_first_name']);
 
         return (
             <Grid container direction={"column"} justify={"center"}>
