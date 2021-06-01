@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {
     Paper,
-    Typography,
     Table,
     TableContainer,
     TableHead,
@@ -11,11 +10,8 @@ import {
     Container,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import _ from 'lodash';
 import moment from 'moment';
-import Grid from "@material-ui/core/Grid";
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
-import TimelineIcon from '@material-ui/icons/Timeline';
 import DataTableHeader from './DataTableHeader';
 
 const customStyles = theme => ({
