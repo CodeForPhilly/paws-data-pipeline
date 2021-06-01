@@ -26,12 +26,12 @@ class ContactInfo extends Component {
 
     populate_participant_with_data_source(participant, participantData) {
         return {
-            first_name: _.get(participantData, "first_name") || _.get(participant, "first_name"),
-            last_name: _.get(participantData, "last_name") || _.get(participant, "last_name"),
-            email: _.get(participantData, "email") || _.get(participant, "email"),
-            mobile: _.get(participantData, "mobile") || _.get(participant, "mobile"),
-            city: _.get(participantData, "city") || _.get(participant, "city"),
-            street_and_number: _.get(participantData, "street_and_number") || _.get(participant, "street_and_number")
+            first_name: _.get(participantData, "first_name") || _.get(participant, "first_name") || "",
+            last_name: _.get(participantData, "last_name") || _.get(participant, "last_name") || "",
+            email: _.get(participantData, "email") || _.get(participant, "email") || "",
+            mobile: _.get(participantData, "mobile") || _.get(participant, "mobile") || "",
+            city: _.get(participantData, "city") || _.get(participant, "city") || "",
+            street_and_number: _.get(participantData, "street_and_number") || _.get(participant, "street_and_number") || ""
         };
     }
 
