@@ -25,20 +25,22 @@ const customStyles = theme => ({
     },
 });
 
-const SHIFTS_TO_SHOW = 5;
+const SHIFTS_TO_SHOW = 3;
 
 class VolunteerHistory extends Component {
 
     createShiftRows(shifts) {
-        const shiftsSorted = _.sortBy(shifts, shift => {
-            return new moment(shift.from);
+        const shiftsFiltered = _.filter(shifts, function(s) { return s.from !== "Invalid date"});
+        const shiftsSorted = _.sortBy(shiftsFiltered, shift => {
+            return new moment(shift.from).format("YYYY-MM-DD");
         }).reverse();
 
-        const lastShifts = shiftsSorted.slice(shiftsSorted.length - SHIFTS_TO_SHOW, shiftsSorted.length)
-
+        const lastShifts = shiftsSorted.slice(0, SHIFTS_TO_SHOW)
+        
         const result = _.map(lastShifts, (shift, index) => {
+            shift.from = moment(shift.from).format("YYYY-MM-DD")
             return(<TableRow key={index}>
-                    <TableCell>{moment(shift.from).format("MM-DD-YYYY")}</TableCell>
+                    <TableCell>{shift.from}</TableCell>
                     <TableCell>{shift.assignment}</TableCell>
                 </TableRow>);
 
@@ -53,7 +55,7 @@ class VolunteerHistory extends Component {
         return (
             <React.Fragment>
                 <Container component={Paper} style={{"marginTop": "1em"}}>
-                    <DataTableHeader headerText={"Volunteer History (Top 5)"} 
+                    <DataTableHeader headerText={`Volunteer History (Most Recent ${SHIFTS_TO_SHOW})`} 
                         emojiIcon={<TimelineIcon color='primary' fontSize='inherit'/>}
                     />
                     <TableContainer component={Paper} style={{"marginBottom":"1em"}} variant='outlined'>

@@ -26,7 +26,7 @@ const customStyles = theme => ({
     }
 });
 
-const ROWS_TO_SHOW = 5
+const ROWS_TO_SHOW = 3
 
 class Donations extends Component {
     constructor(props) {
@@ -57,7 +57,7 @@ class Donations extends Component {
 
     render() {
         const {classes} = this.props;
-
+        const headerText = `Financial Support Activity (Most Recent ${ROWS_TO_SHOW})`
         return (
             <Container component={Paper} style={{"marginTop": "1em"}}>
                 <Typography variant='h5'>
@@ -66,7 +66,7 @@ class Donations extends Component {
                             <AttachMoneyIcon color='primary' fontSize='inherit'/>
                         </Grid>
                         <Grid item>
-                            Financial Support Activity (Top 5)
+                            {headerText}
                         </Grid>
                     </Grid>
                 </Typography>
