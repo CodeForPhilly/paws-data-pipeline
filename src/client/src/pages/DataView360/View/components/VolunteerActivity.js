@@ -49,7 +49,7 @@ class volunteerActivity extends Component {
                                     <TableCell>{
                                         (volunteer.start_date === "N/A") 
                                         ? "N/A" 
-                                        : moment(volunteer.start_date).format("MM-DD-YYYY")
+                                        : moment(volunteer.start_date).format("YYYY-MM-DD")
                                     }
                                     </TableCell>
                                     <TableCell>{volunteer.life_hours.toFixed(2)}</TableCell>
