@@ -8,7 +8,8 @@ import {
     Button,
     Grid,
     Backdrop,
-    CircularProgress, Box, Typography
+    CircularProgress, 
+    Typography
 } from '@material-ui/core';
 
 import _ from 'lodash';
