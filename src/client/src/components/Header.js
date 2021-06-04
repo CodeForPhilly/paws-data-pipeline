@@ -19,6 +19,7 @@ export function AdminHeader(props) {  // This one if user has the ADMIN role
                     <Button className={styles.header_link} component={RouterLink} to="/360view/search">360
                         DataView</Button>
                     <Button className={styles.header_link} component={RouterLink} to="/about">About us</Button>
+                    <Button className={styles.header_link} component={RouterLink} to="/logout">Log Out</Button>
                     { /* <Button className={styles.header_link} component={RouterLink} to="/check">Check</Button> */}
                 </div>
             </Toolbar>
@@ -52,6 +53,7 @@ export default function Header(props) {  // This one if user only has USER role 
                     <Button className={styles.header_link} component={RouterLink} to="/360view/search">360
                         DataView</Button>
                     <Button className={styles.header_link} component={RouterLink} to="/about">About us</Button>
+                    <Button className={styles.header_link} component={RouterLink} to="/logout">Log Out</Button>
                     { /* <Button className={styles.header_link} component={RouterLink} to="/check">Check</Button> */}
                 </div>
             </Toolbar>
