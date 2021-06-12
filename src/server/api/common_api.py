@@ -92,8 +92,8 @@ def get_360(matching_id):
                 for r in volgistics_shifts_query_result:
                     shifts = dict(r)
                     # normalize date string
-                    if shifts["from"]:
-                        parsed_date_from = dateutil.parser.parse(shifts["from"], ignoretz=True)
+                    if shifts["from_date"]:
+                        parsed_date_from = dateutil.parser.parse(shifts["from_date"], ignoretz=True)
                         normalized_date_from = parsed_date_from.strftime("%Y-%m-%d")
                         shifts["from"] = normalized_date_from
                     else:
