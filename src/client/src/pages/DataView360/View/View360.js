@@ -14,6 +14,7 @@ import {
 
 import _ from 'lodash';
 import moment from 'moment';
+import Adoptions from './components/Adoptions';
 import ContactInfo from './components/ContactInfo';
 import Donations from './components/Donations';
 import AnimalInfo from './components/AnimalInfo';
@@ -78,9 +79,9 @@ class View360 extends Component {
 
         for (let id of animalIds) {
             let events = await this.getAnimalEvents(id, this.state.matchId);
-
+            
             adoptionEvents[id] = _.filter(events[id], function(e) {
-                return e["Type"] && e["Type"].toLowerCase().includes("adopt");
+                return e["Type"] && e["Type"] === "Outcome.Adoption"
             });
             fosterEvents[id] = _.filter(events[id], function(e) {
                 return e["Type"] && e["Type"].toLowerCase().includes("foster");
@@ -161,7 +162,7 @@ class View360 extends Component {
                                 <Grid item xs={8} className={classes.tablesCol}>
                                     <Grid container direction="column" style={{"marginTop": "1em"}}>
                                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
-                                        <AnimalInfo pets={_.get(this.state, 'animalData')}
+                                        <Adoptions pets={_.get(this.state, 'animalData')}
                                                     events={_.get(this.state, 'adoptionEvents')}
                                                     headerText={"Adoption Records"}
                                                     shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
