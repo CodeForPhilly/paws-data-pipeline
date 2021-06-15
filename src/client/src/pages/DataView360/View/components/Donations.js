@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import {withStyles} from '@material-ui/core/styles';
 import _ from 'lodash';
+import moment from 'moment';
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 import Grid from "@material-ui/core/Grid";
 
@@ -36,12 +37,10 @@ class Donations extends Component {
     }
 
     createRows(donations) {
+        const donationsSorted = _.sortBy(donations, donation => {
+            return new moment(donation.close_date).format("YYYY-MM-DD");
+        }).reverse();
 
-        let donationsSorted = _.sortBy(donations, donation => {
-            return Date(donation.created_date);
-        });
-
-        donationsSorted = donationsSorted.reverse();
         const latestDonations = donationsSorted.slice(0, ROWS_TO_SHOW);
 
         const result = _.map(latestDonations, (donation, index) => {
@@ -49,6 +48,7 @@ class Donations extends Component {
                 <TableCell>{donation.close_date}</TableCell>
                 <TableCell>${donation.amount}</TableCell>
                 <TableCell>{donation.type}</TableCell>
+                <TableCell>{donation.primary_campaign_source}</TableCell>
             </TableRow>);
         });
 
@@ -77,6 +77,7 @@ class Donations extends Component {
                             <TableRow>
                                 <TableCell className={classes.headerCell}>Date of Donation</TableCell>
                                 <TableCell className={classes.headerCell}>Amount</TableCell>
+                                <TableCell className={classes.headerCell}>Donation Type</TableCell>
                                 <TableCell className={classes.headerCell}>Primary Campaign Source</TableCell>
                             </TableRow>
                         </TableHead>
