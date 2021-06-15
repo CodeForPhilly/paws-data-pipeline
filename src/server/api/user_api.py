@@ -186,10 +186,18 @@ def user_test_auth():
 @user_api.route("/api/user/logout", methods=["POST"])
 @jwt_ops.jwt_required()
 def user_logout():
-    username = request.form["username"]  # TODO: Should be JSON all throughout
+    
+    user_name = ''
+
+    old_jwt = jwt_ops.validate_decode_jwt()   
+
+    # If token bad, should be handled & error message sent by jwt_required() and we won't get here
+    if old_jwt:
+        user_name = old_jwt['sub']
+    
     # Log the request
-    log_user_action(username, "Success", "Logged out ")
-    return jsonify("Logged out " + username)
+    log_user_action(user_name, "Success", "Logged out")
+    return jsonify("Logged out")
 
 
 # Generate a new access token 
