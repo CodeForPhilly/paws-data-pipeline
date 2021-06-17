@@ -8,12 +8,12 @@ from datasource_manager import DATASOURCE_MAPPING, SOURCE_NORMALIZATION_MAPPING
 from flask import current_app
 import sqlalchemy
 from config import CURRENT_SOURCE_FILES_PATH
-
+from pipeline import log_db
 
 def start(connection, pdp_contacts_df, file_path_list):
     result = pd.DataFrame(columns=pdp_contacts_df.columns)
     json_rows = pd.DataFrame(columns=["source_type", "source_id", "json"])
-    manual_matches_df = None
+    manual_matches_df = pd.DataFrame()
     
     for uploaded_file in file_path_list:
         file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
@@ -52,11 +52,18 @@ def start(connection, pdp_contacts_df, file_path_list):
 
         else:  # it is a child table
             if table_name in sqlalchemy.inspect(connection).get_table_names():
+                
                 # Only retain new/updated records in secondary tables (shifts, donations, etc.)
                 current_app.logger.info('   - Deduplicating old records')
                 old_data = pd.read_sql_table(table_name, connection)
                 df = old_data.append(df, ignore_index=True).drop_duplicates()
-            df.to_sql(table_name, connection, index=False, if_exists='replace')
+                if table_name == 'salesforcedonations':
+                    df.to_sql(table_name, connection, index=False, if_exists='replace', dtype={
+                        'close_date': sqlalchemy.Date(),
+                        'created_date': sqlalchemy.Date()
+                    })
+                else:
+                    df.to_sql(table_name, connection, index=False, if_exists='replace')
 
         current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)
 

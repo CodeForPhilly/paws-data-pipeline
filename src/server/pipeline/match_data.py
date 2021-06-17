@@ -15,15 +15,16 @@ def normalize_before_match(value):
     return result
 
 
-def start(connection, added_or_updated_rows, manual_matches_df):
+def start(connection, added_or_updated_rows, manual_matches_df, job_id):
     # Match new records to each other and existing pdp_contacts data.
     # Assigns matching ID's to records, as well.
     # WARNING: not thread-safe and could lead to concurrency issues if two users /execute simultaneously
     current_app.logger.info('Start record matching')
     # Will need to consider updating the existing row contents (filter by active), deactivate,
     # try to match, and merge previous matching groups if applicable
-    job_id = str(int(time.time()))
-    log_db.log_exec_status(job_id, {'status': 'starting', 'at_row': 0, 'of_rows': 0})
+    # job_id = str(int(time.time()))
+    log_db.log_exec_status(job_id, 'matching', 'executing', '')
+
     current_app.logger.info("***** Running execute job ID " + job_id + " *****")
     items_to_update = pd.concat([added_or_updated_rows["new"], added_or_updated_rows["updated"]], ignore_index=True)
     pdp_contacts = pd.read_sql_table('pdp_contacts', connection)
@@ -48,37 +49,35 @@ def start(connection, added_or_updated_rows, manual_matches_df):
     pdp_contacts["email_normalized"] = pdp_contacts["email"].apply(normalize_before_match)
 
     rows = items_to_update.to_dict(orient="records")
-    row_print_freq = max(1, np.floor_divide(len(rows), 20))  # approx every 5% (or every row if small)
+    row_print_freq = 1000 
 
     for row_num, row in enumerate(rows):
         if row_num % row_print_freq == 0:
             current_app.logger.info("- Matching rows {}-{} of {}".format(
                 row_num + 1, min(len(rows), row_num + row_print_freq), len(rows))
             )
-            log_db.log_exec_status(job_id, {
-                'status': 'executing', 'at_row': row_num + 1, 'of_rows': len(rows)
-            })
+            log_db.log_exec_status(job_id, 'matching', 'executing', str({'at_row': row_num + 1, 'of_rows': len(rows)  }) )
 
         # Exact matches based on specified columns
         row_matches = pdp_contacts[
             (
-                ((pdp_contacts["first_name_normalized"] == row["first_name_normalized"]) &
+                (((pdp_contacts["first_name_normalized"] == row["first_name_normalized"]) &
                 (pdp_contacts["last_name_normalized"] == row["last_name_normalized"]))
                 |
                 ((pdp_contacts["first_name_normalized"] == row["last_name_normalized"]) &
-                (pdp_contacts["last_name_normalized"] == row["first_name_normalized"]))
+                (pdp_contacts["last_name_normalized"] == row["first_name_normalized"])))
                 &
                 ((pdp_contacts["email_normalized"] == row["email_normalized"]) | (pdp_contacts["mobile"] == row["mobile"]))
             )
         ]
         #collect other linked ids from manual matches source
-        if manual_matches_df != None:
+        if not manual_matches_df.empty:
             linked_ids = manual_matches_df[(manual_matches_df[row["source_type"]] == row["source_id"])]
             ids = linked_ids.to_dict(orient="records")
-            for row_dict in enumerate(ids):
+            for id_num, row_dict in enumerate(ids):
                 for column, value in row_dict.items():
                     row_matches = row_matches.append(pdp_contacts[(pdp_contacts["source_type"] == column) & (pdp_contacts["source_id"] == value)])
-
+                    
         
         if row_matches.empty:  # new record, no matching rows
             max_matching_group += 1
@@ -103,4 +102,4 @@ def start(connection, added_or_updated_rows, manual_matches_df):
     items_to_update.to_sql('pdp_contacts', connection, index=False, if_exists='append')
     current_app.logger.info("- Finished load to pdp_contacts table")
 
-    log_db.log_exec_status(job_id, {'status': 'complete', 'at_row': len(rows), 'of_rows': len(rows)})
+    log_db.log_exec_status(job_id, 'matching', 'executing', str({'at_row': len(rows), 'of_rows': len(rows) }) )

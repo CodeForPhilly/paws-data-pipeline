@@ -48,12 +48,13 @@ def get_contacts(search_text):
         if len(names) == 2:
             query = text("select * from pdp_contacts where archived_date is null AND ( \
                 (lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2)) \
-                OR (lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)) )")
+                OR (lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)) )\
+                    order by lower(last_name), lower(first_name)")
             query_result = connection.execute(query, name1='{}%'.format(names[0]), name2='{}%'.format(names[1]))
         elif len(names) == 1:
             query = text("select * from pdp_contacts \
                 WHERE lower(first_name) like lower(:search_text) \
-                OR lower(last_name) like lower(:search_text)")
+                OR lower(last_name) like lower(:search_text) order by lower(last_name), lower(first_name)")
             query_result = connection.execute(query, search_text='{}%'.format(search_text))
 
         query_result_json = [dict(row) for row in query_result]
@@ -76,7 +77,9 @@ def get_360(matching_id):
 
         for row in result["contact_details"]:
             if row["source_type"] == "salesforcecontacts":
-                donations_query = text("select * from salesforcedonations where contact_id like :salesforcecontacts_id")
+                donations_query = text("""select cast (close_date as text), amount, type,  primary_campaign_source 
+                                        from salesforcedonations
+                                        where contact_id like :salesforcecontacts_id""")
                 salesforce_contacts_query_result = connection.execute(donations_query,
                                                                       salesforcecontacts_id=row["source_id"] + "%")
                 salesforce_donations_results = [dict(row) for row in salesforce_contacts_query_result]
@@ -91,9 +94,12 @@ def get_360(matching_id):
                 for r in volgistics_shifts_query_result:
                     shifts = dict(r)
                     # normalize date string
-                    parsed_date_from = dateutil.parser.parse(shifts["from"], ignoretz=True)
-                    normalized_date_from = parsed_date_from.strftime("%Y-%m-%d")
-                    shifts["from"] = normalized_date_from
+                    if shifts["from_date"]:
+                        parsed_date_from = dateutil.parser.parse(shifts["from_date"], ignoretz=True)
+                        normalized_date_from = parsed_date_from.strftime("%Y-%m-%d")
+                        shifts["from"] = normalized_date_from
+                    else:
+                        shifts["from"] = "Invalid date"
                     volgisticsshifts_results.append(shifts)
 
                 result['shifts'] = volgisticsshifts_results

@@ -58,28 +58,28 @@ def create_base_users():  # TODO: Just call create_user for each
             # user
             pw_hash = user_api.hash_password(BASEUSER_PW)
             ins_stmt = pu.insert().values(
-                username="base_user", password=pw_hash, active="Y", role=1,
+                username="base_user", full_name="Base User", password=pw_hash, active="Y", role=1,
             )
             connection.execute(ins_stmt)
 
             # INactive user
             # Reuse pw hash
             ins_stmt = pu.insert().values(
-                username="base_user_inact", password=pw_hash, active="N", role=1,
+                username="base_user_inact", full_name="Inactive User", password=pw_hash, active="N", role=1,
             )
             connection.execute(ins_stmt)
 
             # editor
             pw_hash = user_api.hash_password(BASEEDITOR_PW)
             ins_stmt = pu.insert().values(
-                username="base_editor", password=pw_hash, active="Y", role=2,
+                username="base_editor", full_name="Base Editor", password=pw_hash, active="Y", role=2,
             )
             connection.execute(ins_stmt)
 
             # admin
             pw_hash = user_api.hash_password(BASEADMIN_PW)
             ins_stmt = pu.insert().values(
-                username="base_admin", password=pw_hash, active="Y", role=9,
+                username="base_admin", full_name="Base Admin", password=pw_hash, active="Y", role=9,
             )
             connection.execute(ins_stmt)
 

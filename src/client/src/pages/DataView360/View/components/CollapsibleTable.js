@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Collapse from '@material-ui/core/Collapse';
@@ -31,10 +30,16 @@ function getAnimalAge(epochTime) {
     return moment().diff(dateOfBirth, 'years');
 }
 
+function showAnimalAge(epochTime) {
+    const age = getAnimalAge(epochTime)
+    return (age === 1) ? `${age} year` : `${age} years`
+}
+
 function Row(props) {
     const [open, setOpen] = React.useState(false);
     const classes = useRowStyles();
     const { row, events } = props;
+    const photo = row.Photos[0]
     return (
         <React.Fragment>
             <TableRow className={classes.root}>
@@ -48,8 +53,8 @@ function Row(props) {
                 </TableCell>
                 <TableCell align="center">{row.Type}</TableCell>
                 <TableCell align="center">{row.Breed}</TableCell>
-                <TableCell align="center">{getAnimalAge(row.DOBUnixTime)}</TableCell>
-                <TableCell align="center">{<img src={row.Photos[0]} alt="animal" style={{ "maxWidth": "100px" }} />}</TableCell>
+                <TableCell align="center">{showAnimalAge(row.DOBUnixTime)}</TableCell>
+                <TableCell align="center">{<img src={photo} alt="animal" style={{ "maxWidth": "100px" }} />}</TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -62,7 +67,7 @@ function Row(props) {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell align="center">Subtype</TableCell>
-                                        <TableCell align="center">Time</TableCell>
+                                        <TableCell align="center">Date</TableCell>
                                         <TableCell align="center">Type</TableCell>
                                         <TableCell align="center">User</TableCell>
                                     </TableRow>

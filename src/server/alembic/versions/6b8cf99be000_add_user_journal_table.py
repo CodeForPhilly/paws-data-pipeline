@@ -29,4 +29,4 @@ def upgrade():
 
 
 def downgrade():
-    pass
+    op.drop_table('pdp_user_journal')

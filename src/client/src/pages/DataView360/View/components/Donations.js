@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import {withStyles} from '@material-ui/core/styles';
 import _ from 'lodash';
+import moment from 'moment';
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 import Grid from "@material-ui/core/Grid";
 
@@ -22,7 +23,7 @@ const customStyles = theme => ({
     }
 });
 
-const ROWS_TO_SHOW = 5
+const ROWS_TO_SHOW = 3
 
 class Donations extends Component {
     constructor(props) {
@@ -32,12 +33,10 @@ class Donations extends Component {
     }
 
     createRows(donations) {
+        const donationsSorted = _.sortBy(donations, donation => {
+            return new moment(donation.close_date).format("YYYY-MM-DD");
+        }).reverse();
 
-        let donationsSorted = _.sortBy(donations, donation => {
-            return Date(donation.created_date);
-        });
-
-        donationsSorted = donationsSorted.reverse();
         const latestDonations = donationsSorted.slice(0, ROWS_TO_SHOW);
 
         const result = _.map(latestDonations, (donation, index) => {
@@ -45,6 +44,7 @@ class Donations extends Component {
                 <TableCell>{donation.close_date}</TableCell>
                 <TableCell>${donation.amount}</TableCell>
                 <TableCell>{donation.type}</TableCell>
+                <TableCell>{donation.primary_campaign_source}</TableCell>
             </TableRow>);
         });
 
@@ -53,7 +53,7 @@ class Donations extends Component {
 
     render() {
         const {classes} = this.props;
-
+        const headerText = `Financial Support Activity (Most Recent ${ROWS_TO_SHOW})`
         return (
             <Container component={Paper} style={{"marginTop": "1em"}}>
                 <Typography variant='h5'>
@@ -62,7 +62,7 @@ class Donations extends Component {
                             <AttachMoneyIcon color='primary' fontSize='inherit'/>
                         </Grid>
                         <Grid item>
-                            Financial Support Activity (Top 5)
+                            {headerText}
                         </Grid>
                     </Grid>
                 </Typography>
@@ -73,6 +73,7 @@ class Donations extends Component {
                             <TableRow>
                                 <TableCell className={classes.headerCell}>Date of Donation</TableCell>
                                 <TableCell className={classes.headerCell}>Amount</TableCell>
+                                <TableCell className={classes.headerCell}>Donation Type</TableCell>
                                 <TableCell className={classes.headerCell}>Primary Campaign Source</TableCell>
                             </TableRow>
                         </TableHead>
