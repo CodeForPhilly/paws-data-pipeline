@@ -18,6 +18,7 @@ import Adoptions from './components/Adoptions';
 import ContactInfo from './components/ContactInfo';
 import Donations from './components/Donations';
 import AnimalInfo from './components/AnimalInfo';
+import SupportOverview from './components/SupportOverview';
 import VolunteerActivity from './components/VolunteerActivity';
 import VolunteerHistory from './components/VolunteerHistory';
 
@@ -147,6 +148,9 @@ class View360 extends Component {
                                         <Grid item>
                                             <ContactInfo
                                                 participant={_.get(this.state, 'participantData.contact_details')}/>
+                                        </Grid>
+                                        <Grid item style={{"margin-top": "1em"}}>
+                                            <SupportOverview />
                                         </Grid>
                                         <Grid item style={{"padding": "1em"}}>
                                             <Button style={{"minWidth": "180"}} elevation={2} variant="contained"
