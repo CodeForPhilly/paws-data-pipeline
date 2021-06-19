@@ -25,7 +25,7 @@ def upgrade():
         sa.Column("contact_id", sa.String(), nullable=False),
         sa.Column("amount",  sa.DECIMAL, nullable=False),
         sa.Column("close_date",  sa.Date, nullable=False),
-        sa.Column("type",  sa.String(), nullable=False),        
+        sa.Column("donation_type",  sa.String(), nullable=False),        
         sa.Column("primary_campaign_source", sa.String(),nullable=False)
     )
 
