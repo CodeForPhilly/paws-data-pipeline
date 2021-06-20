@@ -4,7 +4,7 @@ import {AppBar, Button, Toolbar, Typography} from "@material-ui/core";
 import styles from "./styles/header.module.css";
 import admstyles from "./styles/adm_header.module.css";
 
-export function AdminHeader(props) {  // This one if user has the ADMIN role
+export function AdminHeader() {  // This one if user has the ADMIN role
 
     return (
         <AppBar position="static" id="header" className={admstyles.header} elevation={1}>
@@ -27,7 +27,7 @@ export function AdminHeader(props) {  // This one if user has the ADMIN role
     );
 }
 
-export function LoginHeader(props) {  // This one for login page
+export function LoginHeader() {  // This one for login page
 
     return (
         <AppBar position="static" id="header" className={styles.header} elevation={1}>
@@ -43,7 +43,7 @@ export function LoginHeader(props) {  // This one for login page
 }
 
 
-export default function Header(props) {  // This one if user only has USER role - no link to Admin page
+export default function Header() {  // This one if user only has USER role - no link to Admin page
 
     return (
         <AppBar position="static" id="header" className={styles.header} elevation={1}>

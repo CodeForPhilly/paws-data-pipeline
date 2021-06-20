@@ -8,7 +8,6 @@ h6.header_logo {
 	top: 2px;
 	left: 14px;
 	padding-left: 32px;
-	font-family: 'Noway Round Regular', sans-serif;
 	font-size: 22px;
 	color: #fff;
 	letter-spacing: initial;
@@ -29,7 +28,6 @@ h6.header_logo::before {
 
 a.header_link {
 	margin-right: 10px;
-	font-family: 'Noway Round Regular', sans-serif;
 	color: #fff;
 	font-weight: 700;
 }

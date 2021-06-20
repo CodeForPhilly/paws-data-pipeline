@@ -1,9 +1,5 @@
 import {createMuiTheme} from '@material-ui/core/styles';
 
-//@link https://cimdalli.github.io/mui-theme-generator/
-//@todo set overrides for all core components,
-// need to make sure imported components implement theming
-
 
 const defaultTheme = createMuiTheme({
     palette: {
@@ -17,18 +13,24 @@ const defaultTheme = createMuiTheme({
         }
     },
     typography: {
-        fontFamily: [
-            '-apple-system',
-            'BlinkMacSystemFont',
-            '"Segoe UI"',
-            'Roboto',
-            '"Helvetica Neue"',
-            'Arial',
-            'sans-serif',
-            '"Apple Color Emoji"',
-            '"Segoe UI Emoji"',
-            '"Segoe UI Symbol"',
-        ].join(','),
+        fontFamily: 'Roboto',
+        htmlFontSize: 16,
+        h1: {
+            fontSize: '3em',
+            fontWeight: 700
+        },
+        h2: {
+            fontSize: '2.5em',
+            fontWeight: 700
+        },
+        h3: {
+            fontSize: '2em',
+            fontWeight: 700
+        },
+        button: {
+            fontSize: '0.8em',
+            fontWeight: 700
+        }
     }
 });
 
@@ -37,7 +39,24 @@ defaultTheme.overrides = {
         root: {
             padding: 5
         }
-    }
+    },
+    MuiBackdrop: {
+        root: {
+            zIndex: defaultTheme.zIndex.drawer + 1,
+            color: '#fff'
+        }
+    },
+    MuiTableRow: {
+        head: {
+
+        }
+    },
+    MuiTableCell: {
+        head: {
+            fontWeight: "bold"
+        }
+    },
+
 };
 
 export default defaultTheme;

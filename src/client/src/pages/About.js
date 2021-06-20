@@ -25,7 +25,7 @@ export default function About(props) {
         <Container>
             <Container style={{"padding": "1em"}}>
                 <h2>
-                    <a href="https://codeforphilly.org/projects/paws_data_pipeline" target="_blank">
+                    <a href="https://codeforphilly.org/projects/paws_data_pipeline" target="_blank" rel="noopener noreferrer">
                         The PAWS Data Pipeline
                     </a>
                 </h2>

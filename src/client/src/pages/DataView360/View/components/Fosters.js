@@ -16,12 +16,6 @@ import CollapsibleTable from './CollapsibleTable';
 import DataTableHeader from './DataTableHeader';
 
 
-const customStyles = theme => ({
-    headerCell: {
-        fontWeight: "bold",
-    }
-});
-
 const PET_COUNT = 5;
 
 class Fosters extends Component {
@@ -30,18 +24,13 @@ class Fosters extends Component {
         return petObject;
     }
 
-    getAnimalAge(epochTime) {
-        let dateOfBirth = moment(epochTime * 1000);
-        return moment().diff(dateOfBirth, 'years');
-    }
-
     render() {
-        const { classes } = this.props;
         const numOfPets = _.size(this.props.fosters);
         const latestPets = this.getLatestPets(this.props.fosters);
         const events = this.props.events;
         const headerText = "Foster Records"
         const headerAddition = (numOfPets > PET_COUNT) ? " (Showing " + PET_COUNT + " Pets out of " + numOfPets + ")" : ""
+
         return (
             <Container component={Paper} style={{ "marginTop": "1em" }}>
                 <DataTableHeader
@@ -61,4 +50,4 @@ class Fosters extends Component {
 }
 
 
-export default withStyles(customStyles)(Fosters);
+export default Fosters;

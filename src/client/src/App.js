@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {BrowserRouter as Router, Switch, Route, useHistory, Redirect} from 'react-router-dom';
+import {BrowserRouter as Router, Switch, Route, Redirect} from 'react-router-dom';
 
 import Header, {AdminHeader, LoginHeader} from "./components/Header";
 
@@ -88,8 +88,6 @@ function AuthenticatedApp() {
 
     const hdr = userRole === 'admin' ? <AdminHeader/> : <Header/> // If we're going to display a header, which one?
 
-    const history = useHistory();
-
     return (
         <Router>
 
@@ -163,7 +161,7 @@ function Home() {
     const {user} = useAuthState()
     /*eslint no-unused-vars: ["warn", { "varsIgnorePattern": "access_token" }]*/
     const {access_token, setToken} = useToken();
-    return user ? <AuthenticatedApp/> : <Login setToken={setToken}/>
+    return user ? <AuthenticatedApp /> : <Login setToken={setToken}/>
 }
 
 function App() {

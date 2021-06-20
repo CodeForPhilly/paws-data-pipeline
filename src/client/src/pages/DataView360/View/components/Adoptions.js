@@ -21,9 +21,6 @@ import { showAnimalAge } from '../../../../utils/utils'
 
 
 const customStyles = theme => ({
-    headerCell: {
-        fontWeight: "bold",
-    },
     paper: {
         position: 'absolute',
         width: 400,
@@ -94,7 +91,7 @@ class Adoptions extends Component {
                         </IconButton>
                     </Grid>
                 </DataTableHeader>
-                <TableContainer component={Paper} style={{ "marginBottom": "1em" }}>
+                <TableContainer component={Paper} variant='outlined' style={{ "marginBottom": "1em" }}>
                     <Table>
                         <TableHead>
                             <TableRow>

@@ -22,10 +22,6 @@ import {Alert} from "@material-ui/lab";
 const styles = theme => ({
     root: {
         margin: theme.spacing(2),
-    },
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
     }
 });
 
@@ -150,7 +146,7 @@ class Admin extends Component {
             <div className={classes.root}>
                 <h1>Admin Portal</h1>
                 {this.state.statistics === 'Running' && <Alert severity="info">Execution is in Progress...</Alert>}
-                <Backdrop className={classes.backdrop} open={this.state.isLoading !== false}>
+                <Backdrop open={this.state.isLoading !== false}>
                     <CircularProgress size={60}/>
                 </Backdrop>
                 <Grid container spacing={3} direction="column" style={{padding: 20}}>

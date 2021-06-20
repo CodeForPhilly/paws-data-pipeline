@@ -25,31 +25,17 @@ import Grid from "@material-ui/core/Grid";
 
 
 const customStyles = theme => ({
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
-    },
     table: {
-        minWidth: 700
-    },
-    tableRowEven: {
-        backgroundColor: "#FFFFFF",
         "&:hover": {
             backgroundColor: "#E6F7FF",
             cursor: "pointer"
         }
     },
-    tableRowOdd: {
-        backgroundColor: "#E8E8E8",
-        "&:hover": {
-            backgroundColor: "#CCEEFF",
-            cursor: "pointer"
-        }
+    tableRowEven: {
+        backgroundColor: "#FFFFFF"
     },
-    headerCell: {
-        fontWeight: "bold",
-        minWidth: 60,
-        backgroundColor: "#A9A9A9"
+    tableRowOdd: {
+        backgroundColor: "#E8E8E8"
     },
     container: {
         maxHeight: 600,
@@ -140,13 +126,13 @@ class Search360 extends Component {
                             <Table className={classes.table} size="small" stickyHeader aria-label="sticky table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell align="left" className={classes.headerCell}>Match ID</TableCell>
-                                        <TableCell align="left" className={classes.headerCell}>First Name</TableCell>
-                                        <TableCell align="left" className={classes.headerCell}>Last Name</TableCell>
-                                        <TableCell align="left" className={classes.headerCell}>Email</TableCell>
-                                        <TableCell align="left" className={classes.headerCell}>Mobile</TableCell>
-                                        <TableCell align="left" className={classes.headerCell}>Source</TableCell>
-                                        <TableCell align="left" className={classes.headerCell}>ID in Source</TableCell>
+                                        <TableCell align="left">Match ID</TableCell>
+                                        <TableCell align="left">First Name</TableCell>
+                                        <TableCell align="left">Last Name</TableCell>
+                                        <TableCell align="left">Email</TableCell>
+                                        <TableCell align="left">Mobile</TableCell>
+                                        <TableCell align="left">Source</TableCell>
+                                        <TableCell align="left">ID in Source</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -154,7 +140,7 @@ class Search360 extends Component {
                                         _.map(participantListGrouped, (row_group, index) => {
                                             return _.map(row_group, (row, idx) => {
                                                 return <TableRow key={`${row.source_id}${idx}`}
-                                                                 className={tableRowColors[index % _.size(tableRowColors)]}
+                                                                 className={[classes.table, tableRowColors[index % _.size(tableRowColors)]].join(" ")}
                                                                  onClick={() => this.onRowClick(row.matching_id)}>
                                                     <TableCell align="left">{row.matching_id}</TableCell>
                                                     <TableCell align="left">{row.first_name}</TableCell>
@@ -200,13 +186,11 @@ class Search360 extends Component {
     }
 
     render() {
-        const {classes} = this.props;
-
         return (
             <Container>
                 <Grid container direction={"row"} justify={"center"}>
                     <Grid item style={{"padding": "1em"}}>
-                        <Typography variant={"h4"}>PAWS Contact Search</Typography>
+                        <Typography variant={"h2"}>PAWS Contact Search</Typography>
                     </Grid>
                 </Grid>
                 <SearchBar participant={this.state.participant}
@@ -214,7 +198,7 @@ class Search360 extends Component {
                            handleSearchChange={this.handleSearchChange}/>
 
                 {this.state.isDataBusy === true ?
-                    <Backdrop className={classes.backdrop} open={this.state.isLoading !== false}>
+                    <Backdrop open={this.state.isLoading !== false}>
                         <CircularProgress size={60}/>
                     </Backdrop> :
                     _.isEmpty(this.state.participantTable) !== true &&

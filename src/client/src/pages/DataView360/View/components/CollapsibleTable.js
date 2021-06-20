@@ -16,6 +16,7 @@ import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
 import _ from 'lodash';
 import moment from "moment";
+import {showAnimalAge} from "../../../../utils/utils";
 
 const useRowStyles = makeStyles({
     root: {
@@ -25,15 +26,6 @@ const useRowStyles = makeStyles({
     },
 });
 
-function getAnimalAge(epochTime) {
-    let dateOfBirth = moment(epochTime * 1000);
-    return moment().diff(dateOfBirth, 'years');
-}
-
-function showAnimalAge(epochTime) {
-    const age = getAnimalAge(epochTime)
-    return (age === 1) ? `${age} year` : `${age} years`
-}
 
 function Row(props) {
     const [open, setOpen] = React.useState(false);
@@ -98,7 +90,7 @@ export default function CollapsibleTable(props) {
     let events = props.events;
     const rows = _.values(data)
     return (
-        <TableContainer component={Paper} style={{"marginBottom": "1em"}}>
+        <TableContainer component={Paper} variant='outlined' style={{"marginBottom": "1em"}}>
             <Table aria-label="collapsible table">
                 <TableHead>
                     <TableRow>
