@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
-import './Login.css';
+import {CardContent, Paper, TextField, Typography} from "@material-ui/core";
+import Grid from "@material-ui/core/Grid";
+import Button from "@material-ui/core/Button";
 
 function checkLoginResponse(response) {
     let gotError = !response.ok;
@@ -25,11 +27,10 @@ async function loginUser(credentials) {
 
 }
 
-export default function Login({ setToken }) {
+export default function Login({setToken}) {
     const [username, setUserName] = useState();
     const [password, setPassword] = useState();
-    // eslint-disable-next-line no-unused-vars
-    const [authcode, setAuthCode] = useState();  // For future use
+    //const [authcode, setAuthCode] = useState();  // For future use
 
     const handleSubmit = async e => {
         e.preventDefault();
@@ -41,30 +42,35 @@ export default function Login({ setToken }) {
     }
 
     return (
+        <Grid container direction="column" alignItems="center" spacing={3}>
+            <Grid item>
+                <Typography variant={"h2"}>Please Log In</Typography>
+            </Grid>
+            <Grid item>
+                <Paper style={{width: 500}}>
+                    <CardContent>
+                        <form onSubmit={handleSubmit}>
+                            <Grid item container direction="column" spacing={3}>
+                                <Grid item>
+                                    <TextField fullWidth type="text" label="User Name"
+                                               onChange={e => setUserName(e.target.value)}/>
+                                </Grid>
+                                <Grid item>
+                                    <TextField fullWidth type="password" label="Password"
+                                               onChange={e => setPassword(e.target.value)}/>
+                                </Grid>
+                                <Grid item>
+                                    <Button color="primary" variant="contained" type="submit">Submit</Button>
+                                </Grid>
+                            </Grid>
 
-        <div className="login-wrapper">
-            <h1>Please Log In</h1>
-            <form onSubmit={handleSubmit}>
-                <label>
-                    <p>Username</p>
-                    <input type="text" onChange={e => setUserName(e.target.value)} />
-                </label>
-                <label>
-                    <p>Password</p>
-                    <input type="password" onChange={e => setPassword(e.target.value)} />
-                </label>
-                {/* <label>
-                    <p>Authenticator code</p>
-                    <input type="text" placeholder="IGNORE ME"   onChange={e => setAuthCode(e.target.value)} />
-                </label> */}
-                <div>
-                    <button type="submit">Submit</button>
-                </div> 
-                <div>
-                    <p id="loginErrorMsg"></p>
-                </div>
-            </form>
-        </div>
+                        </form>
+                        <Typography style={{paddingTop: 10, color: 'red'}} id="loginErrorMsg"></Typography>
+                    </CardContent>
+
+                </Paper>
+            </Grid>
+        </Grid>
     )
 }
 

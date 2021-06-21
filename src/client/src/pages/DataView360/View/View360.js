@@ -8,7 +8,7 @@ import {
     Button,
     Grid,
     Backdrop,
-    CircularProgress, 
+    CircularProgress,
     Typography
 } from '@material-ui/core';
 
@@ -20,6 +20,7 @@ import Donations from './components/Donations';
 import AnimalInfo from './components/AnimalInfo';
 import VolunteerActivity from './components/VolunteerActivity';
 import VolunteerHistory from './components/VolunteerHistory';
+import Box from "@material-ui/core/Box";
 
 
 const customStyles = theme => ({
@@ -75,15 +76,15 @@ class View360 extends Component {
 
         for (let id of animalIds) {
             let events = await this.getAnimalEvents(id, this.state.matchId);
-            
-            adoptionEvents[id] = _.filter(events[id], function(e) {
+
+            adoptionEvents[id] = _.filter(events[id], function (e) {
                 return e["Type"] && e["Type"] === "Outcome.Adoption"
             });
-            fosterEvents[id] = _.filter(events[id], function(e) {
+            fosterEvents[id] = _.filter(events[id], function (e) {
                 return e["Type"] && e["Type"].toLowerCase().includes("foster");
             });
         }
-        
+
         this.setState({
             participantData: response.result,
             animalData: animalInfo,
@@ -128,14 +129,13 @@ class View360 extends Component {
 
         return (
             <Container>
+                <Box display="flex" justifyContent="center" pb={3}>
+                    <Typography variant={"h2"}>Person 360 View</Typography>
+                </Box>
                 {(_.isEmpty(this.state.participantData) !== true &&
                     this.state.isDataBusy !== true && (
                         <Paper elevation={1} style={{"padding": "2em"}}>
-                            <Grid container direction={"row"} justify={"center"}>
-                                <Grid item>
-                                    <Typography variant={"h2"}>Person 360 View</Typography>
-                                </Grid>
-                            </Grid>
+
                             <Grid container direction={"row"} spacing={3}>
                                 <Grid item xs={4}>
                                     <Grid className={classes.stickyContainer} container direction={"column"}
@@ -159,9 +159,9 @@ class View360 extends Component {
                                     <Grid container direction="column" style={{"marginTop": "1em"}}>
                                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
                                         <Adoptions pets={_.get(this.state, 'animalData')}
-                                                    events={_.get(this.state, 'adoptionEvents')}
-                                                    headerText={"Adoption Records"}
-                                                    shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
+                                                   events={_.get(this.state, 'adoptionEvents')}
+                                                   headerText={"Adoption Records"}
+                                                   shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
 
                                         />
                                         <AnimalInfo pets={_.get(this.state, 'animalData')}
@@ -169,8 +169,9 @@ class View360 extends Component {
                                                     headerText={"Foster Records"}
                                                     shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
                                         />
-                                        <VolunteerActivity volunteer={this.extractVolunteerActivity()} />
-                                        <VolunteerHistory volunteerShifts={_.get(this.state, 'participantData.shifts')} />
+                                        <VolunteerActivity volunteer={this.extractVolunteerActivity()}/>
+                                        <VolunteerHistory
+                                            volunteerShifts={_.get(this.state, 'participantData.shifts')}/>
                                     </Grid>
                                 </Grid>
                             </Grid>

@@ -8,9 +8,10 @@ const defaultTheme = createMuiTheme({
             contrastText: '#fff',
         },
         secondary: {
-            main: '#f44336',
+            main: '#d9adfa',
             contrastText: '#000',
-        }
+        },
+
     },
     typography: {
         fontFamily: 'Roboto',
@@ -27,10 +28,25 @@ const defaultTheme = createMuiTheme({
             fontSize: '2em',
             fontWeight: 700
         },
+        h4: {
+            fontSize: '1.7em',
+            fontWeight: 700
+        },
+        h5: {
+            fontSize: '1.5em',
+            fontWeight: 700
+        },
+        h6: {
+            fontSize: '1em',
+            fontWeight: 700
+        },
+        subtitle1: {
+            fontSize: '1.5em',
+        },
         button: {
             fontSize: '0.8em',
             fontWeight: 700
-        }
+        },
     }
 });
 

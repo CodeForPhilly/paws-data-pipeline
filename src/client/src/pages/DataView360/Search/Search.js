@@ -18,7 +18,7 @@ import {
     CircularProgress
 } from '@material-ui/core';
 
-import _, { lowerCase } from 'lodash';
+import _, {lowerCase} from 'lodash';
 import SearchBar from './components/SearchBar';
 import {formatPhoneNumber} from "../../../utils/utils";
 import Grid from "@material-ui/core/Grid";
@@ -95,7 +95,7 @@ class Search360 extends Component {
         let last_name = participant.last_name
 
         return {
-            ...participant, 
+            ...participant,
             lower_first_name: lowerCase(first_name),
             lower_last_name: lowerCase(last_name)
         }
@@ -188,11 +188,9 @@ class Search360 extends Component {
     render() {
         return (
             <Container>
-                <Grid container direction={"row"} justify={"center"}>
-                    <Grid item style={{"padding": "1em"}}>
-                        <Typography variant={"h2"}>PAWS Contact Search</Typography>
-                    </Grid>
-                </Grid>
+                <Box display="flex" justifyContent="center" pb={3}>
+                    <Typography variant={"h2"}>PAWS Contact Search</Typography>
+                </Box>
                 <SearchBar participant={this.state.participant}
                            handleParticipantChange={this.onRowClick}
                            handleSearchChange={this.handleSearchChange}/>

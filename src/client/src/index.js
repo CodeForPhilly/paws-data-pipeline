@@ -10,7 +10,7 @@ import defaultTheme from './theme/defaultTheme';
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={defaultTheme}>
-      <App />
+      <App/>
     </ThemeProvider>
   </React.StrictMode>,
   document.getElementById('root')
