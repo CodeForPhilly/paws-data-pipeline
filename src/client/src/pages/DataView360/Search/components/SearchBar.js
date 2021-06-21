@@ -51,7 +51,7 @@ class SearchBar extends Component {
             <form onSubmit={this.handleParticipantSearch}>
                 <Grid container directio={"row"} justify="space-between">
                     <Grid item sm={10}>
-                        <TextField fullWidth
+                        <TextField fullWidth autoFocus
                                    error={this.state.alertMinChars}
                                    helperText={this.state.alertMinChars ? "Requires 3 search characters for first and last name" : ""}
                                    id="participant-search"
