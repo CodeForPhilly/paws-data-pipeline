@@ -47,7 +47,7 @@ def determine_upload_type(file, file_extension, destination_path):
                     current_app.logger.info("  -Uploaded successfully as : " + src_type + '-' + now_date + '.' + file_extension)
                     flash(src_type + " {0} ".format(SUCCESS_MSG), 'info')
     if found_sources == 0:
-        current_app.logger.error("No sources found in upload")
+        current_app.logger.error("\n\n          !!!!!!! No sources found in upload !!!!  \n                Uploaded file " + file.filename + " is probably from wrong report \n          !!!!!!!!!!!")
 
 
 def excel_to_dataframes(xls):
