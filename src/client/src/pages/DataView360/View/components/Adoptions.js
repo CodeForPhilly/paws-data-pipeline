@@ -78,13 +78,12 @@ class Adoptions extends Component {
     }
 
     render() {
-        const { pets, events, headerText } = this.props;
+        const { pets, events, headerText, shelterluvShortId } = this.props;
         const combined = this.combineAnimalAndEvents(pets, events)
-
         const numOfPets = _.size(combined);
         const latestPets = this.getLatestPets(combined);
-
         const headerAddition = (numOfPets > PET_COUNT) ? " (Most Recent " + PET_COUNT + ")" : ""
+        const shelterLuvPersonURL = `https://www.shelterluv.com/phlp-p-${shelterluvShortId}`;
 
         return (
             <Container component={Paper} style={{ "marginTop": "1em" }}>
@@ -93,7 +92,7 @@ class Adoptions extends Component {
                     emojiIcon={<PetsIcon color='primary' fontSize='inherit' />}
                 >
                     <Grid item>
-                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" href={""}>
+                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" href={shelterLuvPersonURL} target="_blank">
                             <LinkIcon />
                         </IconButton>
                     </Grid>

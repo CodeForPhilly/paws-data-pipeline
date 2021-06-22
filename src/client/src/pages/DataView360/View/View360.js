@@ -17,7 +17,7 @@ import moment from 'moment';
 import Adoptions from './components/Adoptions';
 import ContactInfo from './components/ContactInfo';
 import Donations from './components/Donations';
-import AnimalInfo from './components/AnimalInfo';
+import Fosters from './components/Fosters';
 import VolunteerActivity from './components/VolunteerActivity';
 import VolunteerHistory from './components/VolunteerHistory';
 
@@ -70,8 +70,11 @@ class View360 extends Component {
             });
         response = await response.json();
 
-        let animalInfo = await fetch(`/api/person/${this.state.matchId}/animals`);
-        animalInfo = await animalInfo.json()
+        let shelterluvInfo = await fetch(`/api/person/${this.state.matchId}/animals`);
+        shelterluvInfo = await shelterluvInfo.json()
+        const shelterluvShortId = shelterluvInfo["person_details"]["shelterluv_short_id"]
+        let animalInfo = shelterluvInfo["animal_details"]
+        
         const animalIds = _.keys(animalInfo);
 
         let adoptionEvents = {};
@@ -89,7 +92,7 @@ class View360 extends Component {
         }
         
         this.setState({
-            participantData: response.result,
+            participantData: {...response.result, "shelterluvShortId" : shelterluvShortId},
             animalData: animalInfo,
             adoptionEvents: adoptionEvents,
             fosterEvents: fosterEvents,
@@ -165,13 +168,13 @@ class View360 extends Component {
                                         <Adoptions pets={_.get(this.state, 'animalData')}
                                                     events={_.get(this.state, 'adoptionEvents')}
                                                     headerText={"Adoption Records"}
-                                                    shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
+                                                    shelterluvShortId={_.get(this.state, 'participantData.shelterluvShortId')}
 
                                         />
-                                        <AnimalInfo pets={_.get(this.state, 'animalData')}
+                                        <Fosters pets={_.get(this.state, 'animalData')}
                                                     events={_.get(this.state, 'fosterEvents')}
                                                     headerText={"Foster Records"}
-                                                    shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
+                                                    shelterluvShortId={_.get(this.state, 'participantData.shelterluvShortId')}
                                         />
                                         <VolunteerActivity volunteer={this.extractVolunteerActivity()} />
                                         <VolunteerHistory volunteerShifts={_.get(this.state, 'participantData.shifts')} />

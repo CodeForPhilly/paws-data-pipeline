@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
 import {
+    IconButton,
     Paper,
-    Typography,
-    Container,
-    IconButton
+    Table,
+    TableContainer,
+    TableHead,
+    TableBody,
+    TableRow,
+    TableCell,
+    Container
 } from '@material-ui/core';
 import LinkIcon from '@material-ui/icons/Link';
 import { withStyles } from '@material-ui/core/styles';
@@ -12,9 +17,8 @@ import moment from "moment";
 import Grid from "@material-ui/core/Grid";
 import PetsIcon from "@material-ui/icons/Pets";
 
-import CollapsibleTable from './CollapsibleTable';
 import DataTableHeader from './DataTableHeader';
-
+import { showAnimalAge } from '../../../../utils/utils'
 
 const customStyles = theme => ({
     spaceIcon: {
@@ -26,26 +30,55 @@ const customStyles = theme => ({
     }
 });
 
-const PET_COUNT = 5;
+const PET_COUNT = 3;
 
 class Fosters extends Component {
 
-    getLatestPets(petObject) {
-        return petObject;
+    getLatestPets(animals) {
+        const latestPets = _.sortBy(animals, animal => {
+            return animal.Events.Time
+        }).reverse()
+
+        return latestPets.slice(0, PET_COUNT)
     }
 
-    getAnimalAge(epochTime) {
-        let dateOfBirth = moment(epochTime * 1000);
-        return moment().diff(dateOfBirth, 'years');
+    combineAnimalAndEvents(animals, events) {
+        let combined = {}
+        for (const id in animals) {
+            if (_.includes(_.keys(events), id)) {
+                let sortedEvents = _.sortBy(events[id], ['Time'])
+                combined[id] = { ...animals[id], "Events": sortedEvents }
+            }
+        }
+        return combined
+    }
+
+    createRows(data) {
+        const result = _.map(data, (row, index) => {
+            const photo = row.Photos[0]
+            return (
+                <TableRow key={index}>
+                    <TableCell align="center">{row.Name}</TableCell>
+                    <TableCell align="center">{row.Type}</TableCell>
+                    <TableCell align="center">{moment.unix(row.Events[0].Time).format("DD MMM YYYY")}</TableCell>
+                    <TableCell align="center">{moment.unix(row.Events[1].Time).format("DD MMM YYYY")}</TableCell>
+                    <TableCell align="center">{showAnimalAge(row.DOBUnixTime)}</TableCell>
+                    <TableCell align="center">{<img src={photo} alt="animal" style={{ "maxWidth": "100px" }} />}</TableCell>
+                </TableRow>
+            );
+        });
+
+        return result;
     }
 
     render() {
-        const { classes } = this.props;
-        const numOfPets = _.size(this.props.fosters);
-        const latestPets = this.getLatestPets(this.props.fosters);
-        const events = this.props.events;
-        const headerText = "Foster Records"
-        const headerAddition = (numOfPets > PET_COUNT) ? " (Showing " + PET_COUNT + " Pets out of " + numOfPets + ")" : ""
+        const { pets, events, headerText, shelterluvShortId } = this.props;
+        const combined = this.combineAnimalAndEvents(pets, events)
+        const numOfPets = _.size(combined);
+        const latestPets = this.getLatestPets(combined);
+        const headerAddition = (numOfPets > PET_COUNT) ? " (Most Recent " + PET_COUNT + ")" : ""
+        const shelterLuvPersonURL = `https://www.shelterluv.com/phlp-p-${shelterluvShortId}`;
+
         return (
             <Container component={Paper} style={{ "marginTop": "1em" }}>
                 <DataTableHeader
@@ -53,12 +86,28 @@ class Fosters extends Component {
                     emojiIcon={<PetsIcon color='primary' fontSize='inherit' />}
                 >
                     <Grid item>
-                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" component="span">
+                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" href={shelterLuvPersonURL} target="_blank">
                             <LinkIcon />
                         </IconButton>
                     </Grid>
                 </DataTableHeader>
-                <CollapsibleTable data={latestPets} events={events} />
+                <TableContainer component={Paper} style={{ "marginBottom": "1em" }}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell align="center">Name</TableCell>
+                                <TableCell align="center">Animal Type</TableCell>
+                                <TableCell align="center">Start Date</TableCell>
+                                <TableCell align="center">End Date</TableCell>
+                                <TableCell align="center">Age</TableCell>
+                                <TableCell align="center">Photo</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {latestPets && this.createRows(latestPets)}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             </Container>
         );
     }
