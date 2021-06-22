@@ -17,7 +17,7 @@ import moment from 'moment';
 import Adoptions from './components/Adoptions';
 import ContactInfo from './components/ContactInfo';
 import Donations from './components/Donations';
-import AnimalInfo from './components/AnimalInfo';
+import Fosters from './components/Fosters';
 import VolunteerActivity from './components/VolunteerActivity';
 import VolunteerHistory from './components/VolunteerHistory';
 import Box from "@material-ui/core/Box";
@@ -67,8 +67,11 @@ class View360 extends Component {
             });
         response = await response.json();
 
-        let animalInfo = await fetch(`/api/person/${this.state.matchId}/animals`);
-        animalInfo = await animalInfo.json()
+        let shelterluvInfo = await fetch(`/api/person/${this.state.matchId}/animals`);
+        shelterluvInfo = await shelterluvInfo.json()
+        const shelterluvShortId = shelterluvInfo["person_details"]["shelterluv_short_id"]
+        let animalInfo = shelterluvInfo["animal_details"]
+
         const animalIds = _.keys(animalInfo);
 
         let adoptionEvents = {};
@@ -76,17 +79,17 @@ class View360 extends Component {
 
         for (let id of animalIds) {
             let events = await this.getAnimalEvents(id, this.state.matchId);
-
-            adoptionEvents[id] = _.filter(events[id], function (e) {
+            
+            adoptionEvents[id] = _.filter(events[id], function(e) {
                 return e["Type"] && e["Type"] === "Outcome.Adoption"
             });
-            fosterEvents[id] = _.filter(events[id], function (e) {
+            fosterEvents[id] = _.filter(events[id], function(e) {
                 return e["Type"] && e["Type"].toLowerCase().includes("foster");
             });
         }
-
+        
         this.setState({
-            participantData: response.result,
+            participantData: {...response.result, "shelterluvShortId" : shelterluvShortId},
             animalData: animalInfo,
             adoptionEvents: adoptionEvents,
             fosterEvents: fosterEvents,
@@ -159,19 +162,18 @@ class View360 extends Component {
                                     <Grid container direction="column" style={{"marginTop": "1em"}}>
                                         <Donations donations={_.get(this.state, 'participantData.donations')}/>
                                         <Adoptions pets={_.get(this.state, 'animalData')}
-                                                   events={_.get(this.state, 'adoptionEvents')}
-                                                   headerText={"Adoption Records"}
-                                                   shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
+                                                    events={_.get(this.state, 'adoptionEvents')}
+                                                    headerText={"Adoption Records"}
+                                                    shelterluvShortId={_.get(this.state, 'participantData.shelterluvShortId')}
 
                                         />
-                                        <AnimalInfo pets={_.get(this.state, 'animalData')}
+                                        <Fosters pets={_.get(this.state, 'animalData')}
                                                     events={_.get(this.state, 'fosterEvents')}
                                                     headerText={"Foster Records"}
-                                                    shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
+                                                    shelterluvShortId={_.get(this.state, 'participantData.shelterluvShortId')}
                                         />
-                                        <VolunteerActivity volunteer={this.extractVolunteerActivity()}/>
-                                        <VolunteerHistory
-                                            volunteerShifts={_.get(this.state, 'participantData.shifts')}/>
+                                        <VolunteerActivity volunteer={this.extractVolunteerActivity()} />
+                                        <VolunteerHistory volunteerShifts={_.get(this.state, 'participantData.shifts')} />
                                     </Grid>
                                 </Grid>
                             </Grid>

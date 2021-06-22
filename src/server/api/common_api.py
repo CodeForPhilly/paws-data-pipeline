@@ -113,7 +113,10 @@ def get_360(matching_id):
 
 @common_api.route('/api/person/<matching_id>/animals', methods=['GET'])
 def get_animals(matching_id):
-    result = {}
+    result = {
+        "person_details": {}, 
+        "animal_details": {}
+    }
 
     with engine.connect() as connection:
         query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
@@ -124,11 +127,12 @@ def get_animals(matching_id):
             shelterluv_id = row["source_id"]
             person_url = f"http://shelterluv.com/api/v1/people/{shelterluv_id}"
             person_details = requests.get(person_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+            result["person_details"]["shelterluv_short_id"] = person_details["ID"]
             animal_ids = person_details["Animal_ids"]
             for animal_id in animal_ids:
                 animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}"
                 animal_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
-                result[animal_id] = animal_details
+                result["animal_details"][animal_id] = animal_details
 
     return result
 
