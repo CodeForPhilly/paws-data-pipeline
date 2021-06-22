@@ -62,17 +62,11 @@ defaultTheme.overrides = {
             color: '#fff'
         }
     },
-    MuiTableRow: {
-        head: {
-
-        }
-    },
     MuiTableCell: {
         head: {
             fontWeight: "bold"
         }
     },
-
 };
 
 export default defaultTheme;
