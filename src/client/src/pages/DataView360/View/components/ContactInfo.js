@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
-import {Box, Container, Divider, Paper, Typography} from '@material-ui/core';
-import {withStyles} from '@material-ui/core/styles';
+import {Box, Divider, Paper, Typography} from '@material-ui/core';
 import PhoneIcon from '@material-ui/icons/Phone';
 import MailOutlineIcon from '@material-ui/icons/MailOutline';
 import HomeIcon from '@material-ui/icons/Home';
@@ -11,15 +10,6 @@ import Grid from "@material-ui/core/Grid";
 
 
 const SOURCE_TYPES = ["salesforcecontacts", "volgistics", "shelterluvpeople"]
-
-const customStyles = theme => ({
-    spacingRows: {
-        padding: 2
-    },
-    spaceIcon: {
-        marginTop: 2
-    }
-});
 
 
 class ContactInfo extends Component {
@@ -49,62 +39,56 @@ class ContactInfo extends Component {
 
 
     render() {
-        const {classes} = this.props;
-
         let participantArray = _.get(this.props, "participant");
         let participantData = this.populate_participant_data(participantArray);
 
         return (
-            <Paper elevation={2} style={{padding: '1em'}}>
-                <Container className={classes.containerInfo}>
-                    <Grid container direction={'column'}>
-                        <Grid container className={classes.spacingRows} direction={'row'} justify='center'>
-                            <Grid item>
-                                <Typography variant={'h6'}>
-                                    <b>{participantData.first_name + ' ' + participantData.last_name}</b>
-                                </Typography>
-                            </Grid>
-                        </Grid>
+            <Paper elevation={2} style={{padding: '2em'}}>
+                <Grid container direction={'column'} spacing={1}>
+                    <Grid item>
+                        <Box display="flex" justifyContent="center">
+                            <Typography
+                                variant={'h6'}>{participantData.first_name + ' ' + participantData.last_name}
+                            </Typography>
+                        </Box>
                         <Box pb={2}>
                             <Divider/>
                         </Box>
-                        <Grid container className={classes.spacingRows} direction={'row'} spacing={2}>
-                            <Grid item xs={1}>
-                                <PhoneIcon className={classes.spaceIcon} color='primary' fontSize='inherit'/>
-                            </Grid>
-                            <Grid item xs={8}>
-                                <Typography variant={'body2'}>
-                                    {formatPhoneNumber(participantData.mobile)}
-                                </Typography>
-                            </Grid>
+                    </Grid>
+                    <Grid container item direction={'row'} spacing={1} alignItems="center">
+                        <Grid item>
+                            <PhoneIcon color='primary' fontSize='small'/>
                         </Grid>
-                        <Grid container className={classes.spacingRows} direction={'row'} spacing={2}>
-                            <Grid item xs={1}>
-                                <MailOutlineIcon className={classes.spaceIcon} color='primary' fontSize='inherit'/>
-                            </Grid>
-                            <Grid item xs={8}>
-                                <Typography variant={'body2'}>
-                                    {participantData.email}
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                        <Grid container className={classes.spacingRows} direction={'row'} spacing={2}>
-                            <Grid item xs={1}>
-                                <HomeIcon className={classes.spaceIcon} color='primary' fontSize='inherit'/>
-                            </Grid>
-                            <Grid item xs={8}>
-                                <Typography variant={'body2'}>
-                                    {(participantData.street_and_number + ' ' + participantData.city)}
-                                </Typography>
-                            </Grid>
+                        <Grid item>
+                            <Typography variant={'body2'}>{formatPhoneNumber(participantData.mobile)}
+                            </Typography>
                         </Grid>
                     </Grid>
-                </Container>
+                    <Grid container item direction={'row'} spacing={1} alignItems="center">
+                        <Grid item>
+                            <MailOutlineIcon color='primary' fontSize='small'/>
+                        </Grid>
+                        <Grid item>
+                            <Typography variant={'body2'}>
+                                {participantData.email}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                    <Grid container item direction={'row'} spacing={1} alignItems="center">
+                        <Grid item>
+                            <HomeIcon color='primary' fontSize='small'/>
+                        </Grid>
+                        <Grid item>
+                            <Typography variant={'body2'}>
+                                {(participantData.street_and_number + ' ' + participantData.city)}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                </Grid>
 
             </Paper>
         );
     }
 }
 
-
-export default withStyles(customStyles)(ContactInfo);
+export default ContactInfo;

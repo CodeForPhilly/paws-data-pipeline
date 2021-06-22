@@ -11,7 +11,6 @@ import {
     Container
 } from '@material-ui/core';
 import LinkIcon from '@material-ui/icons/Link';
-import { withStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
 import moment from "moment";
 import Grid from "@material-ui/core/Grid";
@@ -19,16 +18,6 @@ import PetsIcon from "@material-ui/icons/Pets";
 
 import DataTableHeader from './DataTableHeader';
 import { showAnimalAge } from '../../../../utils/utils'
-
-const customStyles = theme => ({
-    spaceIcon: {
-        marginTop: 3,
-        marginRight: 3
-    },
-    headerCell: {
-        fontWeight: "bold",
-    }
-});
 
 const PET_COUNT = 3;
 
@@ -114,4 +103,4 @@ class Fosters extends Component {
 }
 
 
-export default withStyles(customStyles)(Fosters);
+export default Fosters;

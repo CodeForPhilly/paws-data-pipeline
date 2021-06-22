@@ -8,7 +8,7 @@ import {
     Button,
     Grid,
     Backdrop,
-    CircularProgress, 
+    CircularProgress,
     Typography
 } from '@material-ui/core';
 
@@ -20,13 +20,10 @@ import Donations from './components/Donations';
 import Fosters from './components/Fosters';
 import VolunteerActivity from './components/VolunteerActivity';
 import VolunteerHistory from './components/VolunteerHistory';
+import Box from "@material-ui/core/Box";
 
 
 const customStyles = theme => ({
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
-    },
     stickyContainer: {
         position: 'sticky',
         top: 100
@@ -74,7 +71,7 @@ class View360 extends Component {
         shelterluvInfo = await shelterluvInfo.json()
         const shelterluvShortId = shelterluvInfo["person_details"]["shelterluv_short_id"]
         let animalInfo = shelterluvInfo["animal_details"]
-        
+
         const animalIds = _.keys(animalInfo);
 
         let adoptionEvents = {};
@@ -135,14 +132,13 @@ class View360 extends Component {
 
         return (
             <Container>
+                <Box display="flex" justifyContent="center" pb={3}>
+                    <Typography variant={"h2"}>Person 360 View</Typography>
+                </Box>
                 {(_.isEmpty(this.state.participantData) !== true &&
                     this.state.isDataBusy !== true && (
                         <Paper elevation={1} style={{"padding": "2em"}}>
-                            <Grid container direction={"row"} justify={"center"}>
-                                <Grid item>
-                                    <Typography variant={"h4"}>Person 360 View</Typography>
-                                </Grid>
-                            </Grid>
+
                             <Grid container direction={"row"} spacing={3}>
                                 <Grid item xs={4}>
                                     <Grid className={classes.stickyContainer} container direction={"column"}
@@ -183,7 +179,7 @@ class View360 extends Component {
                             </Grid>
                         </Paper>))}
                 {this.state.isDataBusy === true && (
-                    <Backdrop className={classes.backdrop} open={this.state.isLoading !== false}>
+                    <Backdrop open={this.state.isLoading !== false}>
                         <CircularProgress size={60}/>
                     </Backdrop>
                 )}

@@ -9,21 +9,11 @@ import {
     TableCell,
     Container,
 } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
 import moment from 'moment';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import DataTableHeader from './DataTableHeader';
 
-const customStyles = theme => ({
-    spaceIcon: {
-        marginTop: 3,
-        marginRight: 3
-    },
-    headerCell: {
-        fontWeight: "bold"
-    },
-});
 
 const SHIFTS_TO_SHOW = 3;
 
@@ -50,7 +40,6 @@ class VolunteerHistory extends Component {
     }
 
     render() {
-        const {classes} = this.props;
 
         return (
             <React.Fragment>
@@ -62,8 +51,8 @@ class VolunteerHistory extends Component {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell className={classes.headerCell}>Date</TableCell>
-                                    <TableCell className={classes.headerCell}>Assignment</TableCell>
+                                    <TableCell>Date</TableCell>
+                                    <TableCell>Assignment</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -78,4 +67,4 @@ class VolunteerHistory extends Component {
 }
 
 
-export default withStyles(customStyles)(VolunteerHistory);
+export default VolunteerHistory;
