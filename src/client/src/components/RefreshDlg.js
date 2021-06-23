@@ -10,24 +10,11 @@ import useToken from '../pages/Login/useToken';
 
 import Refresh from './Refresh';
 import defaultTheme from "../theme/defaultTheme";
-import makeStyles from "@material-ui/core/styles/makeStyles";
-import {Container} from "@material-ui/core";
-import Box from "@material-ui/core/Box";
-
-
-const useStyles = makeStyles({
-    root: {
-        zIndex: defaultTheme.zIndex.drawer + 2,
-        color: '#fff'
-    }
-
-});
 
 
 export default function RefreshDlg(props) {
     const [open, setOpen] = React.useState(props.shouldOpen);
     const {access_token} = useToken();  // We want to use the passed-in top-level setToken
-    const classes = useStyles();
 
     const handleClose = async (shouldRefresh) => {
         // Could be closed with Yes, No, outclick (which equals No)
@@ -66,11 +53,8 @@ export default function RefreshDlg(props) {
                             autoFocus>
                         Yes
                     </Button>
-
                 </DialogActions>
-
             </Dialog>
         </div>
-
     );
 }
