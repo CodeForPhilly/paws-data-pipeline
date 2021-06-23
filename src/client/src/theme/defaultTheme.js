@@ -63,14 +63,6 @@ defaultTheme.overrides = {
         }
 
     },
-    MuiDialog: {
-        MuiBackdrop: {
-            root: {
-                zIndex: 0,
-                color: '#fff',
-            }
-        }
-    },
     MuiTableCell: {
         head: {
             fontWeight: "bold"
