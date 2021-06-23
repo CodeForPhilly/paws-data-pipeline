@@ -61,7 +61,6 @@ defaultTheme.overrides = {
             zIndex: defaultTheme.zIndex.drawer + 1,
             color: '#fff',
         }
-
     },
     MuiTableCell: {
         head: {
