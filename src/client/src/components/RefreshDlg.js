@@ -46,10 +46,10 @@ export default function RefreshDlg(props) {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button color={"secondary"} variant="outlined" onClick={() => handleClose(false)} color="primary">
+                    <Button variant="outlined" onClick={() => handleClose(false)} color="primary">
                         No
                     </Button>
-                    <Button color={"primary"} variant="contained" onClick={() => handleClose(true)} color="primary"
+                    <Button variant="contained" onClick={() => handleClose(true)} color="primary"
                             autoFocus>
                         Yes
                     </Button>
