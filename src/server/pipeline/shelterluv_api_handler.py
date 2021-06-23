@@ -17,7 +17,6 @@ except ImportError:
         print("Couldn't get secrets from file or environment")
 
 
-
 def write_csv(json_data):
     result = open(RAW_DATA_PATH + "shelterluv_people.csv", "w")
 
