@@ -59,7 +59,16 @@ defaultTheme.overrides = {
     MuiBackdrop: {
         root: {
             zIndex: defaultTheme.zIndex.drawer + 1,
-            color: '#fff'
+            color: '#fff',
+        }
+
+    },
+    MuiDialog: {
+        MuiBackdrop: {
+            root: {
+                zIndex: 0,
+                color: '#fff',
+            }
         }
     },
     MuiTableCell: {
