@@ -1,9 +1,14 @@
 from openpyxl import load_workbook
 from jellyfish import jaro_similarity
-from sqlalchemy import  insert,  Table,  MetaData
-from sqlalchemy.orm import Session, sessionmaker
 
-from config import engine
+from config import  engine
+
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy import  insert,  Table,  Column, MetaData, exc
+
+metadata = MetaData()
+
+
 
 MINIMUM_SIMILARITY = 0.85  # How good does the table match need to be?
 
@@ -22,7 +27,7 @@ expected_columns =  {'Recurring donor' : 'recurring_donor',        # 'Export XLS
                     'Age': None,
                     'Close Date': 'close_date', 
                     'Created Date': None, 
-                    'Type': None, 
+                    'Type': 'donation_type', 
                     'Primary Campaign Source': 'primary_campaign_source' ,
                     'Source': None }
                     
@@ -32,7 +37,7 @@ def validate_import_sfd(filename):
         If so, insert the data into the salseforcedonations table. 
     """
 
-    print('******************** Loading ' + filename)
+    print('******************** Loading ' + filename.filename )
     wb = load_workbook(filename)   #  ,read_only=True should be faster but gets size incorrect 
     ws = wb.active
     # ws.reset_dimensions()   # Tells openpyxl to ignore what sheet says and check for itself
@@ -64,7 +69,7 @@ def validate_import_sfd(filename):
         
         Session = sessionmaker(engine) 
         session =  Session()   
-        sfd  = Table("salesforcedonations", Metadata(), autoload=True, autoload_with=engine)
+        sfd  = Table("salesforcedonations", metadata, autoload=True, autoload_with=engine)
 
         seen_header = False  # Used to skip header row
 
@@ -83,7 +88,10 @@ def validate_import_sfd(filename):
                     # Finally ready to insert row into the table
                     # 
                     stmt = insert(sfd).values(zrow).execution_options(synchronize_session="fetch")
-                    result = session.execute(stmt)
+                    try:
+                        result = session.execute(stmt)
+                    except exc.IntegrityError as e:
+                        print(e)
 
                     session.commit()   # If performance is bad, we may need to batch
 
