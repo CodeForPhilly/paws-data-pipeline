@@ -83,17 +83,19 @@ def validate_import_sfd(filename):
                 except KeyError:
                     pass 
 
-                if zrow['primary_contact'] != 'Missing First Name Missing Last Name' : # No reason to import that
+                #    if zrow['primary_contact'] != 'Missing First Name Missing Last Name' : # No reason to import these, but it's not going to hurt anything
+                if zrow['amount'] == None:  # We get some with no value, probably user error
+                    zrow['amount'] = 0.0    # Setting bad amounts to 0 as per KF
 
-                    # Finally ready to insert row into the table
-                    # 
-                    stmt = insert(sfd).values(zrow).execution_options(synchronize_session="fetch")
-                    try:
-                        result = session.execute(stmt)
-                    except exc.IntegrityError as e:
-                        print(e)
+                # Finally ready to insert row into the table
+                # 
+                stmt = insert(sfd).values(zrow).execution_options(synchronize_session="fetch")
+                try:
+                    result = session.execute(stmt)
+                except exc.IntegrityError as e:
+                    print(e)
 
-                    session.commit()   # If performance is bad, we may need to batch
+                session.commit()   # If performance is bad, we may need to batch
 
 
             else:  # Haven't seen header, so this was first row.
