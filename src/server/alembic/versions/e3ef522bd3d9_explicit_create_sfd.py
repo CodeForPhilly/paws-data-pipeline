@@ -20,6 +20,7 @@ def upgrade():
     op.create_table (
         "salesforcedonations",
         sa.Column("_id", sa.Integer, primary_key=True),
+        sa.Column("opp_id", sa.String(), nullable=False),
         sa.Column("recurring_donor", sa.Boolean,  nullable=False),
         sa.Column("primary_contact", sa.String(), nullable=False),
         sa.Column("contact_id", sa.String(), nullable=False),
@@ -29,10 +30,12 @@ def upgrade():
         sa.Column("primary_campaign_source", sa.String(),nullable=False)
     )
 
-    op.execute("""CREATE INDEX salesforcedonations_contact_id_idx 
+    op.execute("""CREATE  INDEX sfd_contact_id_idx 
                     ON public.salesforcedonations USING btree (contact_id);"""
                     )
-
+    op.execute("""CREATE  UNIQUE INDEX sfd_unique_donation 
+                   ON public.salesforcedonations
+                    USING btree ( opp_id, contact_id, close_date, amount )""")
 
 def downgrade():
     op.drop_table("salesforcedonations")
