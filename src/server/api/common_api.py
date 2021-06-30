@@ -79,7 +79,7 @@ def get_360(matching_id):
             if row["source_type"] == "salesforcecontacts":
                 donations_query = text("""select cast (close_date as text), amount, type,  primary_campaign_source 
                                         from salesforcedonations
-                                        where contact_id like :salesforcecontacts_id""")
+                                        where contact_id = :salesforcecontacts_id""")
                 salesforce_contacts_query_result = connection.execute(donations_query,
                                                                       salesforcecontacts_id=row["source_id"] + "%")
                 salesforce_donations_results = [dict(row) for row in salesforce_contacts_query_result]
