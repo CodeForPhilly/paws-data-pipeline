@@ -81,7 +81,7 @@ def get_360(matching_id):
                                         from salesforcedonations
                                         where contact_id = :salesforcecontacts_id""")
                 salesforce_contacts_query_result = connection.execute(donations_query,
-                                                                      salesforcecontacts_id=row["source_id"] + "%")
+                                                                      salesforcecontacts_id=row["source_id"])
                 salesforce_donations_results = [dict(row) for row in salesforce_contacts_query_result]
                 result['donations'] = salesforce_donations_results
 
