@@ -1,3 +1,5 @@
+import re
+
 from openpyxl import load_workbook
 from jellyfish import jaro_similarity
 
@@ -83,19 +85,33 @@ def validate_import_sfd(filename):
                 except KeyError:
                     pass 
 
-                #    if zrow['primary_contact'] != 'Missing First Name Missing Last Name' : # No reason to import these, but it's not going to hurt anything
+                #  Cleanup time!  Many older imports have... peculiarities 
                 if zrow['amount'] == None:  # We get some with no value, probably user error
                     zrow['amount'] = 0.0    # Setting bad amounts to 0 as per KF
 
-                # Finally ready to insert row into the table
-                # 
-                stmt = insert(sfd).values(zrow).execution_options(synchronize_session="fetch")
-                try:
-                    result = session.execute(stmt)
-                except exc.IntegrityError as e:
-                    print(e)
+                if zrow['recurring_donor'] == '=FALSE()' :
+                    zrow['recurring_donor'] = False
 
-                session.commit()   # If performance is bad, we may need to batch
+                if zrow['recurring_donor'] == '=TRUE()' :
+                    zrow['recurring_donor'] = True
+
+                #  End cleanup 
+
+                if zrow['contact_id'] :  # No point in importing if there's nothing to match
+                    # Finally ready to insert row into the table
+                    # 
+                    stmt = insert(sfd).values(zrow).execution_options(synchronize_session="fetch")
+                    try:
+                        result = session.execute(stmt)
+                    except exc.IntegrityError as e:  # Catch-all for several more specific exceptions
+                        if  re.match('duplicate key value', str(e.orig) ):
+                            pass
+                        else:
+                             print(e)
+                    except Exception as e: 
+                        print(e)
+
+                    session.commit()   # If performance is bad, we may need to batch
 
 
             else:  # Haven't seen header, so this was first row.
