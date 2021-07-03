@@ -1,4 +1,5 @@
 import re
+from flask.globals import current_app
 
 from openpyxl import load_workbook
 from jellyfish import jaro_similarity
@@ -75,8 +76,18 @@ def validate_import_sfd(filename):
 
         seen_header = False  # Used to skip header row
 
+        # Stats for import
+        dupes = 0
+        other_integrity = 0
+        other_exceptions = 0
+        row_count = 0
+        missing_contact_id = 0
+
         for row in ws.values:        
             if seen_header: 
+                row_count += 1
+                if row_count % 1000 == 0:
+                    current_app.logger.info("Row: " + str(row_count) )
                 zrow = dict(zip(expected_columns.values(), row))  
                 # zrow is a dict of db_col:value pairs, with at most one key being None (as it overwrote any previous)
                 # We need to remove the None item, if it exists
@@ -105,19 +116,26 @@ def validate_import_sfd(filename):
                         result = session.execute(stmt)
                     except exc.IntegrityError as e:  # Catch-all for several more specific exceptions
                         if  re.match('duplicate key value', str(e.orig) ):
+                            dupes += 1
                             pass
                         else:
-                             print(e)
+                            other_integrity += 1
+                            print(e)
                     except Exception as e: 
+                        other_exceptions += 1
                         print(e)
 
                     session.commit()   # If performance is bad, we may need to batch
+                else: # Missing contact_id
+                    missing_contact_id += 1
 
 
             else:  # Haven't seen header, so this was first row.
                 seen_header = True
 
-
+        current_app.logger.info("---------------------------------   Stats -------------------------------------------------")
+        current_app.logger.info("Total rows: " + str(row_count) + " Dupes: " + str(dupes) + " Missing contact_id: " + str(missing_contact_id) )
+        current_app.logger.info("Other integrity exceptions: " + str(other_integrity) + " Other excptions: " + str(other_exceptions) )
         session.close()
         wb.close()
         return { True : "File imported" }
