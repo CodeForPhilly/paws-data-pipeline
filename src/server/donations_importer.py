@@ -8,7 +8,7 @@ from config import  engine
 
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy import  insert,  Table,  Column, MetaData, exc
-
+from sqlalchemy.dialects.postgresql import Insert
 metadata = MetaData()
 
 
@@ -40,7 +40,7 @@ def validate_import_sfd(filename):
         If so, insert the data into the salseforcedonations table. 
     """
 
-    print('******************** Loading ' + filename.filename )
+    current_app.logger.info('---------------------- Loading ' + filename.filename  + '------------------------')
     wb = load_workbook(filename)   #  ,read_only=True should be faster but gets size incorrect 
     ws = wb.active
     # ws.reset_dimensions()   # Tells openpyxl to ignore what sheet says and check for itself
@@ -49,6 +49,7 @@ def validate_import_sfd(filename):
     columns = ws.max_column
     if columns > 26:
         print("Sorry, I only handle A-Z columns") # TODO: Handle AA, AB, usw...
+        current_app.logger.warning("Column count > 26; columns after Z not processed")
         columns = 26
 
     header = [cell.value for cell in ws[1]]
@@ -63,7 +64,6 @@ def validate_import_sfd(filename):
             min_column = expected + ' / ' + got
     
     
-
     print("Minimum similarity: {:.2}".format(min_similarity) )
     if min_column:
         print("On expected/got: ", min_column)
@@ -111,9 +111,14 @@ def validate_import_sfd(filename):
                 if zrow['contact_id'] :  # No point in importing if there's nothing to match
                     # Finally ready to insert row into the table
                     # 
-                    stmt = insert(sfd).values(zrow).execution_options(synchronize_session="fetch")
+
+                    stmt = Insert(sfd).values(zrow)
+
+                    skip_dupes = stmt.on_conflict_do_nothing(
+                        constraint='uq_donation'
+                       )
                     try:
-                        result = session.execute(stmt)
+                        result = session.execute(skip_dupes)
                     except exc.IntegrityError as e:  # Catch-all for several more specific exceptions
                         if  re.match('duplicate key value', str(e.orig) ):
                             dupes += 1
@@ -124,8 +129,7 @@ def validate_import_sfd(filename):
                     except Exception as e: 
                         other_exceptions += 1
                         print(e)
-
-                    session.commit()   # If performance is bad, we may need to batch
+                 
                 else: # Missing contact_id
                     missing_contact_id += 1
 
@@ -133,17 +137,20 @@ def validate_import_sfd(filename):
             else:  # Haven't seen header, so this was first row.
                 seen_header = True
 
-        current_app.logger.info("---------------------------------   Stats -------------------------------------------------")
+        session.commit()   # Commit all inserted rows
+
+        current_app.logger.info("---------------------------------   Stats  -------------------------------------------------")
         current_app.logger.info("Total rows: " + str(row_count) + " Dupes: " + str(dupes) + " Missing contact_id: " + str(missing_contact_id) )
-        current_app.logger.info("Other integrity exceptions: " + str(other_integrity) + " Other excptions: " + str(other_exceptions) )
+        current_app.logger.info("Other integrity exceptions: " + str(other_integrity) + " Other exceptions: " + str(other_exceptions) )
         session.close()
         wb.close()
         return { True : "File imported" }
 
     else:  # Similarity too low 
         wb.close()
+        current_app.logger.warning("\n                    !!!!!!!!!!!!!!!!!!!!!! Similarity value of {:.2}".format(min_similarity) +\
+                                     " is below threshold of " + str(MINIMUM_SIMILARITY) + " so file was not processed !!!!!!\n")  
         return {False : "Similarity to expected column names below threshold"}
-
 
 
 
