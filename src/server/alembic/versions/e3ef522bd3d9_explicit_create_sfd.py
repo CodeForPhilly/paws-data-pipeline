@@ -33,9 +33,9 @@ def upgrade():
     op.execute("""CREATE  INDEX sfd_contact_id_idx 
                     ON public.salesforcedonations USING btree (contact_id);"""
                     )
-    op.execute("""CREATE  UNIQUE INDEX sfd_unique_donation 
-                   ON public.salesforcedonations
-                    USING btree ( opp_id, contact_id, close_date, amount )""")
+
+    op.create_unique_constraint( "uq_donation", "salesforcedonations",  ["opp_id", "contact_id", "close_date", "amount"] ) 
+
 
 def downgrade():
     op.drop_table("salesforcedonations")
