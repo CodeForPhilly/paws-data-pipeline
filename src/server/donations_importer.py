@@ -152,21 +152,3 @@ def validate_import_sfd(filename):
                                      " is below threshold of " + str(MINIMUM_SIMILARITY) + " so file was not processed !!!!!!\n")  
         return {False : "Similarity to expected column names below threshold"}
 
-
-
-
-
-if __name__ == "__main__":
-
-    path = "C:\\Dropbox\\PAWS PDP\\latest raw data\\"
-    filenames = [   
-                "Salesforce_PAWS Donation_9_1_2020_TO_6_10_2021_unedited.xlsx",
-                "Salesforce_PAWS Donation_3_29_2021_TO_6_1_2021.xlsx",
-                "Salesforce_PAWS Donation_9_1_2020_TO_3_30_2021.xlsx",
-                "Salesforce_PAWS Donation (all Time) (excel).xlsx", 
-                "Copy_of_Salesforce_PAWS Donation (all Time) 2021-06-15.xlsx",
-                "Salesforce_PAWS Donation (all Time) 2021-06-15.xlsx"
-                ]
-
-
-    validate_import_sfd(path + filenames[0])
