@@ -17,15 +17,14 @@ depends_on = None
 
 
 def upgrade():
-   def upgrade():
     op.create_table (
         "volgisticsshifts",
         sa.Column("_id", sa.Integer, primary_key=True),
         sa.Column("volg_id", sa.Integer, nullable=False),
         sa.Column("assignment", sa.String(), nullable=True),
+        sa.Column("site", sa.String(), nullable=True),      
         sa.Column("from_date",  sa.Date, nullable=False),
-        sa.Column("hours",  sa.DECIMAL, nullable=False),
-
+        sa.Column("hours",  sa.DECIMAL, nullable=False)
     )
 
     op.execute("""CREATE  INDEX vs_volg_id_idx 
