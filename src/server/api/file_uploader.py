@@ -12,6 +12,7 @@ from datasource_manager import DATASOURCE_MAPPING
 from openpyxl import load_workbook
 from tempfile import NamedTemporaryFile
 from donations_importer import validate_import_sfd
+from shifts_importer import validate_import_vs
 SUCCESS_MSG = 'Uploaded Successfully!'
 lock = threading.Lock()
 
@@ -36,7 +37,12 @@ def determine_upload_type(file, file_extension, destination_path):
             validate_import_sfd(file)
             return
         else:
-            dfs = excel_to_dataframes(file) #crs
+            match = re.search('volunteer', file.filename, re.I)
+            if match:
+                validate_import_vs(file)
+                return
+            else:
+                dfs = excel_to_dataframes(file) #crs
   
 
     found_sources = 0

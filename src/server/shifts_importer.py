@@ -16,7 +16,7 @@ MINIMUM_SIMILARITY = 0.85  # How good does the table match need to be?
 
 expected_columns =  {
             'Number' : 'volg_id',
-            'Site' : None,
+            'Site' : 'site',
             'Place' : None,
             'Assignment' : 'assignment',
             'From date' : 'from_date',
@@ -37,6 +37,99 @@ def validate_import_vs(filename):
 
     current_app.logger.info('---------------------- Loading ' + filename.filename  + '------------------------')
     wb = load_workbook(filename)   #  ,read_only=True should be faster but gets size incorrect 
-    ws = wb.active   # Needs to be 'Service' sheet
+    ws = wb['Service']   # Needs to be 'Service' sheet
     # ws.reset_dimensions()   # Tells openpyxl to ignore what sheet says and check for itself
     ws.calculate_dimension()
+
+    columns = ws.max_column
+    if columns > 26:
+        print("Sorry, I only handle A-Z columns") # TODO: Handle AA, AB, usw...
+        current_app.logger.warning("Column count > 26; columns after Z not processed")
+        columns = 26
+
+    header = [cell.value for cell in ws[1]]
+
+    min_similarity = 1.0
+    min_column = None
+
+    for expected, got in zip(expected_columns.keys(), header):
+        jsim = jaro_similarity(expected, got) 
+        if jsim < min_similarity :
+            min_similarity = jsim
+            min_column = expected + ' / ' + got
+
+        
+    print("Minimum similarity: {:.2}".format(min_similarity) )
+    if min_column:
+        print("On expected/got: ", min_column)
+
+
+    if  min_similarity >= MINIMUM_SIMILARITY :  # Good enough to trust
+        
+        Session = sessionmaker(engine) 
+        session =  Session()   
+        vs  = Table("volgisticsshifts", metadata, autoload=True, autoload_with=engine)
+
+        seen_header = False  # Used to skip header row
+
+        # Stats for import
+        dupes = 0
+        other_integrity = 0
+        other_exceptions = 0
+        row_count = 0
+        missing_volgistics_id = 0
+
+        for row in ws.values:        
+            if seen_header: 
+                row_count += 1
+                if row_count % 1000 == 0:
+                    current_app.logger.info("Row: " + str(row_count) )
+                zrow = dict(zip(expected_columns.values(), row))  
+                # zrow is a dict of db_col:value pairs, with at most one key being None (as it overwrote any previous)
+                # We need to remove the None item, if it exists
+                try:
+                    del zrow[None]
+                except KeyError:
+                    pass 
+
+                #  Cleanup time!  Many older imports have... peculiarities 
+
+                #  End cleanup 
+
+                if zrow['volg_id'] :  # No point in importing if there's nothing to match
+                    # Finally ready to insert row into the table
+                    # 
+
+                    stmt = Insert(vs).values(zrow)
+
+                    skip_dupes = stmt.on_conflict_do_nothing(
+                        constraint='uq_shift'
+                       )
+                    try:
+                        result = session.execute(skip_dupes)
+                    except exc.IntegrityError as e:  # Catch-all for several more specific exceptions
+                        if  re.match('duplicate key value', str(e.orig) ):
+                            dupes += 1
+                            pass
+                        else:
+                            other_integrity += 1
+                            print(e)
+                    except Exception as e: 
+                        other_exceptions += 1
+                        print(e)
+                 
+                else: # Missing contact_id
+                    missing_volgistics_id += 1
+
+
+            else:  # Haven't seen header, so this was first row.
+                seen_header = True
+
+        session.commit()   # Commit all inserted rows
+
+        current_app.logger.info("---------------------------------   Stats  -------------------------------------------------")
+        current_app.logger.info("Total rows: " + str(row_count) + " Dupes: " + str(dupes) + " Missing volgistics id: " + str(missing_volgistics_id) )
+        current_app.logger.info("Other integrity exceptions: " + str(other_integrity) + " Other exceptions: " + str(other_exceptions) )
+        session.close()
+        wb.close()
+        return { True : "File imported" }
