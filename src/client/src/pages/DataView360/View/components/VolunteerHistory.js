@@ -22,15 +22,15 @@ class VolunteerHistory extends Component {
     createShiftRows(shifts) {
         const shiftsFiltered = _.filter(shifts, function(s) { return s.from !== "Invalid date"});
         const shiftsSorted = _.sortBy(shiftsFiltered, shift => {
-            return new moment(shift.from).format("YYYY-MM-DD");
+            return new moment(shift.from_date).format("YYYY-MM-DD");
         }).reverse();
 
         const lastShifts = shiftsSorted.slice(0, SHIFTS_TO_SHOW)
         
         const result = _.map(lastShifts, (shift, index) => {
-            shift.from = moment(shift.from).format("YYYY-MM-DD")
+            shift.from_date = moment.utc(shift.from_date).format("YYYY-MM-DD")
             return(<TableRow key={index}>
-                    <TableCell>{shift.from}</TableCell>
+                    <TableCell>{shift.from_date}</TableCell>
                     <TableCell>{shift.assignment}</TableCell>
                 </TableRow>);
 
