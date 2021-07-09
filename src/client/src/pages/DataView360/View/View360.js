@@ -17,7 +17,7 @@ import moment from 'moment';
 import Adoptions from './components/Adoptions';
 import ContactInfo from './components/ContactInfo';
 import Donations from './components/Donations';
-import Fosters from './components/Fosters';
+// import Fosters from './components/Fosters';
 import VolunteerActivity from './components/VolunteerActivity';
 import VolunteerHistory from './components/VolunteerHistory';
 import Box from "@material-ui/core/Box";
@@ -167,11 +167,11 @@ class View360 extends Component {
                                                     shelterluvShortId={_.get(this.state, 'participantData.shelterluvShortId')}
 
                                         />
-                                        <Fosters pets={_.get(this.state, 'animalData')}
+                                        {/* <Fosters pets={_.get(this.state, 'animalData')}
                                                     events={_.get(this.state, 'fosterEvents')}
                                                     headerText={"Foster Records"}
                                                     shelterluvShortId={_.get(this.state, 'participantData.shelterluvShortId')}
-                                        />
+                                        /> */}
                                         <VolunteerActivity volunteer={this.extractVolunteerActivity()} />
                                         <VolunteerHistory volunteerShifts={_.get(this.state, 'participantData.shifts')} />
                                     </Grid>
