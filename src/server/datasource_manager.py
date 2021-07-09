@@ -15,12 +15,12 @@ CSV_HEADERS = {
     'salesforcecontacts': ['Contact ID 18', 'First Name', 'Last Name', 'Mailing Street', 'Mailing City',
                            'Mailing State/Province', 'Mailing Zip/Postal Code', 'Mailing Country', 'Phone', 'Mobile',
                            'Email', 'Account ID 18', 'Volgistics ID', 'Person ID'],
-    'volgisticsshifts': ['Number', 'Place', 'Assignment', 'From date', 'To date', 'Hours'],
-    'salesforcedonations': ['Recurring donor', 'Opportunity Owner', 'Account Name', 'Opportunity ID (18 Digit)',
-                            'Account ID (18 digit)',
-                            'Opportunity Name', 'Stage', 'Fiscal Period', 'Amount', 'Probability (%)', 'Age',
-                            'Close Date', 'Created Date', 'Type', 'Primary Campaign Source',
-                            'Source', 'Contact ID (18 Digit)', 'Primary Contact'],
+    # 'volgisticsshifts': ['Number', 'Place', 'Assignment', 'From date', 'To date', 'Hours'],
+    # 'salesforcedonations': ['Recurring donor', 'Opportunity Owner', 'Account Name', 'Opportunity ID (18 Digit)',
+    #                         'Account ID (18 digit)',
+    #                         'Opportunity Name', 'Stage', 'Fiscal Period', 'Amount', 'Probability (%)', 'Age',
+    #                         'Close Date', 'Created Date', 'Type', 'Primary Campaign Source',
+    #                         'Source', 'Contact ID (18 Digit)', 'Primary Contact'],
     'manualmatches': ['salesforcecontacts', 'volgistics', 'shelterluvpeople']
 }
 
@@ -50,23 +50,23 @@ DATASOURCE_MAPPING = {
         '_table_name': ['Firstname'.lower(), 'Lastname'.lower()],
         'should_drop_first_column': False
     },
-    'volgisticsshifts': {
-        'id': 'number',
-        'csv_names': CSV_HEADERS['volgisticsshifts'],
-        'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['volgisticsshifts'])),
-        'table_email': None,
-        '_table_name': None,
-        'sheetname': 'Service',
-        'should_drop_first_column': False
-    },
-    'salesforcedonations': {
-        'id': 'contact_id',
-        'csv_names': CSV_HEADERS['salesforcedonations'],
-        'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['salesforcedonations'])),
-        'table_email': None,
-        '_table_name': None,
-        'should_drop_first_column': True
-    }
+    # 'volgisticsshifts': {
+    #     'id': 'number',
+    #     'csv_names': CSV_HEADERS['volgisticsshifts'],
+    #     'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['volgisticsshifts'])),
+    #     'table_email': None,
+    #     '_table_name': None,
+    #     'sheetname': 'Service',
+    #     'should_drop_first_column': False
+    # },
+    # 'salesforcedonations': {
+    #     'id': 'contact_id',
+    #     'csv_names': CSV_HEADERS['salesforcedonations'],
+    #     'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['salesforcedonations'])),
+    #     'table_email': None,
+    #     '_table_name': None,
+    #     'should_drop_first_column': True
+    # }
 }
 
 
@@ -115,12 +115,12 @@ SOURCE_NORMALIZATION_MAPPING = {
         }
 
     },
-    "salesforcedonations": {
-        "parent": "salesforcecontacts",
-        "others": {
-            "should_drop_first_column": True
-        }
-    },
+    # "salesforcedonations": {
+    #     "parent": "salesforcecontacts",
+    #     "others": {
+    #         "should_drop_first_column": True
+    #     }
+    # },
     "shelterluvpeople": {
         "source_id": "internal-id",
         "first_name": "firstname",
@@ -151,10 +151,10 @@ SOURCE_NORMALIZATION_MAPPING = {
             "should_drop_first_column": True
         }
     },
-    "volgisticsshifts": {
-        "parent": "volgistics",
-        "others": {
-            "should_drop_first_column": True
-        }
-    }
+    # "volgisticsshifts": {
+    #     "parent": "volgistics",
+    #     "others": {
+    #         "should_drop_first_column": True
+    #     }
+    # }
 }
