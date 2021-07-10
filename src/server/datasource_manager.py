@@ -120,12 +120,12 @@ SOURCE_NORMALIZATION_MAPPING = {
         }
 
     },
-    # "salesforcedonations": {
-    #     "parent": "salesforcecontacts",
-    #     "others": {
-    #         "should_drop_first_column": True
-    #     }
-    # },
+    "salesforcedonations": {
+        "parent": "salesforcecontacts",
+        "others": {
+            "should_drop_first_column": True
+        }
+    },
     "shelterluvpeople": {
         "source_id": "internal-id",
         "first_name": "firstname",
@@ -156,10 +156,10 @@ SOURCE_NORMALIZATION_MAPPING = {
             "should_drop_first_column": True
         }
     },
-    # "volgisticsshifts": {
-    #     "parent": "volgistics",
-    #     "others": {
-    #         "should_drop_first_column": True
-    #     }
-    # }
+    "volgisticsshifts": {
+        "parent": "volgistics",
+        "others": {
+            "should_drop_first_column": True
+        }
+    }
 }
