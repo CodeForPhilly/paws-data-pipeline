@@ -166,3 +166,43 @@ def get_person_animal_events(matching_id, animal_id):
             result[animal_id] = events
 
     return result
+
+@common_api.route('/api/person/<matching_id>/support', methods=['GET'])
+def get_support_oview(matching_id):
+
+    sov_queries = """
+                    (SELECT 
+
+                        max(amount) as largest_gift, 
+                        min(close_date) as first_donation_date,
+                        sum(amount) as total_giving,
+                        count(amount) as number_of_gifts
+
+                    FROM
+                        salesforcedonations as sfd
+                        
+                    WHERE
+                    contact_id = '0033900002A04BCAAZ')  ;
+
+                    (
+                    SELECT 
+                        amount as first_gift_amount 
+                    FROM
+                        salesforcedonations as sfd
+                        
+                    WHERE
+                    contact_id = '0033900002A04BCAAZ'
+                    order by close_date asc 
+                    limit 1 ) ;
+
+                    (
+                    SELECT 
+                        recurring_donor as is_recurring
+                    FROM
+                        salesforcedonations as sfd
+                        
+                    WHERE
+                    contact_id = '0033900002A04BCAAZ'
+                    order by close_date DESC 
+                    limit 1);
+                    """
