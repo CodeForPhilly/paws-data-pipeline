@@ -41,4 +41,4 @@ RUN useradd -m pawsapp
 USER pawsapp
 
 CMD bin/startServer.sh
-#>> start.log 2>&1 
+#>> start.log 2>&1
