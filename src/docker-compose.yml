@@ -44,6 +44,8 @@ services:
       - "6000:6000"
     depends_on:
       - server
+    profiles: ["production-only"]
+
 
 
 #using named volumes fixs a windows docker bug relating to container permissions
