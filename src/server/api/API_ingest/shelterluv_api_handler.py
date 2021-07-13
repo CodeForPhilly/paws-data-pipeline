@@ -68,13 +68,13 @@ def store_shelterluv_people_all():
 
     print("Start getting shelterluv contacts from people table")
 
-    #while has_more:
-    r = requests.get("http://shelterluv.com/api/v1/people?limit={}&offset={}".format(LIMIT, offset),
-                     headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
-    response = r.json()
-    shelterluv_people += response["people"]
-    has_more = response["has_more"]
-    offset += 100
+    while has_more:
+        r = requests.get("http://shelterluv.com/api/v1/people?limit={}&offset={}".format(LIMIT, offset),
+                         headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
+        response = r.json()
+        shelterluv_people += response["people"]
+        has_more = response["has_more"]
+        offset += 100
 
     print("Finish getting shelterluv contacts from people table")
 
