@@ -1,5 +1,5 @@
-def donations_rfm(csv, query_date):
-    '''This script will take csv files and create RFM scores for all PAWS donations
+def create_bins(csv, query_date):
+    '''This script will take csv files and bin edges for RFM scores for all PAWS donations
     csv = path to csv file as string
     query_date = date data was queried
     '''
@@ -13,16 +13,15 @@ def donations_rfm(csv, query_date):
 
     ####
     # read in csv
-    donations = pd.read_csv('csv')
+    donations_df = pd.read_csv('csv')
 
-    donations['Close_Date'] =pd.to_datetime(donations_2021['Close_Date']).dt.date
+    donations_df['Close_Date'] =pd.to_datetime(donations_2021['Close_Date']).dt.date
 
     ##################################################################################
     # Calculate recency score
-    from recency_score import recency_score
-    grouped_df, recency_bins, quantile_scores= recency_score(donations_df, query_date)
+    from recency_bins import recency_bins
+    recency_bins, quantile_scores= recency_bins(donations_df, query_date)
 
     ###################################################################################
     # Calculate frequency scores
-
     
