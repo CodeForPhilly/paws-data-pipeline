@@ -13,6 +13,7 @@ from openpyxl import load_workbook
 from tempfile import NamedTemporaryFile
 from donations_importer import validate_import_sfd
 from shifts_importer import validate_import_vs
+
 SUCCESS_MSG = 'Uploaded Successfully!'
 lock = threading.Lock()
 
@@ -33,6 +34,7 @@ def determine_upload_type(file, file_extension, destination_path):
     else:
         
         match = re.search('donat', file.filename, re.I)
+
         if match:   # It's a SalesForce Donations file
             validate_import_sfd(file)
             return
@@ -43,6 +45,8 @@ def determine_upload_type(file, file_extension, destination_path):
                 dfs = excel_to_dataframes(file)  # Also need to run Volgistics through match processing
             else:
                 dfs = excel_to_dataframes(file)   #  It's a non-Volgistics, non-Shelterluv XLS? file 
+
+
   
 
     found_sources = 0
