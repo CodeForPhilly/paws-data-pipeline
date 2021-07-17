@@ -169,6 +169,17 @@ def get_person_animal_events(matching_id, animal_id):
 
 @common_api.route('/api/person/<matching_id>/support', methods=['GET'])
 def get_support_oview(matching_id):
+    """Return these values for the specified match_id:
+        largest gift, date for first donation, total giving, number of gifts,
+        amount of first gift, is recurring donor """
+    
+    # One complication: a single match_id can map to multiple SF ids, so these queries need to 
+    # run on a list of of contact_ids.
+ 
+    # First: get the list of contact_ids   
+    
+
+
 
     sov_queries = """
                     (SELECT 
