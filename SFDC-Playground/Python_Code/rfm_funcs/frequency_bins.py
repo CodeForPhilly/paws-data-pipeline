@@ -1,4 +1,4 @@
-def frequency_score(donations_df, number_of_breaks):
+def frequency_bins(donations_df, number_of_breaks):
     '''
     This function uses the jenkspy package to create natural break points in a dataframe column. Jenkspy attempts to maximize bretween break variance while minimizing within break variance and is similar to Fisher's Discrimenant analysis.
     It returns a list of breakpoints in the order of the original column which can then be appended to any dataframe
@@ -16,20 +16,22 @@ def frequency_score(donations_df, number_of_breaks):
 
 
     '''
-
-
-
-    donations_df_grouped = donations_df.groupby([df['Contact ID 18'], df['Close_Date'].map(lambda x: x.year)]).count().max(level=0) #### NEED TO CHANGE THIS TO LAST 90 DAYS OR THE LAST QUARTER
-
-    
-    donations_df_grouped = donations_df_grouped.reset_index()
-
-    df_frequency = donations_df_grouped[['Contact ID 18' ,'Close_Date']]
-
     import jenkspy
 
-    breaks = jenkspy.jenks_breaks(df_frequency['Close_Date'], nb_class=5)
-    labels= range(1,6)
-    df_frequency['frequency_score'], bins = pd.cut(df_frequency, bins = breaks, include_lowest=True, labels=range(1,6), ret_bins = True)
 
-    return df_frequency, frequency_bins
+    donations_df['Close_Date'] = pd.DatetimeIndex(df['Close_Date'])
+    df_grouped = donations_df.groupby(['Contact ID 18', pd.Grouper(key = 'Close_Date', freq = 'Q')]).count().max(level=0)
+    df_grouped = df_grouped.reset_index()
+    df_frequency = df_grouped[['Contact ID 18' ,'Close_Date']]
+
+
+    jenks_frequency_bins = jenkspy.jenks_breaks(df_frequency['Close_Date'], nb_class=5)
+
+
+
+    human_frequency_bins= [0, 1, 2, 3, 4, np.inf]
+
+
+
+
+    return jenks_frequency_bins, human_frequency_bins
