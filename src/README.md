@@ -6,7 +6,7 @@ Run the PAWS data pipeline locally
 - Set environment variable: `export IS_LOCAL=True`
 - If your docker IP is not localhost or you want to run postgres with a different user name etc  
   - Set environment variable: `export LOCAL_DB_IP=postgresql://postgres:thispasswordisverysecure@[your_docker_ip]/postgres`
-  - Working directory should be: `...paws-data-pipeline/src`
+- Working directory should be: `...paws-data-pipeline/src`
 - Set environment variable: `export FLASK_PORT=3333` we need it to be a different port then the one in the docker-compose
 - Run python3 app.py
 - Download the file `secrets.py` from the teams dropbox and place it under `src/server`.
