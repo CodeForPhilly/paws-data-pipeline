@@ -1,4 +1,4 @@
-def recency_bins(donations_df, query_date):
+def recency_bins(donations_df, query_date, recency_binvals):
     ''' takes the grouped dataframe and outputs bin edges for recency scores
     for the entire data history.
     '''
@@ -15,7 +15,7 @@ def recency_bins(donations_df, query_date):
 
     labels = [5,4,3,2,1]
 
-    donations_df['recency_score'], bins = pd.qcut(donations_df[('days_since','min')], q= [0., .2, .4,.6, .8, 1], labels=labels, ret_bins = True)
+    donations_df['recency_score'], bins = pd.qcut(donations_df[('days_since','min')], q= recency_binvals, labels=labels, ret_bins = True)
 
 
     quantile_score = donations_df[('days_since','min')].quantile([.2, .4,.6, .8, 1])

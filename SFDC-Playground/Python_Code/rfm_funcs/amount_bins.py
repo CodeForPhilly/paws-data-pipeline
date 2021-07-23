@@ -1,4 +1,4 @@
-def amount_bins(donations_df):
+def amount_bins(donations_df, amount_binvals):
     '''
     '''
 
@@ -12,13 +12,13 @@ def amount_bins(donations_df):
 
 
 
-    human_amount_bins = big_donations[['Amount']].quantile([.2,.4,.6,.8]).reset_index()
+    # human_amount_bins = big_donations[['Amount']].quantile([.2,.4,.6,.8]).reset_index()
 
 
-    human_amount_bins = bins[['Amount']].to_numpy().flatten()
-    lower_bin = 0
-    upper_bin = np.inf
-    human_amount_bins = np.insert(bins, 0, lower_bin)
-    human_amount_bins = np.insert(bins, 5, upper_bin)
+    # human_amount_bins = bins[['Amount']].to_numpy().flatten()
+    # lower_bin = 0
+    # upper_bin = np.inf
+    # human_amount_bins = np.insert(bins, 0, lower_bin)
+    # human_amount_bins = np.insert(bins, 5, upper_bin)
 
-    return amount_jenks_bins, human_amount_bins
+    return amount_jenks_bins, amount_binvals

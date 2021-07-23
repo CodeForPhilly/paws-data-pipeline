@@ -1,4 +1,4 @@
-def frequency_bins(donations_df, number_of_breaks):
+def frequency_bins(donations_df, number_of_breaks, frequency_binvals):
     '''
     This function uses the jenkspy package to create natural break points in a dataframe column. Jenkspy attempts to maximize bretween break variance while minimizing within break variance and is similar to Fisher's Discrimenant analysis.
     It returns a list of breakpoints in the order of the original column which can then be appended to any dataframe
@@ -29,7 +29,7 @@ def frequency_bins(donations_df, number_of_breaks):
 
 
 
-    human_frequency_bins= [0, 1, 2, 3, 4, np.inf]
+    human_frequency_bins= frequency_binvals
 
 
 

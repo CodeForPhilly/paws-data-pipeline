@@ -1,6 +1,6 @@
-def create_bins(csv, query_date):
-    '''This script will take csv files and bin edges for RFM scores for all PAWS donations
-    csv = path to csv file as string
+def create_bins(data, query_date):
+    '''This script will take table data and bin edges for RFM scores for all PAWS donations
+
     query_date = date data was queried
     '''
 
@@ -50,17 +50,5 @@ def create_bins(csv, query_date):
 
 
     ###################################################################################
-    # Write bins to a txt files
-    today = date.today()
-
-    file1 = open("rfm_bins" + str(today) + ".txt","a")
-    file1.writelines('Recency:')
-    file1.writelines('Recency bins:' + recency_bins)
-    file1.writelines('Recency bins: quantile scores:' +quantile_scores)
-    file1.writelines('Frequency:')
-    file1.writelines('Jenks Frequency Bins:' + jenks_frequency_bins)
-    file1.writelines('Human Frequency Bins:' + human_frequency_bins)
-    file1.writelines('Amount:')
-    file1.writelines('Amount Jenks Bins:' + amount_jenks_bins)
-    file1.writelines('Human Amount Bins:'+ human_amount_bins)
-    file1.close()
+    # Write bins to dict
+    bins_dict = {}
