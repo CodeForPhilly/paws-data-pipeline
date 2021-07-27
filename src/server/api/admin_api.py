@@ -11,6 +11,7 @@ from pipeline import flow_script
 from config import engine
 from flask import request, redirect, jsonify, current_app, abort
 from api.file_uploader import validate_and_arrange_upload
+from sqlalchemy.orm import Session, sessionmaker
 
 from api import jwt_ops
 from config import (
@@ -228,17 +229,52 @@ def start_job():
 
 
 
+def insert_rfm_scores(score_list):
+    """Take a list of (matching_id, score) and insert into the
+        rfm_scores table.
+    """
 
-# """
-# @admin_api.route('/api/status', methods=['GET'])
-# def checkStatus():
-#     with engine.connect() as connection:
-#         query = text("SELECT now()")
-#         query_result = connection.execute(query)
 
-#         # Need to iterate over the results proxy
-#         results = {}
-#         for row in query_result:
-#             results = dict(row)
-#         return jsonify(results)
-# """
+    Session = sessionmaker(engine) 
+    session =  Session()   
+    metadata = MetaData()
+    rfms = Table("rfm_scores", metadata, autoload=True, autoload_with=engine)
+
+
+    truncate = "TRUNCATE table rfm_scores;"
+    result = session.execute(truncate)
+
+    row_count = 0
+
+    for pair in score_list:
+
+        stmt = insert(rfms).values(pair)
+        session.execute(stmt)
+        row_count += 1
+
+    session.commit()   # Commit all inserted rows
+    session.close()
+
+    return row_count
+
+
+# This is super-hacky - temporary
+@admin_api.route("/api/import_rfm", methods=["GET"])
+def  import_rfm_csv():
+    """ This imports the CSV files and calls the insert function"""
+    import csv
+
+    score_list = []
+
+    #  Put your local file location \/
+
+    with open('C:\\Projects\\paws-stuff\\score_tuples.csv', 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        hdr = next(reader)
+        print('Skipping header: ', hdr)
+        for row in reader:
+            score_list.append(row)
+
+    rc = insert_rfm_scores(score_list)
+
+    return str(rc) + " rows inserted"
