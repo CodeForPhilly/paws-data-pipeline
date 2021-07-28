@@ -11,7 +11,6 @@ from pipeline import flow_script
 from config import engine
 from flask import request, redirect, jsonify, current_app
 from api.file_uploader import validate_and_arrange_upload
-from api.API_ingest import ingest_sources_from_api
 
 from api import jwt_ops
 from config import CURRENT_SOURCE_FILES_PATH
@@ -37,16 +36,6 @@ def upload_csv():
                 file.close()
 
     return redirect(request.origin)
-
-
-@admin_api.route("/api/ingestRawData", methods=["GET"])
-def ingest_raw_data():
-    try:
-        ingest_sources_from_api.start()
-    except Exception as e:
-        current_app.logger.exception(e)
-
-    return jsonify({'outcome': 'OK'}), 200
 
 
 @admin_api.route("/api/listCurrentFiles", methods=["GET"])
