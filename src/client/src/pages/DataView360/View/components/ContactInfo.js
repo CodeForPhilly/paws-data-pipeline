@@ -21,7 +21,9 @@ class ContactInfo extends Component {
             email: _.get(participantData, "email") || _.get(participant, "email") || "",
             mobile: _.get(participantData, "mobile") || _.get(participant, "mobile") || "",
             city: _.get(participantData, "city") || _.get(participant, "city") || "",
-            street_and_number: _.get(participantData, "street_and_number") || _.get(participant, "street_and_number") || ""
+            street_and_number: _.get(participantData, "street_and_number") || _.get(participant, "street_and_number") || "",
+            zip: _.get(participantData, "zip") || _.get(participant, "zip") || "",
+            state: _.get(participantData, "state") || _.get(participant, "state") || ""
         };
     }
 
@@ -30,8 +32,8 @@ class ContactInfo extends Component {
         let retVal = {};
 
         _.map(SOURCE_TYPES, source_type => {
-            const participant_salesforce_data = _.find(participantArray, {"source_type": source_type});
-            retVal = this.populate_participant_with_data_source(participant_salesforce_data, retVal);
+            const participant_source_data = _.find(participantArray, {"source_type": source_type});
+            retVal = this.populate_participant_with_data_source(participant_source_data, retVal);
         });
 
         return retVal
@@ -74,14 +76,23 @@ class ContactInfo extends Component {
                             </Typography>
                         </Grid>
                     </Grid>
-                    <Grid container item direction={'row'} spacing={1} alignItems="center">
-                        <Grid item>
-                            <HomeIcon color='primary' fontSize='small'/>
+                    <Grid container item direction={'column'} alignItems="left">
+                        <Grid container item direction="row" alignItems="center" spacing={1}>
+                            <Grid item>
+                                <HomeIcon color='primary' fontSize='small'/>
+                            </Grid>
+                            <Grid item>
+                                <Typography variant={'body2'}>
+                                    {participantData.street_and_number}
+                                </Typography>
+                            </Grid>
                         </Grid>
-                        <Grid item>
-                            <Typography variant={'body2'}>
-                                {(participantData.street_and_number + ' ' + participantData.city)}
-                            </Typography>
+                        <Grid container item direction="row" spacing={1} style={{paddingLeft: 37}}>
+                            <Grid item>
+                                <Typography variant={'body2'}>
+                                    {participantData.city + ', ' + participantData.state + ' ' + participantData.zip}
+                                </Typography>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Grid>
