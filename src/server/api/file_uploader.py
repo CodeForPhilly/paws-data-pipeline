@@ -3,6 +3,7 @@ import time
 import pandas as pd
 import threading
 import io
+import re
 
 from werkzeug.utils import secure_filename
 from flask import flash, current_app
@@ -10,6 +11,8 @@ from datasource_manager import CSV_HEADERS
 from datasource_manager import DATASOURCE_MAPPING
 from openpyxl import load_workbook
 from tempfile import NamedTemporaryFile
+from donations_importer import validate_import_sfd
+from shifts_importer import validate_import_vs
 
 from constants import RAW_DATA_PATH, CURRENT_SOURCE_FILES_PATH
 
@@ -31,7 +34,22 @@ def determine_upload_type(file, file_extension):
         dfs = [pd.read_csv(io.BytesIO(file.stream.read()), encoding='iso-8859-1')]
         file.close()
     else:
-        dfs = excel_to_dataframes(file)
+        
+        match = re.search('donat', file.filename, re.I)
+
+        if match:   # It's a SalesForce Donations file
+            validate_import_sfd(file)
+            return
+        else:
+            match = re.search('volunteer', file.filename, re.I)
+            if match:    # It's a Volgistics file
+                validate_import_vs(file)  
+                dfs = excel_to_dataframes(file)  # Also need to run Volgistics through match processing
+            else:
+                dfs = excel_to_dataframes(file)   #  It's a non-Volgistics, non-Shelterluv XLS? file 
+
+
+  
 
     found_sources = 0
     for df in dfs:
