@@ -278,3 +278,71 @@ def  import_rfm_csv():
     rc = insert_rfm_scores(score_list)
 
     return str(rc) + " rows inserted"
+
+
+def write_rfm_edges(rfm_dict : dict) :
+    """Write the rfm edge dictionary to the DB"""
+
+    if len(rfm_dict) == 3 :  #  R, F, *and* M!
+        rfm_s = json.dumps(rfm_dict)  # Convert dict to string
+
+        metadata = MetaData()
+        kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
+
+        # See Alembic Revision ID: 05e0693f8cbb for table definition
+        with engine.connect() as connection:
+            ins_stmt = insert(kvt).values(               # Postgres-specific insert() supporting ON CONFLICT
+                keycol = 'rfm_edges',
+                valcol = rfm_s,
+                )
+            # If key already present in DB, do update instead
+            upsert = ins_stmt.on_conflict_do_update(
+                    constraint='kv_unique_keycol_key',
+                    set_=dict(valcol=rfm_s)
+                    )
+
+            try:
+                connection.execute(upsert)
+            except Exception as e:
+                current_app.logger.error("Insert/Update failed on rfm edge ")
+                current_app.logger.exception(e)
+                return None
+
+        return 0
+
+    else :   # Malformed dict
+        current_app.logger.error("Received rfm_edge dictionary with " + str(len(rfm_dict)) + " entries - expected 3")
+        return None
+
+
+def read_rfm_edges() :
+    """Read the rfm_edge record from the DB and return the dict."""
+
+    q = text("""SELECT valcol from kv_unique WHERE keycol = 'rfm_edges';""")
+
+    with engine.begin() as connection:   # BEGIN TRANSACTION
+        q_result = connection.execute(q)
+        if q_result.rowcount == 0:
+            current_app.logger.warning("No rfm_edge entry found in DB")
+            return None
+        else:
+            edge_string = q_result.fetchone()[0]
+            edge_dict = json.loads(edge_string)   # Convert stored string to dict
+            return edge_dict
+
+
+
+# Use this as a way to trigger functions for testing
+
+@admin_api.route("/api/admin/test_endpoint", methods=["GET"])
+def validate_rfm_edges():
+
+    d = read_rfm_edges()         # read out of DB
+    print("d is: \n" + str(d) )
+
+    write_rfm_edges(d)          # Write it back
+     
+    d = read_rfm_edges()        # read it again     
+    print("round-trip d is : \n " + str(d) )
+
+    return "OK"
