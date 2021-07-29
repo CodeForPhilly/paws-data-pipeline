@@ -7,7 +7,6 @@ insert into rfm_mapping values('115','','0xc0c0c0');
 insert into rfm_mapping values('121','','0xc0c0c0');
 insert into rfm_mapping values('122','','0xc0c0c0');
 insert into rfm_mapping values('123','','0xc0c0c0');
-insert into rfm_mapping values('123','','0xc0c0c0');
 insert into rfm_mapping values('124','','0xc0c0c0');
 insert into rfm_mapping values('125','','0xc0c0c0');
 insert into rfm_mapping values('131','','0xc0c0c0');
