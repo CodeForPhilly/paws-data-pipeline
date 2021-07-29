@@ -46,15 +46,22 @@ def get_contacts(search_text):
 
         names = search_text.split(" ")
         if len(names) == 2:
-            query = text("select * from pdp_contacts where archived_date is null AND ( \
-                (lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2)) \
-                OR (lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)) )\
-                    order by lower(last_name), lower(first_name)")
+            query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color
+                            from pdp_contacts 
+                            left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
+                            left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
+                            where archived_date is null AND ( (lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2)) 
+                                OR (lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)) )
+                            order by lower(last_name), lower(first_name)""")
             query_result = connection.execute(query, name1='{}%'.format(names[0]), name2='{}%'.format(names[1]))
         elif len(names) == 1:
-            query = text("select * from pdp_contacts \
-                WHERE lower(first_name) like lower(:search_text) \
-                OR lower(last_name) like lower(:search_text) order by lower(last_name), lower(first_name)")
+            query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color
+                            from pdp_contacts 
+                            left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
+                            left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
+                            WHERE lower(first_name) like lower(:search_text) 
+                                OR lower(last_name) like lower(:search_text) 
+                            order by lower(last_name), lower(first_name)""")
             query_result = connection.execute(query, search_text='{}%'.format(search_text))
 
         query_result_json = [dict(row) for row in query_result]
