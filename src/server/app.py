@@ -39,11 +39,12 @@ app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 from api.admin_api import admin_api
 from api.common_api import common_api
 from api.user_api import user_api
+from api.internal_api import internal_api
 
 app.register_blueprint(admin_api)
 app.register_blueprint(common_api)
 app.register_blueprint(user_api)
-
+app.register_blueprint(internal_api)
 
 app.logger.setLevel('INFO')  # By default, Docker appears to set at INFO but VSCode at WARNING 
 

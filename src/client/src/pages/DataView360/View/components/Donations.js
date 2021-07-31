@@ -33,7 +33,7 @@ class Donations extends Component {
         const result = _.map(latestDonations, (donation, index) => {
             return (<TableRow key={index}>
                 <TableCell>{donation.close_date}</TableCell>
-                <TableCell>${donation.amount}</TableCell>
+                <TableCell>${donation.amount.toFixed(2)}</TableCell>
                 <TableCell>{donation.type}</TableCell>
                 <TableCell>{donation.primary_campaign_source}</TableCell>
             </TableRow>);

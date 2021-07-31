@@ -24,6 +24,11 @@ CSV_HEADERS = {
     'manualmatches': ['salesforcecontacts', 'volgistics', 'shelterluvpeople']
 }
 
+    # TODO: Now that volgisticsshifts and salesforcedonations are loaded directly, what should their records above and below reflect 
+    #       to be processed by clean_and_load_data  (L34) ? 
+
+
+
 DATASOURCE_MAPPING = {
     'salesforcecontacts': {
         'id': 'contact_id_18',
@@ -51,7 +56,7 @@ DATASOURCE_MAPPING = {
         'should_drop_first_column': False
     },
     'volgisticsshifts': {
-        'id': 'number',
+        'id': 'volg_id',
         'csv_names': CSV_HEADERS['volgisticsshifts'],
         'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['volgisticsshifts'])),
         'table_email': None,

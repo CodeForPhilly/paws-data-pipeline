@@ -77,7 +77,7 @@ def get_360(matching_id):
 
         for row in result["contact_details"]:
             if row["source_type"] == "salesforcecontacts":
-                donations_query = text("""select cast (close_date as text), amount, type,  primary_campaign_source 
+                donations_query = text("""select cast (close_date as text), cast (amount as float), donation_type,  primary_campaign_source 
                                         from salesforcedonations
                                         where contact_id = :salesforcecontacts_id""")
                 salesforce_contacts_query_result = connection.execute(donations_query,
@@ -86,20 +86,23 @@ def get_360(matching_id):
                 result['donations'] = salesforce_donations_results
 
             if row["source_type"] == "volgistics":
-                shifts_query = text("select * from volgisticsshifts where number = :volgistics_id")
+                shifts_query = text("""select volg_id, assignment, site, from_date, cast(hours as float) 
+                                        from volgisticsshifts where volg_id = :volgistics_id
+                                        order by from_date desc
+                                        limit 5""")
                 volgistics_shifts_query_result = connection.execute(shifts_query, volgistics_id=row["source_id"])
                 volgisticsshifts_results = []
 
                 # todo: temporary fix until formatted in the pipeline
                 for r in volgistics_shifts_query_result:
                     shifts = dict(r)
-                    # normalize date string
-                    if shifts["from_date"]:
-                        parsed_date_from = dateutil.parser.parse(shifts["from_date"], ignoretz=True)
-                        normalized_date_from = parsed_date_from.strftime("%Y-%m-%d")
-                        shifts["from"] = normalized_date_from
-                    else:
-                        shifts["from"] = "Invalid date"
+                    # normalize date string  - not needed as now returning in YYYY-MM-DD
+                    # if shifts["from_date"]:
+                    #     parsed_date_from = dateutil.parser.parse(shifts["from_date"], ignoretz=True)
+                    #     normalized_date_from = parsed_date_from.strftime("%Y-%m-%d")
+                    #     shifts["from"] = normalized_date_from
+                    # else:
+                    #     shifts["from"] = "Invalid date"
                     volgisticsshifts_results.append(shifts)
 
                 result['shifts'] = volgisticsshifts_results
