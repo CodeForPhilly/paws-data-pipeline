@@ -6,17 +6,14 @@ import json
 from sqlalchemy.sql import text
 
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc, select
+from sqlalchemy import Table, MetaData
 from pipeline import flow_script
 from config import engine
-from flask import request, redirect, jsonify, current_app, abort
+from flask import request, redirect, jsonify, current_app
 from api.file_uploader import validate_and_arrange_upload
 
 from api import jwt_ops
-from config import (
-    RAW_DATA_PATH,
-    CURRENT_SOURCE_FILES_PATH,
-)
+from config import CURRENT_SOURCE_FILES_PATH
 
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
 
@@ -32,7 +29,7 @@ def upload_csv():
     for file in request.files.getlist("file"):
         if __allowed_file(file.filename):
             try:
-                validate_and_arrange_upload(file, RAW_DATA_PATH)
+                validate_and_arrange_upload(file)
             except Exception as e:
                 current_app.logger.exception(e)
             finally:
@@ -107,7 +104,6 @@ def execute():
 
 
 def get_statistics():
-
     with engine.connect() as connection:
         query_matches = text("SELECT count(*) FROM (SELECT distinct matching_id from pdp_contacts) as a;")
         query_total_count = text("SELECT count(*) FROM pdp_contacts;")
@@ -140,7 +136,7 @@ def list_statistics():
             s = text("select valcol from kv_unique where keycol = 'last_execution_time';")
             result = conn.execute(s)
             if result.rowcount > 0:
-                last_execution_details  = result.fetchone()[0]
+                last_execution_details = result.fetchone()[0]
 
         except Exception as e:
             current_app.logger.error("Failure reading Last Execution stats from DB - OK on first run")
