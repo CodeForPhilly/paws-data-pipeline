@@ -234,6 +234,8 @@ def get_support_oview(matching_id):
 
             if row['total_giving']:
                 oview_fields['total_giving'] = float(row['total_giving'])
+            else: 
+                oview_fields['total_giving'] = 0.0
 
             oview_fields['number_of_gifts'] = row['number_of_gifts']
 
