@@ -1,6 +1,6 @@
 from api.api import common_api
 from config import engine
-from flask import jsonify
+from flask import jsonify , current_app
 from sqlalchemy.sql import text
 import requests
 import json
@@ -179,44 +179,84 @@ def get_support_oview(matching_id):
     # One complication: a single match_id can map to multiple SF ids, so these queries need to 
     # run on a list of of contact_ids.
  
-    # First: get the list of contact_ids   
+    # First: get the list of salsforce contact_ids associated with the matching_id  
+    qcids = text("select source_id FROM pdp_contacts where matching_id = :matching_id and source_type = 'salesforcecontacts';")
+
+    oview_fields = {}
+
+    with engine.connect() as connection:
+        query_result = connection.execute(qcids, matching_id=matching_id)
+        rows = [dict(row) for row in query_result]
+
+        id_list = []
+
+        if len(rows) > 0:
+            for row in rows:
+                if row['source_id'].isalnum():
+                    id_list.append(row['source_id'])
+                else:
+                    current_app.logger.warn("salesforcecontacts source_id " + row['source_id'] + "has non-alphanumeric characters; will not be used")
+
+            if len(id_list) == 0: # No ids to query
+                return jsonify({})
+
+
+            sov1 = text("""SELECT 
+                            max(amount) as largest_gift, 
+                            min(close_date) as first_donation_date,
+                            sum(amount) as total_giving,
+                            count(amount) as number_of_gifts
+                        FROM
+                            salesforcedonations as sfd
+                        WHERE
+                            contact_id  IN  :id_list  ; """)
+
+            sov1 = sov1.bindparams(id_list=tuple(id_list))
+            sov1_result = connection.execute(sov1)
+
+            # query = query.bindparams(values=tuple(values
+
+            rows = [dict(row) for row in sov1_result]
+
+            oview_fields['largest_gift'] = float(rows[0]['largest_gift'])
+            oview_fields['first_donation_date'] = str(rows[0]['first_donation_date'])
+            oview_fields['total_giving'] = float(rows[0]['total_giving'])
+            oview_fields['number_of_gifts'] = rows[0]['number_of_gifts']
+
+
+            # These could be could combined them into a single complex query
+
+            sov2 = text("""SELECT 
+                                amount as first_gift_amount 
+                            FROM
+                                salesforcedonations as sfd
+                            WHERE
+                                contact_id IN :id_list  
+                            ORDER BY  close_date asc 
+                            limit 1 ; """)
+
+            sov2 = sov2.bindparams(id_list=tuple(id_list))
+            sov2_result = connection.execute(sov2)
+            fga = sov2_result.fetchone()
+            oview_fields['first_gift_amount'] = float(fga[0])
+
+            sov3 = text("""SELECT 
+                                recurring_donor as is_recurring
+                            FROM
+                                salesforcedonations as sfd
+                            WHERE
+                                contact_id  IN :id_list 
+                            ORDER BY close_date DESC 
+                            LIMIT  1;  """ )
+
+            sov3 = sov3.bindparams(id_list=tuple(id_list))
+            sov3_result = connection.execute(sov3) 
+            oview_fields['is_recurring'] = sov3_result.fetchone()[0]
+
+            return jsonify(oview_fields)
+
+
+        else:   # len(rows) == 0
+            current_app.logger.debug('No SF contact IDs found for matching_id ' + str(matching_id))
+            return jsonify({})
     
-
-
-
-    sov_queries = """
-                    (SELECT 
-
-                        max(amount) as largest_gift, 
-                        min(close_date) as first_donation_date,
-                        sum(amount) as total_giving,
-                        count(amount) as number_of_gifts
-
-                    FROM
-                        salesforcedonations as sfd
-                        
-                    WHERE
-                    contact_id = '0033900002A04BCAAZ')  ;
-
-                    (
-                    SELECT 
-                        amount as first_gift_amount 
-                    FROM
-                        salesforcedonations as sfd
-                        
-                    WHERE
-                    contact_id = '0033900002A04BCAAZ'
-                    order by close_date asc 
-                    limit 1 ) ;
-
-                    (
-                    SELECT 
-                        recurring_donor as is_recurring
-                    FROM
-                        salesforcedonations as sfd
-                        
-                    WHERE
-                    contact_id = '0033900002A04BCAAZ'
-                    order by close_date DESC 
-                    limit 1);
-                    """
