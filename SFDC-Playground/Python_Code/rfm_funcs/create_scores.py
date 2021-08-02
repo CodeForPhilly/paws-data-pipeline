@@ -6,7 +6,7 @@ def create_scores():
     import numpy as np
     from datetime import datetime, date
     from collections import Counter
-    from admin.api import read_rfm_edges
+    from admin_api import read_rfm_edges
 
 
     df = pd.read_csv('donations_w_matching_id_20210723.csv')
