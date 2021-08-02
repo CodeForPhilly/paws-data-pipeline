@@ -6,22 +6,25 @@ def create_scores():
     import numpy as np
     from datetime import datetime, date
     from collections import Counter
+    from admin.api import read_rfm_edges
 
 
-    df  =pd.read_csv('donations_w_matching_id_20210723.csv')
+    df = pd.read_csv('donations_w_matching_id_20210723.csv')
 
     df = df.dropna(subset=['amount', 'close_date'])
 
     # read in labels and bin edges from table
 
+    r_edges = list(read_rfm_edges('r').values())
+
     recency_labels = [5,4,3,2,1]
-    recency_bins =                  #        imported from table
+    recency_bins =  r_edges = list(read_rfm_edges('r').values())        #        imported from table
 
     frequency_labels= [1,2,3,4,5]
-    frequency_bins =                #       imported from table
+    frequency_bins =  f_edges = list(read_rfm_edges('f').values())             #       imported from table
 
     monetary_labels= [ 1,2,3,4,5]
-    monetary_bins =                 #       imported from table
+    monetary_bins =  m_edges = list(read_rfm_edges('m').values())              #       imported from table
 
 
     # recency
@@ -67,11 +70,17 @@ def create_scores():
     df_amount['amount_score'], bins = pd.cut(df_amount['amount'], bins= monetary_bins, include_lowest=True, labels = monetary_labels)
 
 
+
+
     # Concatenate rfm scores
         # merge monetary df and frequency df
     df_semi = df_amount.merge(df_frequency, left_on='matching_id', right_on= 'matching_id')
         # merge monetary/frequency dfs to recency df
     df_final = df_semi.merge(grouped_2021, left_on='matching_id', right_on= 'matching_id')
+
+    ### get avg fm score and merge with df_final
+    df_final['f_m_AVG_score'] = df_final[['frequency_score', 'amount_score']].mean(axis=1)
+
 
     # import function: rfm_concat, which will catenate integers as a string and then convert back to a single integer
     from rfm_functions import rfm_concat
