@@ -216,12 +216,26 @@ def get_support_oview(matching_id):
 
             # query = query.bindparams(values=tuple(values
 
-            rows = [dict(row) for row in sov1_result]
+            # rows = [dict(row) for row in sov1_result]
+            row = dict(sov1_result.fetchone())
 
-            oview_fields['largest_gift'] = float(rows[0]['largest_gift'])
-            oview_fields['first_donation_date'] = str(rows[0]['first_donation_date'])
-            oview_fields['total_giving'] = float(rows[0]['total_giving'])
-            oview_fields['number_of_gifts'] = rows[0]['number_of_gifts']
+            if row['largest_gift'] : 
+                oview_fields['largest_gift'] = float(row['largest_gift'])
+            else:
+                oview_fields['largest_gift'] = 0.0
+
+
+            # oview_fields['largest_gift'] = float(rows[0]['largest_gift'])
+
+            if row['first_donation_date']:
+                oview_fields['first_donation_date'] = str(row['first_donation_date'])
+            else:
+                oview_fields['first_donation_date'] = ''
+
+            if row['total_giving']:
+                oview_fields['total_giving'] = float(row['total_giving'])
+
+            oview_fields['number_of_gifts'] = row['number_of_gifts']
 
 
             # These could be could combined them into a single complex query
@@ -237,8 +251,16 @@ def get_support_oview(matching_id):
 
             sov2 = sov2.bindparams(id_list=tuple(id_list))
             sov2_result = connection.execute(sov2)
-            fga = sov2_result.fetchone()
-            oview_fields['first_gift_amount'] = float(fga[0])
+
+            if sov2_result.rowcount:
+                fga = sov2_result.fetchone()[0]
+
+                if fga:
+                    oview_fields['first_gift_amount'] = float(fga)
+                else:
+                    oview_fields['first_gift_amount'] = 0.0
+            else:
+                oview_fields['first_gift_amount'] = 0.0
 
             sov3 = text("""SELECT 
                                 recurring_donor as is_recurring
@@ -251,7 +273,12 @@ def get_support_oview(matching_id):
 
             sov3 = sov3.bindparams(id_list=tuple(id_list))
             sov3_result = connection.execute(sov3) 
-            oview_fields['is_recurring'] = sov3_result.fetchone()[0]
+
+            if sov3_result.rowcount:
+                oview_fields['is_recurring'] = sov3_result.fetchone()[0]
+            else:
+                 oview_fields['is_recurring'] = False
+
 
             return jsonify(oview_fields)
 
