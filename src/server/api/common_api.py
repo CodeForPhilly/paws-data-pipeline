@@ -8,7 +8,6 @@ import time
 from datetime import datetime
 import dateutil.parser
 
-
 try:
     from secrets import SHELTERLUV_SECRET_TOKEN
 except ImportError:
@@ -23,8 +22,6 @@ except ImportError:
         # You're SOL for now
         print("Couldn't get secrets from file or environment")
 
-
-
 from api import jwt_ops
 
 
@@ -38,6 +35,7 @@ def get_timeout(duration):
 
     return results
 
+
 @common_api.route('/api/contacts/<search_text>', methods=['GET'])
 @jwt_ops.jwt_required()
 def get_contacts(search_text):
@@ -46,15 +44,25 @@ def get_contacts(search_text):
 
         names = search_text.split(" ")
         if len(names) == 2:
-            query = text("select * from pdp_contacts where archived_date is null AND ( \
-                (lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2)) \
-                OR (lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)) )\
-                    order by lower(last_name), lower(first_name)")
+            query = text("""
+                    select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color from pdp_contacts 
+                    left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
+                    left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
+                    where archived_date is null AND ( \
+                    (lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2)) \
+                    OR (lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)) )\
+                    order by lower(last_name), lower(first_name)
+                    """)
             query_result = connection.execute(query, name1='{}%'.format(names[0]), name2='{}%'.format(names[1]))
         elif len(names) == 1:
-            query = text("select * from pdp_contacts \
-                WHERE lower(first_name) like lower(:search_text) \
-                OR lower(last_name) like lower(:search_text) order by lower(last_name), lower(first_name)")
+            query = text("""
+                    select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color from pdp_contacts 
+                    left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
+                    left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score \
+                    where lower(first_name) like lower(:search_text) \
+                    OR lower(last_name) like lower(:search_text) order by lower(last_name), lower(first_name)
+                    """)
+
             query_result = connection.execute(query, search_text='{}%'.format(search_text))
 
         query_result_json = [dict(row) for row in query_result]
@@ -121,12 +129,13 @@ def get_360(matching_id):
 @common_api.route('/api/person/<matching_id>/animals', methods=['GET'])
 def get_animals(matching_id):
     result = {
-        "person_details": {}, 
+        "person_details": {},
         "animal_details": {}
     }
 
     with engine.connect() as connection:
-        query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
+        query = text(
+            "select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
         query_result = connection.execute(query, matching_id=matching_id)
         rows = [dict(row) for row in query_result]
         if len(rows) > 0:
@@ -158,7 +167,8 @@ def get_person_animal_events(matching_id, animal_id):
     result = {}
     events = []
     with engine.connect() as connection:
-        query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
+        query = text(
+            "select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
         query_result = connection.execute(query, matching_id=matching_id)
         rows = [dict(row) for row in query_result]
         if len(rows) > 0:
