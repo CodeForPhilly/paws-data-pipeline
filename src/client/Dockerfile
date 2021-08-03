@@ -16,6 +16,7 @@ RUN npm install --silent
 COPY public ./public
 COPY src ./src
 
+RUN npx browserslist@latest --update-db
 RUN npm run build
 
 # add app

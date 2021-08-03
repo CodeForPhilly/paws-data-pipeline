@@ -1,6 +1,6 @@
 import os
-
 import pandas as pd
+
 from flask import current_app
 from api import admin_api
 from pipeline import calssify_new_data, clean_and_load_data, archive_rows, match_data, log_db
@@ -13,7 +13,7 @@ def start_flow():
 
     job_id = admin_api.start_job()
 
-    if (not job_id):
+    if not job_id:
         current_app.logger.info('Failed to get job_id')
         job_outcome = 'busy'
 
@@ -21,8 +21,6 @@ def start_flow():
         log_db.log_exec_status(job_id, 'start_flow', 'executing', '')
 
         file_path_list = os.listdir(CURRENT_SOURCE_FILES_PATH)
-
-
 
         if file_path_list:
             with engine.connect() as connection:
