@@ -327,18 +327,42 @@ def read_rfm_edges() :
             return edge_dict
 
 
+#@admin_api.route("/api/admin/test_pd", methods=["GET"])  # enable to trigger externally
+def pull_donations_for_rfm():
+    """Pull donations records for RFM scoring.
+       Returns a list of (matching_id:int , amount:float, close_date:string (yyyy-mm-dd))  tuples"""
+
+    q = text("""select matching_id, amount, close_date
+            FROM pdp_contacts
+            JOIN salesforcedonations as sfd on pdp_contacts.source_id = sfd.contact_id
+            where pdp_contacts.source_type = 'salesforcecontacts'
+            ORDER BY matching_id; """)
+
+    sfd_list = []
+
+    with engine.connect() as connection:
+        result = connection.execute(q)
+
+        for row in result:
+            sfd_list.append( (row[0], float(row[1]), str(row[2])) )
+
+    #   return jsonify(sfd_list)  # enable if using endpoint, but it returns a lot of data
+        return sfd_list
+
 
 # Use this as a way to trigger functions for testing
 # TODO: Remove when not needed
 @admin_api.route("/api/admin/test_endpoint", methods=["GET"])
-def validate_rfm_edges():
+def pdfr():
+    dlist = pull_donations_for_rfm()
+    print("Returned " + str(len(dlist)) + " rows")
+    return jsonify( {'rows':len(dlist), 'row[0]': dlist[0]} )  # returns length and a sammple row
 
-    d = read_rfm_edges()         # read out of DB
-    print("d is: \n" + str(d) )
 
-    write_rfm_edges(d)          # Write it back
-     
-    d = read_rfm_edges()        # read it again     
-    print("round-trip d is : \n " + str(d) )
-
-    return "OK"
+# def validate_rfm_edges():
+#     d = read_rfm_edges()         # read out of DB
+#     print("d is: \n" + str(d) )
+#     write_rfm_edges(d)          # Write it back
+#     d = read_rfm_edges()        # read it again     
+#     print("round-trip d is : \n " + str(d) )
+#     return "OK"
