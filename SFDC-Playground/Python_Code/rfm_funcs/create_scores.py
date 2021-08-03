@@ -6,12 +6,12 @@ def create_scores():
     import numpy as np
     from datetime import datetime, date
     from collections import Counter
-    from admin_api import read_rfm_edges
+    from admin_api import read_rfm_edges, pull_donations_for_rfm
 
 
-    df = pd.read_csv('donations_w_matching_id_20210723.csv')
-
-    df = df.dropna(subset=['amount', 'close_date'])
+    # df = pd.read_csv('donations_w_matching_id_20210723.csv')
+    df = pull_donations_for_rfm()
+    df = pd.DataFrame(df, columns=['matching_id', 'amount', 'close_date'])
 
     # read in labels and bin edges from table
 
