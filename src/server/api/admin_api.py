@@ -353,7 +353,9 @@ def pull_donations_for_rfm():
 def generate_dummy_rfm_scores():
     """For each matching_id, generate a random RFM score."""
 
-    from random import choice as rc
+    from random import choice
+    from functools import partial 
+    rc = partial( choice, range(1,6) )
 
 
     q = text("""select distinct matching_id from pdp_contacts
@@ -366,14 +368,13 @@ def generate_dummy_rfm_scores():
         result = connection.execute(q)
 
         for row in result:
-            dummy_scores.append( (row[0], str(rc(range(1,6))) +  str(rc(range(1,6))) + str(rc(range(1,6))) ) ) 
+            dummy_scores.append( ( row[0], str(rc()) +  str(rc()) + str(rc()) ) )  
 
     #   return jsonify(sfd_list)  # enable if using endpoint, but it returns a lot of data
-    print(dummy_scores[1])
 
-    print("Inserting...")
+    current_app.logger.debug("Inserting dummy scores...")
     count = insert_rfm_scores(dummy_scores)
-    print("Finished inserting")
+    current_app.logger.debug("Finished inserting")
 
 
     return count
