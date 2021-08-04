@@ -229,7 +229,7 @@ def insert_rfm_scores(score_list):
     """Take a list of (matching_id, score) and insert into the
         rfm_scores table.
     """
-
+            # This takes about 125 sec to insert 80,000 rows 
 
     Session = sessionmaker(engine) 
     session =  Session()   
@@ -350,13 +350,50 @@ def pull_donations_for_rfm():
         return sfd_list
 
 
+#@admin_api.route("/api/admin/test_pd", methods=["GET"])  # enable to trigger externally
+def generate_dummy_rfm_scores():
+    """For each matching_id, generate a random RFM score."""
+
+    from random import choice as rc
+
+
+    q = text("""select distinct matching_id from pdp_contacts
+            ORDER BY matching_id; """)
+
+    dummy_scores = []
+
+
+    with engine.connect() as connection:
+        result = connection.execute(q)
+
+        for row in result:
+            dummy_scores.append( (row[0], str(rc(range(1,6))) +  str(rc(range(1,6))) + str(rc(range(1,6))) ) ) 
+
+    #   return jsonify(sfd_list)  # enable if using endpoint, but it returns a lot of data
+    print(dummy_scores[1])
+
+    print("Inserting...")
+    count = insert_rfm_scores(dummy_scores)
+    print("Finished inserting")
+
+
+    return count
+
+
+
+
 # Use this as a way to trigger functions for testing
 # TODO: Remove when not needed
-@admin_api.route("/api/admin/test_endpoint", methods=["GET"])
-def pdfr():
-    dlist = pull_donations_for_rfm()
-    print("Returned " + str(len(dlist)) + " rows")
-    return jsonify( {'rows':len(dlist), 'row[0]': dlist[0]} )  # returns length and a sammple row
+@admin_api.route("/api/admin/test_endpoint_gdrs", methods=["GET"])
+def hit_gdrs():
+    num_scores = generate_dummy_rfm_scores()
+    return jsonify({"scores added" : num_scores})
+
+
+# def pdfr():
+#     dlist = pull_donations_for_rfm()
+#     print("Returned " + str(len(dlist)) + " rows")
+#     return jsonify( {'rows':len(dlist), 'row[0]': dlist[0]} )  # returns length and a sammple row
 
 
 # def validate_rfm_edges():
