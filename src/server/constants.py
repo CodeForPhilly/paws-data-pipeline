@@ -4,7 +4,6 @@ import os
 IS_LOCAL = os.getenv("IS_LOCAL")
 BASE_PATH = "../local_files/" if IS_LOCAL == "True" else "/app/static/"
 
-BASE_DROPBOX_PATH = "/source data"
 
 # Initiate local file system
 RAW_DATA_PATH = BASE_PATH + "raw_data/"

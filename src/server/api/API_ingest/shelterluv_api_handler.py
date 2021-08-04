@@ -3,7 +3,7 @@ import requests
 import csv
 import time
 
-from constants import CURRENT_SOURCE_FILES_PATH, BASE_DROPBOX_PATH
+from constants import CURRENT_SOURCE_FILES_PATH
 from api.API_ingest.dropbox_handler import upload_file_to_dropbox
 
 try:
@@ -91,7 +91,7 @@ def store_shelterluv_people_all():
     print("Finish storing latest shelterluvpeople results to container")
 
 
-    print("Start storing " + BASE_DROPBOX_PATH + '/shelterluv/' + "results to dropbox")
-    upload_file_to_dropbox(file_path, BASE_DROPBOX_PATH + '/shelterluv/' + file_path.split('/')[-1])
-    print("Finish storing " + BASE_DROPBOX_PATH + '/shelterluv/' + "results to dropbox")
+    print("Start storing " + '/shelterluv/' + "results to dropbox")
+    upload_file_to_dropbox(file_path, '/shelterluv/' + file_path.split('/')[-1])
+    print("Finish storing " + '/shelterluv/' + "results to dropbox")
 
