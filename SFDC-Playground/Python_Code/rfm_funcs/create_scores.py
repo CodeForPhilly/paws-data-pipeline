@@ -1,33 +1,34 @@
-def create_scores():
+def create_scores(path_to_csv, query_date):
     '''
+    requires query date as input-- must be string in the following format "%Y-%m-%d"
     '''
 
     import pandas as pd
     import numpy as np
     from datetime import datetime, date
     from collections import Counter
-    from admin_api import read_rfm_edges, pull_donations_for_rfm
+    # from admin_api import read_rfm_edges, pull_donations_for_rfm
 
 
-    # df = pd.read_csv('donations_w_matching_id_20210723.csv')
-    df = pull_donations_for_rfm()
-    df = pd.DataFrame(df, columns=['matching_id', 'amount', 'close_date'])
+    df = pd.read_csv(path_to_csv)
+    # df = pull_donations_for_rfm()
+    # df = pd.DataFrame(df, columns=['matching_id', 'amount', 'close_date'])
 
     # read in labels and bin edges from table
 
-    r_edges = list(read_rfm_edges('r').values())
+    # r_edges = list(read_rfm_edges('r').values())
 
     recency_labels = [5,4,3,2,1]
-    recency_bins =  r_edges = list(read_rfm_edges('r').values())        #        imported from table
+    recency_bins =   [0, 262, 1097, 1910, 2851]       #list(read_rfm_edges('r').values())    #imported from table
 
-    frequency_labels= [1,2,3,4,5]
-    frequency_bins =  f_edges = list(read_rfm_edges('f').values())             #       imported from table
+    frequency_labels = [1,2,3,4,5]
+    frequency_bins  =  [0, 1, 2, 3, 4]     #list(read_rfm_edges('f').values())             #       imported from table
 
-    monetary_labels= [ 1,2,3,4,5]
-    monetary_bins =  m_edges = list(read_rfm_edges('m').values())              #       imported from table
+    monetary_labels = [ 1,2,3,4,5]
+    monetary_bins =   [0., 50., 75., 100., 210.]      #list(read_rfm_edges('m').values())              #       imported from table
 
 
-    # recency
+    ########################## recency #########################################
 
 
     donations_2021 = df
@@ -37,17 +38,20 @@ def create_scores():
     from rfm_functions import date_difference
     days = []
     for ii in donations_2021['close_date']:
-        days.append(date_difference(ii, '2021-01-01'))
-        donations_2021['days_since'] = days
+        days.append(date_difference(ii, str(query_date)))
+    donations_2021['days_since'] = days
 
     grouped_2021 = donations_2021.groupby('_id').agg({'days_since': ['min']}).reset_index()
 
+    grouped_2021[('days_since', 'min')]= grouped_2021[('days_since', 'min')].dt.days
+
+    recency_bins.append(grouped_2021[('days_since', 'min')].max())
 
     grouped_2021['recency_score'] = pd.cut(grouped_2021[('days_since','min')], bins= recency_bins, labels=recency_labels, include_lowest = True)
 
 
 
-    # frequency
+    ################################## frequency ###############################
 
     df['close_date'] = pd.DatetimeIndex(df['close_date'])
 
@@ -55,15 +59,18 @@ def create_scores():
 
     df_grouped = df_grouped.reset_index()
 
+    frequency_bins.append(np.inf)
 
-    df_frequency = df_grouped[['matching_id' , 'opp_id']]
+    df_frequency = df_grouped[['matching_id' , 'amount']]
 
-    df_frequency['frequency_score'] = pd.cut(df_frequency['opp_id'],
+    df_frequency['frequency_score'] = pd.cut(df_frequency['amount'],
                                                bins = frequency_bins, labels=frequency_labels, include_lowest=True)
 
 
 
-    # amount
+    ################################## amount ##################################
+
+    monetary_bins.append(np.inf)
 
     df_amount = df.groupby(df['matching_id'], as_index=False).amount.max()
 
