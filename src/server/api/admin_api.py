@@ -229,7 +229,7 @@ def insert_rfm_scores(score_list):
     """Take a list of (matching_id, score) and insert into the
         rfm_scores table.
     """
-            # This takes about 125 sec to insert 80,000 rows 
+            # This takes about 4.5 sec to insert 80,000 rows 
 
     Session = sessionmaker(engine) 
     session =  Session()   
@@ -240,18 +240,17 @@ def insert_rfm_scores(score_list):
     truncate = "TRUNCATE table rfm_scores;"
     result = session.execute(truncate)
 
-    row_count = 0
-
+    ins_list = []   # Create a list of per-row dicts
     for pair in score_list:
+        ins_list.append( {'matching_id' : pair[0], 'rfm_score' : pair[1]} )
 
-        stmt = insert(rfms).values(pair)
-        session.execute(stmt)
-        row_count += 1
+
+    ret = session.execute(rfms.insert(ins_list))
 
     session.commit()   # Commit all inserted rows
     session.close()
 
-    return row_count
+    return ret.rowcount
 
 
 # This is super-hacky - temporary
