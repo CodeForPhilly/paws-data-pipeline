@@ -48,7 +48,7 @@ def create_scores(path_to_csv, query_date):
     recency_bins.append(grouped_2021[('days_since', 'min')].max())
 
     grouped_2021['recency_score'] = pd.cut(grouped_2021[('days_since','min')], bins= recency_bins, labels=recency_labels, include_lowest = True)
-
+    grouped_2021.rename(columns={('recency_score', ''): 'recency_score'})
 
 
     ################################## frequency ###############################
@@ -61,9 +61,9 @@ def create_scores(path_to_csv, query_date):
 
     frequency_bins.append(np.inf)
 
-    df_frequency = df_grouped[['matching_id' , 'amount']]
+    df_frequency = df_grouped[['matching_id' , 'opp_id']]
 
-    df_frequency['frequency_score'] = pd.cut(df_frequency['amount'],
+    df_frequency['frequency_score'] = pd.cut(df_frequency['opp_id'],
                                                bins = frequency_bins, labels=frequency_labels, include_lowest=True)
 
 
@@ -74,7 +74,7 @@ def create_scores(path_to_csv, query_date):
 
     df_amount = df.groupby(df['matching_id'], as_index=False).amount.max()
 
-    df_amount['amount_score'], bins = pd.cut(df_amount['amount'], bins= monetary_bins, include_lowest=True, labels = monetary_labels)
+    df_amount['amount_score'] = pd.cut(df_amount['amount'], bins= monetary_bins, include_lowest=True, labels = monetary_labels)
 
 
 
@@ -82,16 +82,17 @@ def create_scores(path_to_csv, query_date):
     # Concatenate rfm scores
         # merge monetary df and frequency df
     df_semi = df_amount.merge(df_frequency, left_on='matching_id', right_on= 'matching_id')
-        # merge monetary/frequency dfs to recency df
-    df_final = df_semi.merge(grouped_2021, left_on='matching_id', right_on= 'matching_id')
+    print(grouped_2021.head())
+    print(df_semi.head())
+    df_final = df_semi.merge(grouped_2021, left_on='matching_id', right_on= '_id')        # merge monetary/frequency dfs to recency df
 
     ### get avg fm score and merge with df_final
-    df_final['f_m_AVG_score'] = df_final[['frequency_score', 'amount_score']].mean(axis=1)
+    # df_final['f_m_AVG_score'] = df_final[['frequency_score', 'amount_score']].mean(axis=1)
 
 
     # import function: rfm_concat, which will catenate integers as a string and then convert back to a single integer
     from rfm_functions import rfm_concat
-    df_final = rfm_concat(df_final[('recency_score'),''], df_final['frequency_score'], df_final['amount_score'])
+    rfm_score = rfm_concat(df_final[('recency_score'), ''], df_final['frequency_score'], df_final['amount_score'])
 
     # Append rfm score to final df
     df_final['rfm_score'] = rfm_score
