@@ -37,6 +37,8 @@ def start(pdp_contacts_df, normalized_data):
 
     incoming_ids = normalized_data[["source_id", "source_type"]].drop_duplicates()
     existing_ids = pdp_contacts_df[["source_id", "source_type"]].drop_duplicates()
+    #probably need a smarter method of dropping duplicates, e.g. row with least amount of null values
+    normalized_data = normalized_data.drop_duplicates(["source_id", "source_type"])
     new_ids, reused_ids, old_ids = venn_diagram_join(incoming_ids, existing_ids)
     current_app.logger.info(" - ID's identified as {} new, {} reused, and {} old".format(
         new_ids.shape[0], reused_ids.shape[0], old_ids.shape[0]

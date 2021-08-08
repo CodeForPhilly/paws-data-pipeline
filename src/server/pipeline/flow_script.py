@@ -25,7 +25,7 @@ def start_flow():
 
 
         if file_path_list:
-            with engine.connect() as connection:
+            with engine.begin() as connection:
                 Base.metadata.create_all(connection)
 
                 # Get previous version of pdp_contacts table, which is used later to classify new records
