@@ -25,7 +25,6 @@ COPY . .
 
 RUN mkdir /app/static \
     /app/static/raw_data \
-    /app/static/raw_data/current \
     /app/static/logs \
     /app/static/zipped
 

@@ -1,7 +1,7 @@
 import os
 import sqlalchemy as db
 import models
-from constants import IS_LOCAL, BASE_PATH, RAW_DATA_PATH, OUTPUT_PATH, LOGS_PATH, CURRENT_SOURCE_FILES_PATH, REPORT_PATH, ZIPPED_FILES
+from constants import IS_LOCAL, BASE_PATH, RAW_DATA_PATH, OUTPUT_PATH, LOGS_PATH, REPORT_PATH, ZIPPED_FILES
 
 
 # Initiate postgres DB
@@ -53,6 +53,6 @@ if not os.path.isdir(BASE_PATH):
     os.makedirs(RAW_DATA_PATH, exist_ok=True)
     os.makedirs(OUTPUT_PATH, exist_ok=True)
     os.makedirs(LOGS_PATH, exist_ok=True)
-    os.makedirs(CURRENT_SOURCE_FILES_PATH, exist_ok=True)
+    os.makedirs(RAW_DATA_PATH, exist_ok=True)
     os.makedirs(REPORT_PATH, exist_ok=True)
     os.makedirs(ZIPPED_FILES, exist_ok=True)

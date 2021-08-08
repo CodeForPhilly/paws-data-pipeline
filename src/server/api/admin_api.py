@@ -14,7 +14,7 @@ from api.file_uploader import validate_and_arrange_upload
 from sqlalchemy.orm import Session, sessionmaker
 
 from api import jwt_ops
-from config import CURRENT_SOURCE_FILES_PATH
+from config import RAW_DATA_PATH
 
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
 
@@ -45,7 +45,7 @@ def list_current_files():
     result = None
 
     current_app.logger.info("Start returning file list")
-    file_list_result = os.listdir(CURRENT_SOURCE_FILES_PATH)
+    file_list_result = os.listdir(RAW_DATA_PATH)
 
     if len(file_list_result) > 0:
         result = file_list_result

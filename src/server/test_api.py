@@ -2,7 +2,7 @@ import pytest, socket, requests, os
 
 
 try:
-    from secrets import BASEUSER_PW, BASEADMIN_PW
+    from secrets_dict import BASEUSER_PW, BASEADMIN_PW
 except ImportError:
     BASEUSER_PW = os.environ['BASEUSER_PW']
     BASEADMIN_PW = os.environ['BASEADMIN_PW']

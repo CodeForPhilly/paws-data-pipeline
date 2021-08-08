@@ -1,5 +1,5 @@
 import dropbox
-from secrets import DROPBOX_APP
+from secrets_dict import DROPBOX_APP
 
 
 class TransferData:
