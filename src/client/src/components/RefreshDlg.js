@@ -9,45 +9,52 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import useToken from '../pages/Login/useToken';
 
 import Refresh from './Refresh';
-
-export default function  RefreshDlg(props) {
-  const [open, setOpen] = React.useState(props.shouldOpen);
-  const { access_token } = useToken();  // We want to use the passed-in top-level setToken
-
-  const handleClose = async (shouldRefresh) => {
-    // Could be closed with Yes, No, outclick (which equals No)
-    setOpen(false);
-    if (shouldRefresh){
-      const new_at =  await Refresh(access_token);
-      props.setToken(new_at);
-    }
-  };
+import defaultTheme from "../theme/defaultTheme";
 
 
+export default function RefreshDlg(props) {
+    const [open, setOpen] = React.useState(props.shouldOpen);
+    const {access_token} = useToken();  // We want to use the passed-in top-level setToken
 
-  return (
-    <div>
-      <Dialog
-        open={open}
-        onClose={() => handleClose(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"You are about to be logged out!"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Stay logged in to keep working?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => handleClose(false)} color="primary">
-            No
-          </Button>
-          <Button onClick={() => handleClose(true)} color="primary" autoFocus>
-           Yes
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
-  );
+    const handleClose = async (shouldRefresh) => {
+        // Could be closed with Yes, No, outclick (which equals No)
+        setOpen(false);
+        if (shouldRefresh) {
+            const new_at = await Refresh(access_token);
+            props.setToken(new_at);
+        }
+    };
+
+
+    return (
+        <div>
+            <Dialog
+                PaperProps={{
+                    style: {
+                        zIndex: defaultTheme.zIndex.drawer + 2
+                    },
+                }}
+                open={open}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                fullWidth
+            >
+                <DialogTitle id="alert-dialog-title">You are about to be logged out!</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Stay logged in to keep working?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="outlined" onClick={() => handleClose(false)} color="primary">
+                        No
+                    </Button>
+                    <Button variant="contained" onClick={() => handleClose(true)} color="primary"
+                            autoFocus>
+                        Yes
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </div>
+    );
 }

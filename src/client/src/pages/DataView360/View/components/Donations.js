@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {
     Paper,
-    Typography,
     Table,
     TableContainer,
     TableHead,
@@ -10,22 +9,10 @@ import {
     TableCell,
     Container
 } from '@material-ui/core';
-import {withStyles} from '@material-ui/core/styles';
 import _ from 'lodash';
 import moment from 'moment';
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
-import Grid from "@material-ui/core/Grid";
-
-
-const customStyles = theme => ({
-    spaceIcon: {
-        marginTop: 3,
-        marginRight: 3
-    },
-    headerCell: {
-        fontWeight: "bold",
-    }
-});
+import DataTableHeader from "./DataTableHeader";
 
 const ROWS_TO_SHOW = 3
 
@@ -46,7 +33,7 @@ class Donations extends Component {
         const result = _.map(latestDonations, (donation, index) => {
             return (<TableRow key={index}>
                 <TableCell>{donation.close_date}</TableCell>
-                <TableCell>${donation.amount}</TableCell>
+                <TableCell>${donation.amount.toFixed(2)}</TableCell>
                 <TableCell>{donation.type}</TableCell>
                 <TableCell>{donation.primary_campaign_source}</TableCell>
             </TableRow>);
@@ -56,29 +43,22 @@ class Donations extends Component {
     }
 
     render() {
-        const {classes} = this.props;
         const headerText = `Financial Support Activity (Most Recent ${ROWS_TO_SHOW})`
         return (
             <Container component={Paper} style={{"marginTop": "1em"}}>
-                <Typography variant='h5'>
-                    <Grid container style={{"margin": "0.5em"}} direction={'row'}>
-                        <Grid item className={classes.spaceIcon}>
-                            <AttachMoneyIcon color='primary' fontSize='inherit'/>
-                        </Grid>
-                        <Grid item>
-                            {headerText}
-                        </Grid>
-                    </Grid>
-                </Typography>
+                <DataTableHeader
+                    headerText={headerText}
+                    emojiIcon={<AttachMoneyIcon color='primary' fontSize='inherit' />}
+                />
 
-                <TableContainer component={Paper} style={{"marginBottom": "1em"}} variant='outlined'>
+                <TableContainer component={Paper} variant='outlined' style={{"marginBottom": "1em"}}>
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell className={classes.headerCell}>Date of Donation</TableCell>
-                                <TableCell className={classes.headerCell}>Amount</TableCell>
-                                <TableCell className={classes.headerCell}>Donation Type</TableCell>
-                                <TableCell className={classes.headerCell}>Primary Campaign Source</TableCell>
+                                <TableCell>Date of Donation</TableCell>
+                                <TableCell>Amount</TableCell>
+                                <TableCell>Donation Type</TableCell>
+                                <TableCell>Primary Campaign Source</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -92,4 +72,4 @@ class Donations extends Component {
 }
 
 
-export default withStyles(customStyles)(Donations);
+export default Donations;

@@ -1,29 +1,37 @@
+import os
 import requests
 import csv
-from config import RAW_DATA_PATH
+import time
 
-try:   
+from constants import CURRENT_SOURCE_FILES_PATH
+from api.API_ingest.dropbox_handler import upload_file_to_dropbox
+
+try:
     from secrets import SHELTERLUV_SECRET_TOKEN
-except ImportError:   
+except ImportError:
     # Not running locally
-    print("Couldn't get SL_TOKEN from file, trying environment **********")
+    print("Couldn't get SHELTERLUV_SECRET_TOKEN from file, trying environment **********")
     from os import environ
 
     try:
         SHELTERLUV_SECRET_TOKEN = environ['SHELTERLUV_SECRET_TOKEN']
     except KeyError:
-        # Nor in environment
+        # Not in environment
         # You're SOL for now
         print("Couldn't get secrets from file or environment")
 
 
-
 def write_csv(json_data):
-    result = open(RAW_DATA_PATH + "shelterluv_people.csv", "w")
+    now = time.localtime()
+    now_date = time.strftime("%Y-%m-%d--%H-%M-%S", now)
 
-    csv_writer = csv.writer(result)
+    path = CURRENT_SOURCE_FILES_PATH + "shelterluvpeople-" + now_date + ".csv"  # store file name to use for dropbox
+
+    file_handle = open(path, "w")
+
+    csv_writer = csv.writer(file_handle)
+
     count = 0
-
     for item in json_data:
         if count == 0:
             # Writing headers of CSV file
@@ -34,7 +42,9 @@ def write_csv(json_data):
         # Writing data of CSV file
         csv_writer.writerow(item.values())
 
-    result.close()
+    file_handle.close()
+
+    return path
 
 #################################
 # This script is used to fetch data from shelterluv API.
@@ -56,6 +66,8 @@ def store_shelterluv_people_all():
     has_more = True
     shelterluv_people = []
 
+    print("Start getting shelterluv contacts from people table")
+
     while has_more:
         r = requests.get("http://shelterluv.com/api/v1/people?limit={}&offset={}".format(LIMIT, offset),
                          headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
@@ -64,9 +76,22 @@ def store_shelterluv_people_all():
         has_more = response["has_more"]
         offset += 100
 
-    write_csv(shelterluv_people)
+    print("Finish getting shelterluv contacts from people table")
+
+    print("Start storing latest shelterluvpeople results to container")
+    if os.listdir(CURRENT_SOURCE_FILES_PATH):
+        for file_name in os.listdir(CURRENT_SOURCE_FILES_PATH):
+            file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, file_name)
+            file_name_striped = file_path.split('-')[0].split('/')[-1]
+
+            if file_name_striped == "shelterluvpeople":
+                os.remove(file_path)
+
+    file_path = write_csv(shelterluv_people)
+    print("Finish storing latest shelterluvpeople results to container")
 
 
-if __name__ == "__main__":
-    # execute only if run as a script
-    store_shelterluv_people_all()
+    print("Start storing " + '/shelterluv/' + "results to dropbox")
+    upload_file_to_dropbox(file_path, '/shelterluv/' + file_path.split('/')[-1])
+    print("Finish storing " + '/shelterluv/' + "results to dropbox")
+

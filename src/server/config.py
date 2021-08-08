@@ -1,15 +1,8 @@
 import os
 import sqlalchemy as db
-
 import models
+from constants import IS_LOCAL, BASE_PATH, RAW_DATA_PATH, OUTPUT_PATH, LOGS_PATH, CURRENT_SOURCE_FILES_PATH, REPORT_PATH, ZIPPED_FILES
 
-
-# from user_mgmt import base_users
-
-
-# Determine if app is ran from docker or local by testing the env var "IS_LOCAL"
-IS_LOCAL = os.getenv("IS_LOCAL")
-BASE_PATH = "../local_files/" if IS_LOCAL == "True" else "/app/static/"
 
 # Initiate postgres DB
 # best practices is to have only one engine per application process
@@ -49,26 +42,17 @@ with engine.connect() as connection:
 # alembic_cfg = Config("alembic.ini")
 # command.stamp(alembic_cfg, "head")
 
-
 with engine.connect() as connection:
     import user_mgmt.base_users
-
     user_mgmt.base_users.create_base_roles()  # IFF there are no roles already
     user_mgmt.base_users.create_base_users()  # IFF there are no users already
 
-
-# Initiate local file system
-RAW_DATA_PATH = BASE_PATH + "raw_data/"
-OUTPUT_PATH = BASE_PATH + "output/"
-LOGS_PATH = BASE_PATH + "logs/"
-CURRENT_SOURCE_FILES_PATH = RAW_DATA_PATH + "current/"
-REPORT_PATH = OUTPUT_PATH + "reports/"
-ZIPPED_FILES = BASE_PATH + "zipped/"
-
-os.makedirs(BASE_PATH, exist_ok=True)
-os.makedirs(RAW_DATA_PATH, exist_ok=True)
-os.makedirs(OUTPUT_PATH, exist_ok=True)
-os.makedirs(LOGS_PATH, exist_ok=True)
-os.makedirs(CURRENT_SOURCE_FILES_PATH, exist_ok=True)
-os.makedirs(REPORT_PATH, exist_ok=True)
-os.makedirs(ZIPPED_FILES, exist_ok=True)
+# Create these directories only one time - when initializing
+if not os.path.isdir(BASE_PATH):
+    os.makedirs(BASE_PATH, exist_ok=True)
+    os.makedirs(RAW_DATA_PATH, exist_ok=True)
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
+    os.makedirs(LOGS_PATH, exist_ok=True)
+    os.makedirs(CURRENT_SOURCE_FILES_PATH, exist_ok=True)
+    os.makedirs(REPORT_PATH, exist_ok=True)
+    os.makedirs(ZIPPED_FILES, exist_ok=True)

@@ -8,7 +8,7 @@ import {
     Button,
     Grid,
     Backdrop,
-    CircularProgress, 
+    CircularProgress,
     Typography
 } from '@material-ui/core';
 
@@ -17,17 +17,15 @@ import moment from 'moment';
 import Adoptions from './components/Adoptions';
 import ContactInfo from './components/ContactInfo';
 import Donations from './components/Donations';
-import AnimalInfo from './components/AnimalInfo';
+// import AnimalInfo from './components/AnimalInfo';
 import SupportOverview from './components/SupportOverview';
+// import Fosters from './components/Fosters';
 import VolunteerActivity from './components/VolunteerActivity';
 import VolunteerHistory from './components/VolunteerHistory';
+import Box from "@material-ui/core/Box";
 
 
 const customStyles = theme => ({
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
-    },
     stickyContainer: {
         position: 'sticky',
         top: 100
@@ -71,8 +69,11 @@ class View360 extends Component {
             });
         response = await response.json();
 
-        let animalInfo = await fetch(`/api/person/${this.state.matchId}/animals`);
-        animalInfo = await animalInfo.json()
+        let shelterluvInfo = await fetch(`/api/person/${this.state.matchId}/animals`);
+        shelterluvInfo = await shelterluvInfo.json()
+        const shelterluvShortId = shelterluvInfo["person_details"]["shelterluv_short_id"]
+        let animalInfo = shelterluvInfo["animal_details"]
+
         const animalIds = _.keys(animalInfo);
 
         let adoptionEvents = {};
@@ -88,13 +89,17 @@ class View360 extends Component {
                 return e["Type"] && e["Type"].toLowerCase().includes("foster");
             });
         }
+
+        let supportOverviewData = await fetch(`/api/person/${this.state.matchId}/support`);
+        supportOverviewData = await supportOverviewData.json()
         
         this.setState({
-            participantData: response.result,
+            participantData: {...response.result, "shelterluvShortId" : shelterluvShortId},
             animalData: animalInfo,
             adoptionEvents: adoptionEvents,
             fosterEvents: fosterEvents,
-            isDataBusy: false
+            isDataBusy: false,
+            supportOverviewData: supportOverviewData
         });
 
     }
@@ -133,14 +138,13 @@ class View360 extends Component {
 
         return (
             <Container>
+                <Box display="flex" justifyContent="center" pb={3}>
+                    <Typography variant={"h2"}>Person 360 View</Typography>
+                </Box>
                 {(_.isEmpty(this.state.participantData) !== true &&
                     this.state.isDataBusy !== true && (
                         <Paper elevation={1} style={{"padding": "2em"}}>
-                            <Grid container direction={"row"} justify={"center"}>
-                                <Grid item>
-                                    <Typography variant={"h4"}>Person 360 View</Typography>
-                                </Grid>
-                            </Grid>
+
                             <Grid container direction={"row"} spacing={3}>
                                 <Grid item xs={4}>
                                     <Grid className={classes.stickyContainer} container direction={"column"}
@@ -149,8 +153,8 @@ class View360 extends Component {
                                             <ContactInfo
                                                 participant={_.get(this.state, 'participantData.contact_details')}/>
                                         </Grid>
-                                        <Grid item style={{"margin-top": "1em"}}>
-                                            <SupportOverview />
+                                        <Grid item style={{"marginTop": "1em"}}>
+                                            <SupportOverview data={_.get(this.state, 'supportOverviewData')}/>
                                         </Grid>
                                         <Grid item style={{"padding": "1em"}}>
                                             <Button style={{"minWidth": "180"}} elevation={2} variant="contained"
@@ -169,14 +173,14 @@ class View360 extends Component {
                                         <Adoptions pets={_.get(this.state, 'animalData')}
                                                     events={_.get(this.state, 'adoptionEvents')}
                                                     headerText={"Adoption Records"}
-                                                    shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
+                                                    shelterluvShortId={_.get(this.state, 'participantData.shelterluvShortId')}
 
                                         />
-                                        <AnimalInfo pets={_.get(this.state, 'animalData')}
+                                        {/* <Fosters pets={_.get(this.state, 'animalData')}
                                                     events={_.get(this.state, 'fosterEvents')}
                                                     headerText={"Foster Records"}
-                                                    shelterluv_id={_.get(this.state, 'participantData.shelterluv_id')}
-                                        />
+                                                    shelterluvShortId={_.get(this.state, 'participantData.shelterluvShortId')}
+                                        /> */}
                                         <VolunteerActivity volunteer={this.extractVolunteerActivity()} />
                                         <VolunteerHistory volunteerShifts={_.get(this.state, 'participantData.shifts')} />
                                     </Grid>
@@ -184,7 +188,7 @@ class View360 extends Component {
                             </Grid>
                         </Paper>))}
                 {this.state.isDataBusy === true && (
-                    <Backdrop className={classes.backdrop} open={this.state.isLoading !== false}>
+                    <Backdrop open={this.state.isLoading !== false}>
                         <CircularProgress size={60}/>
                     </Backdrop>
                 )}

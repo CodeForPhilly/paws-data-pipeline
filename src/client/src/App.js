@@ -1,8 +1,8 @@
 import React from 'react';
 
-import {BrowserRouter as Router, Switch, Route, useHistory, Redirect} from 'react-router-dom';
+import {BrowserRouter as Router, Switch, Route, Redirect} from 'react-router-dom';
 
-import Header, {AdminHeader, LoginHeader} from "./components/Header";
+import Header from "./components/Header";
 
 import Login from './pages/Login/Login';
 import Logout from './pages/Login/Logout';
@@ -16,6 +16,7 @@ import Check from './pages/Check/Check';
 import Refresh from './components/Refresh';
 
 import useToken from './pages/Login/useToken';
+import Box from "@material-ui/core/Box";
 
 let jwt = require('jsonwebtoken');
 
@@ -36,7 +37,7 @@ function AuthProvider({children}) {
 
     React.useEffect(() => {
         expTimer().then(
-            user => setState({status: 'success', error: null, user})  //
+            user => setState({status: 'success', error: null, user})
         )
     },)
 
@@ -86,14 +87,14 @@ function AuthenticatedApp() {
 
     const popRefreshAlert = expTime > 0 && expTime < REFRESH_POPUP_TIME;  // Time in secs to pop up refresh dialog
 
-    const hdr = userRole === 'admin' ? <AdminHeader/> : <Header/> // If we're going to display a header, which one?
-
-    const history = useHistory();
+    const headerType = userRole === 'admin' ? 'Admin' : 'Normal';
 
     return (
         <Router>
 
-            {!jwtExpired && hdr ? hdr : <LoginHeader/> /* Above-chosen header, or if logged out, no header */}
+            <Box pb={4}>
+                {!jwtExpired ? <Header headerType={headerType}/> : <Header headerType={'Login'}/>}
+            </Box>
             {popRefreshAlert &&
             <RefreshDlg shouldOpen={true} setToken={setToken}/>} {/* Pop up the refresh dialog */}
 
@@ -119,7 +120,7 @@ function AuthenticatedApp() {
                         <Route exact path="/">
                             <HomePage access_token={access_token}/>
                         </Route>
-                         <Route path="/about">
+                        <Route path="/about">
                             <About/>
                         </Route>
 
@@ -142,7 +143,7 @@ function AuthenticatedApp() {
                         <Route path="/check">
                             <Check access_token={access_token}/>
                         </Route>
-                        
+
                         <Route path="/logout">
                             <Logout setToken={setToken}/>
                         </Route>
@@ -170,11 +171,9 @@ function App() {
 
     return (
         <AuthProvider>
-            <div>
-                <Home/>
-            </div>
+            <Home/>
         </AuthProvider>
     )
 }
 
-export default App
+export default App;

@@ -49,9 +49,9 @@ class SearchBar extends Component {
         return (
 
             <form onSubmit={this.handleParticipantSearch}>
-                <Grid container directio={"row"}>
-                    <Grid item xs={11}>
-                        <TextField fullWidth
+                <Grid container directio={"row"} justify="space-between">
+                    <Grid item sm={10}>
+                        <TextField fullWidth autoFocus
                                    error={this.state.alertMinChars}
                                    helperText={this.state.alertMinChars ? "Requires 3 search characters for first and last name" : ""}
                                    id="participant-search"
@@ -87,7 +87,7 @@ class SearchBar extends Component {
         return (
             <Grid container direction={"column"}>
                 <Grid container direction={"row"} justify={"center"}>
-                    <Grid item xs={8}>
+                    <Grid item xs={9}>
                         <Paper className={classes.paper}>
                             {this.searchParticipant()}
                         </Paper>

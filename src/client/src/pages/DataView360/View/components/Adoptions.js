@@ -21,13 +21,6 @@ import { showAnimalAge } from '../../../../utils/utils'
 
 
 const customStyles = theme => ({
-    spaceIcon: {
-        marginTop: 3,
-        marginRight: 3
-    },
-    headerCell: {
-        fontWeight: "bold",
-    },
     paper: {
         position: 'absolute',
         width: 400,
@@ -78,13 +71,12 @@ class Adoptions extends Component {
     }
 
     render() {
-        const { pets, events, headerText } = this.props;
+        const { pets, events, headerText, shelterluvShortId } = this.props;
         const combined = this.combineAnimalAndEvents(pets, events)
-
         const numOfPets = _.size(combined);
         const latestPets = this.getLatestPets(combined);
-
         const headerAddition = (numOfPets > PET_COUNT) ? " (Most Recent " + PET_COUNT + ")" : ""
+        const shelterLuvPersonURL = `https://www.shelterluv.com/phlp-p-${shelterluvShortId}`;
 
         return (
             <Container component={Paper} style={{ "marginTop": "1em" }}>
@@ -93,12 +85,12 @@ class Adoptions extends Component {
                     emojiIcon={<PetsIcon color='primary' fontSize='inherit' />}
                 >
                     <Grid item>
-                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" href={""}>
+                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" href={shelterLuvPersonURL} target="_blank">
                             <LinkIcon />
                         </IconButton>
                     </Grid>
                 </DataTableHeader>
-                <TableContainer component={Paper} style={{ "marginBottom": "1em" }}>
+                <TableContainer component={Paper} variant='outlined' style={{ "marginBottom": "1em" }}>
                     <Table>
                         <TableHead>
                             <TableRow>

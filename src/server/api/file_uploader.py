@@ -3,6 +3,7 @@ import time
 import pandas as pd
 import threading
 import io
+import re
 
 from werkzeug.utils import secure_filename
 from flask import flash, current_app
@@ -10,26 +11,45 @@ from datasource_manager import CSV_HEADERS
 from datasource_manager import DATASOURCE_MAPPING
 from openpyxl import load_workbook
 from tempfile import NamedTemporaryFile
+from donations_importer import validate_import_sfd
+from shifts_importer import validate_import_vs
+
+from constants import RAW_DATA_PATH, CURRENT_SOURCE_FILES_PATH
 
 SUCCESS_MSG = 'Uploaded Successfully!'
 lock = threading.Lock()
 
 
-def validate_and_arrange_upload(file, destination_path):
+def validate_and_arrange_upload(file):
     current_app.logger.info("Start uploading file: " + file.filename)
     filename = secure_filename(file.filename)
     file_extension = filename.rpartition('.')[2]
-    determine_upload_type(file, file_extension, destination_path)
+    determine_upload_type(file, file_extension, RAW_DATA_PATH)
 
 
-def determine_upload_type(file, file_extension, destination_path):
+def determine_upload_type(file, file_extension):
     df = None
 
     if file_extension == 'csv':
         dfs = [pd.read_csv(io.BytesIO(file.stream.read()), encoding='iso-8859-1')]
         file.close()
     else:
-        dfs = excel_to_dataframes(file)
+        
+        match = re.search('donat', file.filename, re.I)
+
+        if match:   # It's a SalesForce Donations file
+            validate_import_sfd(file)
+            return
+        else:
+            match = re.search('volunteer', file.filename, re.I)
+            if match:    # It's a Volgistics file
+                validate_import_vs(file)  
+                dfs = excel_to_dataframes(file)  # Also need to run Volgistics through match processing
+            else:
+                dfs = excel_to_dataframes(file)   #  It's a non-Volgistics, non-Shelterluv XLS? file 
+
+
+  
 
     found_sources = 0
     for df in dfs:
@@ -38,16 +58,16 @@ def determine_upload_type(file, file_extension, destination_path):
                 with lock:
                     found_sources += 1
                     filename = secure_filename(file.filename)
-                    now = time.gmtime()
+                    now = time.localtime()
                     now_date = time.strftime("%Y-%m-%d--%H-%M-%S", now)
                     current_app.logger.info("  -File: " + filename + " Matches files type: " + src_type)
-                    df.to_csv(os.path.join(destination_path, src_type + '-' + now_date + '.csv'))
-                    clean_current_folder(destination_path + '/current', src_type)
-                    df.to_csv(os.path.join(destination_path + '/current', src_type + '-' + now_date + '.csv'))
+                    df.to_csv(os.path.join(RAW_DATA_PATH, src_type + '-' + now_date + '.csv'))
+                    clean_current_folder(CURRENT_SOURCE_FILES_PATH, src_type)
+                    df.to_csv(os.path.join(CURRENT_SOURCE_FILES_PATH, src_type + '-' + now_date + '.csv'))
                     current_app.logger.info("  -Uploaded successfully as : " + src_type + '-' + now_date + '.' + file_extension)
                     flash(src_type + " {0} ".format(SUCCESS_MSG), 'info')
     if found_sources == 0:
-        current_app.logger.error("No sources found in upload")
+        current_app.logger.error("\n\n          !!!!!!! No sources found in upload !!!!  \n                Uploaded file " + file.filename + " is probably from wrong report \n          !!!!!!!!!!!")
 
 
 def excel_to_dataframes(xls):
@@ -69,10 +89,10 @@ def excel_to_dataframes(xls):
     return df
 
 
-def clean_current_folder(destination_path, src_type):
-    if os.listdir(destination_path):
-        for file_name in os.listdir(destination_path):
-            file_path = os.path.join(destination_path, file_name)
+def clean_current_folder(src_type):
+    if os.listdir(CURRENT_SOURCE_FILES_PATH):
+        for file_name in os.listdir(CURRENT_SOURCE_FILES_PATH):
+            file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, file_name)
             file_name_striped = file_path.split('-')[0].split('/')[-1]
 
             if file_name_striped == src_type:

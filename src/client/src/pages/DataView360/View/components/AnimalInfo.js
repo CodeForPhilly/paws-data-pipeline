@@ -5,7 +5,6 @@ import {
     IconButton
 } from '@material-ui/core';
 import LinkIcon from '@material-ui/icons/Link';
-import { withStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
 import Grid from "@material-ui/core/Grid";
 import PetsIcon from "@material-ui/icons/Pets";
@@ -13,24 +12,6 @@ import PetsIcon from "@material-ui/icons/Pets";
 import CollapsibleTable from './CollapsibleTable';
 import DataTableHeader from './DataTableHeader';
 
-
-const customStyles = theme => ({
-    spaceIcon: {
-        marginTop: 3,
-        marginRight: 3
-    },
-    headerCell: {
-        fontWeight: "bold",
-    },
-    paper: {
-        position: 'absolute',
-        width: 400,
-        backgroundColor: theme.palette.background.paper,
-        border: '2px solid #000',
-        boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
-    }
-});
 
 const PET_COUNT = 5;
 
@@ -46,7 +27,7 @@ class AnimalInfo extends Component {
         }
 
         let result = _.mergeWith(petObject, events, customizer);
-        let nonEmptyEvents = _.filter(result, function(pet) { return pet["Events"] && pet["Events"].length > 0 });
+        let nonEmptyEvents = _.filter(result, function(pet) { return pet["Events"] && _.size(pet["Events"]) > 0 });
         result = [..._.orderBy(nonEmptyEvents, ['Events[0].Time'], ['desc'])]
         return result.slice(0, PET_COUNT);
     }
@@ -77,4 +58,4 @@ class AnimalInfo extends Component {
 }
 
 
-export default withStyles(customStyles)(AnimalInfo);
+export default AnimalInfo;
