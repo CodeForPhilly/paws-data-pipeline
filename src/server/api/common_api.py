@@ -46,7 +46,7 @@ def get_contacts(search_text):
 
         names = search_text.split(" ")
         if len(names) == 2:
-            query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color
+            query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
                             from pdp_contacts 
                             left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
                             left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
@@ -55,7 +55,7 @@ def get_contacts(search_text):
                             order by lower(last_name), lower(first_name)""")
             query_result = connection.execute(query, name1='{}%'.format(names[0]), name2='{}%'.format(names[1]))
         elif len(names) == 1:
-            query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color
+            query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
                             from pdp_contacts 
                             left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
                             left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
@@ -77,7 +77,7 @@ def get_360(matching_id):
     result = {}
 
     with engine.connect() as connection:
-        query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color
+        query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
                         from pdp_contacts 
                         left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
                         left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
