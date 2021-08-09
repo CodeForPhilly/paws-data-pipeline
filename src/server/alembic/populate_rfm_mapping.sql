@@ -1,3 +1,6 @@
+-- Run this script in your SQL query tool
+-- Run truncate command if this table is already populated
+-- TRUNCATE TABLE rfm_mapping; 
 BEGIN;
 insert into rfm_mapping values('111', 'label111','0xc0c0c0', '0x010101');
 insert into rfm_mapping values('112', 'label112','0xc0c0c0', '0x010101');
