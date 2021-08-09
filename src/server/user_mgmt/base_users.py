@@ -1,10 +1,9 @@
-from sqlalchemy.sql.schema import ColumnDefault
 from config import engine
 from api import user_api
 import sqlalchemy as sa
 
 try:   
-    from secrets import BASEUSER_PW, BASEEDITOR_PW, BASEADMIN_PW
+    from secrets_dict import BASEUSER_PW, BASEEDITOR_PW, BASEADMIN_PW
 except ImportError:   
     # Not running locally
     print("Couldn't get BASE user PWs from file, trying environment **********")

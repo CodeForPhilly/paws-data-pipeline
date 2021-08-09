@@ -3,14 +3,11 @@ from config import engine
 from flask import jsonify , current_app
 from sqlalchemy.sql import text
 import requests
-import json
 import time
 from datetime import datetime
-import dateutil.parser
-
 
 try:
-    from secrets import SHELTERLUV_SECRET_TOKEN
+    from secrets_dict import SHELTERLUV_SECRET_TOKEN
 except ImportError:
     # Not running locally
     print("Couldn't get SL_TOKEN from file, trying environment **********")
