@@ -7,10 +7,11 @@ from pipeline import calssify_new_data, clean_and_load_data, archive_rows, match
 from config import CURRENT_SOURCE_FILES_PATH
 from config import engine
 from models import Base
+import time
 
 
 def start_flow():
-
+    start = time.time()
     job_id = admin_api.start_job()
 
     if (not job_id):
@@ -26,8 +27,6 @@ def start_flow():
 
         if file_path_list:
             with engine.begin() as connection:
-                Base.metadata.create_all(connection)
-
                 # Get previous version of pdp_contacts table, which is used later to classify new records
                 pdp_contacts_df = pd.read_sql_table('pdp_contacts', connection)
                 pdp_contacts_df = pdp_contacts_df[pdp_contacts_df["archived_date"].isnull()]
@@ -83,4 +82,5 @@ def start_flow():
 
         log_db.log_exec_status(job_id, 'flow', 'complete', '' )
 
+    current_app.logger.info('Pipeline execution took {} seconds '.format(time.time() - start))
     return job_outcome
