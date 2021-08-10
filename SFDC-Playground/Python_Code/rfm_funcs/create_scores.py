@@ -7,25 +7,25 @@ def create_scores(path_to_csv, query_date):
     import numpy as np
     from datetime import datetime, date
     from collections import Counter
-    # from admin_api import read_rfm_edges, pull_donations_for_rfm
+    from admin_api import read_rfm_edges, pull_donations_for_rfm
 
 
     df = pd.read_csv(path_to_csv)
-    # df = pull_donations_for_rfm()
-    # df = pd.DataFrame(df, columns=['matching_id', 'amount', 'close_date'])
+    df = pull_donations_for_rfm()
+     df = pd.DataFrame(df, columns=['matching_id', 'amount', 'close_date'])
 
     # read in labels and bin edges from table
 
-    # r_edges = list(read_rfm_edges('r').values())
+
 
     recency_labels = [5,4,3,2,1]
-    recency_bins =   [0, 262, 1097, 1910, 2851]       #list(read_rfm_edges('r').values())    #imported from table
+    recency_bins =   list(read_rfm_edges('r').values())    #imported from table
 
     frequency_labels = [1,2,3,4,5]
-    frequency_bins  =  [0, 1, 2, 3, 4]     #list(read_rfm_edges('f').values())             #       imported from table
+    frequency_bins  =  list(read_rfm_edges('f').values())             #       imported from table
 
     monetary_labels = [ 1,2,3,4,5]
-    monetary_bins =   [0., 50., 75., 100., 210.]      #list(read_rfm_edges('m').values())              #       imported from table
+    monetary_bins =   list(read_rfm_edges('m').values())              #       imported from table
 
 
     ########################## recency #########################################
