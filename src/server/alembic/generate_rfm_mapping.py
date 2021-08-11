@@ -19,10 +19,10 @@ def start():
         '''-- Run this script in your SQL query tool
 -- Run truncate command if this table is already populated
 -- TRUNCATE TABLE rfm_mapping; 
-BEGIN;
+-- BEGIN;
+-- Fields are                 (rfm_score, label, (background) color, text color)
         '''
     )
-
 
     combinations = []
     for x in get_all_combinations('12345'):
@@ -64,7 +64,7 @@ BEGIN;
             "insert into rfm_mapping values('{}', '{}','{}', '{}');".format(rfm_score, label, background_color,
                                                                             color_text))
 
-    mapping_rows.append('COMMIT;')
+    mapping_rows.append('-- COMMIT;')
 
     with open('populate_rfm_mapping.sql', 'w') as f:
         for item in mapping_rows:
