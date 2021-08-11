@@ -56,10 +56,32 @@ def get_contacts(search_text):
                             from pdp_contacts 
                             left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
                             left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
-                            WHERE lower(first_name) like lower(:search_text) 
-                                OR lower(last_name) like lower(:search_text) 
+                            where archived_date is null AND ( lower(first_name) like lower(:search_text) 
+                                OR lower(last_name) like lower(:search_text) )
                             order by lower(last_name), lower(first_name)""")
             query_result = connection.execute(query, search_text='{}%'.format(search_text))
+
+        query_result_json = [dict(row) for row in query_result]
+
+        results = jsonify({'result': query_result_json})
+
+        return results
+
+
+@common_api.route('/api/rfm/<label>', methods=['GET'])
+@jwt_ops.jwt_required()
+def get_rfm(label):
+    with engine.connect() as connection:
+        query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
+                        from pdp_contacts 
+                        left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
+                        left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
+                        where archived_date is null AND rfm_label like :label
+                        order by lower(last_name), lower(first_name)
+                        """
+                     )
+
+        query_result = connection.execute(query, label='{}%'.format(label))
 
         query_result_json = [dict(row) for row in query_result]
 

@@ -17,6 +17,7 @@ import Refresh from './components/Refresh';
 
 import useToken from './pages/Login/useToken';
 import Box from "@material-ui/core/Box";
+import {RFM} from "./pages/RFM/RFM";
 
 let jwt = require('jsonwebtoken');
 
@@ -138,6 +139,10 @@ function AuthenticatedApp() {
 
                         <Route path="/360view/view">
                             <View360 access_token={access_token}/>
+                        </Route>
+
+                         <Route path="/rfm">
+                            <RFM access_token={access_token}/>
                         </Route>
 
                         <Route path="/check">
