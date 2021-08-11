@@ -1,6 +1,6 @@
 -- Run this script in your SQL query tool
 -- Run truncate command if this table is already populated
--- TRUNCATE TABLE rfm_mapping; 
+-- TRUNCATE TABLE rfm_mapping;
 -- BEGIN;
 -- Fields are                 (rfm_score, label, (background) color, text color)
         
