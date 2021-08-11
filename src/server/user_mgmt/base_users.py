@@ -100,7 +100,7 @@ def populate_rfm_mapping_table(overwrite=False):
             return row_count == 0
 
 
-        if overwrite or table_empty():         
+        if overwrite or table_empty():
             print("Populating rfm_mapping table")
 
             if not table_empty():
@@ -114,7 +114,7 @@ def populate_rfm_mapping_table(overwrite=False):
             elif os.path.exists('alembic'):  # running on Docker
                 file_path = os.path.normpath('alembic/populate_rfm_mapping.sql')
 
-            else:                 # 
+            else:                 #
                 print("ERROR: Can't find a path to populate script!!!!!!")
                 print('CWD is ' + os.getcwd())
                 return
