@@ -15,8 +15,7 @@ CSV_HEADERS = {
     'salesforcecontacts': ['Contact ID 18', 'First Name', 'Last Name', 'Mailing Street', 'Mailing City',
                            'Mailing State/Province', 'Mailing Zip/Postal Code', 'Mailing Country', 'Phone', 'Mobile',
                            'Email', 'Account ID 18', 'Volgistics ID', 'Person ID'],
-    'volgisticsshifts': ['Number', 'Site', 'Place', 'Assignment', 'Role', 'From', 'To', 'Spare date', 'Spare dropdown',
-                         'Spare checkbox', 'Coordinator'],
+    'volgisticsshifts': ['Number', 'Place', 'Assignment', 'From date', 'To date', 'Hours'],
     'salesforcedonations': ['Recurring donor', 'Opportunity Owner', 'Account Name', 'Opportunity ID (18 Digit)',
                             'Account ID (18 digit)',
                             'Opportunity Name', 'Stage', 'Fiscal Period', 'Amount', 'Probability (%)', 'Age',
@@ -24,6 +23,11 @@ CSV_HEADERS = {
                             'Source', 'Contact ID (18 Digit)', 'Primary Contact'],
     'manualmatches': ['salesforcecontacts', 'volgistics', 'shelterluvpeople']
 }
+
+    # TODO: Now that volgisticsshifts and salesforcedonations are loaded directly, what should their records above and below reflect 
+    #       to be processed by clean_and_load_data  (L34) ? 
+
+
 
 DATASOURCE_MAPPING = {
     'salesforcecontacts': {
@@ -52,13 +56,13 @@ DATASOURCE_MAPPING = {
         'should_drop_first_column': False
     },
     'volgisticsshifts': {
-        'id': 'number',
+        'id': 'volg_id',
         'csv_names': CSV_HEADERS['volgisticsshifts'],
         'tracked_columns': list(map(__clean_csv_headers, CSV_HEADERS['volgisticsshifts'])),
         'table_email': None,
         '_table_name': None,
-        'sheetname': 'Assignments',
-        'should_drop_first_column': True
+        'sheetname': 'Service',
+        'should_drop_first_column': False
     },
     'salesforcedonations': {
         'id': 'contact_id',

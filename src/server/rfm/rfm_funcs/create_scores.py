@@ -1,4 +1,4 @@
-def create_scores(query_date):
+def create_scores(connection, query_date):
     '''
     requires query date as input-- must be string in the following format "%Y-%m-%d"
     returns a list of matching_ids and scores as tuples
@@ -13,7 +13,14 @@ def create_scores(query_date):
 
 
     # read in data from database via pull_donations_for_rfm() func (reads in as a list of tuples)
-    df = pull_donations_for_rfm()
+    df = pd.read_sql(
+        """
+        select pc.matching_id, s.amount, s.close_date 
+        from salesforcedonations s 
+        inner join pdp_contacts pc on pc.source_id = s.contact_id and pc.source_type = 'salesforcecontacts'
+        where pc.archived_date is null order by matching_id
+        """
+        , connection)
     df = pd.DataFrame(df, columns=['matching_id', 'amount', 'close_date'])
 
     # read in labels and bin edges from table

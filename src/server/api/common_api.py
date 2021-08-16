@@ -77,27 +77,32 @@ def get_360(matching_id):
 
         for row in result["contact_details"]:
             if row["source_type"] == "salesforcecontacts":
-                donations_query = text("select * from salesforcedonations where contact_id like :salesforcecontacts_id")
+                donations_query = text("""select cast (close_date as text), cast (amount as float), donation_type,  primary_campaign_source 
+                                        from salesforcedonations
+                                        where contact_id = :salesforcecontacts_id""")
                 salesforce_contacts_query_result = connection.execute(donations_query,
-                                                                      salesforcecontacts_id=row["source_id"] + "%")
+                                                                      salesforcecontacts_id=row["source_id"])
                 salesforce_donations_results = [dict(row) for row in salesforce_contacts_query_result]
                 result['donations'] = salesforce_donations_results
 
             if row["source_type"] == "volgistics":
-                shifts_query = text("select * from volgisticsshifts where number = :volgistics_id")
+                shifts_query = text("""select volg_id, assignment, site, from_date, cast(hours as float) 
+                                        from volgisticsshifts where volg_id = :volgistics_id
+                                        order by from_date desc
+                                        limit 5""")
                 volgistics_shifts_query_result = connection.execute(shifts_query, volgistics_id=row["source_id"])
                 volgisticsshifts_results = []
 
                 # todo: temporary fix until formatted in the pipeline
                 for r in volgistics_shifts_query_result:
                     shifts = dict(r)
-                    # normalize date string
-                    if shifts["from"]:
-                        parsed_date_from = dateutil.parser.parse(shifts["from"], ignoretz=True)
-                        normalized_date_from = parsed_date_from.strftime("%Y-%m-%d")
-                        shifts["from"] = normalized_date_from
-                    else:
-                        shifts["from"] = "Invalid date"
+                    # normalize date string  - not needed as now returning in YYYY-MM-DD
+                    # if shifts["from_date"]:
+                    #     parsed_date_from = dateutil.parser.parse(shifts["from_date"], ignoretz=True)
+                    #     normalized_date_from = parsed_date_from.strftime("%Y-%m-%d")
+                    #     shifts["from"] = normalized_date_from
+                    # else:
+                    #     shifts["from"] = "Invalid date"
                     volgisticsshifts_results.append(shifts)
 
                 result['shifts'] = volgisticsshifts_results
@@ -111,7 +116,10 @@ def get_360(matching_id):
 
 @common_api.route('/api/person/<matching_id>/animals', methods=['GET'])
 def get_animals(matching_id):
-    result = {}
+    result = {
+        "person_details": {}, 
+        "animal_details": {}
+    }
 
     with engine.connect() as connection:
         query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
@@ -122,11 +130,12 @@ def get_animals(matching_id):
             shelterluv_id = row["source_id"]
             person_url = f"http://shelterluv.com/api/v1/people/{shelterluv_id}"
             person_details = requests.get(person_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+            result["person_details"]["shelterluv_short_id"] = person_details["ID"]
             animal_ids = person_details["Animal_ids"]
             for animal_id in animal_ids:
                 animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}"
                 animal_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
-                result[animal_id] = animal_details
+                result["animal_details"][animal_id] = animal_details
 
     return result
 

@@ -10,5 +10,4 @@ pytest
 flask-jwt-extended==4.0.2
 alembic
 flask-cors
-DateTime==4.3
-collections==3.3
+jellyfish

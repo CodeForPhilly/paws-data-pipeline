@@ -3,21 +3,30 @@ import {
     Typography,
 } from '@material-ui/core';
 import Grid from "@material-ui/core/Grid";
+import Box from "@material-ui/core/Box";
 
 
 function DataTableHeader(props) {
     const { headerText, emojiIcon } = props;
     return (
-        <Typography variant='h5'>
-            <Grid container style={{ "margin": "0.5em" }} direction={'row'}>
-                <Grid item style={{ "marginTop": "3", "marginRight": "3" }}>
-                    {emojiIcon}
+        <Typography variant='subtitle1'>
+            <Box pt={1}>
+                <Grid container direction={'row'} alignItems="center" alignContent="center">
+                    <Grid item>
+                        <Box pt={1.2}>
+                            {emojiIcon}
+                        </Box>
+
+                    </Grid>
+                    <Grid item>
+                        {headerText}
+                    </Grid>
+                    <Grid item>
+                        {props.children}
+                    </Grid>
                 </Grid>
-                <Grid item>
-                    {headerText}
-                </Grid>
-                {props.children}
-            </Grid>
+            </Box>
+
         </Typography>
     );
 }

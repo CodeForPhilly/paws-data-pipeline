@@ -9,25 +9,14 @@ import {
     TableCell,
     Container,
 } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
 import moment from 'moment';
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
 import DataTableHeader from './DataTableHeader';
 
-const customStyles = theme => ({
-    spaceIcon: {
-        marginTop: 3,
-        marginRight: 3
-    },
-    headerCell: {
-        fontWeight: "bold"
-    },
-});
 
-class volunteerActivity extends Component {
+class VolunteerActivity extends Component {
 
     render() {
-        const {classes, volunteer} = this.props;
         return (
             <React.Fragment>
                 <Container component={Paper} style={{"marginTop": "1em"}}>
@@ -38,22 +27,22 @@ class volunteerActivity extends Component {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell className={classes.headerCell}>Volunteer activity start</TableCell>
-                                    <TableCell className={classes.headerCell}>Life hours</TableCell>
-                                    <TableCell className={classes.headerCell}>YTD hours</TableCell>
+                                    <TableCell>Volunteer activity start</TableCell>
+                                    <TableCell>Life hours</TableCell>
+                                    <TableCell>YTD hours</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 { this.props.volunteer && (
                                 <TableRow>
                                     <TableCell>{
-                                        (volunteer.start_date === "N/A") 
+                                        (this.props.volunteer.start_date === "N/A")
                                         ? "N/A" 
-                                        : moment(volunteer.start_date).format("YYYY-MM-DD")
+                                        : moment(this.props.volunteer.start_date).format("YYYY-MM-DD")
                                     }
                                     </TableCell>
-                                    <TableCell>{volunteer.life_hours.toFixed(2)}</TableCell>
-                                    <TableCell>{volunteer.ytd_hours.toFixed(2)}</TableCell>
+                                    <TableCell>{this.props.volunteer.life_hours.toFixed(2)}</TableCell>
+                                    <TableCell>{this.props.volunteer.ytd_hours.toFixed(2)}</TableCell>
                                 </TableRow>
                                 )}
                             </TableBody>
@@ -66,4 +55,4 @@ class volunteerActivity extends Component {
 }
 
 
-export default withStyles(customStyles)(volunteerActivity);
+export default VolunteerActivity;
