@@ -2,17 +2,17 @@
 
 ### A number of RFM functions which are called by the main create_scores function.
 
-def date_difference(my_date, query_date):
-    '''
-    This function takes in a single date from the donations dataframe (per row) and compares the difference between that date and the date in which matching occurs.
-    I.e. pipeline matching should provide a query_date so that this can work.
-    '''
-    from datetime import datetime, date
+# def date_difference(my_date, query_date):
+#     '''
+#     This function takes in a single date from the donations dataframe (per row) and compares the difference between that date and the date in which matching occurs.
+#     I.e. pipeline matching should provide a query_date so that this can work.
+#     '''
+#     from datetime import datetime, date
 
-    d1 = datetime.strptime(str(my_date), "%Y-%m-%d")
-    d2 = datetime.strptime(str(query_date), "%Y-%m-%d")
-    diff = (d2 - d1)
-    return diff
+#     d1 = datetime.strptime(str(my_date), "%Y-%m-%d")
+#     d2 = datetime.strptime(str(query_date), "%Y-%m-%d")
+#     diff = (d2 - d1)
+#     return diff
 
 
 
