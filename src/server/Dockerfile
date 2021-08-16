@@ -25,7 +25,6 @@ COPY . .
 
 RUN mkdir /app/static \
     /app/static/raw_data \
-    /app/static/raw_data/current \
     /app/static/logs \
     /app/static/zipped
 
@@ -41,4 +40,4 @@ RUN useradd -m pawsapp
 USER pawsapp
 
 CMD bin/startServer.sh
-#>> start.log 2>&1 
+#>> start.log 2>&1
