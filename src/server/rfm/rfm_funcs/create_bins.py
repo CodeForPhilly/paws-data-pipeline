@@ -13,10 +13,11 @@ def create_bins(data, query_date):
 
 
     ####
-    # read in csv
-    donations_df = pd.read_csv('csv')
+    # read in data from database as list of tuples
+    df = pull_donations_for_rfm()
+    df = pd.DataFrame(df, columns=['matching_id', 'amount', 'close_date'])
 
-    donations_df['Close_Date'] =pd.to_datetime(donations_2021['Close_Date']).dt.date
+    donations_df['Close_Date'] =pd.to_datetime(df['Close_Date']).dt.date
 
     ##################################################################################
     # Calculate recency bins
