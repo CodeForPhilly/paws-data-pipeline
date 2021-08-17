@@ -21,3 +21,5 @@ start_env.sh
 /src/server/secrets_dict.py
 /src/server/local_files/
 .mypy_cache/
+*secrets*
+*kustomization*
