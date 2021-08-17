@@ -41,13 +41,13 @@ def create_scores(query_date):
 
         rfm_dict = read_rfm_edges()
         recency_labels = [5,4,3,2,1]
-        recency_bins =   list(rfm_dict['r'])    #imported from table
+        recency_bins =   list(rfm_dict['r'].values())    #imported from table
 
         frequency_labels = [1,2,3,4,5]
-        frequency_bins  =  list(rfm_dict['f'])    #imported from table
+        frequency_bins  =  list(rfm_dict['f'].values())    #imported from table
 
         monetary_labels = [ 1,2,3,4,5]
-        monetary_bins =   list(rfm_dict['m'])      #imported from table
+        monetary_bins =   list(rfm_dict['m'].values())      #imported from table
 
 
         ########################## recency #########################################
