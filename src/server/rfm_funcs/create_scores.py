@@ -62,7 +62,7 @@ def create_scores(query_date):
             days.append(date_difference(ii, str(query_date)))
         donations_past_year['days_since'] = days
 
-        grouped_past_year = donations_past_year.groupby('_id').agg({'days_since': ['min']}).reset_index()
+        grouped_past_year = donations_past_year.groupby('matching_id').agg({'days_since': ['min']}).reset_index()
 
         grouped_past_year[('days_since', 'min')]= grouped_past_year[('days_since', 'min')].dt.days
 
