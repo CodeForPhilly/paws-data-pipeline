@@ -5,14 +5,14 @@ import numpy as np
 from datetime import datetime, date
 from collections import Counter
 
-def date_difference(my_date, query_date):
+def date_difference(my_date, max_date):
     '''
     This function takes in a single date from the donations dataframe (per row) and compares the difference between that date and the date in which matching occurs.
     I.e. pipeline matching should provide a query_date so that this can work.
     '''
 
     d1 = datetime.strptime(str(my_date), "%Y-%m-%d")
-    d2 = datetime.strptime(str(query_date), "%Y-%m-%d")
+    d2 = datetime.strptime(str(max_date), "%Y-%m-%d")
     diff = (d2 - d1)
     return diff
 
@@ -58,8 +58,9 @@ def create_scores(query_date):
             # calculate date difference between input date and individual row close date
 
         days = []
+        max_close_date = donations_past_year.close_date.max()
         for ii in donations_past_year['close_date']:
-            days.append(date_difference(ii, str(query_date)))
+            days.append(date_difference(ii, max_close_date))
         donations_past_year['days_since'] = days
 
         grouped_past_year = donations_past_year.groupby('matching_id').agg({'days_since': ['min']}).reset_index()
@@ -81,9 +82,11 @@ def create_scores(query_date):
 
         frequency_bins.append(np.inf)
 
-        df_frequency = df_grouped[['matching_id' , 'opp_id']]
+        df_frequency = df_grouped[['matching_id' , 'amount']] # amount is a placeholder as the groupby step just gives a frequency count, the value doesn't correspond to donation monetary amount.
 
-        df_frequency['frequency_score'] = pd.cut(df_frequency['opp_id'],
+        df_frequency = df_frequency.rename(columns = {'amount':'frequency'}) #renaming amount to frequency
+
+        df_frequency['frequency_score'] = pd.cut(df_frequency['frequency'],
                                                 bins = frequency_bins, labels=frequency_labels, include_lowest=True)
 
         ################################## amount ##################################
