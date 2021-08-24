@@ -2,7 +2,7 @@ from config import engine
 
 import pandas as pd
 import numpy as np
-from datetime import datetime, date
+from datetime import datetime
 from collections import Counter
 
 def date_difference(my_date, max_date):
@@ -31,7 +31,7 @@ def create_scores(query_date):
             """
             select pc.matching_id, s.amount, s.close_date 
             from salesforcedonations s 
-            inner join pdp_contacts pc on pc.source_id = s.contact_id and pc.source_type = 'salesforcecontacts'
+            inner join pddp_contacts pc on pc.source_id = s.contact_id and pc.source_type = 'salesforcecontacts'
             where pc.archived_date is null order by matching_id
             """
             , connection)
@@ -46,7 +46,7 @@ def create_scores(query_date):
         frequency_labels = [1,2,3,4,5]
         frequency_bins  =  list(rfm_dict['f'].values())    #imported from table
 
-        monetary_labels = [ 1,2,3,4,5]
+        monetary_labels = [1,2,3,4,5]
         monetary_bins =   list(rfm_dict['m'].values())      #imported from table
 
 
@@ -55,16 +55,17 @@ def create_scores(query_date):
         donations_past_year = df
         donations_past_year['close_date'] =pd.to_datetime(donations_past_year['close_date']).dt.date
 
-            # calculate date difference between input date and individual row close date
+        # calculate date difference between input date and individual row close date
 
         days = []
-        max_close_date = donations_past_year.close_date.max()
+        max_close_date = donations_past_year['close_date'].max()
         for ii in donations_past_year['close_date']:
             days.append(date_difference(ii, max_close_date))
         donations_past_year['days_since'] = days
 
         grouped_past_year = donations_past_year.groupby('matching_id').agg({'days_since': ['min']}).reset_index()
-
+        print(grouped_past_year.head())
+    
         grouped_past_year[('days_since', 'min')]= grouped_past_year[('days_since', 'min')].dt.days
 
         recency_bins.append(grouped_past_year[('days_since', 'min')].max())
@@ -103,20 +104,20 @@ def create_scores(query_date):
         df_semi = df_amount.merge(df_frequency, left_on='matching_id', right_on= 'matching_id')
         print(grouped_past_year.head())
         print(df_semi.head())
-        df_final = df_semi.merge(grouped_past_year, left_on='matching_id', right_on= '_id')        # merge monetary/frequency dfs to recency df
+        df_final = df_semi.merge(grouped_past_year, left_on='matching_id', right_on= 'matching_id')        # merge monetary/frequency dfs to recency df
 
         ### get avg fm score and merge with df_final
         # df_final['f_m_AVG_score'] = df_final[['frequency_score', 'amount_score']].mean(axis=1)
 
 
         # import function: rfm_concat, which will catenate integers as a string and then convert back to a single integer
-        from rfm_functions import rfm_concat
+        from rfm_funcs.rfm_functions import rfm_concat
         rfm_score = rfm_concat(df_final[('recency_score'), ''], df_final['frequency_score'], df_final['amount_score'])
 
         # Append rfm score to final df
         df_final['rfm_score'] = rfm_score
 
-        from rfm_functions import merge_series
+        from rfm_funcs.rfm_functions import merge_series
         score_tuples = merge_series((df_final['matching_id']), df_final['rfm_score'])
 
         insert_rfm_scores(score_tuples)
