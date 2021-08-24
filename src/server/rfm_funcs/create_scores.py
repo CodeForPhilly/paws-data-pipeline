@@ -31,7 +31,7 @@ def create_scores(query_date):
             """
             select pc.matching_id, s.amount, s.close_date 
             from salesforcedonations s 
-            inner join pddp_contacts pc on pc.source_id = s.contact_id and pc.source_type = 'salesforcecontacts'
+            inner join pdp_contacts pc on pc.source_id = s.contact_id and pc.source_type = 'salesforcecontacts'
             where pc.archived_date is null order by matching_id
             """
             , connection)
