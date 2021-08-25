@@ -70,10 +70,9 @@ def get_contacts(search_text):
 
 @common_api.route('/api/rfm/<label>/<limit>', methods=['GET'])
 @common_api.route('/api/rfm/<label>', methods=['GET'])
-#@jwt_ops.jwt_required()
+@jwt_ops.jwt_required()
 def get_rfm(label, limit=None):
     with engine.connect() as connection:
-        query_result = None
         query_string = """select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
                                     from pdp_contacts 
                                     left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
@@ -100,7 +99,8 @@ def get_rfm(label, limit=None):
 @jwt_ops.jwt_required()
 def get_rfm_labels():
     with engine.connect() as connection:
-        query = text("""select distinct rfm_label, rfm_color, rfm_text_color from rfm_mapping;""")
+        query = text("""select rfm_label, rfm_text_color, rfm_color, count(rfm_value) from rfm_scores left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score 
+group by rfm_label, rfm_text_color, rfm_color;""")
 
         query_result = connection.execute(query)
 
@@ -168,7 +168,7 @@ def get_360(matching_id):
 @common_api.route('/api/person/<matching_id>/animals', methods=['GET'])
 def get_animals(matching_id):
     result = {
-        "person_details": {}, 
+        "person_details": {},
         "animal_details": {}
     }
 
@@ -181,12 +181,13 @@ def get_animals(matching_id):
             shelterluv_id = row["source_id"]
             person_url = f"http://shelterluv.com/api/v1/people/{shelterluv_id}"
             person_details = requests.get(person_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
-            result["person_details"]["shelterluv_short_id"] = person_details["ID"]
-            animal_ids = person_details["Animal_ids"]
-            for animal_id in animal_ids:
-                animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}"
-                animal_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
-                result["animal_details"][animal_id] = animal_details
+            if "ID" in person_details:
+                result["person_details"]["shelterluv_short_id"] = person_details["ID"]
+                animal_ids = person_details["Animal_ids"]
+                for animal_id in animal_ids:
+                    animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}"
+                    animal_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+                    result["animal_details"][animal_id] = animal_details
 
     return result
 
@@ -226,10 +227,10 @@ def get_support_oview(matching_id):
     """Return these values for the specified match_id:
         largest gift, date for first donation, total giving, number of gifts,
         amount of first gift, is recurring donor """
-    
+
     # One complication: a single match_id can map to multiple SF ids, so these queries need to 
     # run on a list of of contact_ids.
- 
+
     # First: get the list of salsforce contact_ids associated with the matching_id  
     qcids = text("select source_id FROM pdp_contacts where matching_id = :matching_id and source_type = 'salesforcecontacts';")
 
@@ -270,7 +271,7 @@ def get_support_oview(matching_id):
             # rows = [dict(row) for row in sov1_result]
             row = dict(sov1_result.fetchone())
 
-            if row['largest_gift'] : 
+            if row['largest_gift'] :
                 oview_fields['largest_gift'] = float(row['largest_gift'])
             else:
                 oview_fields['largest_gift'] = 0.0
@@ -285,7 +286,7 @@ def get_support_oview(matching_id):
 
             if row['total_giving']:
                 oview_fields['total_giving'] = float(row['total_giving'])
-            else: 
+            else:
                 oview_fields['total_giving'] = 0.0
 
             oview_fields['number_of_gifts'] = row['number_of_gifts']
@@ -325,7 +326,7 @@ def get_support_oview(matching_id):
                             LIMIT  1;  """ )
 
             sov3 = sov3.bindparams(id_list=tuple(id_list))
-            sov3_result = connection.execute(sov3) 
+            sov3_result = connection.execute(sov3)
 
             if sov3_result.rowcount:
                 oview_fields['is_recurring'] = sov3_result.fetchone()[0]
@@ -339,4 +340,3 @@ def get_support_oview(matching_id):
         else:   # len(rows) == 0
             current_app.logger.debug('No SF contact IDs found for matching_id ' + str(matching_id))
             return jsonify({})
-    

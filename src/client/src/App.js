@@ -25,9 +25,9 @@ const REFRESH_POPUP_TIME = 300 // seconds
 
 // Triggers token expiration check
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
-const expTimer = () => sleep(500).then(() => ({}))
+let expTimer = () => sleep(500).then(() => ({}));
 
-const AuthContext = React.createContext()
+const AuthContext = React.createContext();
 
 function AuthProvider({children}) {
     const [state, setState] = React.useState({
@@ -40,6 +40,7 @@ function AuthProvider({children}) {
         expTimer().then(
             user => setState({status: 'success', error: null, user})
         )
+        expTimer = () => sleep(100000).then(() => ({}));
     },)
 
     return (
@@ -77,7 +78,6 @@ function useAuthState() {
 
 
 function AuthenticatedApp() {
-
     const {access_token, setToken} = useToken();
 
     let decoded = jwt.decode(access_token, {complete: true});
@@ -173,7 +173,6 @@ function Home() {
 }
 
 function App() {
-
     return (
         <AuthProvider>
             <Home/>

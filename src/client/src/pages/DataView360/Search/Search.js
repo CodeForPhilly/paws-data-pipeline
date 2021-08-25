@@ -71,7 +71,8 @@ export const Search360 = (props) => {
             state: JSON.stringify((
                 {
                     participant: searchParticipant,
-                    participantList: participantList
+                    participantList: participantList,
+                    url: `/360view/search`
                 }
             ))
         })
