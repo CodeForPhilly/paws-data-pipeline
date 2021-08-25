@@ -2,6 +2,7 @@ import React from 'react';
 import {matchPath} from "react-router";
 
 import {
+    Backdrop, CircularProgress,
     Container,
     FormControl,
     FormControlLabel,
@@ -37,6 +38,7 @@ export function RFM(props) {
     const [labels, setLabels] = React.useState([]);
     const [selectedLabel, setSelectedLabel] = React.useState("");
     const [participants, setParticipants] = React.useState(undefined);
+    const [isLoading, setIsLoading] = React.useState(false);
 
     React.useEffect(() => {
         (async () => {
@@ -50,7 +52,7 @@ export function RFM(props) {
                 });
             labelsResponse = await labelsResponse.json();
             setLabels(labelsResponse.result);
-            debugger;
+
             try {
                 let state = JSON.parse(_.get(history, 'location.state'));
                 let stateLabel = state.selectedLabel;
@@ -65,18 +67,26 @@ export function RFM(props) {
     }, []);
 
     const handleLabelChange = async (event) => {
-        debugger;
-        setSelectedLabel(event.target.value);
-        let participantsResponse = await fetch(`/api/rfm/${event.target.value}/100`,
-            {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + props.access_token
-                }
-            });
-        participantsResponse = await participantsResponse.json();
-        setParticipants(participantsResponse.result);
+        setIsLoading(true);
+
+        try {
+            setSelectedLabel(event.target.value);
+            let participantsResponse = await fetch(`/api/rfm/${event.target.value}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + props.access_token
+                    }
+                });
+            participantsResponse = await participantsResponse.json();
+            debugger;
+            let participantsUniqueByMatch = _.uniq(participantsResponse.result, 'matching_id');
+            setParticipants(_.take(participantsUniqueByMatch, 100));
+        } finally {
+            setIsLoading(false);
+        }
+
     };
 
     const onRowClick = (matching_id) => {
@@ -104,7 +114,6 @@ export function RFM(props) {
                 <Grid container item direction="column" xs={3}>
                     {_.isEmpty(labels) !== true &&
                     <Grid item>
-
                         <FormControl component="fieldset">
                             <Typography variant={"h5"}>
                                 RFM Labels
@@ -134,46 +143,53 @@ export function RFM(props) {
                             Showing 100 Results:
                         </Typography>
                     </Grid>
-                    <Grid item>
-                        {participants &&
-                        <Grid container direction={"row"}>
-                            <Paper>
-                                <TableContainer className={classes.container}>
-                                    <Table size="small" stickyHeader aria-label="sticky table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell align="left">Match ID</TableCell>
-                                                <TableCell align="left">First Name</TableCell>
-                                                <TableCell align="left">Last Name</TableCell>
-                                                <TableCell align="left">Email</TableCell>
-                                                <TableCell align="left">Mobile</TableCell>
-                                                <TableCell align="left">Source</TableCell>
-                                                <TableCell align="left">ID in Source</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {
-                                                _.map(participants, (row, index) => {
-                                                    return <TableRow key={`${row.source_id}${index}`}
-                                                                     onClick={() => onRowClick(row.matching_id)}
-                                                                     className={classes.tableRow}>
-                                                        <TableCell align="left">{row.matching_id}</TableCell>
-                                                        <TableCell align="left">{row.first_name}</TableCell>
-                                                        <TableCell align="left">{row.last_name}</TableCell>
-                                                        <TableCell align="left">{row.email}</TableCell>
-                                                        <TableCell
-                                                            align="left">{formatPhoneNumber(row.mobile)}</TableCell>
-                                                        <TableCell align="left">{row.source_type}</TableCell>
-                                                        <TableCell align="left">{row.source_id}</TableCell>
+                    {
+                        isLoading === true ?
+                            <Backdrop open={isLoading !== false}>
+                                <CircularProgress size={60}/>
+                            </Backdrop> :
+                            <Grid item>
+                                {participants &&
+                                <Grid container direction={"row"}>
+                                    <Paper>
+                                        <TableContainer className={classes.container}>
+                                            <Table size="small" stickyHeader aria-label="sticky table">
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell align="left">Match ID</TableCell>
+                                                        <TableCell align="left">First Name</TableCell>
+                                                        <TableCell align="left">Last Name</TableCell>
+                                                        <TableCell align="left">Email</TableCell>
+                                                        <TableCell align="left">Mobile</TableCell>
+                                                        <TableCell align="left">Source</TableCell>
+                                                        <TableCell align="left">ID in Source</TableCell>
                                                     </TableRow>
-                                                })
-                                            }
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </Paper>
-                        </Grid>}
-                    </Grid>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {
+                                                        _.map(participants, (row, index) => {
+                                                            return <TableRow key={`${row.source_id}${index}`}
+                                                                             onClick={() => onRowClick(row.matching_id)}
+                                                                             className={classes.tableRow}>
+                                                                <TableCell align="left">{row.matching_id}</TableCell>
+                                                                <TableCell align="left">{row.first_name}</TableCell>
+                                                                <TableCell align="left">{row.last_name}</TableCell>
+                                                                <TableCell align="left">{row.email}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{formatPhoneNumber(row.mobile)}</TableCell>
+                                                                <TableCell align="left">{row.source_type}</TableCell>
+                                                                <TableCell align="left">{row.source_id}</TableCell>
+                                                            </TableRow>
+                                                        })
+                                                    }
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                    </Paper>
+                                </Grid>}
+                            </Grid>
+                    }
+
                 </Grid>
             </Grid>
         </Container>
