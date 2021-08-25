@@ -68,20 +68,41 @@ def get_contacts(search_text):
         return results
 
 
+@common_api.route('/api/rfm/<label>/<limit>', methods=['GET'])
 @common_api.route('/api/rfm/<label>', methods=['GET'])
-@jwt_ops.jwt_required()
-def get_rfm(label):
+#@jwt_ops.jwt_required()
+def get_rfm(label, limit=None):
     with engine.connect() as connection:
-        query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
-                        from pdp_contacts 
-                        left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
-                        left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
-                        where archived_date is null AND rfm_label like :label
-                        order by lower(last_name), lower(first_name)
-                        """
-                     )
+        query_result = None
+        query_string = """select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
+                                    from pdp_contacts 
+                                    left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
+                                    left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
+                                    where archived_date is null AND rfm_label like :label
+                                    order by lower(last_name), lower(first_name)"""
 
-        query_result = connection.execute(query, label='{}%'.format(label))
+        if limit:
+            query = text(query_string + " limit :limit")
+            query_result = connection.execute(query, label='{}%'.format(label), limit='{}'.format(limit))
+
+        else:
+            query = text(query_string)
+            query_result = connection.execute(query, label='{}%'.format(label))
+
+        query_result_json = [dict(row) for row in query_result]
+
+        results = jsonify({'result': query_result_json})
+
+        return results
+
+
+@common_api.route('/api/rfm/labels', methods=['GET'])
+@jwt_ops.jwt_required()
+def get_rfm_labels():
+    with engine.connect() as connection:
+        query = text("""select distinct rfm_label, rfm_color, rfm_text_color from rfm_mapping;""")
+
+        query_result = connection.execute(query)
 
         query_result_json = [dict(row) for row in query_result]
 

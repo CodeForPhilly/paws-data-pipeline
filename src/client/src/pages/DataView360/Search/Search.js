@@ -96,7 +96,7 @@ export const Search360 = (props) => {
         participantListGrouped = _.orderBy(participantListGrouped, ['0.lower_last_name', '0.lower_first_name']);
 
         return (
-            <Grid container direction={"column"} justify={"center"}>
+            <Grid container direction={"column"}>
                 <Grid container direction={"row"} justify={"center"}>
                     <Grid item>
                         <Box pt={2} pb={4}>
@@ -105,8 +105,7 @@ export const Search360 = (props) => {
 
                     </Grid>
                 </Grid>
-                <Grid container direction={"row"} justify={"center"}>
-
+                <Grid container direction={"row"}>
                     <Paper>
                         <TableContainer className={classes.container}>
                             <Table className={classes.table} size="small" stickyHeader aria-label="sticky table">
@@ -171,7 +170,7 @@ export const Search360 = (props) => {
     }
 
     return (
-        <Container>
+        <Container maxWidth={"lg"}>
             <Box display="flex" justifyContent="center" pb={3}>
                 <Typography variant={"h2"}>PAWS Contact Search</Typography>
             </Box>
