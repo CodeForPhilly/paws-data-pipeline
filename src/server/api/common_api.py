@@ -78,11 +78,12 @@ def get_rfm(label, limit=None):
                                     left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
                                     left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
                                     where archived_date is null AND rfm_label like :label
+                                    and source_type = 'salesforcecontacts'
                                     order by lower(last_name), lower(first_name)"""
 
         if limit:
             query = text(query_string + " limit :limit")
-            query_result = connection.execute(query, label='{}%'.format(label), limit='{}'.format(limit))
+            query_result = connection.execute(query, label='{}%'.format(label), limit=limit)
 
         else:
             query = text(query_string)

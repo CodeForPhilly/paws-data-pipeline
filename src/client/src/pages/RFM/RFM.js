@@ -18,6 +18,7 @@ import {makeStyles} from "@material-ui/styles";
 import {formatPhoneNumber} from "../../utils/utils";
 import {useHistory} from "react-router-dom";
 
+const RFM_LIMIT = 100
 
 const useStyles = makeStyles({
     container: {
@@ -71,7 +72,7 @@ export function RFM(props) {
 
         try {
             setSelectedLabel(event.target.value);
-            let participantsResponse = await fetch(`/api/rfm/${event.target.value}`,
+            let participantsResponse = await fetch(`/api/rfm/${event.target.value}/${RFM_LIMIT}`,
                 {
                     method: 'GET',
                     headers: {
@@ -80,9 +81,7 @@ export function RFM(props) {
                     }
                 });
             participantsResponse = await participantsResponse.json();
-            debugger;
-            let participantsUniqueByMatch = _.uniq(participantsResponse.result, 'matching_id');
-            setParticipants(_.take(participantsUniqueByMatch, 100));
+            setParticipants(_.uniqBy(participantsResponse.result, 'matching_id'));
         } finally {
             setIsLoading(false);
         }
@@ -140,7 +139,7 @@ export function RFM(props) {
                 <Grid container item direction="column" xs={8} spacing={2}>
                     <Grid item>
                         <Typography variant={"h5"}>
-                            Showing 100 Results:
+                            Showing {RFM_LIMIT} Results:
                         </Typography>
                     </Grid>
                     {
@@ -156,13 +155,12 @@ export function RFM(props) {
                                             <Table size="small" stickyHeader aria-label="sticky table">
                                                 <TableHead>
                                                     <TableRow>
-                                                        <TableCell align="left">Match ID</TableCell>
                                                         <TableCell align="left">First Name</TableCell>
                                                         <TableCell align="left">Last Name</TableCell>
                                                         <TableCell align="left">Email</TableCell>
                                                         <TableCell align="left">Mobile</TableCell>
-                                                        <TableCell align="left">Source</TableCell>
-                                                        <TableCell align="left">ID in Source</TableCell>
+                                                        <TableCell align="left">RFM</TableCell>
+                                                        <TableCell align="left">Salesforce ID</TableCell>
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
@@ -171,13 +169,12 @@ export function RFM(props) {
                                                             return <TableRow key={`${row.source_id}${index}`}
                                                                              onClick={() => onRowClick(row.matching_id)}
                                                                              className={classes.tableRow}>
-                                                                <TableCell align="left">{row.matching_id}</TableCell>
                                                                 <TableCell align="left">{row.first_name}</TableCell>
                                                                 <TableCell align="left">{row.last_name}</TableCell>
                                                                 <TableCell align="left">{row.email}</TableCell>
                                                                 <TableCell
                                                                     align="left">{formatPhoneNumber(row.mobile)}</TableCell>
-                                                                <TableCell align="left">{row.source_type}</TableCell>
+                                                                <TableCell align="left">{row.rfm_score} ({row.rfm_label})</TableCell>
                                                                 <TableCell align="left">{row.source_id}</TableCell>
                                                             </TableRow>
                                                         })
