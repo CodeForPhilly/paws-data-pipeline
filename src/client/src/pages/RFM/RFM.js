@@ -2,7 +2,7 @@ import React from 'react';
 import {matchPath} from "react-router";
 
 import {
-    Backdrop, CircularProgress,
+    Backdrop, Button, CircularProgress,
     Container,
     FormControl,
     FormControlLabel,
@@ -42,6 +42,8 @@ export function RFM(props) {
     const [isLoading, setIsLoading] = React.useState(false);
 
     React.useEffect(() => {
+        setIsLoading(true);
+
         (async () => {
             let labelsResponse = await fetch(`/api/rfm/labels`,
                 {
@@ -64,15 +66,17 @@ export function RFM(props) {
             } catch {
             }
 
+            setIsLoading(false);
+
         })();
     }, []);
 
-    const handleLabelChange = async (event) => {
+    const handleLabelChange = async (labelData) => {
         setIsLoading(true);
 
         try {
-            setSelectedLabel(event.target.value);
-            let participantsResponse = await fetch(`/api/rfm/${event.target.value}/${RFM_LIMIT}`,
+            setSelectedLabel(labelData);
+            let participantsResponse = await fetch(`/api/rfm/${labelData.rfm_label}/${RFM_LIMIT}`,
                 {
                     method: 'GET',
                     headers: {
@@ -81,6 +85,7 @@ export function RFM(props) {
                     }
                 });
             participantsResponse = await participantsResponse.json();
+
             setParticipants(_.uniqBy(participantsResponse.result, 'matching_id'));
         } finally {
             setIsLoading(false);
@@ -109,47 +114,57 @@ export function RFM(props) {
             <Box display="flex" justifyContent="center" pb={5}>
                 <Typography variant={"h2"}>RFM Scores</Typography>
             </Box>
-            <Grid container direction="row" justify={"flex-start"} spacing={2}>
-                <Grid container item direction="column" xs={3}>
-                    {_.isEmpty(labels) !== true &&
-                    <Grid item>
-                        <FormControl component="fieldset">
-                            <Typography variant={"h5"}>
-                                RFM Labels
-                            </Typography>
-                            <RadioGroup aria-label="labels" value={selectedLabel} onChange={handleLabelChange}>
-                                {
-                                    _.map(labels, labelData => {
-                                        return <FormControlLabel value={labelData.rfm_label} control={<Radio/>}
-                                                                 label={<Paper variant="outlined" elevation={3}>
-                                                                     <Typography style={{
-                                                                         backgroundColor: labelData.rfm_color,
-                                                                         color: labelData.rfm_text_color,
-                                                                         padding: 3
-                                                                     }}>
-                                                                         {labelData.rfm_label} ({labelData.count})
-                                                                     </Typography>
-                                                                 </Paper>}/>
-                                    })
-                                }
-                            </RadioGroup>
-                        </FormControl>
-                    </Grid>}
-                </Grid>
-                <Grid container item direction="column" xs={8} spacing={2}>
-                    <Grid item>
-                        <Typography variant={"h5"}>
-                            Showing {RFM_LIMIT} Results:
-                        </Typography>
+            {isLoading === true ?
+                <Backdrop open={isLoading !== false}>
+                    <CircularProgress size={60}/>
+                </Backdrop> :
+
+                <Grid container item direction="row">
+                    <Grid container item direction="column" sm={3}>
+                        <Grid item>
+
+                            {_.isEmpty(labels) !== true &&
+                            <Grid item container direction="column" spacing={3}>
+                                <Grid item>
+                                    <Typography variant={"h5"}>
+                                        RFM Labels
+                                    </Typography>
+                                </Grid>
+                                <Grid container item direction="column" spacing={2}>
+                                    {
+                                        _.map(labels, labelData => {
+                                            return <Grid item>
+                                                <Button onClick={() => handleLabelChange(labelData)}
+                                                        style={{
+                                                            backgroundColor: labelData.rfm_color,
+                                                            minWidth: 300,
+                                                            border: labelData === selectedLabel ? "solid" : "none",
+                                                        }}>
+                                                    <Typography style={{
+                                                        color: labelData.rfm_text_color,
+                                                        padding: 3
+                                                    }}>
+                                                        {labelData.rfm_label} ({labelData.count})
+                                                    </Typography>
+                                                </Button>
+                                            </Grid>
+                                        })
+                                    }
+                                </Grid>
+                            </Grid>}
+
+                        </Grid>
                     </Grid>
-                    {
-                        isLoading === true ?
-                            <Backdrop open={isLoading !== false}>
-                                <CircularProgress size={60}/>
-                            </Backdrop> :
-                            <Grid item>
-                                {participants &&
-                                <Grid container direction={"row"}>
+                    <Grid container item direction="column" sm={8}>
+                        <Grid item>
+                            {participants &&
+                            <Grid container direction="column" spacing={10}>
+                                <Grid item>
+                                    <Typography variant={"h5"}>
+                                        Showing {RFM_LIMIT} Results:
+                                    </Typography>
+                                </Grid>
+                                <Grid item>
                                     <Paper>
                                         <TableContainer className={classes.container}>
                                             <Table size="small" stickyHeader aria-label="sticky table">
@@ -174,7 +189,8 @@ export function RFM(props) {
                                                                 <TableCell align="left">{row.email}</TableCell>
                                                                 <TableCell
                                                                     align="left">{formatPhoneNumber(row.mobile)}</TableCell>
-                                                                <TableCell align="left">{row.rfm_score} ({row.rfm_label})</TableCell>
+                                                                <TableCell
+                                                                    align="left">{row.rfm_score} ({row.rfm_label})</TableCell>
                                                                 <TableCell align="left">{row.source_id}</TableCell>
                                                             </TableRow>
                                                         })
@@ -183,13 +199,17 @@ export function RFM(props) {
                                             </Table>
                                         </TableContainer>
                                     </Paper>
-                                </Grid>}
+                                </Grid>
                             </Grid>
-                    }
+                            }
+                        </Grid>
+                    </Grid>
 
                 </Grid>
-            </Grid>
-        </Container>
 
+            }
+
+        </Container>
     );
+
 }

@@ -126,6 +126,7 @@ export const Search360 = (props) => {
                                     {
                                         _.map(participantListGrouped, (row_group, index) => {
                                             return _.map(row_group, (row, idx) => {
+                                                debugger;
                                                 return <TableRow key={`${row.source_id}${idx}`}
                                                                  className={[classes.table, tableRowColors[index % _.size(tableRowColors)]].join(" ")}
                                                                  onClick={() => onRowClick(row.matching_id)}>
@@ -134,7 +135,14 @@ export const Search360 = (props) => {
                                                     <TableCell align="left">{row.last_name}</TableCell>
                                                     <TableCell align="left">{row.email}</TableCell>
                                                     <TableCell align="left">{formatPhoneNumber(row.mobile)}</TableCell>
-                                                    <TableCell align="left">{row.rfm_score} ({row.rfm_label})</TableCell>
+                                                    <TableCell align="left"
+                                                               style={{
+                                                                   backgroundColor: row.rfm_color,
+                                                                   color: row.rfm_text_color,
+                                                                   padding: 2
+                                                               }}>
+                                                        {row.rfm_score} ({row.rfm_label})
+                                                    </TableCell>
                                                     <TableCell align="left">{row.source_type}</TableCell>
                                                     <TableCell align="left">{row.source_id}</TableCell>
                                                 </TableRow>
