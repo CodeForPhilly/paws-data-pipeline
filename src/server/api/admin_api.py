@@ -14,7 +14,7 @@ from api.file_uploader import validate_and_arrange_upload
 from sqlalchemy.orm import Session, sessionmaker
 
 from api import jwt_ops
-from config import CURRENT_SOURCE_FILES_PATH
+from config import RAW_DATA_PATH
 
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
 
@@ -45,7 +45,7 @@ def list_current_files():
     result = None
 
     current_app.logger.info("Start returning file list")
-    file_list_result = os.listdir(CURRENT_SOURCE_FILES_PATH)
+    file_list_result = os.listdir(RAW_DATA_PATH)
 
     if len(file_list_result) > 0:
         result = file_list_result
@@ -229,7 +229,7 @@ def insert_rfm_scores(score_list):
     """Take a list of (matching_id, score) and insert into the
         rfm_scores table.
     """
-
+            # This takes about 4.5 sec to insert 80,000 rows 
 
     Session = sessionmaker(engine) 
     session =  Session()   
@@ -240,18 +240,17 @@ def insert_rfm_scores(score_list):
     truncate = "TRUNCATE table rfm_scores;"
     result = session.execute(truncate)
 
-    row_count = 0
-
+    ins_list = []   # Create a list of per-row dicts
     for pair in score_list:
+        ins_list.append( {'matching_id' : pair[0], 'rfm_score' : pair[1]} )
 
-        stmt = insert(rfms).values(pair)
-        session.execute(stmt)
-        row_count += 1
+
+    ret = session.execute(rfms.insert(ins_list))
 
     session.commit()   # Commit all inserted rows
     session.close()
 
-    return row_count
+    return ret.rowcount
 
 
 # This is super-hacky - temporary
@@ -350,13 +349,51 @@ def pull_donations_for_rfm():
         return sfd_list
 
 
+#@admin_api.route("/api/admin/test_pd", methods=["GET"])  # enable to trigger externally
+def generate_dummy_rfm_scores():
+    """For each matching_id, generate a random RFM score."""
+
+    from random import choice
+    from functools import partial 
+    rc = partial( choice, range(1,6) )
+
+
+    q = text("""select distinct matching_id from pdp_contacts
+            ORDER BY matching_id; """)
+
+    dummy_scores = []
+
+
+    with engine.connect() as connection:
+        result = connection.execute(q)
+
+        for row in result:
+            dummy_scores.append( ( row[0], str(rc()) +  str(rc()) + str(rc()) ) )  
+
+    #   return jsonify(sfd_list)  # enable if using endpoint, but it returns a lot of data
+
+    current_app.logger.debug("Inserting dummy scores...")
+    count = insert_rfm_scores(dummy_scores)
+    current_app.logger.debug("Finished inserting")
+
+
+    return count
+
+
+
+
 # Use this as a way to trigger functions for testing
 # TODO: Remove when not needed
-@admin_api.route("/api/admin/test_endpoint", methods=["GET"])
-def pdfr():
-    dlist = pull_donations_for_rfm()
-    print("Returned " + str(len(dlist)) + " rows")
-    return jsonify( {'rows':len(dlist), 'row[0]': dlist[0]} )  # returns length and a sammple row
+@admin_api.route("/api/admin/test_endpoint_gdrs", methods=["GET"])
+def hit_gdrs():
+    num_scores = generate_dummy_rfm_scores()
+    return jsonify({"scores added" : num_scores})
+
+
+# def pdfr():
+#     dlist = pull_donations_for_rfm()
+#     print("Returned " + str(len(dlist)) + " rows")
+#     return jsonify( {'rows':len(dlist), 'row[0]': dlist[0]} )  # returns length and a sammple row
 
 
 # def validate_rfm_edges():

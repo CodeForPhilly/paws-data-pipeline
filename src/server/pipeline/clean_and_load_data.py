@@ -7,7 +7,7 @@ import copy
 from datasource_manager import DATASOURCE_MAPPING, SOURCE_NORMALIZATION_MAPPING
 from flask import current_app
 import sqlalchemy
-from config import CURRENT_SOURCE_FILES_PATH
+from config import RAW_DATA_PATH
 from pipeline import log_db
 
 def start(connection, pdp_contacts_df, file_path_list):
@@ -16,7 +16,7 @@ def start(connection, pdp_contacts_df, file_path_list):
     manual_matches_df = pd.DataFrame()
     
     for uploaded_file in file_path_list:
-        file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
+        file_path = os.path.join(RAW_DATA_PATH, uploaded_file)
         table_name = file_path.split('/')[-1].split('-')[0]
         if table_name == 'manualmatches':
             manual_matches_df = pd.read_csv((io.BytesIO(open(file_path, "rb").read())), encoding='iso-8859-1')

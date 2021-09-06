@@ -124,13 +124,14 @@ class View360 extends Component {
     }
 
     onBackClick() {
-        const match = matchPath(`/360view/search`, {
-            path: "/360view/search",
+        const url =  JSON.parse(this.props.location.state.state).url;
+
+        const match = matchPath(url, {
+            path: url,
             exact: true
         });
 
         this.props.history.push(match.url, this.props.location.state.state);
-
     }
 
     render() {

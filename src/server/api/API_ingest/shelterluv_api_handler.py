@@ -3,11 +3,11 @@ import requests
 import csv
 import time
 
-from constants import CURRENT_SOURCE_FILES_PATH
+from constants import RAW_DATA_PATH
 from api.API_ingest.dropbox_handler import upload_file_to_dropbox
 
 try:
-    from secrets import SHELTERLUV_SECRET_TOKEN
+    from secrets_dict import SHELTERLUV_SECRET_TOKEN
 except ImportError:
     # Not running locally
     print("Couldn't get SHELTERLUV_SECRET_TOKEN from file, trying environment **********")
@@ -25,7 +25,7 @@ def write_csv(json_data):
     now = time.localtime()
     now_date = time.strftime("%Y-%m-%d--%H-%M-%S", now)
 
-    path = CURRENT_SOURCE_FILES_PATH + "shelterluvpeople-" + now_date + ".csv"  # store file name to use for dropbox
+    path = RAW_DATA_PATH + "shelterluvpeople-" + now_date + ".csv"  # store file name to use for dropbox
 
     file_handle = open(path, "w")
 
@@ -79,9 +79,9 @@ def store_shelterluv_people_all():
     print("Finish getting shelterluv contacts from people table")
 
     print("Start storing latest shelterluvpeople results to container")
-    if os.listdir(CURRENT_SOURCE_FILES_PATH):
-        for file_name in os.listdir(CURRENT_SOURCE_FILES_PATH):
-            file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, file_name)
+    if os.listdir(RAW_DATA_PATH):
+        for file_name in os.listdir(RAW_DATA_PATH):
+            file_path = os.path.join(RAW_DATA_PATH, file_name)
             file_name_striped = file_path.split('-')[0].split('/')[-1]
 
             if file_name_striped == "shelterluvpeople":

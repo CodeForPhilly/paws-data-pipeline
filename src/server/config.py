@@ -1,7 +1,7 @@
 import os
 import sqlalchemy as db
 import models
-from constants import IS_LOCAL, BASE_PATH, RAW_DATA_PATH, OUTPUT_PATH, LOGS_PATH, CURRENT_SOURCE_FILES_PATH, REPORT_PATH, ZIPPED_FILES
+from constants import IS_LOCAL, BASE_PATH, RAW_DATA_PATH, OUTPUT_PATH, LOGS_PATH, REPORT_PATH, ZIPPED_FILES
 
 
 # Initiate postgres DB
@@ -46,6 +46,8 @@ with engine.connect() as connection:
     import user_mgmt.base_users
     user_mgmt.base_users.create_base_roles()  # IFF there are no roles already
     user_mgmt.base_users.create_base_users()  # IFF there are no users already
+    user_mgmt.base_users.populate_rfm_mapping_table()   # Set to True to force loading latest version of populate script
+                                                                       # found in the server/alembic directory
 
 # Create these directories only one time - when initializing
 if not os.path.isdir(BASE_PATH):
@@ -53,6 +55,6 @@ if not os.path.isdir(BASE_PATH):
     os.makedirs(RAW_DATA_PATH, exist_ok=True)
     os.makedirs(OUTPUT_PATH, exist_ok=True)
     os.makedirs(LOGS_PATH, exist_ok=True)
-    os.makedirs(CURRENT_SOURCE_FILES_PATH, exist_ok=True)
+    os.makedirs(RAW_DATA_PATH, exist_ok=True)
     os.makedirs(REPORT_PATH, exist_ok=True)
     os.makedirs(ZIPPED_FILES, exist_ok=True)
