@@ -16,11 +16,10 @@ CSV_HEADERS = {
                            'Mailing State/Province', 'Mailing Zip/Postal Code', 'Mailing Country', 'Phone', 'Mobile',
                            'Email', 'Account ID 18', 'Volgistics ID', 'Person ID'],
     'volgisticsshifts': ['Number', 'Place', 'Assignment', 'From date', 'To date', 'Hours'],
-    'salesforcedonations': ['Recurring donor', 'Opportunity Owner', 'Account Name', 'Opportunity ID (18 Digit)',
-                            'Account ID (18 digit)',
-                            'Opportunity Name', 'Stage', 'Fiscal Period', 'Amount', 'Probability (%)', 'Age',
-                            'Close Date', 'Created Date', 'Type', 'Primary Campaign Source',
-                            'Source', 'Contact ID (18 Digit)', 'Primary Contact'],
+    'salesforcedonations': ['Recurring donor - A', 'Opportunity Owner', 'Account Name', 'Opportunity ID 18', 
+                            'Account ID 18', 'Opportunity Name', 'Stage', 'Fiscal Period', 'Amount', 
+                            'Probability (%)', 'Age', 'Close Date', 'Created Date', 'Type', 'Primary Campaign Source',
+                            'Source', 'Contact ID 18', 'Primary Contact'],
     'manualmatches': ['salesforcecontacts', 'volgistics', 'shelterluvpeople']
 }
 

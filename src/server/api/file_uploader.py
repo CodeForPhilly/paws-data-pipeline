@@ -34,12 +34,11 @@ def determine_upload_type(file, file_extension):
         dfs = [pd.read_csv(io.BytesIO(file.stream.read()), encoding='iso-8859-1')]
         file.close()
     else:
-        
         match = re.search('donat', file.filename, re.I)
 
         if match:   # It's a SalesForce Donations file
             validate_import_sfd(file)
-            return
+            dfs = excel_to_dataframes(file)
         else:
             match = re.search('volunteer', file.filename, re.I)
             if match:    # It's a Volgistics file
@@ -48,13 +47,12 @@ def determine_upload_type(file, file_extension):
             else:
                 dfs = excel_to_dataframes(file)   #  It's a non-Volgistics, non-Shelterluv XLS? file 
 
-
-  
-
     found_sources = 0
     for df in dfs:
+        column_check_passed = False
         for src_type in CSV_HEADERS:
             if set(CSV_HEADERS[src_type]).issubset(df.columns):
+                column_check_passed = True
                 with lock:
                     found_sources += 1
                     filename = secure_filename(file.filename)
@@ -66,6 +64,8 @@ def determine_upload_type(file, file_extension):
                     df.to_csv(os.path.join(RAW_DATA_PATH, src_type + '-' + now_date + '.csv'))
                     current_app.logger.info("  -Uploaded successfully as : " + src_type + '-' + now_date + '.' + file_extension)
                     flash(src_type + " {0} ".format(SUCCESS_MSG), 'info')
+        if not column_check_passed:
+            current_app.logger.warn(f"  -File: {file.filename} failed column check! Make sure columns in file match headers in CSV_HEADERS")
     if found_sources == 0:
         current_app.logger.error("\n\n          !!!!!!! No sources found in upload !!!!  \n                Uploaded file " + file.filename + " is probably from wrong report \n          !!!!!!!!!!!")
 
