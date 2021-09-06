@@ -332,8 +332,7 @@ def get_support_oview(matching_id):
             if sov3_result.rowcount:
                 oview_fields['is_recurring'] = sov3_result.fetchone()[0]
             else:
-                 oview_fields['is_recurring'] = False
-
+                oview_fields['is_recurring'] = False
 
             return jsonify(oview_fields)
 
