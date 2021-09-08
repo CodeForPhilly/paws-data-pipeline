@@ -227,7 +227,11 @@ def get_person_animal_events(matching_id, animal_id):
 def get_support_oview(matching_id):
     """Return these values for the specified match_id:
         largest gift, date for first donation, total giving, number of gifts,
-        amount of first gift, is recurring donor """
+        amount of first gift, is recurring donor 
+        
+        If consuming this, check number_of_gifts first. If 0, there's no more data
+        available, so don't try to read any other fields - they may not exist.
+        """
 
     # One complication: a single match_id can map to multiple SF ids, so these queries need to 
     # run on a list of of contact_ids.
@@ -251,7 +255,8 @@ def get_support_oview(matching_id):
                     current_app.logger.warn("salesforcecontacts source_id " + row['source_id'] + "has non-alphanumeric characters; will not be used")
 
             if len(id_list) == 0: # No ids to query
-                return jsonify({})
+                oview_fields['number_of_gifts'] = 0    # Marker for no support data
+                return jsonify(oview_fields)
 
 
             sov1 = text("""SELECT 
@@ -334,9 +339,36 @@ def get_support_oview(matching_id):
             else:
                 oview_fields['is_recurring'] = False
 
+
+            rfm = text("""SELECT
+                            rfm_score, rfm_color, rfm_label, rfm_text_color
+                        FROM 
+                            rfm_scores
+                            left join rfm_mapping on rfm_mapping.rfm_value = rfm_score
+                        WHERE
+                            matching_id = :match_id; """)
+
+            rfm = rfm.bindparams(match_id = matching_id)
+            rfm_result = connection.execute(rfm)
+
+            if rfm_result.rowcount:
+                row = rfm_result.fetchone()
+                oview_fields['rfm_score'] = row[0]
+                oview_fields['rfm_color'] = row[1]
+                oview_fields['rfm_label'] = row[2]                
+                oview_fields['rfm_text_color'] = row[3]                
+
+            else:
+                oview_fields['rfm_score'] = ''
+                oview_fields['rfm_color'] = ''
+                oview_fields['rfm_label'] = ''      
+                oview_fields['rfm_text_color'] = ''
+
+
             return jsonify(oview_fields)
 
 
         else:   # len(rows) == 0
             current_app.logger.debug('No SF contact IDs found for matching_id ' + str(matching_id))
-            return jsonify({})
+            oview_fields['number_of_gifts'] = 0  # Marker for no data
+            return jsonify(oview_fields)
