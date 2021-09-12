@@ -17,12 +17,16 @@ const customStyles = theme => ({
 class SupportOverview extends Component {
 
     createRowData(data) {
+        const isDonor = data.first_donation_date
+        if (!isDonor) {
+            return [{"title": "First Gift Date", "value": "N/A"}]
+        }
         const rows = [
-            { "title": "First Gift Date", "value": data.first_donation_date || "N/A" },
-            { "title": "First Gift Amount", "value": `$${data.first_gift_amount}` || "N/A" },
-            { "title": "Lifetime Giving", "value": `$${data.total_giving}` || "N/A" },
-            { "title": "Total # of Gifts", "value": data.number_of_gifts || "N/A" },
-            { "title": "Largest Gift", "value": `$${data.largest_gift}` || "N/A" },
+            { "title": "First Gift Date", "value": data.first_donation_date },
+            { "title": "First Gift Amount", "value": `$${data.first_gift_amount}`},
+            { "title": "Lifetime Giving", "value": `$${data.total_giving}`},
+            { "title": "Total # of Gifts", "value": data.number_of_gifts},
+            { "title": "Largest Gift", "value": `$${data.largest_gift}`},
             { "title": "Recurring Donor?", "value": data.is_recurring ? "Yes" : "No"}
             // { "title": "PAWS Legacy Society?", "value": "test" }
         ]
