@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Box, Container, Divider, Paper, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
-import _ from 'lodash';
 import Grid from "@material-ui/core/Grid";
 
 const customStyles = theme => ({
@@ -17,7 +16,7 @@ const customStyles = theme => ({
 class SupportOverview extends Component {
 
     createRowData(data) {
-        const isDonor = data.first_donation_date
+        const isDonor = data.first_donation_date || data.number_of_gifts > 0
         if (!isDonor) {
             return [{"title": "First Gift Date", "value": "N/A"}]
         }
@@ -27,7 +26,10 @@ class SupportOverview extends Component {
             { "title": "Lifetime Giving", "value": `$${data.total_giving}`},
             { "title": "Total # of Gifts", "value": data.number_of_gifts},
             { "title": "Largest Gift", "value": `$${data.largest_gift}`},
-            { "title": "Recurring Donor?", "value": data.is_recurring ? "Yes" : "No"}
+            { "title": "Recurring Donor?", "value": data.is_recurring ? "Yes" : "No"},
+            { "title": "RFM Score", "value": data.rfm_score },
+            { "title": "RFM Category", "value": data.rfm_label, 
+              "rfm_color": data.rfm_color, "rfm_text_color": data.rfm_text_color }
             // { "title": "PAWS Legacy Society?", "value": "test" }
         ]
         return rows;
@@ -42,9 +44,13 @@ class SupportOverview extends Component {
                     </Typography>
                 </Grid>
                 <Grid item>
-                    <Typography variant={'body2'} align={"right"}>
+                    {(data.rfm_color) 
+                    ? <Typography variant={'body2'} align={"right"} style={{ "background": row.rfm_color, "fontColor": row.rfm_text_color }}>
                         {row.value}
                     </Typography>
+                    : <Typography variant={'body2'} align={"right"}>
+                        {row.value}
+                    </Typography>}
                 </Grid>
             </Grid>
         ));
