@@ -44,7 +44,7 @@ class SupportOverview extends Component {
                     </Typography>
                 </Grid>
                 <Grid item>
-                    {(data.rfm_color) 
+                    {(row.rfm_color) 
                     ? <Typography variant={'body2'} align={"right"} style={{ "background": row.rfm_color, "fontColor": row.rfm_text_color }}>
                         {row.value}
                     </Typography>
