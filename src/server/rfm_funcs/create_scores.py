@@ -68,7 +68,14 @@ def create_scores(query_date):
     
         grouped_past_year[('days_since', 'min')]= grouped_past_year[('days_since', 'min')].dt.days
 
-        recency_bins.append(grouped_past_year[('days_since', 'min')].max())
+        max_maybe = grouped_past_year[('days_since', 'min')].max()
+
+        real_max = max(max_maybe,  max(recency_bins)+1 )
+
+        recency_bins.append(real_max)
+
+
+        # recency_bins.append(grouped_past_year[('days_since', 'min')].max())
 
         grouped_past_year['recency_score'] = pd.cut(grouped_past_year[('days_since','min')], bins= recency_bins, labels=recency_labels, include_lowest = True)
         grouped_past_year.rename(columns={('recency_score', ''): 'recency_score'})
