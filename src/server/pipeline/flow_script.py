@@ -1,4 +1,4 @@
-import os
+import os , sys, traceback
 import pandas as pd
 
 from flask import current_app
@@ -12,73 +12,91 @@ from models import Base
 def start_flow():
 
     job_id = admin_api.start_job()
+    job_outcome = None
 
     if not job_id:
         current_app.logger.info('Failed to get job_id')
         job_outcome = 'busy'
 
     else:
-        log_db.log_exec_status(job_id, 'start_flow', 'executing', '')
 
-        file_path_list = os.listdir(RAW_DATA_PATH)
+        try:
 
-        if file_path_list:
-            with engine.connect() as connection:
-                Base.metadata.create_all(connection)
+            log_db.log_exec_status(job_id, 'start_flow', 'executing', '')
 
-                # Get previous version of pdp_contacts table, which is used later to classify new records
-                pdp_contacts_df = pd.read_sql_table('pdp_contacts', connection)
-                pdp_contacts_df = pdp_contacts_df[pdp_contacts_df["archived_date"].isnull()]
-                pdp_contacts_df = pdp_contacts_df.drop(columns=['archived_date', 'created_date', '_id', 'matching_id'])
+            file_path_list = os.listdir(RAW_DATA_PATH)
 
-                current_app.logger.info('Loaded {} records from pdp_contacts table'.format(pdp_contacts_df.shape[0]))
+            if file_path_list:
+                with engine.connect() as connection:
+                    Base.metadata.create_all(connection)
 
-                # Clean the input data and normalize/rename columns
-                # Populate new records in secondary tables (donations, volunteer shifts)
-                # input - existing files in path
-                # output - normalized object of all entries, as well as the input json rows for primary sources
-                log_db.log_exec_status(job_id, 'clean_and_load', 'executing', '')
-                normalized_data, source_json, manual_matches_df = clean_and_load_data.start(connection, pdp_contacts_df, file_path_list)
+                    # Get previous version of pdp_contacts table, which is used later to classify new records
+                    pdp_contacts_df = pd.read_sql_table('pdp_contacts', connection)
+                    pdp_contacts_df = pdp_contacts_df[pdp_contacts_df["archived_date"].isnull()]
+                    pdp_contacts_df = pdp_contacts_df.drop(columns=['archived_date', 'created_date', '_id', 'matching_id'])
 
-                # Standardize column data types via postgres (e.g. reading a csv column as int vs. str)
-                # (If additional inconsistencies are encountered, may need to enforce the schema of
-                # the contacts loader by initializing it from pdp_contacts.)
-                normalized_data.to_sql('_temp_pdp_contacts_loader', connection, index=False, if_exists='replace')
-                normalized_data = pd.read_sql_table('_temp_pdp_contacts_loader', connection)
+                    current_app.logger.info('Loaded {} records from pdp_contacts table'.format(pdp_contacts_df.shape[0]))
 
-                # Classifies rows to old rows that haven't changed, updated rows and new rows - compared to the existing state of the DB
-                log_db.log_exec_status(job_id, 'classify', 'executing', '')
-                rows_classified = calssify_new_data.start(pdp_contacts_df, normalized_data)
+                    # Clean the input data and normalize/rename columns
+                    # Populate new records in secondary tables (donations, volunteer shifts)
+                    # input - existing files in path
+                    # output - normalized object of all entries, as well as the input json rows for primary sources
+                    log_db.log_exec_status(job_id, 'clean_and_load', 'executing', '')
+                    normalized_data, source_json, manual_matches_df = clean_and_load_data.start(connection, pdp_contacts_df, file_path_list)
 
-                # Archives rows the were updated in the current state of the DB (changes their archived_date to now)
-                archive_rows.archive(connection, rows_classified["updated"])
+                    # Standardize column data types via postgres (e.g. reading a csv column as int vs. str)
+                    # (If additional inconsistencies are encountered, may need to enforce the schema of
+                    # the contacts loader by initializing it from pdp_contacts.)
+                    normalized_data.to_sql('_temp_pdp_contacts_loader', connection, index=False, if_exists='replace')
+                    normalized_data = pd.read_sql_table('_temp_pdp_contacts_loader', connection)
 
-                # Match new+updated records against previous version of pdp_contacts database, and
-                # write these rows to the database.
-                match_data.start(connection, rows_classified, manual_matches_df, job_id)
+                    # Classifies rows to old rows that haven't changed, updated rows and new rows - compared to the existing state of the DB
+                    log_db.log_exec_status(job_id, 'classify', 'executing', '')
+                    rows_classified = calssify_new_data.start(pdp_contacts_df, normalized_data)
 
-                # Copy raw input rows to json fields in pdp_contacts,
-                # using a temporary table to simplify the update code.
-                current_app.logger.info('Saving json of original rows to pdp_contacts')
-                source_json.to_sql('_temp_pdp_contacts_loader', connection, index=False, if_exists='replace')
-                # https://www.postgresql.org/docs/8.4/sql-update.html
-                connection.execute('''
-                    UPDATE pdp_contacts pdp
-                    SET json = to_json(temp.json)
-                    FROM _temp_pdp_contacts_loader temp
-                    WHERE
-                        pdp.source_type = temp.source_type AND
-                        pdp.source_id = temp.source_id AND
-                        pdp.archived_date IS NULL
-                ''')
+                    # Archives rows the were updated in the current state of the DB (changes their archived_date to now)
+                    archive_rows.archive(connection, rows_classified["updated"])
 
-            current_app.logger.info('Finished flow script run')
-            job_outcome = 'completed'
+                    # Match new+updated records against previous version of pdp_contacts database, and
+                    # write these rows to the database.
+                    match_data.start(connection, rows_classified, manual_matches_df, job_id)
 
-        else: # No files in list
-            current_app.logger.info('No files to process')
-            job_outcome = 'nothing to do'  
+                    # Copy raw input rows to json fields in pdp_contacts,
+                    # using a temporary table to simplify the update code.
+                    current_app.logger.info('Saving json of original rows to pdp_contacts')
+                    source_json.to_sql('_temp_pdp_contacts_loader', connection, index=False, if_exists='replace')
+                    # https://www.postgresql.org/docs/8.4/sql-update.html
+                    connection.execute('''
+                        UPDATE pdp_contacts pdp
+                        SET json = to_json(temp.json)
+                        FROM _temp_pdp_contacts_loader temp
+                        WHERE
+                            pdp.source_type = temp.source_type AND
+                            pdp.source_id = temp.source_id AND
+                            pdp.archived_date IS NULL
+                    ''')
 
-        log_db.log_exec_status(job_id, 'flow', 'complete', '' )
+                current_app.logger.info('Finished flow script run')
+                job_outcome = 'completed'
+                log_db.log_exec_status(job_id, 'flow', 'complete', '' )
+
+
+
+            else: # No files in list
+                current_app.logger.info('No files to process')
+                job_outcome = 'nothing to do'  
+                log_db.log_exec_status(job_id, 'flow', 'complete', '' )
+
+
+        except Exception as e:
+              current_app.logger.error(e)
+              current_app.logger.error(traceback.format_exc())
+
+        finally:
+            if job_outcome != 'completed':  
+                log_db.log_exec_status(job_id, 'flow', 'error', '' )
+                current_app.logger.error("Uncaught error status, setting job status to \'error\' ")
+                job_outcome = 'error'
+                return 'error'
 
     return job_outcome
