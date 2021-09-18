@@ -13,6 +13,8 @@ def start_flow():
 
     job_id = admin_api.start_job()
     job_outcome = None
+    trace_back_string = None
+
 
     if not job_id:
         current_app.logger.info('Failed to get job_id')
@@ -90,11 +92,13 @@ def start_flow():
 
         except Exception as e:
               current_app.logger.error(e)
-              current_app.logger.error(traceback.format_exc())
-
+              trace_back_string = traceback.format_exc()
+              current_app.logger.error(trace_back_string)
+            
         finally:
             if job_outcome != 'completed':  
-                log_db.log_exec_status(job_id, 'flow', 'error', '' )
+                
+                log_db.log_exec_status(job_id, 'flow', 'error', trace_back_string )
                 current_app.logger.error("Uncaught error status, setting job status to \'error\' ")
                 job_outcome = 'error'
                 return 'error'
