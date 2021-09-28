@@ -9,7 +9,6 @@ import {
     TableCell,
     Container,
 } from '@material-ui/core';
-import moment from 'moment';
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
 import DataTableHeader from './DataTableHeader';
 
@@ -35,14 +34,9 @@ class VolunteerActivity extends Component {
                             <TableBody>
                                 { this.props.volunteer && (
                                 <TableRow>
-                                    <TableCell>{
-                                        (this.props.volunteer.start_date === "N/A")
-                                        ? "N/A" 
-                                        : moment(this.props.volunteer.start_date).format("YYYY-MM-DD")
-                                    }
-                                    </TableCell>
-                                    <TableCell>{this.props.volunteer.life_hours.toFixed(2)}</TableCell>
-                                    <TableCell>{this.props.volunteer.ytd_hours.toFixed(2)}</TableCell>
+                                    <TableCell>{(this.props.volunteer.start_date) ? this.props.volunteer.start_date : "N/A"}</TableCell>
+                                    <TableCell>{(this.props.volunteer.life_hours) ? this.props.volunteer.life_hours.toFixed(2) : 0}</TableCell>
+                                    <TableCell>{(this.props.volunteer.ytd_hours) ? this.props.volunteer.ytd_hours.toFixed(2) : 0}</TableCell>
                                 </TableRow>
                                 )}
                             </TableBody>

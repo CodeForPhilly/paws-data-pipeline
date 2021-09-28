@@ -49,7 +49,6 @@ class View360 extends Component {
         }
 
         this.onBackClick = this.onBackClick.bind(this);
-        this.extractVolunteerActivity = this.extractVolunteerActivity.bind(this);
     }
 
     async componentDidMount() {
@@ -107,20 +106,6 @@ class View360 extends Component {
     async getAnimalEvents(animalId, matchId) {
         let response = await fetch(`/api/person/${matchId}/animal/${animalId}/events`);
         return await response.json()
-    }
-
-    extractVolunteerActivity() {
-        const volgistics = _.find(this.state.participantData.contact_details, {"source_type": "volgistics"}) || {};
-        let volunteerActivity = {"life_hours": 0, "ytd_hours": 0, "start_date": "N/A"}
-
-        if (Object.keys(volgistics).length > 0) {
-            const volgisticsJson = JSON.parse(volgistics.json);
-            volunteerActivity = _.pick(volgisticsJson, Object.keys(volunteerActivity));
-            if (volunteerActivity["start_date"] !== "") {
-                volunteerActivity["start_date"] = moment(volunteerActivity["start_date"], "MM-DD-YYYY").format("YYYY-MM-DD");
-            }
-        }
-        return volunteerActivity;
     }
 
     onBackClick() {
@@ -182,7 +167,7 @@ class View360 extends Component {
                                                     headerText={"Foster Records"}
                                                     shelterluvShortId={_.get(this.state, 'participantData.shelterluvShortId')}
                                         /> */}
-                                        <VolunteerActivity volunteer={this.extractVolunteerActivity()} />
+                                        <VolunteerActivity volunteer={_.first(_.get(this.state, 'participantData.activity'))} />
                                         <VolunteerHistory volunteerShifts={_.get(this.state, 'participantData.shifts')} />
                                     </Grid>
                                 </Grid>
