@@ -138,6 +138,8 @@ def get_360(matching_id):
                 result['donations'] = salesforce_donations_results
 
             if row["source_type"] == "volgistics":
+
+                # Shifts data
                 shifts_query = text("""select volg_id, assignment, site, from_date, cast(hours as float) 
                                         from volgisticsshifts where volg_id = :volgistics_id
                                         order by from_date desc
@@ -145,19 +147,26 @@ def get_360(matching_id):
                 volgistics_shifts_query_result = connection.execute(shifts_query, volgistics_id=row["source_id"])
                 volgisticsshifts_results = []
 
-                # todo: temporary fix until formatted in the pipeline
                 for r in volgistics_shifts_query_result:
                     shifts = dict(r)
-                    # normalize date string  - not needed as now returning in YYYY-MM-DD
-                    # if shifts["from_date"]:
-                    #     parsed_date_from = dateutil.parser.parse(shifts["from_date"], ignoretz=True)
-                    #     normalized_date_from = parsed_date_from.strftime("%Y-%m-%d")
-                    #     shifts["from"] = normalized_date_from
-                    # else:
-                    #     shifts["from"] = "Invalid date"
                     volgisticsshifts_results.append(shifts)
 
                 result['shifts'] = volgisticsshifts_results
+
+                # Volunteer activity
+                query_text =  """
+                with activity as 
+                    (select from_date, hours from volgisticsshifts where volg_id = :volgistics_id),
+                alltime as 
+                    (select min(from_date) as start_date, sum(hours) as life_hours from activity),
+                ytd as 
+                    (select sum(hours) as ytd_hours from activity where extract(year from from_date) = extract(year from current_date))
+                
+                select cast(start_date as text), cast(life_hours as float), cast(ytd_hours as float) from alltime, ytd;
+                """
+                hours_query = text(query_text)
+                hours_query_result = connection.execute(hours_query, volgistics_id=row["source_id"])
+                result['activity'] = [dict(row) for row in hours_query_result]
 
             if row["source_type"] == "shelterluvpeople":
                 shelterluv_id = row["source_id"]
