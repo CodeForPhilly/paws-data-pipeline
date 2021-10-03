@@ -46,7 +46,7 @@ with engine.connect() as connection:
     import user_mgmt.base_users
     user_mgmt.base_users.create_base_roles()  # IFF there are no roles already
     user_mgmt.base_users.create_base_users()  # IFF there are no users already
-    user_mgmt.base_users.populate_rfm_mapping_table(overwrite=True)   # Set to True to force loading latest version of populate script
+    user_mgmt.base_users.populate_rfm_mapping_table()   # Set to True to force loading latest version of populate script
                                                                        # found in the server/alembic directory
 
 # Create these directories only one time - when initializing

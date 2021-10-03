@@ -100,6 +100,9 @@ def execute():
     elif job_outcome == 'completed' :
         return jsonify({'outcome' : 'Analysis completed'}), 200
 
+    elif job_outcome == 'error' :
+        return jsonify({'outcome' : 'Analysis not completed due to error'}), 500
+    
     else:
         return jsonify({'outcome' : 'Unknown status: ' + str(job_outcome)}), 200
 

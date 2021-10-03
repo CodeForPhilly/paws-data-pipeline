@@ -37,18 +37,18 @@ def start(connection, pdp_contacts_df, file_path_list):
         if "parent" not in normalization_without_others:  # not a child table
             source_df = create_normalized_df(df, normalization_without_others, table_name)
             df_jsonl = df.to_json(orient="records", lines=True)  # original df with normalized column names
-            source_json = pd.DataFrame({
-                "source_type": table_name,
-                "source_id": source_df["source_id"].astype(str),
-                "json": df_jsonl.split("\n")  # list of jsons, one per row
-            })
+            # source_json = pd.DataFrame({
+            #     "source_type": table_name,
+            #     "source_id": source_df["source_id"].astype(str),
+            #     "json": df_jsonl.split("\n")  # list of jsons, one per row
+            # })
 
             if result.empty:
                 result = source_df
-                json_rows = source_json
+                # json_rows = source_json
             else:
                 result = pd.concat([result, source_df])
-                json_rows = pd.concat([json_rows, source_json])
+                # json_rows = pd.concat([json_rows, source_json])
 
         # else:  # it is a child table, processed in file_uploader.py 
         current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)

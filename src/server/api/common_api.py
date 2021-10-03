@@ -56,10 +56,54 @@ def get_contacts(search_text):
                             from pdp_contacts 
                             left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
                             left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
-                            WHERE lower(first_name) like lower(:search_text) 
-                                OR lower(last_name) like lower(:search_text) 
+                            where archived_date is null AND ( lower(first_name) like lower(:search_text) 
+                                OR lower(last_name) like lower(:search_text) )
                             order by lower(last_name), lower(first_name)""")
             query_result = connection.execute(query, search_text='{}%'.format(search_text))
+
+        query_result_json = [dict(row) for row in query_result]
+
+        results = jsonify({'result': query_result_json})
+
+        return results
+
+
+@common_api.route('/api/rfm/<label>/<limit>', methods=['GET'])
+@common_api.route('/api/rfm/<label>', methods=['GET'])
+@jwt_ops.jwt_required()
+def get_rfm(label, limit=None):
+    with engine.connect() as connection:
+        query_string = """select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
+                                    from pdp_contacts 
+                                    left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
+                                    left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
+                                    where archived_date is null AND rfm_label like :label
+                                    and source_type = 'salesforcecontacts'
+                                    order by lower(last_name), lower(first_name)"""
+
+        if limit:
+            query = text(query_string + " limit :limit")
+            query_result = connection.execute(query, label='{}%'.format(label), limit=limit)
+
+        else:
+            query = text(query_string)
+            query_result = connection.execute(query, label='{}%'.format(label))
+
+        query_result_json = [dict(row) for row in query_result]
+
+        results = jsonify({'result': query_result_json})
+
+        return results
+
+
+@common_api.route('/api/rfm/labels', methods=['GET'])
+@jwt_ops.jwt_required()
+def get_rfm_labels():
+    with engine.connect() as connection:
+        query = text("""select rfm_label, rfm_text_color, rfm_color, count(rfm_value) from rfm_scores left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score 
+group by rfm_label, rfm_text_color, rfm_color;""")
+
+        query_result = connection.execute(query)
 
         query_result_json = [dict(row) for row in query_result]
 
@@ -94,6 +138,8 @@ def get_360(matching_id):
                 result['donations'] = salesforce_donations_results
 
             if row["source_type"] == "volgistics":
+
+                # Shifts data
                 shifts_query = text("""select volg_id, assignment, site, from_date, cast(hours as float) 
                                         from volgisticsshifts where volg_id = :volgistics_id
                                         order by from_date desc
@@ -101,19 +147,26 @@ def get_360(matching_id):
                 volgistics_shifts_query_result = connection.execute(shifts_query, volgistics_id=row["source_id"])
                 volgisticsshifts_results = []
 
-                # todo: temporary fix until formatted in the pipeline
                 for r in volgistics_shifts_query_result:
                     shifts = dict(r)
-                    # normalize date string  - not needed as now returning in YYYY-MM-DD
-                    # if shifts["from_date"]:
-                    #     parsed_date_from = dateutil.parser.parse(shifts["from_date"], ignoretz=True)
-                    #     normalized_date_from = parsed_date_from.strftime("%Y-%m-%d")
-                    #     shifts["from"] = normalized_date_from
-                    # else:
-                    #     shifts["from"] = "Invalid date"
                     volgisticsshifts_results.append(shifts)
 
                 result['shifts'] = volgisticsshifts_results
+
+                # Volunteer activity
+                query_text =  """
+                with activity as 
+                    (select from_date, hours from volgisticsshifts where volg_id = :volgistics_id),
+                alltime as 
+                    (select min(from_date) as start_date, sum(hours) as life_hours from activity),
+                ytd as 
+                    (select sum(hours) as ytd_hours from activity where extract(year from from_date) = extract(year from current_date))
+                
+                select cast(start_date as text), cast(life_hours as float), cast(ytd_hours as float) from alltime, ytd;
+                """
+                hours_query = text(query_text)
+                hours_query_result = connection.execute(hours_query, volgistics_id=row["source_id"])
+                result['activity'] = [dict(row) for row in hours_query_result]
 
             if row["source_type"] == "shelterluvpeople":
                 shelterluv_id = row["source_id"]
@@ -125,7 +178,7 @@ def get_360(matching_id):
 @common_api.route('/api/person/<matching_id>/animals', methods=['GET'])
 def get_animals(matching_id):
     result = {
-        "person_details": {}, 
+        "person_details": {},
         "animal_details": {}
     }
 
@@ -138,12 +191,13 @@ def get_animals(matching_id):
             shelterluv_id = row["source_id"]
             person_url = f"http://shelterluv.com/api/v1/people/{shelterluv_id}"
             person_details = requests.get(person_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
-            result["person_details"]["shelterluv_short_id"] = person_details["ID"]
-            animal_ids = person_details["Animal_ids"]
-            for animal_id in animal_ids:
-                animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}"
-                animal_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
-                result["animal_details"][animal_id] = animal_details
+            if "ID" in person_details:
+                result["person_details"]["shelterluv_short_id"] = person_details["ID"]
+                animal_ids = person_details["Animal_ids"]
+                for animal_id in animal_ids:
+                    animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}"
+                    animal_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+                    result["animal_details"][animal_id] = animal_details
 
     return result
 
@@ -182,11 +236,15 @@ def get_person_animal_events(matching_id, animal_id):
 def get_support_oview(matching_id):
     """Return these values for the specified match_id:
         largest gift, date for first donation, total giving, number of gifts,
-        amount of first gift, is recurring donor """
-    
+        amount of first gift, is recurring donor 
+        
+        If consuming this, check number_of_gifts first. If 0, there's no more data
+        available, so don't try to read any other fields - they may not exist.
+        """
+
     # One complication: a single match_id can map to multiple SF ids, so these queries need to 
     # run on a list of of contact_ids.
- 
+
     # First: get the list of salsforce contact_ids associated with the matching_id  
     qcids = text("select source_id FROM pdp_contacts where matching_id = :matching_id and source_type = 'salesforcecontacts';")
 
@@ -206,7 +264,8 @@ def get_support_oview(matching_id):
                     current_app.logger.warn("salesforcecontacts source_id " + row['source_id'] + "has non-alphanumeric characters; will not be used")
 
             if len(id_list) == 0: # No ids to query
-                return jsonify({})
+                oview_fields['number_of_gifts'] = 0    # Marker for no support data
+                return jsonify(oview_fields)
 
 
             sov1 = text("""SELECT 
@@ -227,7 +286,7 @@ def get_support_oview(matching_id):
             # rows = [dict(row) for row in sov1_result]
             row = dict(sov1_result.fetchone())
 
-            if row['largest_gift'] : 
+            if row['largest_gift'] :
                 oview_fields['largest_gift'] = float(row['largest_gift'])
             else:
                 oview_fields['largest_gift'] = 0.0
@@ -242,7 +301,7 @@ def get_support_oview(matching_id):
 
             if row['total_giving']:
                 oview_fields['total_giving'] = float(row['total_giving'])
-            else: 
+            else:
                 oview_fields['total_giving'] = 0.0
 
             oview_fields['number_of_gifts'] = row['number_of_gifts']
@@ -282,12 +341,37 @@ def get_support_oview(matching_id):
                             LIMIT  1;  """ )
 
             sov3 = sov3.bindparams(id_list=tuple(id_list))
-            sov3_result = connection.execute(sov3) 
+            sov3_result = connection.execute(sov3)
 
             if sov3_result.rowcount:
                 oview_fields['is_recurring'] = sov3_result.fetchone()[0]
             else:
-                 oview_fields['is_recurring'] = False
+                oview_fields['is_recurring'] = False
+
+
+            rfm = text("""SELECT
+                            rfm_score, rfm_color, rfm_label, rfm_text_color
+                        FROM 
+                            rfm_scores
+                            left join rfm_mapping on rfm_mapping.rfm_value = rfm_score
+                        WHERE
+                            matching_id = :match_id; """)
+
+            rfm = rfm.bindparams(match_id = matching_id)
+            rfm_result = connection.execute(rfm)
+
+            if rfm_result.rowcount:
+                row = rfm_result.fetchone()
+                oview_fields['rfm_score'] = row[0]
+                oview_fields['rfm_color'] = row[1]
+                oview_fields['rfm_label'] = row[2]                
+                oview_fields['rfm_text_color'] = row[3]                
+
+            else:
+                oview_fields['rfm_score'] = ''
+                oview_fields['rfm_color'] = ''
+                oview_fields['rfm_label'] = ''      
+                oview_fields['rfm_text_color'] = ''
 
 
             return jsonify(oview_fields)
@@ -295,5 +379,5 @@ def get_support_oview(matching_id):
 
         else:   # len(rows) == 0
             current_app.logger.debug('No SF contact IDs found for matching_id ' + str(matching_id))
-            return jsonify({})
-    
+            oview_fields['number_of_gifts'] = 0  # Marker for no data
+            return jsonify(oview_fields)

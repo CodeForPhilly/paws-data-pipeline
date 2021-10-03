@@ -76,7 +76,7 @@ class ContactInfo extends Component {
                             </Typography>
                         </Grid>
                     </Grid>
-                    <Grid container item direction={'column'} alignItems="left">
+                    <Grid container item direction={'column'} alignItems="flex-start">
                         <Grid container item direction="row" alignItems="center" spacing={1}>
                             <Grid item>
                                 <HomeIcon color='primary' fontSize='small'/>
