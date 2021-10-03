@@ -64,8 +64,7 @@ export function RFM(props) {
                 let state = JSON.parse(_.get(history, 'location.state'));
                 let stateLabel = state.selectedLabel;
                 if (stateLabel) {
-                    await setSelectedLabel(stateLabel)
-                    await handleLabelChange({target: {value: stateLabel}});
+                    await handleLabelChange(stateLabel);
                 }
             } catch {
             }
@@ -136,8 +135,8 @@ export function RFM(props) {
                                 </Grid>
                                 <Grid container item direction="column" spacing={2}>
                                     {
-                                        _.map(labels, labelData => {
-                                            return <Grid item>
+                                        labels.map((labelData, index) => {
+                                            return <Grid item key={index}>
                                                 <Button onClick={() => handleLabelChange(labelData)}
                                                         style={{
                                                             backgroundColor: labelData.rfm_color,
