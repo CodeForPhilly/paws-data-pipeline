@@ -1,9 +1,9 @@
 -- Run this script in your SQL query tool
 -- Run truncate command if this table is already populated
+
 -- TRUNCATE TABLE rfm_mapping; 
 -- BEGIN;
 -- Fields are                 (rfm_score, label, (background) color, text color)
-        
 insert into rfm_mapping values('111', 'Low impact, disengaged','#eed0aa', '#000000');
 insert into rfm_mapping values('112', 'Low impact, disengaged','#eed0aa', '#000000');
 insert into rfm_mapping values('113', 'Low impact, disengaged','#eed0aa', '#000000');
@@ -129,4 +129,4 @@ insert into rfm_mapping values('552', 'High impact, engaged','#034858', '#ffffff
 insert into rfm_mapping values('553', 'High impact, engaged','#034858', '#ffffff');
 insert into rfm_mapping values('554', 'High impact, engaged','#034858', '#ffffff');
 insert into rfm_mapping values('555', 'High impact, engaged','#034858', '#ffffff');
--- COMMIT;
+COMMIT;
