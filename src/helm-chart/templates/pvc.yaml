@@ -4,7 +4,7 @@ metadata:
   name: {{ .Release.Name }}-postgresql-data
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "paws-data-pipeline.labels" . | nindent 4 }}
+    {{- include "helm-chart.selectorLabels" . | nindent 4 }}
 spec:
   accessModes:
     - ReadWriteOnce
