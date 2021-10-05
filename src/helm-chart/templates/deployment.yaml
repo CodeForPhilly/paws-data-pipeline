@@ -28,6 +28,10 @@ spec:
       hostAliases:
         {{ toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+      - name: {{ .Release.Name }}-postgresql-data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-postgresql-data
       serviceAccountName: {{ include "helm-chart.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
@@ -46,10 +50,10 @@ spec:
             - name: postgresql
               containerPort: 5432
               protocol: TCP
-          # volumeMounts:
-          #   - name: {{ $.Release.Name }}-db
-          #     mountPath: /var/lib/postgresql/data
-          #     subPath: postgresql-data
+          volumeMounts:
+            - name: {{ $.Release.Name }}-postgresql-data
+              mountPath: /var/lib/postgresql/data
+              subPath: postgresql-data
         {{- end }}
         {{- with .Values.server }}
         - name: {{ $.Chart.Name }}-server
@@ -72,7 +76,6 @@ spec:
               path: /api/user/test
               port: 5000
         {{- end }}
-
         {{- with .Values.client }}
         - name: {{ $.Chart.Name }}-client
           image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
