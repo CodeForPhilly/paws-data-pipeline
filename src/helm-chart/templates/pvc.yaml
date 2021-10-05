@@ -11,3 +11,15 @@ spec:
   resources:
     requests:
       storage: {{ .Values.storage.postgresql }}
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-server-data
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "helm-chart.selectorLabels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.storage.server }}
