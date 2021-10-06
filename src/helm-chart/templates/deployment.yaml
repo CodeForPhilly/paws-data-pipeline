@@ -24,17 +24,15 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.hostAliases }}
-      hostAliases:
-        {{ toYaml . | nindent 8 }}
-      {{- end }}
+      hostAliases: 
+        {{- .Values.hostAliases | toYaml  | nindent 8 }}
       volumes:
-      - name: {{ .Release.Name }}-postgresql-data
-        persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-postgresql-data
-      - name: {{ .Release.Name }}-server-data
-        persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-server-data
+        - name: {{ .Release.Name }}-postgresql-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-postgresql-data
+        - name: {{ .Release.Name }}-server-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-server-data
       serviceAccountName: {{ include "helm-chart.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}

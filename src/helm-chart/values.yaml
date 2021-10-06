@@ -9,14 +9,14 @@ server:
     repository: ghcr.io/codeforphilly/paws-data-pipeline/server
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.27"
+    tag: "2.29"
 
 client:
   image:
     repository: ghcr.io/codeforphilly/paws-data-pipeline/client
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.27"
+    tag: "2.29"
 
 db:
   image:
@@ -27,7 +27,7 @@ db:
 
 
 storage:
-  db: 1Gi
+  pgdb: 1Gi
   server: 1Gi
 
 imagePullSecrets: 
@@ -56,14 +56,12 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-
 hostAliases:
   - ip: "127.0.0.1"
     hostnames:
-    - "server"
-    - "paws-compose-db"
-    - "client"
-
+        - "server"
+        - "paws-compose-db"
+        - "client"
 
 service:
   type: NodePort #ClusterIP
