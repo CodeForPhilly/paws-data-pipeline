@@ -1,5 +1,18 @@
 import dropbox
-from secrets_dict import DROPBOX_APP
+
+try:
+    from secrets_dict import DROPBOX_APP
+except ImportError:
+    # Not running locally
+    print("Couldn't get DROPBOX_APP from file, trying environment **********")
+    from os import environ
+
+    try:
+        DROPBOX_APP = environ['DROPBOX_APP']
+    except KeyError:
+        # Not in environment
+        # You're SOL for now
+        print("Couldn't get DROPBOX_APP from file or environment")
 
 
 class TransferData:

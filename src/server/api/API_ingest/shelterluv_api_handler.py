@@ -18,7 +18,7 @@ except ImportError:
     except KeyError:
         # Not in environment
         # You're SOL for now
-        print("Couldn't get secrets from file or environment")
+        print("Couldn't get SHELTERLUV_SECRET_TOKEN from file or environment")
 
 
 def write_csv(json_data):
