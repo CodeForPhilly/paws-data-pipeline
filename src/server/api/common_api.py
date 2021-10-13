@@ -10,7 +10,7 @@ try:
     from secrets_dict import SHELTERLUV_SECRET_TOKEN
 except ImportError:
     # Not running locally
-    print("Couldn't get SL_TOKEN from file, trying environment **********")
+    print("Couldn't get SHELTERLUV_SECRET_TOKEN from file, trying environment **********")
     from os import environ
 
     try:
