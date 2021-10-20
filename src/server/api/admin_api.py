@@ -32,9 +32,11 @@ def upload_csv():
             try:
                 validate_and_arrange_upload(file)
             except Exception as e:
-                current_app.logger.exception(e)
+                current_app.logger.error(e)
             finally:
                 file.close()
+        else:
+            current_app.logger.error("File of bad format")
 
     return redirect(request.origin)
 

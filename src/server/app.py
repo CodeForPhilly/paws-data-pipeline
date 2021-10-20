@@ -1,8 +1,9 @@
 import os
+import logging
 
 from flask import Flask
-
 from flask_jwt_extended import JWTManager
+
 
 try:   
     from secrets_dict import JWT_SECRET, APP_SECRET_KEY
@@ -46,12 +47,15 @@ app.register_blueprint(common_api)
 app.register_blueprint(user_api)
 app.register_blueprint(internal_api)
 
-app.logger.setLevel('INFO')  # By default, Docker appears to set at INFO but VSCode at WARNING 
+logging.basicConfig(filename='error.log', level=logging.ERROR, format=f'%(asctime)s %(levelname)s %(name)s : %(message)s')
 
 # init_db_schema.start(connection)
 
 
 if __name__ == "__main__":
+    import logging
+
+
     FLASK_PORT = os.getenv("FLASK_PORT", None)
 
     # create_app()
