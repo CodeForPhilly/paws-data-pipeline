@@ -135,7 +135,11 @@ def get_360(matching_id):
                 salesforce_contacts_query_result = connection.execute(donations_query,
                                                                       salesforcecontacts_id=row["source_id"])
                 salesforce_donations_results = [dict(row) for row in salesforce_contacts_query_result]
-                result['donations'] = salesforce_donations_results if 'donations' not in result else result['donations'] + salesforce_donations_results
+                if len(salesforce_donations_results):
+                    if not 'donations' in result:
+                        result['donations'] = salesforce_donations_results
+                    else:
+                        result['donations'].append(salesforce_donations_results)
 
             if row["source_type"] == "volgistics":
 
