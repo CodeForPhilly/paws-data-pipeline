@@ -37,6 +37,7 @@ RUN chmod +x  bin/startServer.sh
 WORKDIR /app
 
 RUN useradd -m pawsapp
+RUN chown -R pawsapp:pawsapp /app/.pytest_cache/v/cache
 USER pawsapp
 
 CMD bin/startServer.sh
