@@ -407,10 +407,3 @@ def hit_gdrs():
 #     print("round-trip d is : \n " + str(d) )
 #     return "OK"
 
-from rfm_funcs.create_scores import create_scores
-@admin_api.route("/api/admin/test_create_scores", methods=["GET"])
-def hit_create_scores():
-    current_app.logger.info("Hitting create_scores() ")
-    tuple_count = create_scores('2021-07-27')
-    current_app.logger.info("create_scores()  processed " + str(tuple_count) + " scores")
-    return jsonify(200)
