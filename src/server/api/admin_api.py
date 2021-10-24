@@ -321,11 +321,16 @@ def read_rfm_edges() :
     with engine.begin() as connection:   # BEGIN TRANSACTION
         q_result = connection.execute(q)
         if q_result.rowcount == 0:
-            current_app.logger.warning("No rfm_edge entry found in DB")
+            current_app.logger.error("No rfm_edge entry found in DB")
             return None
         else:
             edge_string = q_result.fetchone()[0]
-            edge_dict = json.loads(edge_string)   # Convert stored string to dict
+            try:
+                edge_dict = json.loads(edge_string)   # Convert stored string to dict
+            except json.decoder.JSONDecodeError:
+                current_app.logger.error("rfm_edge entry found in DB was malformed")
+                return None
+                
             return edge_dict
 
 
