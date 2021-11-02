@@ -85,7 +85,7 @@ def create_scores(query_date):
         ################################## frequency ###############################
 
 
-        df_freq =  df.loc[df['close_date'] >    date.fromisoformat(query_date) - pd.Timedelta( "90 days")  ]         #pd.DatetimeIndex(df['close_date'] - pd.Timedelta( "30 days")    )
+        df_freq =  df.loc[df['close_date'] >    date.fromisoformat(query_date) - pd.Timedelta( "365 days")  ]         #pd.DatetimeIndex(df['close_date'] - pd.Timedelta( "30 days")    )
 
         df_grouped = df_freq.groupby(['matching_id']).count()
 
