@@ -37,12 +37,7 @@ class Adoptions extends Component {
 
     getLatestPets(animals) {
         const latestPets = _.sortBy(animals, animal => {
-            if (typeof animal.Events === 'undefined' || typeof animal.Events.Time  === 'undefined' ){
-                return 1
-            }
-            else{
-                return animal.Events.Time
-            }
+            return (animal.Events && animal.Events.Time) ? animal.Events.Time : 1
             
         }).reverse()
 
@@ -52,13 +47,7 @@ class Adoptions extends Component {
     createRows(data) {
         const result = _.map(data, (row, index) => {
             const photo = row.Photos[0]
-            let eventDate;
-            if (typeof row.Events === 'undefined' || typeof row.Events.Time === 'undefined' ){
-                eventDate = ''
-            }
-            else{
-                eventDate = moment.unix(row.Events.Time).format("YYYY-MM-DD")
-            }
+            const eventDate = (row.Events && row.Events.Time) ? moment.unix(row.Events.Time).format("YYYY-MM-DD") : ''
 
 
 
