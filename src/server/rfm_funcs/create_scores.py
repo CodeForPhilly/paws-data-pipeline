@@ -26,8 +26,8 @@ def create_scores():
     returns a list of matching_ids and scores as tuples
     will also insert rfm scores into rfm_scores table----see src/server/api/admin_api.py
     '''
-
-    #TODO: Calculate query_date instead of getting from parameter
+    
+    # We calculate query_date below in frequncy
 
     with engine.connect() as connection:
         current_app.logger.debug("running create_scores()")
@@ -90,11 +90,13 @@ def create_scores():
 
                 ################################## frequency ###############################
 
+                query_date = df['close_date'].max()
+
                 df['close_date'] = pd.DatetimeIndex(df['close_date'])
 
                 df_grouped = df.groupby(['matching_id', pd.Grouper(key = 'close_date', freq = 'Q')]).count().max(level=0)
 
-                df_freq =  df.loc[df['close_date'] >    date.fromisoformat(query_date) - pd.Timedelta( "365 days")  ]         #pd.DatetimeIndex(df['close_date'] - pd.Timedelta( "30 days")    )
+                df_freq =  df.loc[df['close_date'] >    pd.Timestamp(query_date) - pd.Timedelta( "365 days")  ]         #pd.DatetimeIndex(df['close_date'] - pd.Timedelta( "30 days")    )
 
                 df_grouped = df_freq.groupby(['matching_id']).count()
 

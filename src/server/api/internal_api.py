@@ -31,7 +31,7 @@ def ingest_raw_data():
     return jsonify({'outcome': 'OK'}), 200
 
 
-@internal_api.route("/api/test_create_scores", methods=["GET"])
+@internal_api.route("/api/internal/create_scores", methods=["GET"])
 def hit_create_scores():
     current_app.logger.info("Hitting create_scores() ")
     tuple_count = create_scores()
