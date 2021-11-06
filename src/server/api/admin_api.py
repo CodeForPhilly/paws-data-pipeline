@@ -411,4 +411,3 @@ def hit_gdrs():
 #     d = read_rfm_edges()        # read it again     
 #     print("round-trip d is : \n " + str(d) )
 #     return "OK"
-

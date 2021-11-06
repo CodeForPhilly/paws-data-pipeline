@@ -4,8 +4,9 @@ import traceback
 
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from datetime import datetime, date
 from collections import Counter
+import dateutil
 
 def date_difference(my_date, max_date):
     '''
@@ -25,6 +26,8 @@ def create_scores():
     returns a list of matching_ids and scores as tuples
     will also insert rfm scores into rfm_scores table----see src/server/api/admin_api.py
     '''
+    
+    # We calculate query_date below in frequncy
 
     with engine.connect() as connection:
         current_app.logger.debug("running create_scores()")
@@ -87,9 +90,15 @@ def create_scores():
 
                 ################################## frequency ###############################
 
+                query_date = df['close_date'].max()
+
                 df['close_date'] = pd.DatetimeIndex(df['close_date'])
 
                 df_grouped = df.groupby(['matching_id', pd.Grouper(key = 'close_date', freq = 'Q')]).count().max(level=0)
+
+                df_freq =  df.loc[df['close_date'] >    pd.Timestamp(query_date) - pd.Timedelta( "365 days")  ]         #pd.DatetimeIndex(df['close_date'] - pd.Timedelta( "30 days")    )
+
+                df_grouped = df_freq.groupby(['matching_id']).count()
 
                 df_grouped = df_grouped.reset_index()
 
@@ -100,9 +109,11 @@ def create_scores():
                 df_frequency = df_frequency.rename(columns = {'amount':'frequency'}) #renaming amount to frequency
 
                 df_frequency['frequency_score'] = pd.cut(df_frequency['frequency'],
-                                                        bins = frequency_bins, labels=frequency_labels, include_lowest=True)
-
+                                                bins = frequency_bins, labels=frequency_labels, include_lowest=False)
+                
                 ################################## amount ##################################
+
+                #   Need to score people with R, M but not F as a 1
 
                 monetary_bins.append(np.inf)
 
@@ -114,14 +125,13 @@ def create_scores():
 
                 # Concatenate rfm scores
                     # merge monetary df and frequency df
-                df_semi = df_amount.merge(df_frequency, left_on='matching_id', right_on= 'matching_id')
+                df_semi = df_amount.merge(df_frequency, left_on='matching_id', right_on= 'matching_id', how='left')
                 print(grouped_past_year.head())
                 print(df_semi.head())
-                df_final = df_semi.merge(grouped_past_year, left_on='matching_id', right_on= 'matching_id')        # merge monetary/frequency dfs to recency df
+                
+                df_semi['frequency_score'] = df_semi['frequency_score'].fillna(1)
 
-                ### get avg fm score and merge with df_final
-                # df_final['f_m_AVG_score'] = df_final[['frequency_score', 'amount_score']].mean(axis=1)
-
+                df_final = df_semi.merge(grouped_past_year, left_on='matching_id', right_on= 'matching_id', how='left')        # merge monetary/frequency dfs to recency df
 
                 # import function: rfm_concat, which will catenate integers as a string and then convert back to a single integer
                 from rfm_funcs.rfm_functions import rfm_concat
