@@ -135,7 +135,11 @@ def get_360(matching_id):
                 salesforce_contacts_query_result = connection.execute(donations_query,
                                                                       salesforcecontacts_id=row["source_id"])
                 salesforce_donations_results = [dict(row) for row in salesforce_contacts_query_result]
-                result['donations'] = salesforce_donations_results
+                if len(salesforce_donations_results):
+                    if not 'donations' in result:
+                        result['donations'] = salesforce_donations_results
+                    else:
+                        result['donations'].append(salesforce_donations_results)
 
             if row["source_type"] == "volgistics":
 
@@ -187,17 +191,17 @@ def get_animals(matching_id):
         query_result = connection.execute(query, matching_id=matching_id)
         rows = [dict(row) for row in query_result]
         if len(rows) > 0:
-            row = rows[0]
-            shelterluv_id = row["source_id"]
-            person_url = f"http://shelterluv.com/api/v1/people/{shelterluv_id}"
-            person_details = requests.get(person_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
-            if "ID" in person_details:
-                result["person_details"]["shelterluv_short_id"] = person_details["ID"]
-                animal_ids = person_details["Animal_ids"]
-                for animal_id in animal_ids:
-                    animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}"
-                    animal_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
-                    result["animal_details"][animal_id] = animal_details
+            for row in rows:               
+                shelterluv_id = row["source_id"]
+                person_url = f"http://shelterluv.com/api/v1/people/{shelterluv_id}"
+                person_details = requests.get(person_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+                if "ID" in person_details:
+                    result["person_details"]["shelterluv_short_id"] = person_details["ID"]
+                    animal_ids = person_details["Animal_ids"]
+                    for animal_id in animal_ids:
+                        animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}"
+                        animal_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+                        result["animal_details"][animal_id] = animal_details
 
     return result
 

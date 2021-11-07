@@ -7,7 +7,7 @@ from pipeline import calssify_new_data, clean_and_load_data, archive_rows, match
 from config import RAW_DATA_PATH
 from config import engine
 from models import Base
-
+from rfm_funcs.create_scores import create_scores
 
 def start_flow():
 
@@ -78,7 +78,11 @@ def start_flow():
                             pdp.archived_date IS NULL
                     ''')
 
-                current_app.logger.info('Finished flow script run')
+                current_app.logger.info('Finished flow script run, running RFM scoring')
+
+                score_result = create_scores()  # Run RFM scoring on newly-processed donations
+                current_app.logger.info('Scored ' + str(score_result) + ' tuples')
+
                 job_outcome = 'completed'
                 log_db.log_exec_status(job_id, 'flow', 'complete', '' )
 

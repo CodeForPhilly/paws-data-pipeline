@@ -37,7 +37,8 @@ class Adoptions extends Component {
 
     getLatestPets(animals) {
         const latestPets = _.sortBy(animals, animal => {
-            return animal.Events.Time
+            return (animal.Events && animal.Events.Time) ? animal.Events.Time : 1
+            
         }).reverse()
 
         return latestPets.slice(0, PET_COUNT)
@@ -46,11 +47,15 @@ class Adoptions extends Component {
     createRows(data) {
         const result = _.map(data, (row, index) => {
             const photo = row.Photos[0]
+            const eventDate = (row.Events && row.Events.Time) ? moment.unix(row.Events.Time).format("YYYY-MM-DD") : ''
+
+
+
             return (
                 <TableRow key={index}>
                     <TableCell align="center">{row.Name}</TableCell>
                     <TableCell align="center">{row.Type}</TableCell>
-                    <TableCell align="center">{moment.unix(row.Events.Time).format("DD MMM YYYY")}</TableCell>
+                    <TableCell align="center">{eventDate}</TableCell>
                     <TableCell align="center">{showAnimalAge(row.DOBUnixTime)}</TableCell>
                     <TableCell align="center">{<img src={photo} alt="animal" style={{ "maxWidth": "100px" }} />}</TableCell>
                 </TableRow>

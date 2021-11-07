@@ -22,10 +22,10 @@ class SupportOverview extends Component {
         }
         const rows = [
             { "title": "First Gift Date", "value": data.first_donation_date },
-            { "title": "First Gift Amount", "value": `$${data.first_gift_amount}`},
-            { "title": "Lifetime Giving", "value": `$${data.total_giving}`},
+            { "title": "First Gift Amount", "value": `$${data.first_gift_amount.toFixed(2)}`},
+            { "title": "Lifetime Giving", "value": `$${data.total_giving.toFixed(2)}`},
             { "title": "Total # of Gifts", "value": data.number_of_gifts},
-            { "title": "Largest Gift", "value": `$${data.largest_gift}`},
+            { "title": "Largest Gift", "value": `$${data.largest_gift.toFixed(2)}`},
             { "title": "Recurring Donor?", "value": data.is_recurring ? "Yes" : "No"},
             { "title": "RFM Score", "value": data.rfm_score }
             // { "title": "PAWS Legacy Society?", "value": "test" }
