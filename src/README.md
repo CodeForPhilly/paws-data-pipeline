@@ -19,7 +19,7 @@ _Docker Compose instructions_
 - `docker-compose up -d` to bring up the application.
 - Scheduler docker will not start. To run the scheduler, use profile flag `production-only` as explained in the Production Environment section.
 
-#### Finally - Run The UI on http://localhost:3000
+#### Finally - Run The UI on http://localhost:80
 
 ---------------------------------------
 Production Environment
