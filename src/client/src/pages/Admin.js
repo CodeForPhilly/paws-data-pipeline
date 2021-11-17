@@ -145,7 +145,6 @@ class Admin extends Component {
     }
 
     setFileListExist() {
-        debugger;
         let uploadedItems = document.getElementById('fileItemsID');
 
         if (uploadedItems) {
