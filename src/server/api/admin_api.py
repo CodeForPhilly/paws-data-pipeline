@@ -321,11 +321,16 @@ def read_rfm_edges() :
     with engine.begin() as connection:   # BEGIN TRANSACTION
         q_result = connection.execute(q)
         if q_result.rowcount == 0:
-            current_app.logger.warning("No rfm_edge entry found in DB")
+            current_app.logger.error("No rfm_edge entry found in DB")
             return None
         else:
             edge_string = q_result.fetchone()[0]
-            edge_dict = json.loads(edge_string)   # Convert stored string to dict
+            try:
+                edge_dict = json.loads(edge_string)   # Convert stored string to dict
+            except json.decoder.JSONDecodeError:
+                current_app.logger.error("rfm_edge entry found in DB was malformed")
+                return None
+                
             return edge_dict
 
 
@@ -406,11 +411,3 @@ def hit_gdrs():
 #     d = read_rfm_edges()        # read it again     
 #     print("round-trip d is : \n " + str(d) )
 #     return "OK"
-
-from rfm_funcs.create_scores import create_scores
-@admin_api.route("/api/admin/test_create_scores", methods=["GET"])
-def hit_create_scores():
-    current_app.logger.info("Hitting create_scores() ")
-    tuple_count = create_scores('2021-07-27')
-    current_app.logger.info("create_scores()  processed " + str(tuple_count) + " scores")
-    return jsonify(200)

@@ -9,7 +9,6 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
     environment:
-      POSTGRES_PASSWORD: thispasswordisverysecure
       POSTGRES_DB: paws
 
   server:
@@ -53,3 +52,4 @@ services:
 volumes:
   postgres:
   src_archive:
+  server_logs:
