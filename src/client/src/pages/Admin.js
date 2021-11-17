@@ -36,7 +36,8 @@ class Admin extends Component {
             filesInput: undefined,
             fileListHtml: undefined,
             lastExecution: undefined,
-            serverBusy: false
+            serverBusy: false,
+            isFileListExist: false
         }
 
         this.handleIndexChange = this.handleIndexChange.bind(this);
@@ -44,6 +45,8 @@ class Admin extends Component {
         this.handleExecute = this.handleExecute.bind(this);
         this.handleGetFileList = this.handleGetFileList.bind(this);
         this.handleGetStatistics = this.handleGetStatistics.bind(this);
+        this.setFileListExist = this.setFileListExist.bind(this);
+
     }
 
     async refreshPage() {
@@ -141,6 +144,18 @@ class Admin extends Component {
         this.setState({fileListHtml: filesResponse});
     }
 
+    setFileListExist() {
+        debugger;
+        let uploadedItems = document.getElementById('fileItemsID');
+
+        if (uploadedItems) {
+            if (_.size(uploadedItems.files) > 0) {
+                this.setState({isFileListExist: true});
+            }
+
+        }
+    }
+
     render() {
         return (
             <Container>
@@ -191,7 +206,11 @@ class Admin extends Component {
                                     <CardContent>
                                         <Typography variant="h5">Upload Files</Typography>
                                         <form onSubmit={this.handleUpload}>
-                                            <input type="file" value={this.state.filesInput} multiple/>
+                                            <input type="file" id="fileItemsID"
+                                                   onChange={this.setFileListExist}
+                                                   value={this.state.filesInput}
+                                                   multiple
+                                            />
                                             <Button type="submit" variant="contained" color="primary"
                                                     disabled={this.state.statistics === 'Running'}>
                                                 Upload
@@ -210,33 +229,33 @@ class Admin extends Component {
                             <Grid item>
 
 
-                            {_.isEmpty(this.state.statistics) !== true &&
-                            this.state.statistics !== 'Running' &&
-                            <TableContainer component={Paper}>
-                                <Table aria-label="simple table">
-                                    <TableBody>
-                                        <TableRow key='time'>
-                                            <TableCell align="left" component="th" scope="row">
-                                                <b>Last Analysis</b>
-                                            </TableCell>
-                                            <TableCell align="left">
-                                                <b>
-                                                    {moment(this.state.lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
-                                                </b>
-                                            </TableCell>
-                                        </TableRow>
-                                        {this.state.statistics.map((row, index) => (
-                                            <TableRow key={index}>
+                                {_.isEmpty(this.state.statistics) !== true &&
+                                this.state.statistics !== 'Running' &&
+                                <TableContainer component={Paper}>
+                                    <Table aria-label="simple table">
+                                        <TableBody>
+                                            <TableRow key='time'>
                                                 <TableCell align="left" component="th" scope="row">
-                                                    {row[0]}
+                                                    <b>Last Analysis</b>
                                                 </TableCell>
-                                                <TableCell align="left">{row[1]}</TableCell>
+                                                <TableCell align="left">
+                                                    <b>
+                                                        {moment(this.state.lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
+                                                    </b>
+                                                </TableCell>
                                             </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                            }
+                                            {this.state.statistics.map((row, index) => (
+                                                <TableRow key={index}>
+                                                    <TableCell align="left" component="th" scope="row">
+                                                        {row[0]}
+                                                    </TableCell>
+                                                    <TableCell align="left">{row[1]}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                                }
                             </Grid>
                             <Grid item>
                                 <Paper style={{padding: 5, marginTop: 10}}>
@@ -244,7 +263,7 @@ class Admin extends Component {
                                         <Typography variant="h5">Run New Analysis</Typography>
                                         <form onSubmit={this.handleExecute}>
                                             <Button type="submit" variant="contained" color="primary"
-                                                    disabled={this.state.statistics === 'Running'}>
+                                                    disabled={this.state.statistics === 'Running' || this.state.isFileListExist === false}>
                                                 Run Data Analysis
                                             </Button>
                                         </form>
