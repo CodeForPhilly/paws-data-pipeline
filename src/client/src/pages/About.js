@@ -61,7 +61,7 @@ const getList = (listName) => {
 };
 
 
-export default function About(props) {
+export default function About() {
     return (
         <Container maxWidth={"md"} style={{"padding": "1em"}}>
             <Grid container direction="column" spacing={1}>

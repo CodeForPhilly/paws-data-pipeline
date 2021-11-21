@@ -8,7 +8,7 @@ import Login from './pages/Login/Login';
 import Logout from './pages/Login/Logout';
 import HomePage from './pages/Home';
 import Admin from './pages/Admin';
-import Search360 from './pages/DataView360/Search/Search';
+import {Search360} from './pages/DataView360/Search/Search';
 import View360 from './pages/DataView360/View/View360';
 import About from './pages/About';
 import RefreshDlg from './components/RefreshDlg';
@@ -17,6 +17,7 @@ import Refresh from './components/Refresh';
 
 import useToken from './pages/Login/useToken';
 import Box from "@material-ui/core/Box";
+import {RFM} from "./pages/RFM/RFM";
 
 let jwt = require('jsonwebtoken');
 
@@ -24,9 +25,9 @@ const REFRESH_POPUP_TIME = 300 // seconds
 
 // Triggers token expiration check
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
-const expTimer = () => sleep(500).then(() => ({}))
+let expTimer = () => sleep(500).then(() => ({}));
 
-const AuthContext = React.createContext()
+const AuthContext = React.createContext();
 
 function AuthProvider({children}) {
     const [state, setState] = React.useState({
@@ -39,6 +40,7 @@ function AuthProvider({children}) {
         expTimer().then(
             user => setState({status: 'success', error: null, user})
         )
+        expTimer = () => sleep(100000).then(() => ({}));
     },)
 
     return (
@@ -76,7 +78,6 @@ function useAuthState() {
 
 
 function AuthenticatedApp() {
-
     const {access_token, setToken} = useToken();
 
     let decoded = jwt.decode(access_token, {complete: true});
@@ -140,6 +141,10 @@ function AuthenticatedApp() {
                             <View360 access_token={access_token}/>
                         </Route>
 
+                         <Route path="/rfm">
+                            <RFM access_token={access_token}/>
+                        </Route>
+
                         <Route path="/check">
                             <Check access_token={access_token}/>
                         </Route>
@@ -168,7 +173,6 @@ function Home() {
 }
 
 function App() {
-
     return (
         <AuthProvider>
             <Home/>

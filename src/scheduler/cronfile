@@ -1,0 +1,5 @@
+#run python script every minutes
+#* * * * * echo "hello cron" >> /proc/1/fd/1 2> /proc/1/fd/2 #testing
+0 1 * * 6 curl http://paws-compose-server:5000/api/ingestRawData
+# Don't remove the empty line at the end of this file. It is required to run the cron job
+

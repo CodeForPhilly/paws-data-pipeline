@@ -50,7 +50,7 @@ class Adoptions extends Component {
                 <TableRow key={index}>
                     <TableCell align="center">{row.Name}</TableCell>
                     <TableCell align="center">{row.Type}</TableCell>
-                    <TableCell align="center">{moment.unix(row.Events.Time).format("DD MMM YYYY")}</TableCell>
+                    <TableCell align="center">{moment.unix(row.Events.Time).format("YYYY-MM-DD")}</TableCell>
                     <TableCell align="center">{showAnimalAge(row.DOBUnixTime)}</TableCell>
                     <TableCell align="center">{<img src={photo} alt="animal" style={{ "maxWidth": "100px" }} />}</TableCell>
                 </TableRow>
