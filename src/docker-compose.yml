@@ -10,6 +10,7 @@ services:
       - postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: paws
+      POSTGRES_PASSWORD: thispasswordisverysecure
 
   server:
     container_name: paws-compose-server
