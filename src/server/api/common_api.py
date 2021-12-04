@@ -250,7 +250,7 @@ def get_support_oview(matching_id):
     # run on a list of of contact_ids.
 
     # First: get the list of salsforce contact_ids associated with the matching_id  
-    qcids = text("select source_id FROM pdp_contacts where matching_id = :matching_id and source_type = 'salesforcecontacts';")
+    qcids = text("select source_id FROM pdp_contacts where matching_id = :matching_id and source_type = 'salesforcecontacts' and archived_date is NULL;")
 
     oview_fields = {}
 
