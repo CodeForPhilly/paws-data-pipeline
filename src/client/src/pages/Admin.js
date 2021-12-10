@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {
     Grid,
     Paper,
@@ -14,62 +14,84 @@ import {
     Table, Container, Typography
 } from "@material-ui/core";
 
-import {withStyles} from '@material-ui/core/styles';
 import _ from 'lodash';
 import moment from "moment";
 import {Alert} from "@material-ui/lab";
 import Box from "@material-ui/core/Box";
+import {makeStyles} from "@material-ui/styles";
 
-const styles = theme => ({
-    root: {
-        margin: theme.spacing(2),
+const useStyles = makeStyles({});
+
+export default function Admin(props) {
+    const [isLoading, setIsLoading] = React.useState(undefined);
+    const [statistics, setStatistics] = React.useState(undefined);
+    const [filesInput, setFilesInput] = React.useState(undefined);
+    const [fileListHtml, setFileListHtml] = React.useState(undefined);
+    const [lastExecution, setLastExecution] = React.useState(undefined);
+    const [isNewFileExist, setIsNewFileExist] = React.useState(false);
+
+
+    React.useEffect(() => {
+        (async () => {
+            await refreshPage();
+        })()
+    }, [])
+
+    const refreshPage = async () => {
+        setIsLoading(true);
+
+        const filesData = await fetch("/api/listCurrentFiles",
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + props.access_token
+                }
+            });
+        const filesResponse = await filesData.json();
+
+        setFileListHtml(filesResponse);
+
+        const statsData = await fetch("/api/statistics",
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + props.access_token
+                }
+            });
+        const statsResponse = await statsData.json()
+
+        handleGetStatistics(statsResponse);
+        determineNewFileExist(statsResponse, filesResponse);
+
+        setIsLoading(false);
     }
-});
 
-class Admin extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            activeIndex: 0,
-            isLoading: undefined,
-            statistics: undefined,
-            filesInput: undefined,
-            fileListHtml: undefined,
-            lastExecution: undefined,
-            serverBusy: false,
-            isFileListExist: false
+    // sets newFileExists to true if one of the files was uploaded after last execution
+    const determineNewFileExist = (statsResponse, filesResponse) => {
+        let lastExecutionTime = statsResponse.executionTime;
+
+        let filesUploadedAfterExecution =_.filter(filesResponse, fileName => {
+            let fileTimestampAndType = fileName.substring(fileName.indexOf('-') + 1)
+            let fileTimestamp = fileTimestampAndType.split('.')[0]
+            let fileTimestampMoment = moment(fileTimestamp, "YYYY-MM-DD--HH-mm-ss");
+
+            let result = moment(fileTimestampMoment).isAfter(lastExecutionTime);
+
+            return result;
+        });
+
+        if (_.isEmpty(filesUploadedAfterExecution) === false) {
+            setIsNewFileExist(true);
         }
-
-        this.handleIndexChange = this.handleIndexChange.bind(this);
-        this.handleUpload = this.handleUpload.bind(this);
-        this.handleExecute = this.handleExecute.bind(this);
-        this.handleGetFileList = this.handleGetFileList.bind(this);
-        this.handleGetStatistics = this.handleGetStatistics.bind(this);
-        this.setFileListExist = this.setFileListExist.bind(this);
-
+        else {
+            setIsNewFileExist(false);
+        }
     }
 
-    async refreshPage() {
-        this.setState({isLoading: true})
-
-        await this.handleGetFileList();
-        await this.handleGetStatistics();
-
-        await this.setState({isLoading: false})
-    }
-
-    componentDidMount() {
-        this.refreshPage();
-    }
-
-    handleIndexChange(event, newIndex) {
-        this.setState({activeIndex: newIndex});
-    };
-
-    async handleUpload(event) {
+    const handleUpload = async (event) => {
         event.preventDefault();
 
-        this.setState({isLoading: true});
+        setIsLoading(true);
 
         let formData = new FormData();
 
@@ -82,187 +104,146 @@ class Admin extends Component {
             method: 'POST',
             body: formData,
             headers: {
-                'Authorization': 'Bearer ' + this.props.access_token
+                'Authorization': 'Bearer ' + props.access_token
             }
         })
 
-        await this.handleGetFileList();
+        setIsLoading(false);
+        setFilesInput(undefined);
 
-        await this.setState({
-            isLoading: false,
-            filesInput: undefined
-        });
-
-        await this.refreshPage()
+        await refreshPage();
     };
 
-    async handleExecute(event) {
+    const handleExecute = async (event) => {
         event.preventDefault();
 
-        this.setState({isLoading: true});
+        setIsLoading(true);
 
         await fetch('/api/execute',
             {
                 method: 'POST',
                 headers: {
-                    'Authorization': 'Bearer ' + this.props.access_token
+                    'Authorization': 'Bearer ' + props.access_token
                 }
             });
 
-        this.refreshPage();
+        await refreshPage();
     }
 
-    async handleGetStatistics() {
-        const statsData = await fetch("/api/statistics",
-            {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + this.props.access_token
-                }
-            });
-        const statsResponse = await statsData.json()
-
+    const handleGetStatistics = (statsResponse) => {
         if (statsResponse !== 'executing') {
-            this.setState({
-                statistics: _.toPairsIn(statsResponse.stats),
-                lastExecution: statsResponse.executionTime
-            });
+            setStatistics(_.toPairsIn(statsResponse.stats));
+            setLastExecution(statsResponse.executionTime)
+
         } else {
-            this.setState({statistics: statsResponse});
+            setStatistics(statsResponse);
         }
     }
 
-    async handleGetFileList() {
-        const filesData = await fetch("/api/listCurrentFiles",
-            {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + this.props.access_token
-                }
-            });
-        const filesResponse = await filesData.json();
-        this.setState({fileListHtml: filesResponse});
-    }
-
-    setFileListExist() {
-        let uploadedItems = document.getElementById('fileItemsID');
-
-        if (uploadedItems) {
-            if (_.size(uploadedItems.files) > 0) {
-                this.setState({isFileListExist: true});
-            }
-
-        }
-    }
-
-    render() {
-        return (
-            <Container>
-                <Box display="flex" justifyContent="center" pb={3}>
-                    <Typography variant={"h2"}>Admin Portal</Typography>
-                </Box>
+    return (
+        <Container>
+            <Box display="flex" justifyContent="center" pb={3}>
+                <Typography variant={"h2"}>Admin Portal</Typography>
+            </Box>
+            {isLoading === true ?
+                <Backdrop open={true}>
+                    <CircularProgress size={60}/>
+                </Backdrop> :
                 <Paper elevation={1} style={{"padding": "2em"}}>
-                    {this.state.statistics === 'Running' && <Alert severity="info">Execution is in Progress...</Alert>}
-                    <Backdrop open={this.state.isLoading !== false}>
-                        <CircularProgress size={60}/>
-                    </Backdrop>
+                    {statistics === 'Running' && <Alert severity="info">Execution is in Progress...</Alert>}
+
                     <Grid container item spacing={5} direction="row" style={{padding: 20}}>
                         <Grid container item direction="column" spacing={3} sm={6}>
                             <Grid item>
                                 <Typography variant="h5">Latest Files</Typography>
                             </Grid>
                             <Grid item>
-                                {_.isEmpty(this.state.fileListHtml) !== true &&
-                                <TableContainer component={Paper}>
-                                    <Table aria-label="simple table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell><b>File Type</b></TableCell>
-                                                <TableCell><b>Last Updated</b></TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {_.map(this.state.fileListHtml, (file, index) => {
-                                                const fileName = file.split("-")[0];
-                                                let fileDate = file.split("-").slice(1).join().split(".")[0];
-                                                let fileDateOnlyNumbers = fileDate.replaceAll(",", "");
-                                                let fileDateFormatted = moment(fileDateOnlyNumbers, "YYYYMMDDhmmss").local().format("MMMM Do YYYY, h:mm:ss a");
+                                {_.isEmpty(fileListHtml) !== true &&
+                                    <TableContainer component={Paper}>
+                                        <Table aria-label="simple table">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell><b>File Type</b></TableCell>
+                                                    <TableCell><b>Last Updated</b></TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {_.map(fileListHtml, (file, index) => {
+                                                    const fileName = file.split("-")[0];
+                                                    let fileDate = file.split("-").slice(1).join().split(".")[0];
+                                                    let fileDateOnlyNumbers = fileDate.replaceAll(",", "");
+                                                    let fileDateFormatted = moment(fileDateOnlyNumbers, "YYYYMMDDhmmss").local().format("MMMM Do YYYY, h:mm:ss a");
 
-                                                return (
-                                                    <TableRow key={index}>
-                                                        <TableCell>{fileName}</TableCell>
-                                                        <TableCell>{fileDateFormatted}</TableCell>
-                                                    </TableRow>
-                                                )
-                                            })
-                                            }
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>}
+                                                    return (
+                                                        <TableRow key={index}>
+                                                            <TableCell>{fileName}</TableCell>
+                                                            <TableCell>{fileDateFormatted}</TableCell>
+                                                        </TableRow>
+                                                    )
+                                                })
+                                                }
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>}
                             </Grid>
                             <Grid item>
                                 <Paper>
                                     <CardContent>
                                         <Typography variant="h5">Upload Files</Typography>
-                                        <form onSubmit={this.handleUpload}>
+                                        <form onSubmit={handleUpload}>
                                             <input type="file" id="fileItemsID"
-                                                   onChange={this.setFileListExist}
-                                                   value={this.state.filesInput}
+                                                   value={filesInput}
                                                    multiple
                                             />
                                             <Button type="submit" variant="contained" color="primary"
-                                                    disabled={this.state.statistics === 'Running'}>
+                                                    disabled={statistics === 'Running'}>
                                                 Upload
                                             </Button>
                                         </form>
                                     </CardContent>
                                 </Paper>
                             </Grid>
-
                         </Grid>
-
                         <Grid container item direction="column" spacing={3} sm={6}>
                             <Grid item>
                                 <Typography variant="h5">Last Match Analysis</Typography>
                             </Grid>
                             <Grid item>
-
-
-                                {_.isEmpty(this.state.statistics) !== true &&
-                                this.state.statistics !== 'Running' &&
-                                <TableContainer component={Paper}>
-                                    <Table aria-label="simple table">
-                                        <TableBody>
-                                            <TableRow key='time'>
-                                                <TableCell align="left" component="th" scope="row">
-                                                    <b>Last Analysis</b>
-                                                </TableCell>
-                                                <TableCell align="left">
-                                                    <b>
-                                                        {moment(this.state.lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
-                                                    </b>
-                                                </TableCell>
-                                            </TableRow>
-                                            {this.state.statistics.map((row, index) => (
-                                                <TableRow key={index}>
+                                {_.isEmpty(statistics) !== true &&
+                                    statistics !== 'Running' &&
+                                    <TableContainer component={Paper}>
+                                        <Table aria-label="simple table">
+                                            <TableBody>
+                                                <TableRow key='time'>
                                                     <TableCell align="left" component="th" scope="row">
-                                                        {row[0]}
+                                                        <b>Last Analysis</b>
                                                     </TableCell>
-                                                    <TableCell align="left">{row[1]}</TableCell>
+                                                    <TableCell align="left">
+                                                        <b>
+                                                            {moment(lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
+                                                        </b>
+                                                    </TableCell>
                                                 </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
+                                                {statistics.map((row, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell align="left" component="th" scope="row">
+                                                            {row[0]}
+                                                        </TableCell>
+                                                        <TableCell align="left">{row[1]}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
                                 }
                             </Grid>
                             <Grid item>
                                 <Paper style={{padding: 5, marginTop: 10}}>
                                     <CardContent>
-                                        <Typography variant="h5">Run New Analysis</Typography>
-                                        <form onSubmit={this.handleExecute}>
+                                        <Typography variant="h5" styles={{paddingBottom: 5}}>Run New Analysis</Typography>
+                                        <form onSubmit={handleExecute}>
                                             <Button type="submit" variant="contained" color="primary"
-                                                    disabled={this.state.statistics === 'Running' || this.state.isFileListExist === false}>
+                                                    disabled={statistics === 'Running' || isNewFileExist === false}>
                                                 Run Data Analysis
                                             </Button>
                                         </form>
@@ -273,9 +254,8 @@ class Admin extends Component {
                         </Grid>
                     </Grid>
                 </Paper>
-            </Container>
-        );
-    }
-}
+            }
 
-export default withStyles(styles)(Admin);
+        </Container>
+    );
+}
