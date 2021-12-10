@@ -1,7 +1,7 @@
 # Make File to simplify running various docker-compose setups
 # for testing
 
-
+CC = sudo docker-compose
 secrets_dict = ./src/server/secrets_dict.py
 
 .PHONY: help
@@ -12,27 +12,35 @@ help: ## Show this help
 		{printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 
-deps: $(secrets_dict)
+dependency: $(secrets_dict)
 
-build: deps  ## Clean build of the Server App
-	@cd src && sudo docker-compose build
+build: dependency  ## Clean build of the Server App
+	@cd src &&\
+		$(CC) build
 
-run: ## Run the full application ( docker-compose up )
-	@cd src && sudo docker-compose up
+run: build## Run the full application ( docker-compose up )
+	@cd src &&\
+		$(CC) up --detach
 
-docker-server:
-	@cd src && sudo docker-compose run server
+docker-server: build
+	@cd src &&\
+	    $(CC) run --detach server
 
 local-client: docker-server ## Run front-end locally, back-end in Docker
-	@cd src && npm run start:local
+	@cd src/client && yarn run start:local&
 
 local-server:  ## Run back-end locally, Database in Docker
 	@cd src &&\
-	   	export PAWS_API_HOST=localhost &&\
-	   	sudo docker-compose up &&\
-		sudo docker stop paws-compose-server
+	    export PAWS_API_HOST=localhost &&\
+	    $(CC) up --detach &&\
+		$(CC) stop server &&\
+		export IS_LOCAL=True &&\
+		cd server &&\
+		flask run
+		
 
 all: clean build run ## Clean, Build, then Run
 
 clean: ## Remove containers and networks (docker-compose down)
-	@cd src && sudo docker-compose down
+	@cd src &&\
+	    $(CC) down
