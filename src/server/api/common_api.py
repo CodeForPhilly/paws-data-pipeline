@@ -206,15 +206,6 @@ def get_animals(matching_id):
     return result
 
 
-@common_api.route('/api/animal/<animal_id>/events', methods=['GET'])
-def get_animal_events(animal_id):
-    result = {}
-    animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}/events"
-    event_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
-    result[animal_id] = event_details["events"]
-    return result
-
-
 @common_api.route('/api/person/<matching_id>/animal/<animal_id>/events', methods=['GET'])
 def get_person_animal_events(matching_id, animal_id):
     result = {}
