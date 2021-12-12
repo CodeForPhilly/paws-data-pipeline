@@ -31,6 +31,16 @@ else:
     SERVER_URL = "http://server:5000"
     IS_LOCAL = False
 
+try:
+    from secrets_dict import SHELTERLUV_SECRET_TOKEN
+except ImportError:
+    SHELTERLUV_SECRET_TOKEN = os.getenv("SHELTERLUV_SECRET_TOKEN")
+
+SL_Token = True if SHELTERLUV_SECRET_TOKEN else False
+print(os.getenv("SHELTERLUV_SECRET_TOKEN"))
+
+
+
 ###  DNS lookup tests  ##############################
 
 def test_bad_dns():
@@ -139,8 +149,90 @@ def test_inact_userblocked(state: State):
     assert response.status_code == 401
 
 
+###   Shelterluv API tests ######################################
+
+@pytest.mark.skipif(SL_Token, reason="Not run when SL_Token Present")
+def test_user_get_person_animal_events(state: State):
+    """ Test that the api returns mock data if the Shelterluv Token
+        is missing from secrets
+    """
+
+    # Build auth string value including token from state
+    b_string = 'Bearer ' + state.state['base_user']
+
+    assert len(b_string) > 24
+
+    auth_hdr = {'Authorization' : b_string}
+    url = SERVER_URL + "/api/person/12345/animal/12345/events"
+    response = requests.get(url, headers = auth_hdr)
+
+    assert response.status_code == 200
+
+    from api.fake_data import sl_mock_data
+    assert response.json() == sl_mock_data("events")
 
 
+@pytest.mark.skipif(SL_Token, reason="Not run when SL_Token Present")
+def test_user_get_animals(state: State):
+    """ Test that the api returns mock data if the Shelterluv Token
+        is missing from secrets
+    """
+    
+    # Build auth string value including token from state
+    b_string = 'Bearer ' + state.state['base_user']
+
+    assert len(b_string) > 24
+
+    auth_hdr = {'Authorization' : b_string}
+    url = SERVER_URL + "/api/person/12345/animals"
+    response = requests.get(url, headers = auth_hdr)
+
+    assert response.status_code == 200
+
+    from api.fake_data import sl_mock_data
+    assert response.json() == sl_mock_data("animals")
+
+
+@pytest.mark.skipif(not SL_Token, reason="Run when SL_Token Present")
+def test_user_get_animals_sl_token(state: State):
+    """ Test to confirm api does not return mock values if the Shelterluv Token
+        is present in the secrets_dict file.
+        Note this works on the assumption the SL token is not valid, and returns
+        a default empty value
+    """
+
+    # Build auth string value including token from state
+    b_string = 'Bearer ' + state.state['base_user']
+
+    assert len(b_string) > 24
+
+    auth_hdr = {'Authorization' : b_string}
+    url = SERVER_URL + "/api/person/12345/animals"
+    response = requests.get(url, headers = auth_hdr)
+
+    assert response.status_code == 200
+    assert response.json() == {'person_details': {}, 'animal_details': {}}
+
+
+@pytest.mark.skipif(not SL_Token, reason="Run when SL_Token Present")
+def test_user_get_person_animal_events_sl_token(state: State):
+    """ Test to confirm api does not return mock values if the Shelterluv Token
+        is present in the secrets_dict file.
+        Note this works on the assumption the SL token is not valid, and returns
+        a default empty value
+    """
+
+    # Build auth string value including token from state
+    b_string = 'Bearer ' + state.state['base_user']
+
+    assert len(b_string) > 24
+
+    auth_hdr = {'Authorization' : b_string}
+    url = SERVER_URL + "/api/person/12345/animal/12345/events"
+    response = requests.get(url, headers = auth_hdr)
+
+    assert response.status_code == 200
+    assert response.json() == {} 
 
 
 ###   Admin-level tests ######################################
@@ -262,3 +354,4 @@ def test_statistics(state: State):
     
     response = requests.get(SERVER_URL + "/api/statistics", headers=auth_hdr)
     assert response.status_code == 200
+
