@@ -97,7 +97,7 @@ def validate_import_sfd(filename):
                     pass 
 
                 #  Cleanup time!  Many older imports have... peculiarities 
-                if zrow['amount'] == None:  # We get some with no value, probably user error
+                if zrow['amount'] is None:  # We get some with no value, probably user error
                     zrow['amount'] = 0.0    # Setting bad amounts to 0 as per KF
 
                 if zrow['recurring_donor'] == '=FALSE()' :
