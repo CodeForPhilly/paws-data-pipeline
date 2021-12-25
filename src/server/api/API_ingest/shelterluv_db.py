@@ -24,7 +24,7 @@ def insert_animals(animal_list):
     sla = Table("shelterluv_animals", metadata, autoload=True, autoload_with=engine)
 
     # From Shelterluv: ['ID',       'Internal-ID', 'Name', 'Type', 'DOBUnixTime', 'CoverPhoto', 'LastUpdatedUnixTime']
-    # In db:           ['local_id', 'id' (PK),     'name', 'type', 'dob',         'photo',      'updatestamp']
+    # In db:           ['local_id', 'id' (PK),     'name', 'type', 'dob',         'photo',      'update_stamp']
 
     ins_list = []  # Create a list of per-row dicts
     for rec in animal_list:
@@ -35,7 +35,7 @@ def insert_animals(animal_list):
                 "name": rec["Name"],
                 "type": rec["Type"],
                 "dob": rec["DOBUnixTime"],
-                "updatestamp": rec["LastUpdatedUnixTime"],
+                "update_stamp": rec["LastUpdatedUnixTime"],
                 "photo": rec["CoverPhoto"],
             }
         )
