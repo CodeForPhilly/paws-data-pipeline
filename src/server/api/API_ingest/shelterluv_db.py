@@ -46,3 +46,22 @@ def insert_animals(animal_list):
     session.close()
 
     return ret.rowcount
+
+
+def truncate_animals():
+    """Truncate the shelterluv_animals table"""
+
+
+    Session = sessionmaker(engine) 
+    session =  Session()   
+    metadata = MetaData()
+    sla = Table("shelterluv_animals", metadata, autoload=True, autoload_with=engine)
+
+
+    truncate = "TRUNCATE table shelterluv_animals;"
+    result = session.execute(truncate)
+
+    session.commit()   # Commit all inserted rows
+    session.close()
+
+    return 0
