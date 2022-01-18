@@ -4,6 +4,7 @@ import posixpath as path
 import requests
 
 from api.API_ingest import shelterluv_db
+from server.api.API_ingest.shelterluv_db import insert_animals
 
 
 # from config import engine
@@ -11,7 +12,7 @@ from api.API_ingest import shelterluv_db
 # from sqlalchemy.sql import text
 
 BASE_URL = 'http://shelterluv.com/api/'
-
+MAX_COUNT = 100  # Max records the API will return for one call
 
 try:
     from secrets_dict import SHELTERLUV_SECRET_TOKEN
@@ -62,6 +63,35 @@ def get_animal_count():
         return -5   # AFAICT, this means URL was bad
 
 
+def get_updated_animal_count(last_update):
+    """Test that server is operational and get total animal count."""
+    animals = 'v1/animals&offset=0&limit=1&sort=updated_at&since=' + str(last_update)
+    URL = path.join(BASE_URL,animals)
+
+    try:
+        response = requests.request("GET",URL, headers=headers)
+    except Exception as e:
+        logger('get_updated_animal_count failed with ', e)
+        return -2
+
+    if response.status_code != 200:
+        logger("get_updated_animal_count ", response.status_code, "code")
+        return -3
+
+    try:
+        decoded = json.loads(response.text)
+    except json.decoder.JSONDecodeError as e:
+        logger("get_updated_animal_count JSON decode failed with", e)
+        return -4
+
+    if decoded['success']:
+        return decoded['total_count']
+    else:
+        return -5   # AFAICT, this means URL was bad
+
+
+
+
 def filter_animals(raw_list):
     """Given a list of animal records as returned by SL, return a list of records with only the fields we care about."""
 
@@ -72,7 +102,13 @@ def filter_animals(raw_list):
     for r in raw_list:
         f = {}
         for k in good_keys:
-            f[k] = r[k]
+            try:
+                f[k] = r[k]
+            except:
+                if k in ('DOBUnixTime','LastUpdatedUnixTime'):
+                    f[k] = 0
+                else:
+                    f[k] = ''
         filtered.append(f)
 
     return filtered
@@ -83,8 +119,6 @@ def filter_animals(raw_list):
 def get_animals_bulk(total_count):
     """Pull all animal records from SL """
 
-    MAX_COUNT = 100  # Max records the API will return for one call
-
     # 'Great' API design - animal record 0 is the newest, so we need to start at the end, 
     # back up MAX_COUNT rows, make our request, then keep backing up. We need to keep checking
     # the total records to ensure one wasn't added in the middle of the process.
@@ -92,12 +126,14 @@ def get_animals_bulk(total_count):
 
     raw_url = path.join(BASE_URL, 'v1/animals&offset={0}&limit={1}')
 
-    start_record = total_count -1
+    start_record = int(total_count) 
     offset = (start_record - MAX_COUNT)  if  (start_record - MAX_COUNT) > -1  else 0
+    limit = MAX_COUNT
 
     while offset > -1 :
 
-        url = raw_url.format(offset,MAX_COUNT)
+        logger("getting at offset", offset)
+        url = raw_url.format(offset,limit)
 
         try:
             response = requests.request("GET",url, headers=headers)
@@ -116,9 +152,39 @@ def get_animals_bulk(total_count):
             return -4
 
         if decoded['success']:
-            return decoded['animals']
+            insert_animals( filter_animals(decoded['animals']) )
+            if offset == 0:
+                break
+            offset -= MAX_COUNT 
+            if offset < 0 :
+                limit = limit + offset
+                offset = 0
         else:
             return -5   # AFAICT, this means URL was bad
+
+    return 'zero'
+
+
+def update_animals(last_update):
+    """Get the animals inserted or updated since last check, insert/update db records. """
+
+    updated_records = get_updated_animal_count(last_update)
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -127,15 +193,14 @@ def sla_test():
     total_count = get_animal_count()
     print('Total animals:',total_count)
 
-    b = get_animals_bulk(200)
+    b = get_animals_bulk(total_count)
     print(len(b))
 
-    f = filter_animals(b)
-    print(f)
+    # f = filter_animals(b)
+    # print(f)
 
-    count = shelterluv_db.insert_animals(f)
-    return count
-
+    # count = shelterluv_db.insert_animals(f)
+    return len(b)
 
 # if __name__ == '__main__' :    
 
