@@ -50,12 +50,15 @@ def start(connection, added_or_updated_rows, manual_matches_df, job_id):
 
     rows = items_to_update.to_dict(orient="records")
     row_print_freq = 1000 
+    db_update_freq = 100   # update db after this many rows
 
     for row_num, row in enumerate(rows):
-        if row_num % row_print_freq == 0:
+        if row_num % row_print_freq == 0:   # Write to log
             current_app.logger.info("- Matching rows {}-{} of {}".format(
                 row_num + 1, min(len(rows), row_num + row_print_freq), len(rows))
             )
+
+        if row_num % db_update_freq == 0:  # Update execution_status table
             log_db.log_exec_status(job_id, 'matching', 'executing', str({'at_row': row_num + 1, 'of_rows': len(rows)  }) )
 
         # Exact matches based on specified columns
