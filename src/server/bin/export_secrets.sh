@@ -3,5 +3,5 @@ set -o allexport
     do 
       eval $k=$v;
       export k;
-    done < 'secrets.py'
+    done < 'secrets_dict.py'
  set +o allexport

@@ -1,10 +1,12 @@
-from sqlalchemy.sql.schema import ColumnDefault
 from config import engine
 from api import user_api
 import sqlalchemy as sa
+import os
+
+
 
 try:   
-    from secrets import BASEUSER_PW, BASEEDITOR_PW, BASEADMIN_PW
+    from secrets_dict import BASEUSER_PW, BASEEDITOR_PW, BASEADMIN_PW
 except ImportError:   
     # Not running locally
     print("Couldn't get BASE user PWs from file, trying environment **********")
@@ -85,3 +87,52 @@ def create_base_users():  # TODO: Just call create_user for each
 
         else:
             print(user_count, "users already present in DB, not creating")
+
+
+def populate_rfm_mapping_table(overwrite=False):
+    """Populate the rfm_mapping table if empty or overwrite is True."""
+
+    with engine.connect() as connection:
+
+        def table_empty():
+            result = connection.execute("select count(*) from rfm_mapping;")
+            row_count = result.fetchone()[0]
+            return row_count == 0
+
+
+        if overwrite or table_empty():
+            print("Populating rfm_mapping table")
+
+            if not table_empty():
+                print("'overwrite=True', truncating rfm_mapping table")
+                connection.execute("TRUNCATE TABLE rfm_mapping;")
+
+
+            if os.path.exists('server'):    # running locally
+                file_path = os.path.normpath('server/alembic/populate_rfm_mapping.sql')
+
+            elif os.path.exists('alembic'):  # running on Docker
+                file_path = os.path.normpath('alembic/populate_rfm_mapping.sql')
+
+            else:                 #
+                print("ERROR: Can't find a path to populate script!!!!!!")
+                print('CWD is ' + os.getcwd())
+                return
+
+
+
+            print("Loading sql script at " + file_path)
+
+            f = open(file_path)
+            populate_query = f.read()
+            f.close()
+
+            result = connection.execute(populate_query)
+
+            if table_empty():
+                print("ERROR:        rfm_mapping table WAS NOT POPULATED")
+
+        else:
+            print("rfm_mapping table already populated; overwrite not True so not changing.")
+
+    return

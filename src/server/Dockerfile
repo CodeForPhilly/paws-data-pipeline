@@ -25,7 +25,6 @@ COPY . .
 
 RUN mkdir /app/static \
     /app/static/raw_data \
-    /app/static/raw_data/current \
     /app/static/logs \
     /app/static/zipped
 
@@ -38,7 +37,9 @@ RUN chmod +x  bin/startServer.sh
 WORKDIR /app
 
 RUN useradd -m pawsapp
+RUN mkdir -p  /app/.pytest_cache/v/cache
+RUN chown -R pawsapp:pawsapp /app/.pytest_cache/v/cache
 USER pawsapp
 
 CMD bin/startServer.sh
-#>> start.log 2>&1 
+#>> start.log 2>&1

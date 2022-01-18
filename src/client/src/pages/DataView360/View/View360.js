@@ -17,6 +17,8 @@ import moment from 'moment';
 import Adoptions from './components/Adoptions';
 import ContactInfo from './components/ContactInfo';
 import Donations from './components/Donations';
+// import AnimalInfo from './components/AnimalInfo';
+import SupportOverview from './components/SupportOverview';
 // import Fosters from './components/Fosters';
 import VolunteerActivity from './components/VolunteerActivity';
 import VolunteerHistory from './components/VolunteerHistory';
@@ -47,7 +49,6 @@ class View360 extends Component {
         }
 
         this.onBackClick = this.onBackClick.bind(this);
-        this.extractVolunteerActivity = this.extractVolunteerActivity.bind(this);
     }
 
     async componentDidMount() {
@@ -67,7 +68,14 @@ class View360 extends Component {
             });
         response = await response.json();
 
-        let shelterluvInfo = await fetch(`/api/person/${this.state.matchId}/animals`);
+        let shelterluvInfo = await fetch(`/api/person/${this.state.matchId}/animals`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.access_token
+                }
+            });
         shelterluvInfo = await shelterluvInfo.json()
         const shelterluvShortId = shelterluvInfo["person_details"]["shelterluv_short_id"]
         let animalInfo = shelterluvInfo["animal_details"]
@@ -87,44 +95,49 @@ class View360 extends Component {
                 return e["Type"] && e["Type"].toLowerCase().includes("foster");
             });
         }
+
+        let supportOverviewData = await fetch(`/api/person/${this.state.matchId}/support`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.access_token
+                }
+            });
+        supportOverviewData = await supportOverviewData.json()
         
         this.setState({
             participantData: {...response.result, "shelterluvShortId" : shelterluvShortId},
             animalData: animalInfo,
             adoptionEvents: adoptionEvents,
             fosterEvents: fosterEvents,
-            isDataBusy: false
+            isDataBusy: false,
+            supportOverviewData: supportOverviewData
         });
 
     }
 
     async getAnimalEvents(animalId, matchId) {
-        let response = await fetch(`/api/person/${matchId}/animal/${animalId}/events`);
+        let response = await fetch(`/api/person/${matchId}/animal/${animalId}/events`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.access_token
+                }
+            });
         return await response.json()
     }
 
-    extractVolunteerActivity() {
-        const volgistics = _.find(this.state.participantData.contact_details, {"source_type": "volgistics"}) || {};
-        let volunteerActivity = {"life_hours": 0, "ytd_hours": 0, "start_date": "N/A"}
-
-        if (Object.keys(volgistics).length > 0) {
-            const volgisticsJson = JSON.parse(volgistics.json);
-            volunteerActivity = _.pick(volgisticsJson, Object.keys(volunteerActivity));
-            if (volunteerActivity["start_date"] !== "") {
-                volunteerActivity["start_date"] = moment(volunteerActivity["start_date"], "MM-DD-YYYY").format("YYYY-MM-DD");
-            }
-        }
-        return volunteerActivity;
-    }
-
     onBackClick() {
-        const match = matchPath(`/360view/search`, {
-            path: "/360view/search",
+        const url =  JSON.parse(this.props.location.state.state).url;
+
+        const match = matchPath(url, {
+            path: url,
             exact: true
         });
 
         this.props.history.push(match.url, this.props.location.state.state);
-
     }
 
     render() {
@@ -146,6 +159,9 @@ class View360 extends Component {
                                         <Grid item>
                                             <ContactInfo
                                                 participant={_.get(this.state, 'participantData.contact_details')}/>
+                                        </Grid>
+                                        <Grid item style={{"marginTop": "1em"}}>
+                                            <SupportOverview data={_.get(this.state, 'supportOverviewData')}/>
                                         </Grid>
                                         <Grid item style={{"padding": "1em"}}>
                                             <Button style={{"minWidth": "180"}} elevation={2} variant="contained"
@@ -172,7 +188,7 @@ class View360 extends Component {
                                                     headerText={"Foster Records"}
                                                     shelterluvShortId={_.get(this.state, 'participantData.shelterluvShortId')}
                                         /> */}
-                                        <VolunteerActivity volunteer={this.extractVolunteerActivity()} />
+                                        <VolunteerActivity volunteer={_.first(_.get(this.state, 'participantData.activity'))} />
                                         <VolunteerHistory volunteerShifts={_.get(this.state, 'participantData.shifts')} />
                                     </Grid>
                                 </Grid>

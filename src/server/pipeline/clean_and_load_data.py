@@ -7,7 +7,7 @@ import copy
 from datasource_manager import DATASOURCE_MAPPING, SOURCE_NORMALIZATION_MAPPING
 from flask import current_app
 import sqlalchemy
-from config import CURRENT_SOURCE_FILES_PATH
+from config import RAW_DATA_PATH
 from pipeline import log_db
 
 def start(connection, pdp_contacts_df, file_path_list):
@@ -16,7 +16,7 @@ def start(connection, pdp_contacts_df, file_path_list):
     manual_matches_df = pd.DataFrame()
     
     for uploaded_file in file_path_list:
-        file_path = os.path.join(CURRENT_SOURCE_FILES_PATH, uploaded_file)
+        file_path = os.path.join(RAW_DATA_PATH, uploaded_file)
         table_name = file_path.split('/')[-1].split('-')[0]
         if table_name == 'manualmatches':
             manual_matches_df = pd.read_csv((io.BytesIO(open(file_path, "rb").read())), encoding='iso-8859-1')
@@ -37,18 +37,18 @@ def start(connection, pdp_contacts_df, file_path_list):
         if "parent" not in normalization_without_others:  # not a child table
             source_df = create_normalized_df(df, normalization_without_others, table_name)
             df_jsonl = df.to_json(orient="records", lines=True)  # original df with normalized column names
-            source_json = pd.DataFrame({
-                "source_type": table_name,
-                "source_id": source_df["source_id"].astype(str),
-                "json": df_jsonl.split("\n")  # list of jsons, one per row
-            })
+            # source_json = pd.DataFrame({
+            #     "source_type": table_name,
+            #     "source_id": source_df["source_id"].astype(str),
+            #     "json": df_jsonl.split("\n")  # list of jsons, one per row
+            # })
 
             if result.empty:
                 result = source_df
-                json_rows = source_json
+                # json_rows = source_json
             else:
                 result = pd.concat([result, source_df])
-                json_rows = pd.concat([json_rows, source_json])
+                # json_rows = pd.concat([json_rows, source_json])
 
         # else:  # it is a child table, processed in file_uploader.py 
         current_app.logger.info('   - Finish load_paws_data on: ' + uploaded_file)

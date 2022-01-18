@@ -9,8 +9,8 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
     environment:
-      POSTGRES_PASSWORD: thispasswordisverysecure
       POSTGRES_DB: paws
+      POSTGRES_PASSWORD: thispasswordisverysecure
 
   server:
     container_name: paws-compose-server
@@ -37,9 +37,20 @@ services:
       - PAWS_API_HOST=server    # paws-compose-server
     stdin_open: true
 
+  scheduler:
+    build: ./scheduler
+    container_name: paws-scheduler
+    ports:
+      - "6000:6000"
+    depends_on:
+      - server
+    profiles: ["production-only"]
+
+
 
 #using named volumes fixs a windows docker bug relating to container permissions
 #https://stackoverflow.com/questions/49148754/docker-container-shuts-down-giving-data-directory-has-wrong-ownership-error-wh
 volumes:
   postgres:
   src_archive:
+  server_logs:

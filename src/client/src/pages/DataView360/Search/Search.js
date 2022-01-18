@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
-import {withStyles} from '@material-ui/core/styles';
-import {withRouter} from "react-router";
+import React from 'react';
 import {matchPath} from "react-router";
+import {useHistory} from "react-router-dom";
+import {makeStyles} from '@material-ui/styles';
 
 import {
     Paper,
@@ -23,8 +23,7 @@ import SearchBar from './components/SearchBar';
 import {formatPhoneNumber} from "../../../utils/utils";
 import Grid from "@material-ui/core/Grid";
 
-
-const customStyles = theme => ({
+const useStyles = makeStyles({
     table: {
         "&:hover": {
             backgroundColor: "#E6F7FF",
@@ -40,57 +39,49 @@ const customStyles = theme => ({
     container: {
         maxHeight: 600,
     },
+    narrowCell: {
+        'width': '150px',
+    }
 });
 
-class Search360 extends Component {
+export const Search360 = (props) => {
+    const history = useHistory();
+    const classes = useStyles();
 
-    constructor(props) {
-        super(props);
+    const [searchParticipant, setSearchParticipant] = React.useState('');
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [participantList, setParticipantList] = React.useState(undefined);
 
-        this.state = {
-            search_participant: '',
-            isDataBusy: false,
-            participantList: [],
-            participantTable: undefined
-        }
 
-        this.onRowClick = this.onRowClick.bind(this);
-        this.handleSearchChange = this.handleSearchChange.bind(this);
-    }
+    React.useEffect(() => {
+        (async () => {
+            let state = _.get(history, 'location.state');
+            if (_.isEmpty(state) !== true) {
+                let stateData = JSON.parse(state);
+                await setSearchParticipant(stateData.participant);
+                await setParticipantList(stateData.participantList)
+            }
+        })();
+    }, []);
 
-    async componentDidMount() {
-        let state = _.get(this.props, 'location.state');
-        if (_.isEmpty(state) !== true) {
-            let stateData = JSON.parse(state);
-            await this.setState({
-                search_participant: stateData.participant,
-                participantList: stateData.participantList
-            })
-
-            this.state.participantTable = this.renderParticipantsTable();
-
-        }
-    }
-
-    onRowClick(matching_id) {
+    const onRowClick = (matching_id) => {
         const match = matchPath(`/360view/view/${matching_id}`, {
             path: "/360view/view/:matching_id",
             exact: true,
             params: {matching_id}
         });
-        this.props.history.push(match.url,
-            {
-
-                state: JSON.stringify((
-                    {
-                        participant: this.state.search_participant,
-                        participantList: this.state.participantList
-                    }
-                ))
-            })
+        history.push(match.url, {
+            state: JSON.stringify((
+                {
+                    participant: searchParticipant,
+                    participantList: participantList,
+                    url: `/360view/search`
+                }
+            ))
+        })
     }
 
-    namesToLowerCase(participant) {
+    const namesToLowerCase = (participant) => {
         let first_name = participant.first_name
         let last_name = participant.last_name
 
@@ -101,38 +92,37 @@ class Search360 extends Component {
         }
     }
 
-    renderParticipantsTable() {
-        const {classes} = this.props;
+    const renderParticipantsTable = () => {
         const tableRowColors = [classes.tableRowEven, classes.tableRowOdd]
 
-        let participantListGrouped = _.map(this.state.participantList, this.namesToLowerCase)
+        let participantListGrouped = _.map(participantList, namesToLowerCase)
         participantListGrouped = _.groupBy(participantListGrouped, "matching_id");
         participantListGrouped = _.orderBy(participantListGrouped, ['0.lower_last_name', '0.lower_first_name']);
 
         return (
-            <Grid container direction={"column"} justify={"center"}>
+            <Grid container direction={"column"}>
                 <Grid container direction={"row"} justify={"center"}>
                     <Grid item>
                         <Box pt={2} pb={4}>
-                            <Typography>You searched for <b>{this.state.search_participant}</b></Typography>
+                            <Typography>You searched for <b>{searchParticipant}</b></Typography>
                         </Box>
 
                     </Grid>
                 </Grid>
-                <Grid container direction={"row"} justify={"center"}>
-
+                <Grid container direction={"row"}>
                     <Paper>
                         <TableContainer className={classes.container}>
                             <Table className={classes.table} size="small" stickyHeader aria-label="sticky table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell align="left">Match ID</TableCell>
-                                        <TableCell align="left">First Name</TableCell>
-                                        <TableCell align="left">Last Name</TableCell>
-                                        <TableCell align="left">Email</TableCell>
-                                        <TableCell align="left">Mobile</TableCell>
-                                        <TableCell align="left">Source</TableCell>
-                                        <TableCell align="left">ID in Source</TableCell>
+                                        <TableCell width="5%">Match ID</TableCell>
+                                        <TableCell width="5%">First Name</TableCell>
+                                        <TableCell width="5%">Last Name</TableCell>
+                                        <TableCell width="5%">Email</TableCell>
+                                        <TableCell width="10%">Mobile</TableCell>
+                                        <TableCell width="10%">RFM Score</TableCell>
+                                        <TableCell width="10%">Source</TableCell>
+                                        <TableCell width="10%">ID in Source</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -141,14 +131,21 @@ class Search360 extends Component {
                                             return _.map(row_group, (row, idx) => {
                                                 return <TableRow key={`${row.source_id}${idx}`}
                                                                  className={[classes.table, tableRowColors[index % _.size(tableRowColors)]].join(" ")}
-                                                                 onClick={() => this.onRowClick(row.matching_id)}>
-                                                    <TableCell align="left">{row.matching_id}</TableCell>
-                                                    <TableCell align="left">{row.first_name}</TableCell>
-                                                    <TableCell align="left">{row.last_name}</TableCell>
-                                                    <TableCell align="left">{row.email}</TableCell>
-                                                    <TableCell align="left">{formatPhoneNumber(row.mobile)}</TableCell>
-                                                    <TableCell align="left">{row.source_type}</TableCell>
-                                                    <TableCell align="left">{row.source_id}</TableCell>
+                                                                 onClick={() => onRowClick(row.matching_id)}>
+                                                    <TableCell>{row.matching_id}</TableCell>
+                                                    <TableCell>{row.first_name}</TableCell>
+                                                    <TableCell>{row.last_name}</TableCell>
+                                                    <TableCell>{row.email}</TableCell>
+                                                    <TableCell>{formatPhoneNumber(row.mobile)}</TableCell>
+                                                    <TableCell
+                                                               style={{
+                                                                   backgroundColor: row.rfm_color,
+                                                                   color: row.rfm_text_color
+                                                               }}>
+                                                        {row.rfm_score} ({row.rfm_label})
+                                                    </TableCell>
+                                                    <TableCell>{row.source_type}</TableCell>
+                                                    <TableCell>{row.source_id}</TableCell>
                                                 </TableRow>
                                             })
                                         })
@@ -162,51 +159,46 @@ class Search360 extends Component {
         )
     }
 
-    async handleSearchChange(search_participant) {
-        this.setState({isDataBusy: true, search_participant: search_participant});
+    const handleSearchChange = async (search_participant) => {
+        setIsLoading(true);
+        setSearchParticipant(search_participant);
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
         let response = await fetch(`/api/contacts/${search_participant}`,
             {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.props.access_token
+                    'Authorization': 'Bearer ' + props.access_token
                 }
             }
         );
         response = await response.json();
 
-        await this.setState({participantList: response.result})
+        await setParticipantList(response.result);
 
-        this.state.participantTable = this.renderParticipantsTable();
-        this.setState({
-            isDataBusy: false,
-        });
+        setIsLoading(false);
     }
 
-    render() {
-        return (
-            <Container>
-                <Box display="flex" justifyContent="center" pb={3}>
-                    <Typography variant={"h2"}>PAWS Contact Search</Typography>
-                </Box>
-                <SearchBar participant={this.state.participant}
-                           handleParticipantChange={this.onRowClick}
-                           handleSearchChange={this.handleSearchChange}/>
+    return (
+        <Container maxWidth={"lg"}>
+            <Box display="flex" justifyContent="center" pb={3}>
+                <Typography variant={"h2"}>PAWS Contact Search</Typography>
+            </Box>
+            <SearchBar participant={searchParticipant}
+                       handleParticipantChange={onRowClick}
+                       handleSearchChange={handleSearchChange}/>
 
-                {this.state.isDataBusy === true ?
-                    <Backdrop open={this.state.isLoading !== false}>
-                        <CircularProgress size={60}/>
-                    </Backdrop> :
-                    _.isEmpty(this.state.participantTable) !== true &&
-                    <Container>
-                        {this.state.participantTable}
-                    </Container>
-                }
-            </Container>
-        );
-    }
+            {isLoading === true ?
+                <Backdrop open={isLoading !== false}>
+                    <CircularProgress size={60}/>
+                </Backdrop> :
+                (participantList && _.isEmpty(participantList) !== true) ?
+                    renderParticipantsTable()
+                    : participantList && _.isEmpty(participantList) === true &&
+                    <Box display="flex" justifyContent="center" pt={5}>
+                        <Typography variant={"h5"}>No Results</Typography>
+                    </Box>
+            }
+        </Container>
+    );
 }
-
-export default withRouter(withStyles(customStyles)(Search360));

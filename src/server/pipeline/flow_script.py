@@ -1,24 +1,30 @@
-import os
-
+import os , sys, traceback
 import pandas as pd
+
 from flask import current_app
 from api import admin_api
 from pipeline import calssify_new_data, clean_and_load_data, archive_rows, match_data, log_db
-from config import CURRENT_SOURCE_FILES_PATH
+from config import RAW_DATA_PATH
 from config import engine
 from models import Base
+
 import time
 
+from rfm_funcs.create_scores import create_scores
 
 def start_flow():
     start = time.time()
     job_id = admin_api.start_job()
+    job_outcome = None
+    trace_back_string = None
 
-    if (not job_id):
+
+    if not job_id:
         current_app.logger.info('Failed to get job_id')
         job_outcome = 'busy'
 
     else:
+
         log_db.log_exec_status(job_id, 'start_flow', 'executing', '')
 
         file_path_list = os.listdir(CURRENT_SOURCE_FILES_PATH)
@@ -81,6 +87,7 @@ def start_flow():
             job_outcome = 'nothing to do'  
 
         log_db.log_exec_status(job_id, 'flow', 'complete', '' )
+
 
     current_app.logger.info('Pipeline execution took {} seconds '.format(time.time() - start))
     return job_outcome

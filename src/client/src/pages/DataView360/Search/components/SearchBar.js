@@ -35,9 +35,9 @@ class SearchBar extends Component {
             let shouldShowAlert = false;
 
             if (_.size(searchStrSplitted) === 2) {
-                shouldShowAlert = _.size(searchStrSplitted[0]) < 3 || _.size(searchStrSplitted[1]) < 3;
+                shouldShowAlert = _.size(searchStrSplitted[0]) < 2 || _.size(searchStrSplitted[1]) < 2;
             } else if (_.size(searchStrSplitted) === 1) {
-                shouldShowAlert = _.size(searchStrSplitted[0]) < 3;
+                shouldShowAlert = _.size(searchStrSplitted[0]) < 2;
             }
 
             this.setState({alertMinChars: shouldShowAlert});
