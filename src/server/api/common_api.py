@@ -180,6 +180,7 @@ def get_360(matching_id):
 
 
 @common_api.route('/api/person/<matching_id>/animals', methods=['GET'])
+@jwt_ops.jwt_required()
 def get_animals(matching_id):
     result = {
         "person_details": {},
@@ -206,16 +207,8 @@ def get_animals(matching_id):
     return result
 
 
-@common_api.route('/api/animal/<animal_id>/events', methods=['GET'])
-def get_animal_events(animal_id):
-    result = {}
-    animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}/events"
-    event_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
-    result[animal_id] = event_details["events"]
-    return result
-
-
 @common_api.route('/api/person/<matching_id>/animal/<animal_id>/events', methods=['GET'])
+@jwt_ops.jwt_required()
 def get_person_animal_events(matching_id, animal_id):
     result = {}
     events = []
@@ -237,6 +230,7 @@ def get_person_animal_events(matching_id, animal_id):
     return result
 
 @common_api.route('/api/person/<matching_id>/support', methods=['GET'])
+@jwt_ops.jwt_required()
 def get_support_oview(matching_id):
     """Return these values for the specified match_id:
         largest gift, date for first donation, total giving, number of gifts,
@@ -385,3 +379,31 @@ def get_support_oview(matching_id):
             current_app.logger.debug('No SF contact IDs found for matching_id ' + str(matching_id))
             oview_fields['number_of_gifts'] = 0  # Marker for no data
             return jsonify(oview_fields)
+
+
+@common_api.route('/api/last_analysis', methods=['GET'])
+@jwt_ops.jwt_required()
+def get_last_analysis():
+    """ Return the UTC string (e.g., '2021-12-11T02:29:14.830371') representing 
+        when the last analysis run succesfully completed. 
+        Returns an empty string if no results.
+    """
+
+    last_run = ''
+
+    last_stamp = """
+                    select update_stamp 
+                    from  execution_status
+                    where stage = 'flow' and status = 'complete'
+                    order by update_stamp desc
+                    limit 1;
+                """
+
+    with engine.connect() as connection:
+        result = connection.execute(last_stamp)
+        if result.rowcount:
+            row = result.fetchone()
+            last_run_dt = row[0]  # We get as a datetime object
+            last_run = last_run_dt.isoformat()
+
+    return last_run
