@@ -1,23 +1,26 @@
-from api import jwt_ops
 from api.api import common_api
 from config import engine
-from flask import jsonify, current_app
+from flask import jsonify , current_app
 from sqlalchemy.sql import text
 import requests
 import time
 from datetime import datetime
 
+from api.fake_data import sl_mock_data
+
 try:
     from secrets_dict import SHELTERLUV_SECRET_TOKEN
-except ImportError:  # Not running locally
-    print("Couldn't get SHELTERLUV_SECRET_TOKEN from file, trying environment") 
+except ImportError:
+    # Not running locally
+    print("Couldn't get SHELTERLUV_SECRET_TOKEN from file, trying environment **********")
     from os import getenv
 
-    SHELTERLUV_SECRET_TOKEN = getenv('SHELTERLUV_SECRET_TOKEN', None)
+    SHELTERLUV_SECRET_TOKEN = getenv('SHELTERLUV_SECRET_TOKEN')
     if not SHELTERLUV_SECRET_TOKEN:
         print("Couldn't get secrets from file or environment",
             "Defaulting to Fake Data")
 
+from api import jwt_ops
 
 @common_api.route('/api/timeout_test/<duration>', methods=['GET'])
 def get_timeout(duration):
@@ -172,47 +175,6 @@ def get_360(matching_id):
 
     return jsonify({'result': result})
 
-
-def fake_data(end_point: str)-> dict:
-    ''' Takes the end_point as a str of `animals` or `events` and  returns
-        a dict representing a test data for that end_point.
-    '''
-
-    test_data = {
-    'animals': {
-        "animal_details": {
-            12345: {
-                "Age": 24,
-                "DOBUnixTime": 1568480456,
-                "Name": "Lola aka Fake Cat",
-                "Type": "Cat",
-                "Photos":
-                ["https://images.unsplash.com/photo-1456926631375-92c8ce872def?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8YW5pbWFsfGVufDB8fDB8fA%3D%3D&w=1000&q=80"],
-                "Status": "Healthy In Home",
-            },
-        },
-        "person_details": {
-            "shelterluv_short_id": 2,
-        },
-    },
-    'events': {
-        12345:[{
-                'AssociatedRecords': [
-                        {'Id': 12345, 'Type': 'Animal' },
-                        {'Id': 12345, 'Type': 'Person'},
-                    ],
-                'Subtype': 'Foster Home',
-                'Time': '1602694822',
-                'Type': 'Outcome.Adoption',
-                'User': 'Fake User',
-            },
-        ]
-    },
-    }
-
-    return test_data.get(end_point, None)
-
-
 @common_api.route('/api/person/<matching_id>/animals', methods=['GET'])
 @jwt_ops.jwt_required()
 def get_animals(matching_id):
@@ -222,14 +184,14 @@ def get_animals(matching_id):
     }
 
     if not SHELTERLUV_SECRET_TOKEN:
-        return jsonify(fake_data('animals'))
+        return jsonify(sl_mock_data('animals'))
 
     with engine.connect() as connection:
         query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
         query_result = connection.execute(query, matching_id=matching_id)
         rows = [dict(row) for row in query_result]
         if len(rows) > 0:
-            for row in rows:
+            for row in rows:               
                 shelterluv_id = row["source_id"]
                 person_url = f"http://shelterluv.com/api/v1/people/{shelterluv_id}"
                 person_details = requests.get(person_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
@@ -241,7 +203,7 @@ def get_animals(matching_id):
                         animal_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
                         result["animal_details"][animal_id] = animal_details
 
-    return jsonify(result)
+    return result
 
 
 @common_api.route('/api/person/<matching_id>/animal/<animal_id>/events', methods=['GET'])
@@ -251,7 +213,7 @@ def get_person_animal_events(matching_id, animal_id):
     events = []
 
     if not SHELTERLUV_SECRET_TOKEN:
-        return jsonify(fake_data('events'))
+        return jsonify(sl_mock_data('events'))
 
     with engine.connect() as connection:
         query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
@@ -268,7 +230,7 @@ def get_person_animal_events(matching_id, animal_id):
                         events.append(event)
             result[animal_id] = events
 
-    return jsonify(result)
+    return result
 
 @common_api.route('/api/person/<matching_id>/support', methods=['GET'])
 @jwt_ops.jwt_required()
