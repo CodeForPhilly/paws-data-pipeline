@@ -9,8 +9,8 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
     environment:
-      POSTGRES_PASSWORD: thispasswordisverysecure
       POSTGRES_DB: paws
+      POSTGRES_PASSWORD: thispasswordisverysecure
 
   server:
     container_name: paws-compose-server
@@ -53,3 +53,4 @@ services:
 volumes:
   postgres:
   src_archive:
+  server_logs:

@@ -358,10 +358,10 @@ def check_username():
 def user_update():
     """Update existing user record 
     """
-
-    post_dict = json.loads(request.data)
+  
    
     try:
+        post_dict = json.loads(request.data)
         username = post_dict["username"]
     except:
         return jsonify("Must specify username"), 400
