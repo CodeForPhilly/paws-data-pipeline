@@ -23,7 +23,7 @@ def upgrade():
         sa.Column('contact_type_id', sa.String, primary_key=True)
     )
 
-    op.execute("""insert into pdp_contact_types values ('PERSON'), ('ORGANIZATION');""")
+    op.execute("""insert into pdp_contact_types values ('HOUSEHOLD'), ('ORGANIZATION');""")
 
     op.create_table('pdp_contacts',
         sa.Column('_id', sa.Integer, primary_key=True, autoincrement=True),

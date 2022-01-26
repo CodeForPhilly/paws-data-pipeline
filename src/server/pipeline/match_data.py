@@ -97,9 +97,15 @@ def start(connection, added_or_updated_rows, manual_matches_df, job_id):
                     connection.execute(query, matching_id=matching_id, old_id=old_id) 
                     current_app.logger.info("glue record found, changing id {} to {}".format(old_id, matching_id))
         
-        insert = text("insert into pdp_contacts(matching_id, source_type, source_id, first_name, last_name, email, mobile, street_and_number, apartment, city, state, zip) \
-                    values(:matching_id, :source_type, :source_id, :first_name, :last_name, :email, :mobile, :street_and_number, :apartment, :city, :state, :zip)")
-        connection.execute(insert, matching_id=matching_id, source_type=row["source_type"], source_id=row["source_id"], first_name=row["first_name"], last_name=row["last_name"], email=row["email"], mobile=row["mobile"], street_and_number=row["street_and_number"], apartment=row["apartment"], city=row["city"], state=row["state"], zip=row["zip"])
+        contact_type_id=None
+        if("account_name" in row.keys()):
+            if(row["account_name"].lower().endswith("household")):
+                contact_type_id="HOUSEHOLD"
+            else:
+                contact_type_id="ORGANIZATION"
+        insert = text("insert into pdp_contacts(matching_id, source_type, source_id, contact_type_id, first_name, last_name, email, mobile, street_and_number, apartment, city, state, zip) \
+                    values(:matching_id, :source_type, :source_id, :contact_type_id, :first_name, :last_name, :email, :mobile, :street_and_number, :apartment, :city, :state, :zip)")
+        connection.execute(insert, matching_id=matching_id, source_type=row["source_type"], source_id=row["source_id"], contact_type_id=contact_type_id, first_name=row["first_name"], last_name=row["last_name"], email=row["email"], mobile=row["mobile"], street_and_number=row["street_and_number"], apartment=row["apartment"], city=row["city"], state=row["state"], zip=row["zip"])
     
     current_app.logger.info("- Finished load to pdp_contacts table")
     log_db.log_exec_status(job_id, 'matching', 'executing', str({'at_row': len(rows), 'of_rows': len(rows) }) )
