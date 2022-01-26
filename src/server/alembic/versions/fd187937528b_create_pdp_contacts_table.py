@@ -19,18 +19,12 @@ depends_on = None
 
 def upgrade():
     
-    op.create_table('pdp_contact_types',
-        sa.Column('contact_type_id', sa.String, primary_key=True)
-    )
-
-    op.execute("""insert into pdp_contact_types values ('HOUSEHOLD'), ('ORGANIZATION');""")
-
     op.create_table('pdp_contacts',
         sa.Column('_id', sa.Integer, primary_key=True, autoincrement=True),
         sa.Column('matching_id', sa.Integer, primary_key=True),
         sa.Column('source_type', sa.String, nullable=False),
         sa.Column('source_id', sa.String, nullable=False),
-        sa.Column('contact_type_id', sa.String, sa.ForeignKey("pdp_contact_types.contact_type_id")),
+        sa.Column('is_organization', sa.Boolean),
         sa.Column('first_name', sa.String),
         sa.Column('last_name', sa.String),
         sa.Column('email', sa.String),
