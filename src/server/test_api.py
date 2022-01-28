@@ -286,7 +286,7 @@ def test_user_get_person_animal_events(state: State):
 
     try:
         response = requests.get(url, headers = auth_hdr)
-    except RuntimeError as err:
+    except Exception as err:
         print(err)
     else:
         assert response.status_code == 200
@@ -310,7 +310,7 @@ def test_user_get_animals(state: State):
 
     try:
         response = requests.get(url, headers = auth_hdr)
-    except RuntimeError as err:
+    except Exception as err:
         print(err)
     else:
         assert response.status_code == 200
@@ -324,6 +324,9 @@ def test_user_get_animals_sl_token(state: State):
         is present in the secrets_dict file.
         Note this works on the assumption the SL token is not valid, and returns
         a default empty value
+
+        >> This is tricky - if SL token is correct and person_id is valid, could get animal records returned.
+
     """
 
     # Build auth string value including token from state
@@ -336,8 +339,9 @@ def test_user_get_animals_sl_token(state: State):
 
     try:
         response = requests.get(url, headers = auth_hdr)
-    except RuntimeError as err:
+    except Exception as err:
         print(err)
+        pytest.fail('test_user_get_animals_sl_token - Request failed', pytrace=False)
     else:
         assert response.status_code == 200
         assert response.json() == {'person_details': {}, 'animal_details': {}}
@@ -361,8 +365,9 @@ def test_user_get_person_animal_events_sl_token(state: State):
 
     try:
         response = requests.get(url, headers = auth_hdr)
-    except RuntimeError as err:
+    except Exception as err:
         print(err)
+        pytest.fail('test_user_get_person_animal_events_sl_token - Request failed', pytrace=False)
     else:
         assert response.status_code == 200
         assert response.json() == {}
