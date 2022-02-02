@@ -31,10 +31,6 @@ else:
 
 engine = db.create_engine(DB)
 
-with engine.connect() as connection:
-    models.Base.metadata.create_all(connection)
-    # This is safe: by default, will check first to ensure tables don't already exist
-
 # Run Alembic to create managed tables
 # from alembic.config import Config
 # from alembic import command

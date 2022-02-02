@@ -5,8 +5,10 @@ Revises:
 Create Date: 2020-12-16 01:47:43.686881
 
 """
+from sqlalchemy.sql.expression import null
 from alembic import op
 import sqlalchemy as sa
+
 
 
 # revision identifiers, used by Alembic.
@@ -32,7 +34,6 @@ def upgrade():
         sa.Column('active', sa.String(50), nullable=False),
         sa.Column('created', sa.DateTime,nullable=False, server_default='now()')
     )
-
 
 def downgrade():
     pass
