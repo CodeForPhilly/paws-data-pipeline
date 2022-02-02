@@ -6,24 +6,21 @@ import requests
 import time
 from datetime import datetime
 
+from api.fake_data import sl_mock_data
+
 try:
     from secrets_dict import SHELTERLUV_SECRET_TOKEN
 except ImportError:
     # Not running locally
     print("Couldn't get SHELTERLUV_SECRET_TOKEN from file, trying environment **********")
-    from os import environ
+    from os import getenv
 
-    try:
-        SHELTERLUV_SECRET_TOKEN = environ['SHELTERLUV_SECRET_TOKEN']
-    except KeyError:
-        # Nor in environment
-        # You're SOL for now
-        print("Couldn't get secrets from file or environment")
-
-
+    SHELTERLUV_SECRET_TOKEN = getenv('SHELTERLUV_SECRET_TOKEN')
+    if not SHELTERLUV_SECRET_TOKEN:
+        print("Couldn't get secrets from file or environment",
+            "Defaulting to Fake Data")
 
 from api import jwt_ops
-
 
 @common_api.route('/api/timeout_test/<duration>', methods=['GET'])
 def get_timeout(duration):
@@ -178,7 +175,6 @@ def get_360(matching_id):
 
     return jsonify({'result': result})
 
-
 @common_api.route('/api/person/<matching_id>/animals', methods=['GET'])
 @jwt_ops.jwt_required()
 def get_animals(matching_id):
@@ -186,6 +182,9 @@ def get_animals(matching_id):
         "person_details": {},
         "animal_details": {}
     }
+
+    if not SHELTERLUV_SECRET_TOKEN:
+        return jsonify(sl_mock_data('animals'))
 
     with engine.connect() as connection:
         query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
@@ -212,6 +211,10 @@ def get_animals(matching_id):
 def get_person_animal_events(matching_id, animal_id):
     result = {}
     events = []
+
+    if not SHELTERLUV_SECRET_TOKEN:
+        return jsonify(sl_mock_data('events'))
+
     with engine.connect() as connection:
         query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
         query_result = connection.execute(query, matching_id=matching_id)
