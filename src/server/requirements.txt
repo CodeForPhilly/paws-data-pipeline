@@ -12,3 +12,4 @@ alembic
 flask-cors
 dropbox
 jellyfish
+networkx

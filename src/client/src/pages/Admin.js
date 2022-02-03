@@ -243,7 +243,7 @@ export default function Admin(props) {
                                         <Typography variant="h5" styles={{paddingBottom: 5}}>Run New Analysis</Typography>
                                         <form onSubmit={handleExecute}>
                                             <Button type="submit" variant="contained" color="primary"
-                                                    disabled={statistics === 'Running' || isNewFileExist === false}>
+                                                    disabled={statistics === 'Running'}>
                                                 Run Data Analysis
                                             </Button>
                                         </form>
