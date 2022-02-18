@@ -1,4 +1,4 @@
-from config import engine
+from config import db
 from flask import current_app
 import traceback
 
@@ -29,7 +29,7 @@ def create_scores():
     
     # We calculate query_date below in frequncy
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         current_app.logger.debug("running create_scores()")
         # read in data from database via pull_donations_for_rfm() func (reads in as a list of tuples)
         df = pd.read_sql(

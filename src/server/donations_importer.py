@@ -4,7 +4,7 @@ from flask.globals import current_app
 from openpyxl import load_workbook
 from jellyfish import jaro_similarity
 
-from config import  engine
+from config import  db
 
 from sqlalchemy import  insert,  Table,  Column, MetaData, exc
 from sqlalchemy.dialects.postgresql import Insert
@@ -69,7 +69,7 @@ def validate_import_sfd(filename, conn):
 
     if  min_similarity >= MINIMUM_SIMILARITY :  # Good enough to trust
         
-        sfd  = Table("salesforcedonations", metadata, autoload=True, autoload_with=engine)
+        sfd  = Table("salesforcedonations", metadata, autoload=True, autoload_with=db.engine)
 
         seen_header = False  # Used to skip header row
 

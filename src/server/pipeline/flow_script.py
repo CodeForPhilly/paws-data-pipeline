@@ -2,7 +2,7 @@ import time
 import traceback
 
 from api import admin_api
-from config import engine
+from config import db
 from flask import current_app
 from models import (
     ManualMatches,
@@ -43,7 +43,7 @@ def start_flow():
     try:
         log_db.log_exec_status(job_id, "start_flow", "executing", "")
 
-        with engine.begin() as conn:
+        with db.engine.begin() as conn:
             # Here's how we match:
             # 1. Clear pdp_contacts (the old matches).
             # 2. Go through each raw data source table (e.g. salesforcecontacts,

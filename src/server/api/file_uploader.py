@@ -1,5 +1,5 @@
 import pandas as pd
-from config import engine
+from config import db
 from donations_importer import validate_import_sfd
 from flask import current_app
 from models import ManualMatches, SalesForceContacts, ShelterluvPeople, Volgistics
@@ -13,7 +13,7 @@ def validate_and_arrange_upload(file):
     current_app.logger.info("Start uploading file: " + file.filename)
     filename = secure_filename(file.filename)
     file_extension = filename.rpartition(".")[2]
-    with engine.begin() as conn:
+    with db.engine.begin() as conn:
         determine_upload_type(file, file_extension, conn)
 
 

@@ -5,7 +5,7 @@ from datetime import datetime
 
 from api.api import user_api
 from sqlalchemy.sql import text
-from config import engine
+from config import db
 from flask import request, redirect, jsonify, current_app, abort, json
 
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc, select
@@ -23,9 +23,9 @@ SALT_LENGTH = 32
 def log_user_action(user, event_class, detail):
     """ Write log entry to db """
 
-    puj = Table("pdp_user_journal", metadata, autoload=True, autoload_with=engine)
+    puj = Table("pdp_user_journal", metadata, autoload=True, autoload_with=db.engine)
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         ins_stmt = puj.insert().values(username=user, event_type=event_class, detail=detail)
 
         try:
@@ -129,7 +129,7 @@ def user_login():
         return jsonify("Bad credentials"), 401   # Don't give us ints, arrays, etc.
 
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
 
         pwhash = None
         s = text(
@@ -211,7 +211,7 @@ def user_refresh():
     # If token bad, should be handled & error message sent by jwt_required() and we won't get here
     if old_jwt:
         user_name = old_jwt['sub']
-        with engine.connect() as connection:
+        with db.engine.connect() as connection:
 
             s = text( """select active from pdp_users where username=:u """ )
             s = s.bindparams(u=user_name)
@@ -272,10 +272,10 @@ def user_create():
 
     pw_hash = hash_password(userpw)
 
-    pu = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
-    pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
+    pu = Table("pdp_users", metadata, autoload=True, autoload_with=db.engine)
+    pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=db.engine)
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
 
         # Build dict of roles
         role_dict = {}
@@ -321,7 +321,7 @@ def user_create():
 @jwt_ops.admin_required
 def get_user_count():
     """Return number of records in pdp_users table """
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         s = text("select count(user) from pdp_users;")
         result = connection.execute(s)
         user_count = result.fetchone()
@@ -339,7 +339,7 @@ def check_username():
     except:
         return jsonify("Missing username"), 400
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
 
         s = text( """select count(username)  from pdp_users where username=:u """ )
         s = s.bindparams(u=test_username)
@@ -396,13 +396,13 @@ def user_update():
     from sqlalchemy import update
     from sqlalchemy.orm import Session, sessionmaker
 
-    Session = sessionmaker(engine)
+    Session = sessionmaker(db)
 
     session =  Session()   
    # #TODO: Figure out why context manager doesn't work or do try/finally
 
-    PU = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
-    #  pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
+    PU = Table("pdp_users", metadata, autoload=True, autoload_with=db.engine)
+    #  pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=db.engine)
 
     #TODO: Check tendered role or join roles table for update
 
@@ -422,7 +422,7 @@ def user_update():
 def user_get_list():
     """Return list of users"""
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
 
         s = text(
             """ select username, full_name, active, pr.role
@@ -446,7 +446,7 @@ def user_get_list():
 def user_get_info(username):
     """Return info on a specified user"""
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
 
         s = text(
             """ select username, full_name, active, pr.role

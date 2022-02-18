@@ -1,7 +1,7 @@
 import os
-import sqlalchemy as db
 import models
 from constants import IS_LOCAL, BASE_PATH, RAW_DATA_PATH, OUTPUT_PATH, LOGS_PATH, REPORT_PATH, ZIPPED_FILES
+from flask_sqlalchemy import SQLAlchemy
 
 
 # Initiate postgres DB
@@ -29,7 +29,7 @@ else:
         + POSTGRES_DATABASE
     )
 
-engine = db.create_engine(DB)
+db = SQLAlchemy()
 
 # Run Alembic to create managed tables
 # from alembic.config import Config
@@ -38,11 +38,11 @@ engine = db.create_engine(DB)
 # alembic_cfg = Config("alembic.ini")
 # command.stamp(alembic_cfg, "head")
 
-with engine.connect() as connection:
-    import user_mgmt.base_users
-    user_mgmt.base_users.create_base_roles()  # IFF there are no roles already
-    user_mgmt.base_users.create_base_users()  # IFF there are no users already
-    user_mgmt.base_users.populate_rfm_mapping_table()   # Set to True to force loading latest version of populate script
+# with db.connect() as connection:
+#     import user_mgmt.base_users
+#     user_mgmt.base_users.create_base_roles()  # IFF there are no roles already
+#     user_mgmt.base_users.create_base_users()  # IFF there are no users already
+#     user_mgmt.base_users.populate_rfm_mapping_table()   # Set to True to force loading latest version of populate script
                                                                        # found in the server/alembic directory
 
 # Create these directories only one time - when initializing

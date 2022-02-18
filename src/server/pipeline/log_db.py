@@ -6,12 +6,12 @@ from flask import  current_app
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc, select
 
-from config import engine
+from config import db
 
 
 metadata = MetaData()
 
-ex_stat = Table("execution_status", metadata, autoload=True, autoload_with=engine)
+ex_stat = Table("execution_status", metadata, autoload=True, autoload_with=db.engine)
 
 # Alembic version bfb1262d3195
 
@@ -30,7 +30,7 @@ ex_stat = Table("execution_status", metadata, autoload=True, autoload_with=engin
 def log_exec_status(job_id: str, exec_stage: str, exec_status: str, job_details: str):
     """Log execution status (job_id, status, job_details) to DB """
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         ins_stmt = insert(ex_stat).values(               # Postgres-specific insert() supporting ON CONFLICT 
             job_id =  job_id,
             stage = exec_stage, 

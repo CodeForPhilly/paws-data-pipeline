@@ -1,5 +1,5 @@
 from api.api import common_api
-from config import engine
+from config import db
 from flask import jsonify , current_app
 from sqlalchemy.sql import text
 import requests
@@ -35,7 +35,7 @@ def get_timeout(duration):
 @common_api.route('/api/contacts/<search_text>', methods=['GET'])
 @jwt_ops.jwt_required()
 def get_contacts(search_text):
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         search_text = search_text.lower()
 
         names = search_text.split(" ")
@@ -69,7 +69,7 @@ def get_contacts(search_text):
 @common_api.route('/api/rfm/<label>', methods=['GET'])
 @jwt_ops.jwt_required()
 def get_rfm(label, limit=None):
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         query_string = """select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
                                     from pdp_contacts 
                                     left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
@@ -96,7 +96,7 @@ def get_rfm(label, limit=None):
 @common_api.route('/api/rfm/labels', methods=['GET'])
 @jwt_ops.jwt_required()
 def get_rfm_labels():
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         query = text("""select rfm_label, rfm_text_color, rfm_color, count(rfm_value) from rfm_scores left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score 
 group by rfm_label, rfm_text_color, rfm_color;""")
 
@@ -114,7 +114,7 @@ group by rfm_label, rfm_text_color, rfm_color;""")
 def get_360(matching_id):
     result = {}
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
                         from pdp_contacts 
                         left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
@@ -186,7 +186,7 @@ def get_animals(matching_id):
     if not SHELTERLUV_SECRET_TOKEN:
         return jsonify(sl_mock_data('animals'))
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
         query_result = connection.execute(query, matching_id=matching_id)
         rows = [dict(row) for row in query_result]
@@ -215,7 +215,7 @@ def get_person_animal_events(matching_id, animal_id):
     if not SHELTERLUV_SECRET_TOKEN:
         return jsonify(sl_mock_data('events'))
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
         query_result = connection.execute(query, matching_id=matching_id)
         rows = [dict(row) for row in query_result]
@@ -251,7 +251,7 @@ def get_support_oview(matching_id):
 
     oview_fields = {}
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         query_result = connection.execute(qcids, matching_id=matching_id)
         rows = [dict(row) for row in query_result]
 
@@ -402,7 +402,7 @@ def get_last_analysis():
                     limit 1;
                 """
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         result = connection.execute(last_stamp)
         if result.rowcount:
             row = result.fetchone()

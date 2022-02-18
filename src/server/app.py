@@ -1,11 +1,11 @@
 import os
 
 from flask import Flask
-
 from flask_jwt_extended import JWTManager
+from config import db, DB
 
 try:   
-    from secrets_dict import JWT_SECRET, APP_SECRET_KEY
+    from secrets_dict import APP_SECRET_KEY, JWT_SECRET
 except ImportError:   
     # Not running locally
     print("Could not get secrets from file, trying environment **********")
@@ -21,6 +21,7 @@ except ImportError:
 
 
 app = Flask(__name__)
+app.app_context().push()
 
 
 app.config["JWT_SECRET_KEY"] = JWT_SECRET  
@@ -31,6 +32,10 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] =  app.config["JWT_MAX_TIMEOUT"]
 
 jwt = JWTManager(app)
 
+app.config['SQLALCHEMY_DATABASE_URI'] = DB
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
+
 
 app.secret_key = APP_SECRET_KEY
 app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024  # 500 Megs
@@ -38,8 +43,8 @@ app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 
 from api.admin_api import admin_api
 from api.common_api import common_api
-from api.user_api import user_api
 from api.internal_api import internal_api
+from api.user_api import user_api
 
 app.register_blueprint(admin_api)
 app.register_blueprint(common_api)

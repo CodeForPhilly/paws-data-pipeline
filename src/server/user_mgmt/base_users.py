@@ -1,4 +1,4 @@
-from config import engine
+from config import db
 from api import user_api
 import sqlalchemy as sa
 import os
@@ -32,7 +32,7 @@ metadata = sa.MetaData()
 
 
 def create_base_roles():
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         result = connection.execute("select role from pdp_user_roles")
         role_count = len(result.fetchall())
         if role_count == 0:
@@ -47,7 +47,7 @@ def create_base_roles():
 def create_base_users():  # TODO: Just call create_user for each
     """ Creates three users (user, editor, admin) for testing
         Password for each is user name with 'pw' appended """
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
 
         result = connection.execute("select user from pdp_users")
         user_count = len(result.fetchall())
@@ -55,7 +55,7 @@ def create_base_users():  # TODO: Just call create_user for each
 
             print("Creating base users")
 
-            pu = sa.Table("pdp_users", metadata, autoload=True, autoload_with=engine)
+            pu = sa.Table("pdp_users", metadata, autoload=True, autoload_with=db.engine)
 
             # user
             pw_hash = user_api.hash_password(BASEUSER_PW)
@@ -92,7 +92,7 @@ def create_base_users():  # TODO: Just call create_user for each
 def populate_rfm_mapping_table(overwrite=False):
     """Populate the rfm_mapping table if empty or overwrite is True."""
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
 
         def table_empty():
             result = connection.execute("select count(*) from rfm_mapping;")

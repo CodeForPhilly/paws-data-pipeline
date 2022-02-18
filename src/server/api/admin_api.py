@@ -8,7 +8,7 @@ from sqlalchemy.sql import text
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import Table, MetaData
 from pipeline import flow_script
-from config import engine
+from config import db
 from flask import request, redirect, jsonify, current_app
 from api.file_uploader import validate_and_arrange_upload
 from sqlalchemy.orm import Session, sessionmaker
@@ -69,11 +69,11 @@ def execute():
     last_ex_json = (json.dumps(last_execution_details))
     
     metadata = MetaData()
-    kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
+    kvt = Table("kv_unique", metadata, autoload=True, autoload_with=db.engine)
 
     # Write Last Execution stats to DB
     # See Alembic Revision ID: 05e0693f8cbb for table definition
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         ins_stmt = insert(kvt).values(               # Postgres-specific insert() supporting ON CONFLICT
             keycol = 'last_execution_time',
             valcol = last_ex_json,
@@ -108,7 +108,7 @@ def execute():
 
 
 def get_statistics():
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         query_matches = text("SELECT count(*) FROM (SELECT distinct matching_id from pdp_contacts) as a;")
         query_total_count = text("SELECT count(*) FROM pdp_contacts;")
         matches_count_query_result = connection.execute(query_matches)
@@ -126,14 +126,14 @@ def get_statistics():
 @admin_api.route("/api/statistics", methods=["GET"])
 @jwt_ops.admin_required
 def list_statistics():
-    """ Pull Last Execution stats from DB. """
+    """ Pull Last Execution stats from db.engine. """
     current_app.logger.info("list_statistics() request")
     last_execution_details = '{}'  # Empty but valid JSON
 
-    engine.dispose() # we don't want other process's conn pool
+    db.engine.dispose() # we don't want other process's conn pool
 
 
-    with engine.connect() as conn:
+    with db.engine.connect() as conn:
     
         try:    # See Alembic Revision ID: 05e0693f8cbb for table definition
         
@@ -155,9 +155,9 @@ def get_exec_status():
     """ Get the execution status record from the DB for a running job, if present"""
 
 
-    engine.dispose() # we don't want other process's conn pool
+    db.engine.dispose() # we don't want other process's conn pool
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         q = text("""SELECT job_id, stage, status, details, update_stamp 
                     FROM execution_status 
                     WHERE status = 'executing' """)
@@ -174,9 +174,9 @@ def get_exec_status():
 def is_job_in_progresss():
     """Return True if there's a running execute, False if not. """
 
-    engine.dispose() # we don't want other process's conn pool
+    db.engine.dispose() # we don't want other process's conn pool
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         q = text("""SELECT job_id from execution_status WHERE status = 'executing' """)
         result = connection.execute(q)
 
@@ -192,7 +192,7 @@ def start_job():
     If there's a running job, return None.  """
 
 
-    engine.dispose() # we don't want other process's conn pool
+    db.engine.dispose() # we don't want other process's conn pool
 
     job_id = str(int(time.time()))
     q = text("""SELECT job_id from execution_status
@@ -207,7 +207,7 @@ def start_job():
 
     running_job = None
 
-    with engine.begin() as connection:   # BEGIN TRANSACTION
+    with db.engine.begin() as connection:   # BEGIN TRANSACTION
         q_result = connection.execute(q)
         if q_result.rowcount == 0:
             # No running jobs
@@ -234,10 +234,10 @@ def insert_rfm_scores(score_list):
     """
             # This takes about 4.5 sec to insert 80,000 rows 
 
-    Session = sessionmaker(engine) 
+    Session = sessionmaker(db) 
     session =  Session()   
     metadata = MetaData()
-    rfms = Table("rfm_scores", metadata, autoload=True, autoload_with=engine)
+    rfms = Table("rfm_scores", metadata, autoload=True, autoload_with=db.engine)
 
 
     truncate = "TRUNCATE table rfm_scores;"
@@ -285,10 +285,10 @@ def write_rfm_edges(rfm_dict : dict) :
         rfm_s = json.dumps(rfm_dict)  # Convert dict to string
 
         metadata = MetaData()
-        kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
+        kvt = Table("kv_unique", metadata, autoload=True, autoload_with=db.engine)
 
         # See Alembic Revision ID: 05e0693f8cbb for table definition
-        with engine.connect() as connection:
+        with db.engine.connect() as connection:
             ins_stmt = insert(kvt).values(               # Postgres-specific insert() supporting ON CONFLICT
                 keycol = 'rfm_edges',
                 valcol = rfm_s,
@@ -318,7 +318,7 @@ def read_rfm_edges() :
 
     q = text("""SELECT valcol from kv_unique WHERE keycol = 'rfm_edges';""")
 
-    with engine.begin() as connection:   # BEGIN TRANSACTION
+    with db.engine.begin() as connection:   # BEGIN TRANSACTION
         q_result = connection.execute(q)
         if q_result.rowcount == 0:
             current_app.logger.error("No rfm_edge entry found in DB")
@@ -347,7 +347,7 @@ def pull_donations_for_rfm():
 
     sfd_list = []
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         result = connection.execute(q)
 
         for row in result:
@@ -372,7 +372,7 @@ def generate_dummy_rfm_scores():
     dummy_scores = []
 
 
-    with engine.connect() as connection:
+    with db.engine.connect() as connection:
         result = connection.execute(q)
 
         for row in result:
