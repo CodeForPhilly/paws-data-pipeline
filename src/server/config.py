@@ -46,11 +46,12 @@ db = SQLAlchemy()
                                                                        # found in the server/alembic directory
 
 # Create these directories only one time - when initializing
-if not os.path.isdir(BASE_PATH):
-    os.makedirs(BASE_PATH, exist_ok=True)
-    os.makedirs(RAW_DATA_PATH, exist_ok=True)
-    os.makedirs(OUTPUT_PATH, exist_ok=True)
-    os.makedirs(LOGS_PATH, exist_ok=True)
-    os.makedirs(RAW_DATA_PATH, exist_ok=True)
-    os.makedirs(REPORT_PATH, exist_ok=True)
-    os.makedirs(ZIPPED_FILES, exist_ok=True)
+# if not os.path.isdir(BASE_PATH):
+#     os.makedirs(BASE_PATH, exist_ok=True)
+#     os.makedirs(RAW_DATA_PATH, exist_ok=True)
+#     os.makedirs(OUTPUT_PATH, exist_ok=True)
+#     os.makedirs(LOGS_PATH, exist_ok=True)
+#     os.makedirs(RAW_DATA_PATH, exist_ok=True)
+#     os.makedirs(REPORT_PATH, exist_ok=True)
+#     os.makedirs(ZIPPED_FILES, exist_ok=True)
+# 

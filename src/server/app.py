@@ -23,7 +23,7 @@ except ImportError:
 jwt = JWTManager()
 
 
-def create_app():
+def create_app(is_test=False):
     app = Flask(__name__)
     app.app_context().push()
 
@@ -35,7 +35,12 @@ def create_app():
 
     jwt.init_app(app)
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = DB
+    if not is_test:
+        app.config["SQLALCHEMY_DATABASE_URI"] = DB
+    else:
+        app.config[
+            "SQLALCHEMY_DATABASE_URI"
+        ] = "postgresql://postgres:thispasswordisverysecure@localhost:5432/paws"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
