@@ -10,7 +10,7 @@ from flask_jwt_extended import (
    
 )
 
-from app import app, jwt
+from app import jwt
 
 # Wraps funcs to require admin role to execute
 def admin_required(fn):
