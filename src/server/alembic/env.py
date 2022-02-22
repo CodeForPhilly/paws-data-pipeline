@@ -26,12 +26,15 @@ target_metadata = None
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+# TODO: do this better
+try:
+    PG_URL1 = 'postgresql://postgres:'
+    PG_URL2 = environ['POSTGRES_PASSWORD']
+    PG_URL3 = '@paws-compose-db/paws'
 
-PG_URL1 = 'postgresql://postgres:'
-PG_URL2 = environ['POSTGRES_PASSWORD']
-PG_URL3 = '@paws-compose-db/paws'
-
-PG_URL = PG_URL1 + PG_URL2 + PG_URL3
+    PG_URL = PG_URL1 + PG_URL2 + PG_URL3
+except KeyError:
+    PG_URL = config.get_main_option("sqlalchemy.url")
 
 
 def run_migrations_offline():
@@ -70,7 +73,7 @@ def run_migrations_online():
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
-        url=PG_URL,
+        url=PG_URL
     )
 
     with connectable.connect() as connection:

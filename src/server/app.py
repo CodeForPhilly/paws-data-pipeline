@@ -33,20 +33,21 @@ def create_app(is_test=False):
     # We'll use max for default but can be reduced for testing
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = app.config["JWT_MAX_TIMEOUT"]
 
-    jwt.init_app(app)
 
     if not is_test:
         app.config["SQLALCHEMY_DATABASE_URI"] = DB
     else:
         app.config[
             "SQLALCHEMY_DATABASE_URI"
-        ] = "postgresql://postgres:thispasswordisverysecure@localhost:5432/paws"
+        ] = "postgresql://postgres:thispasswordisverysecure@localhost:5432/tests"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    db.init_app(app)
 
     app.secret_key = APP_SECRET_KEY
     app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024  # 500 Megs
     app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
+
+    jwt.init_app(app)
+    db.init_app(app)
 
     from api.admin_api import admin_api
     from api.common_api import common_api
