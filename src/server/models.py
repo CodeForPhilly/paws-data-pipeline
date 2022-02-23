@@ -67,7 +67,7 @@ def get_contacts_mapping(cls):
     ]
 
 
-def dedup_consecutive(table, id, order_by, dedup_on):
+def dedup_consecutive(table, unique_id, id, order_by, dedup_on):
     # Many of our raw data tables have a similar structure: a contact id column,
     # an insert time column, and several other pieces of raw data. If someone
     # inserts a "new" record for a certain id, but none of the raw data is
@@ -81,6 +81,7 @@ def dedup_consecutive(table, id, order_by, dedup_on):
     # not work well on null values.
 
     sq = select(
+        unique_id,
         id,
         order_by,
         dedup_on.bool_op("IS NOT DISTINCT FROM")(
@@ -88,8 +89,8 @@ def dedup_consecutive(table, id, order_by, dedup_on):
         ).label("is_dupe"),
     ).subquery()
 
-    to_delete = select(sq.c[0], sq.c[1]).where(sq.c[2]).subquery()
-    return delete(table).where((id == to_delete.c[0]) & (order_by == to_delete.c[1]))
+    to_delete = select(sq.c[0]).where(sq.c[3]).subquery()
+    return delete(table).where(unique_id == to_delete.c[0])
 
 
 def normalize_phone_number(number):
@@ -181,6 +182,7 @@ class SalesForceContacts(Base):
         conn.execute(
             dedup_consecutive(
                 cls.__table__,
+                unique_id=cls._id,
                 id=cls.contact_id,
                 order_by=cls.created_date,
                 dedup_on=tuple_(*dedup_on),
@@ -249,6 +251,7 @@ class ShelterluvPeople(Base):
         conn.execute(
             dedup_consecutive(
                 cls.__table__,
+                unique_id=cls._id,
                 id=cls.internal_id,
                 order_by=cls.created_date,
                 dedup_on=tuple_(*dedup_on),
@@ -315,6 +318,7 @@ class Volgistics(Base):
         conn.execute(
             dedup_consecutive(
                 cls.__table__,
+                unique_id=cls._id,
                 id=cls.number,
                 order_by=cls.created_date,
                 dedup_on=tuple_(*dedup_on),
