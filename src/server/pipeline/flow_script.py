@@ -65,7 +65,6 @@ def start_flow():
             #    components.
             # 6. Update each row in pdp_contacts to give it a match id
             #    corresponding to its connected componenet.
-            
 
             current_app.logger.info("Clearing pdp_contacts to prepare for match")
             reset_pdp_contacts_with_unmatched(conn)
@@ -113,9 +112,17 @@ def reset_pdp_contacts_with_unmatched(conn):
     conn.execute(Volgistics.insert_into_pdp_contacts())
     conn.execute(ShelterluvPeople.insert_into_pdp_contacts())
 
-def compare_names(n1, n2):
+
+def name_to_array(n):
     delims = text("'( and | & |, | )'")
-    return func.regexp_split_to_array(func.lower(n1), delims).bool_op("&&")(func.regexp_split_to_array(func.lower(n2), delims))
+    return func.regexp_split_to_array(
+        func.lower(func.translate(n, text("'\"'"), text("''"))), delims
+    )
+
+
+def compare_names(n1, n2):
+    return name_to_array(n1).bool_op("&&")(name_to_array(n2))
+
 
 def get_automatic_matches(conn):
     pc1 = PdpContacts.__table__.alias()
