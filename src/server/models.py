@@ -306,7 +306,7 @@ class Volgistics(Base):
 
         df["home"] = df["home"].apply(normalize_phone_number)
         df["work"] = df["work"].apply(normalize_phone_number)
-        df["cell"] = df["home"].apply(normalize_phone_number)
+        df["cell"] = df["cell"].apply(normalize_phone_number)
 
         dedup_on = [col for col in cls.__table__.columns if col.name in df.columns]
         df["created_date"] = datetime.datetime.utcnow()
@@ -329,7 +329,7 @@ class Volgistics(Base):
     @classmethod
     def insert_into_pdp_contacts(cls):
         column_mapping = get_contacts_mapping(cls) + [
-            # NOTE: This logic seems wrong. It peels off the streat number and
+            # NOTE: This logic seems wrong. It peels off the street number and
             # calls it the "apartment," and calls the rest of the address the
             # "street and number."
             (
