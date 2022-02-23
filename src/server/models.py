@@ -113,6 +113,7 @@ class PdpContacts(Base):
     __table_args__ = (
         Index("idx_pdp_contacts_lower_first_name", text("lower(first_name)")),
         Index("idx_pdp_contacts_lower_last_name", text("lower(last_name)")),
+        Index("idx_pdp_contacts_lower_email", text("lower(email)")),
         Index("idx_pdp_contacts_source_type_and_id", "source_type", "source_id"),
     )
 

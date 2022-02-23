@@ -23,6 +23,7 @@ from sqlalchemy import (
     insert,
     or_,
     select,
+    text,
     update,
 )
 
@@ -112,6 +113,9 @@ def reset_pdp_contacts_with_unmatched(conn):
     conn.execute(Volgistics.insert_into_pdp_contacts())
     conn.execute(ShelterluvPeople.insert_into_pdp_contacts())
 
+def compare_names(n1, n2):
+    delims = text("'( and | & |, | )'")
+    return func.regexp_split_to_array(func.lower(n1), delims).bool_op("&&")(func.regexp_split_to_array(func.lower(n2), delims))
 
 def get_automatic_matches(conn):
     pc1 = PdpContacts.__table__.alias()
@@ -121,16 +125,16 @@ def get_automatic_matches(conn):
         and_(
             or_(
                 and_(
-                    func.lower(pc1.c.first_name) == func.lower(pc2.c.first_name),
-                    func.lower(pc1.c.last_name) == func.lower(pc2.c.last_name),
+                    compare_names(pc1.c.first_name, pc2.c.first_name),
+                    compare_names(pc1.c.last_name, pc2.c.last_name),
                 ),
                 and_(
-                    func.lower(pc1.c.first_name) == func.lower(pc2.c.last_name),
-                    func.lower(pc1.c.last_name) == func.lower(pc2.c.first_name),
+                    compare_names(pc1.c.first_name, pc2.c.last_name),
+                    compare_names(pc1.c.last_name, pc2.c.first_name),
                 ),
             ),
             or_(
-                pc1.c.email == pc2.c.email,
+                func.lower(pc1.c.email) == func.lower(pc2.c.email),
                 pc1.c.mobile == pc2.c.mobile,
             ),
             # This ensures we don't get e.g. every row matching itself
