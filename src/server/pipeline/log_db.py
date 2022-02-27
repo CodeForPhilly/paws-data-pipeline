@@ -11,8 +11,6 @@ from config import db
 
 metadata = MetaData()
 
-ex_stat = Table("execution_status", metadata, autoload=True, autoload_with=db.engine)
-
 # Alembic version bfb1262d3195
 
 # CREATE TABLE public.execution_status (
@@ -28,6 +26,8 @@ ex_stat = Table("execution_status", metadata, autoload=True, autoload_with=db.en
 
 
 def log_exec_status(job_id: str, exec_stage: str, exec_status: str, job_details: str):
+    ex_stat = Table("execution_status", metadata, autoload=True, autoload_with=db.engine)
+
     """Log execution status (job_id, status, job_details) to DB """
 
     with db.engine.connect() as connection:

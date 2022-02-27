@@ -1,7 +1,9 @@
 import os
 
 import pytest
+from psycopg import Connection
 import sqlalchemy as sa
+from sqlalchemy.orm import Session
 from alembic.command import upgrade
 from alembic.config import Config
 from app import create_app
@@ -46,3 +48,13 @@ pg = factories.postgresql("pg_noproc")
 @pytest.fixture
 def app(pg):
     return create_app(is_test=True)
+
+@pytest.fixture
+def engine(pg):
+    db = f"postgresql://{pg.info.user}:{pg.info.password}@{pg.info.host}:{pg.info.port}/{pg.info.dbname}"
+    return sa.create_engine(db)
+
+@pytest.fixture
+def session(engine):
+    with Session(engine) as session:
+        yield session
