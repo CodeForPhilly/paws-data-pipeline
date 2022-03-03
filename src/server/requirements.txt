@@ -13,3 +13,4 @@ flask-cors
 dropbox
 jellyfish
 networkx
+itsdangerous==2.0.1 # TODO: upgrade flask so we don't have to do this
