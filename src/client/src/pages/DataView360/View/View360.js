@@ -68,7 +68,14 @@ class View360 extends Component {
             });
         response = await response.json();
 
-        let shelterluvInfo = await fetch(`/api/person/${this.state.matchId}/animals`);
+        let shelterluvInfo = await fetch(`/api/person/${this.state.matchId}/animals`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.access_token
+                }
+            });
         shelterluvInfo = await shelterluvInfo.json()
         const shelterluvShortId = shelterluvInfo["person_details"]["shelterluv_short_id"]
         let animalInfo = shelterluvInfo["animal_details"]
@@ -89,7 +96,14 @@ class View360 extends Component {
             });
         }
 
-        let supportOverviewData = await fetch(`/api/person/${this.state.matchId}/support`);
+        let supportOverviewData = await fetch(`/api/person/${this.state.matchId}/support`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.access_token
+                }
+            });
         supportOverviewData = await supportOverviewData.json()
         
         this.setState({
@@ -104,7 +118,14 @@ class View360 extends Component {
     }
 
     async getAnimalEvents(animalId, matchId) {
-        let response = await fetch(`/api/person/${matchId}/animal/${animalId}/events`);
+        let response = await fetch(`/api/person/${matchId}/animal/${animalId}/events`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.props.access_token
+                }
+            });
         return await response.json()
     }
 

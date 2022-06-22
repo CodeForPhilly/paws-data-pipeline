@@ -1,6 +1,8 @@
 import datetime, time
 import pandas as pd
 import numpy as np
+from sqlalchemy.sql import text
+import re
 
 from flask import current_app
 from pipeline import log_db
@@ -10,10 +12,10 @@ def normalize_before_match(value):
     result = None
 
     if isinstance(value, str):
-        result = value.lower()
+        result = value.lower().replace('"', '')
 
     return result
-
+    
 
 def start(connection, added_or_updated_rows, manual_matches_df, job_id):
     # Match new records to each other and existing pdp_contacts data.
@@ -27,13 +29,12 @@ def start(connection, added_or_updated_rows, manual_matches_df, job_id):
 
     current_app.logger.info("***** Running execute job ID " + job_id + " *****")
     items_to_update = pd.concat([added_or_updated_rows["new"], added_or_updated_rows["updated"]], ignore_index=True)
-    pdp_contacts = pd.read_sql_table('pdp_contacts', connection)
 
-    if pdp_contacts["matching_id"].dropna().size == 0:
-        max_matching_group = 0
-    else:
-        max_matching_group = max(pdp_contacts["matching_id"].dropna())
-
+    query = "select max(matching_id) as matching_id from pdp_contacts where archived_date is null"
+    max_matching_id = connection.execute(query).fetchone()[0]
+    if max_matching_id == None:
+        max_matching_id = 0
+        
     # Initialize column metadata we'll write to pdp_contacts
     items_to_update["matching_id"] = 0  # initializing an int and overwrite in the loop
     items_to_update["archived_date"] = np.nan
@@ -44,62 +45,68 @@ def start(connection, added_or_updated_rows, manual_matches_df, job_id):
     items_to_update["last_name_normalized"] = items_to_update["last_name"].apply(normalize_before_match)
     items_to_update["email_normalized"] = items_to_update["email"].apply(normalize_before_match)
 
-    pdp_contacts["first_name_normalized"] = pdp_contacts["first_name"].apply(normalize_before_match)
-    pdp_contacts["last_name_normalized"] = pdp_contacts["last_name"].apply(normalize_before_match)
-    pdp_contacts["email_normalized"] = pdp_contacts["email"].apply(normalize_before_match)
-
     rows = items_to_update.to_dict(orient="records")
     row_print_freq = 1000 
+    db_update_freq = 100   # update db after this many rows
 
     for row_num, row in enumerate(rows):
-        if row_num % row_print_freq == 0:
+        if row_num % row_print_freq == 0:   # Write to log
             current_app.logger.info("- Matching rows {}-{} of {}".format(
                 row_num + 1, min(len(rows), row_num + row_print_freq), len(rows))
             )
+
+        if row_num % db_update_freq == 0:  # Update execution_status table
             log_db.log_exec_status(job_id, 'matching', 'executing', str({'at_row': row_num + 1, 'of_rows': len(rows)  }) )
 
         # Exact matches based on specified columns
-        row_matches = pdp_contacts[
-            (
-                (((pdp_contacts["first_name_normalized"] == row["first_name_normalized"]) &
-                (pdp_contacts["last_name_normalized"] == row["last_name_normalized"]))
-                |
-                ((pdp_contacts["first_name_normalized"] == row["last_name_normalized"]) &
-                (pdp_contacts["last_name_normalized"] == row["first_name_normalized"])))
-                &
-                ((pdp_contacts["email_normalized"] == row["email_normalized"]) | (pdp_contacts["mobile"] == row["mobile"]))
-            )
-        ]
+        query = text("""select matching_id from pdp_contacts where archived_date is null and ( 
+                ( 
+	                (((string_to_array(lower(first_name), ',') && :first_name) and (string_to_array(lower(last_name), ',') && :last_name)) 
+	                or 
+	                ((string_to_array(lower(first_name), ',') && :last_name) and (string_to_array(lower(last_name), ',') && :first_name))) 
+                    and 
+                    (lower(email) = :email or mobile = :mobile) 
+                ))""")
+        
+        #TODO revist name tokenization
+        delimiters = ' and | & |, | '
+        first_name_tokenized = re.split(delimiters, row["first_name_normalized"]) if row["first_name_normalized"] is not None else []
+        last_name_tokenized = re.split(delimiters, row["last_name_normalized"]) if row["last_name_normalized"] is not None else []
+        
+        results = connection.execute(query, first_name=first_name_tokenized, last_name=last_name_tokenized, email=row["email_normalized"], mobile=row["mobile"])
+        existing_ids = list(map(lambda x: x.matching_id, results.fetchall()))
+        
         #collect other linked ids from manual matches source
         if not manual_matches_df.empty:
-            linked_ids = manual_matches_df[(manual_matches_df[row["source_type"]] == row["source_id"])]
+            linked_ids = manual_matches_df[(manual_matches_df[row["source_type"]] == row["source_type"])]
             ids = linked_ids.to_dict(orient="records")
             for id_num, row_dict in enumerate(ids):
                 for column, value in row_dict.items():
-                    row_matches = row_matches.append(pdp_contacts[(pdp_contacts["source_type"] == column) & (pdp_contacts["source_id"] == value)])
-                    
+                    query = "select matching_id from pdp_contacts where source_type = :source_type and and source_id = :source_id and archived date is null"
+                    results = connection.execute(query, source_type=column, source_id=value)
+                    #TODO log ids provided by manual matches and not part of auto-matching
+                    existing_ids = existing_ids + list(map(lambda x: x.matching_id, results.fetchall()))
         
-        if row_matches.empty:  # new record, no matching rows
-            max_matching_group += 1
-            row_group = max_matching_group
-        else:  # existing match(es)
-            row_group = row_matches["matching_id"].values[0]
-            if not all(row_matches["matching_id"] == row_group):
-                current_app.logger.warning(
-                    "Source {} with ID {} is matching multiple groups in pdp_contacts ({})"
-                        .format(row["source_type"], row["source_id"], str(row_matches["matching_id"].drop_duplicates()))
-                )
-        items_to_update.loc[row_num, "matching_id"] = row_group
-        # Updating local pdp_contacts dataframe instead of a roundtrip to postgres within the loop.
-        # Indexing by iloc and vector of rows to keep the pd.DataFrame class and avoid implicit
-        # casting to a single-typed pd.Series.
-        pdp_contacts = pdp_contacts.append(items_to_update.iloc[[row_num], :], ignore_index=True)
-
-    # Write new data and matching ID's to postgres in bulk, instead of line-by-line
-    current_app.logger.info("- Writing data to pdp_contacts table")
-    items_to_update = items_to_update.drop(
-        columns=["first_name_normalized", "last_name_normalized", "email_normalized"])
-    items_to_update.to_sql('pdp_contacts', connection, index=False, if_exists='append')
+        if len(existing_ids) == 0:
+            max_matching_id += 1
+            matching_id = max_matching_id
+        else:
+            matching_id = max(existing_ids)
+            same_id = all(id == existing_ids[0] for id in existing_ids)
+            if not same_id:
+                old_ids = [id for id in existing_ids if id != matching_id]
+                for old_id in old_ids:
+                    query = text("update pdp_contacts set matching_id = :matching_id where matching_id = :old_id and archived_date is null")
+                    connection.execute(query, matching_id=matching_id, old_id=old_id) 
+                    current_app.logger.info("glue record found, changing id {} to {}".format(old_id, matching_id))
+        
+        is_organization = False
+        if "account_name" in row.keys():
+            if row["account_name"] != None and not row["account_name"].lower().endswith("household"):
+                is_organization = True
+        insert = text("insert into pdp_contacts(matching_id, source_type, source_id, is_organization, first_name, last_name, email, mobile, street_and_number, apartment, city, state, zip) \
+                    values(:matching_id, :source_type, :source_id, :is_organization, :first_name, :last_name, :email, :mobile, :street_and_number, :apartment, :city, :state, :zip)")
+        connection.execute(insert, matching_id=matching_id, source_type=row["source_type"], source_id=row["source_id"], is_organization=is_organization, first_name=row["first_name"], last_name=row["last_name"], email=row["email"], mobile=row["mobile"], street_and_number=row["street_and_number"], apartment=row["apartment"], city=row["city"], state=row["state"], zip=row["zip"])
+    
     current_app.logger.info("- Finished load to pdp_contacts table")
-
     log_db.log_exec_status(job_id, 'matching', 'executing', str({'at_row': len(rows), 'of_rows': len(rows) }) )

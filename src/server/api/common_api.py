@@ -6,24 +6,21 @@ import requests
 import time
 from datetime import datetime
 
+from api.fake_data import sl_mock_data
+
 try:
     from secrets_dict import SHELTERLUV_SECRET_TOKEN
 except ImportError:
     # Not running locally
     print("Couldn't get SHELTERLUV_SECRET_TOKEN from file, trying environment **********")
-    from os import environ
+    from os import getenv
 
-    try:
-        SHELTERLUV_SECRET_TOKEN = environ['SHELTERLUV_SECRET_TOKEN']
-    except KeyError:
-        # Nor in environment
-        # You're SOL for now
-        print("Couldn't get secrets from file or environment")
-
-
+    SHELTERLUV_SECRET_TOKEN = getenv('SHELTERLUV_SECRET_TOKEN')
+    if not SHELTERLUV_SECRET_TOKEN:
+        print("Couldn't get secrets from file or environment",
+            "Defaulting to Fake Data")
 
 from api import jwt_ops
-
 
 @common_api.route('/api/timeout_test/<duration>', methods=['GET'])
 def get_timeout(duration):
@@ -178,13 +175,16 @@ def get_360(matching_id):
 
     return jsonify({'result': result})
 
-
 @common_api.route('/api/person/<matching_id>/animals', methods=['GET'])
+@jwt_ops.jwt_required()
 def get_animals(matching_id):
     result = {
         "person_details": {},
         "animal_details": {}
     }
+
+    if not SHELTERLUV_SECRET_TOKEN:
+        return jsonify(sl_mock_data('animals'))
 
     with engine.connect() as connection:
         query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
@@ -206,19 +206,15 @@ def get_animals(matching_id):
     return result
 
 
-@common_api.route('/api/animal/<animal_id>/events', methods=['GET'])
-def get_animal_events(animal_id):
-    result = {}
-    animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}/events"
-    event_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
-    result[animal_id] = event_details["events"]
-    return result
-
-
 @common_api.route('/api/person/<matching_id>/animal/<animal_id>/events', methods=['GET'])
+@jwt_ops.jwt_required()
 def get_person_animal_events(matching_id, animal_id):
     result = {}
     events = []
+
+    if not SHELTERLUV_SECRET_TOKEN:
+        return jsonify(sl_mock_data('events'))
+
     with engine.connect() as connection:
         query = text("select * from pdp_contacts where matching_id = :matching_id and source_type = 'shelterluvpeople' and archived_date is null")
         query_result = connection.execute(query, matching_id=matching_id)
@@ -237,6 +233,7 @@ def get_person_animal_events(matching_id, animal_id):
     return result
 
 @common_api.route('/api/person/<matching_id>/support', methods=['GET'])
+@jwt_ops.jwt_required()
 def get_support_oview(matching_id):
     """Return these values for the specified match_id:
         largest gift, date for first donation, total giving, number of gifts,
@@ -385,3 +382,31 @@ def get_support_oview(matching_id):
             current_app.logger.debug('No SF contact IDs found for matching_id ' + str(matching_id))
             oview_fields['number_of_gifts'] = 0  # Marker for no data
             return jsonify(oview_fields)
+
+
+@common_api.route('/api/last_analysis', methods=['GET'])
+@jwt_ops.jwt_required()
+def get_last_analysis():
+    """ Return the UTC string (e.g., '2021-12-11T02:29:14.830371') representing 
+        when the last analysis run succesfully completed. 
+        Returns an empty string if no results.
+    """
+
+    last_run = ''
+
+    last_stamp = """
+                    select update_stamp 
+                    from  execution_status
+                    where stage = 'flow' and status = 'complete'
+                    order by update_stamp desc
+                    limit 1;
+                """
+
+    with engine.connect() as connection:
+        result = connection.execute(last_stamp)
+        if result.rowcount:
+            row = result.fetchone()
+            last_run_dt = row[0]  # We get as a datetime object
+            last_run = last_run_dt.isoformat()
+
+    return last_run

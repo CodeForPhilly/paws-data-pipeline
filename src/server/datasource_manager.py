@@ -12,7 +12,7 @@ CSV_HEADERS = {
                          'Apartment', 'City', 'State', 'Zip', 'Email', 'Phone', 'Animal_ids'],
     'volgistics': ['Last name', 'First name', 'Middle name', 'Number', 'Complete address', 'Street 1', 'Street 2',
                    'Street 3', 'City', 'State', 'Zip', 'All phone numbers', 'Home', 'Work', 'Cell', 'Email'],
-    'salesforcecontacts': ['Contact ID 18', 'First Name', 'Last Name', 'Mailing Street', 'Mailing City',
+    'salesforcecontacts': ['Account Name', 'Contact ID 18', 'First Name', 'Last Name', 'Mailing Street', 'Mailing City',
                            'Mailing State/Province', 'Mailing Zip/Postal Code', 'Mailing Country', 'Phone', 'Mobile',
                            'Email', 'Account ID 18', 'Volgistics ID', 'Person ID'],
     'volgisticsshifts': ['Number', 'Place', 'Assignment', 'From date', 'To date', 'Hours'],
@@ -115,6 +115,7 @@ SOURCE_NORMALIZATION_MAPPING = {
         "city": "mailing_city",
         "state": "mailing_state_province",
         "zip": "mailing_zip_postal_code",
+        "account_name": "account_name",
         "others": {
             "should_drop_first_column": True
         }
