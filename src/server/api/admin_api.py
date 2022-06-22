@@ -409,6 +409,17 @@ def trigger_sla_pull():
     return jsonify({"rows added" : num_rows})
 
 
+@admin_api.route("/api/admin/test_slp", methods=["GET"])
+def trigger_slp_pull():
+
+    import api.API_ingest.shelterluv_api_handler
+
+    num_rows = api.API_ingest.shelterluv_api_handler.store_shelterluv_people_all()
+    return jsonify({"rows added" : num_rows})
+
+
+
+
 # def pdfr():
 #     dlist = pull_donations_for_rfm()
 #     print("Returned " + str(len(dlist)) + " rows")
