@@ -6,7 +6,6 @@ from jellyfish import jaro_similarity
 
 from config import  engine
 
-from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy import  insert,  Table,  Column, MetaData, exc
 from sqlalchemy.dialects.postgresql import Insert
 metadata = MetaData()
@@ -35,7 +34,7 @@ expected_columns =  {'Recurring donor' : 'recurring_donor',        # 'Export XLS
                     'Source': None }
                     
 
-def validate_import_sfd(filename):
+def validate_import_sfd(filename, conn):
     """ Validate that the XLSX column names int the file are close enough to expectations that we can trust the data.
         If so, insert the data into the salseforcedonations table. 
     """
@@ -70,8 +69,6 @@ def validate_import_sfd(filename):
 
     if  min_similarity >= MINIMUM_SIMILARITY :  # Good enough to trust
         
-        Session = sessionmaker(engine) 
-        session =  Session()   
         sfd  = Table("salesforcedonations", metadata, autoload=True, autoload_with=engine)
 
         seen_header = False  # Used to skip header row
@@ -118,7 +115,7 @@ def validate_import_sfd(filename):
                         constraint='uq_donation'
                        )
                     try:
-                        result = session.execute(skip_dupes)
+                        result = conn.execute(skip_dupes)
                     except exc.IntegrityError as e:  # Catch-all for several more specific exceptions
                         if  re.match('duplicate key value', str(e.orig) ):
                             dupes += 1
@@ -137,12 +134,12 @@ def validate_import_sfd(filename):
             else:  # Haven't seen header, so this was first row.
                 seen_header = True
 
-        session.commit()   # Commit all inserted rows
+        # NOTE: we now run this in a engine.begin() context manager, so our
+        # parent will commit. Don't commit here!
 
         current_app.logger.info("---------------------------------   Stats  -------------------------------------------------")
         current_app.logger.info("Total rows: " + str(row_count) + " Dupes: " + str(dupes) + " Missing contact_id: " + str(missing_contact_id) )
         current_app.logger.info("Other integrity exceptions: " + str(other_integrity) + " Other exceptions: " + str(other_exceptions) )
-        session.close()
         wb.close()
         return { True : "File imported" }
 
