@@ -13,4 +13,22 @@ flask-cors
 dropbox
 jellyfish
 networkx
+jinja2<3.1.0
 itsdangerous==2.0.1 # TODO: upgrade flask so we don't have to do this
+Flask==1.1.2
+pandas==1.3.2
+numpy==1.18.1
+sqlalchemy==1.4.15 
+psycopg2-binary==2.8.4
+xlrd==1.2.0  # currently used for xlsx, but we should consider adjusting code to openpyxl for xlsx
+openpyxl
+requests
+pytest
+flask-jwt-extended==4.0.2
+alembic
+flask-cors
+dropbox
+jellyfish
+jinja2<3.1.0
+itsdangerous==2.0.1
+werkzeug==2.0.3
