@@ -1,4 +1,4 @@
-"""empty message
+"""Create SL_animals table
 
 Revision ID: 9687db7928ee
 Revises: a3ba63dee8f4
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '9687db7928ee'
-down_revision = 'a3ba63dee8f4'
+down_revision = 'fc7325372396'
 branch_labels = None
 depends_on = None
 

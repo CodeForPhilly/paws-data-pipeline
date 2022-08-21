@@ -388,18 +388,17 @@ def generate_dummy_rfm_scores():
     return count
 
 
+# ########### Test API endpoints   
+# TODO: Remove for production
 
-
-# Use this as a way to trigger functions for testing
-# TODO: Remove when not needed
+# trigger rfm scoring process
 @admin_api.route("/api/admin/test_endpoint_gdrs", methods=["GET"])
 def hit_gdrs():
     num_scores = generate_dummy_rfm_scores()
     return jsonify({"scores added" : num_scores})
 
 
-
-
+# trigger pull of SL animals
 @admin_api.route("/api/admin/test_sla", methods=["GET"])
 def trigger_sla_pull():
 
@@ -408,7 +407,7 @@ def trigger_sla_pull():
     num_rows = api.API_ingest.shelterluv_animals.sla_test()
     return jsonify({"rows added" : num_rows})
 
-
+# trigger pull of SL people
 @admin_api.route("/api/admin/test_slp", methods=["GET"])
 def trigger_slp_pull():
 
@@ -416,6 +415,16 @@ def trigger_slp_pull():
 
     num_rows = api.API_ingest.shelterluv_api_handler.store_shelterluv_people_all()
     return jsonify({"rows added" : num_rows})
+
+# trigger pull of SL animal events
+@admin_api.route("/api/admin/test_slae", methods=["GET"])
+def trigger_slae_pull():
+
+    import api.API_ingest.sl_animal_events
+
+    num_rows = api.API_ingest.sl_animal_events.slae_test()
+    return jsonify({"rows added" : num_rows})
+
 
 
 
