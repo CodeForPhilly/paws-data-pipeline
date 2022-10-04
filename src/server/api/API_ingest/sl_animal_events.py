@@ -1,6 +1,7 @@
 import os, time, json
 import posixpath as path
 
+
 import requests
 
 from api.API_ingest import shelterluv_db
@@ -159,3 +160,30 @@ def slae_test():
 
     count = shelterluv_db.insert_events(b)
     return count
+
+
+# Query to get last adopt/foster event:
+
+# """
+#   select 
+#      person_id as sl_person_id, max(to_timestamp(time)::date) as last_fosteradopt_event
+#  from 
+#      sl_animal_events
+#  where event_type < 4  -- check this
+#  group by 
+#      person_id
+#  order by 
+#     person_id asc;
+#    """
+# Volgistics last shift 
+
+# """
+# select 
+#     volg_id, max(from_date) as last_shift
+# from
+#     volgisticsshifts
+# group by 
+#     volg_id
+# order by   
+# volg_id    ;
+#     """
