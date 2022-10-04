@@ -40,5 +40,5 @@ This is a Code for Philly project operating under their code of conduct.
 
 ## Links
 
-[Slack Channel](https://codeforphilly.org/chat?channel=paws_data_pipeline)
+[Slack Channel](https://codeforphilly.org/chat?channel=paws_data_pipeline)  
 [Wiki](https://github.com/CodeForPhilly/paws-data-pipeline/wiki)
