@@ -432,14 +432,9 @@ def user_get_list():
         )
         result = connection.execute(s)
 
-        user_list = ""
+        query_result_json = [dict(row) for row in result]
 
-        for row in result:
-            user_list += str(row.values()) + ","
-
-        ul = str(row.keys()) + "," + user_list
-
-    return jsonify(ul), 200
+    return jsonify(query_result_json), 200
 
 @user_api.route("/api/admin/user/get_info/<string:username>", methods=["GET"])
 @jwt_ops.admin_required  
