@@ -99,7 +99,18 @@ def insert_events(event_list):
         "Outcome.Foster": 2,
         "Outcome.ReturnToOwner": 3,
         "Intake.AdoptionReturn": 4,
+        "Intake.FosterReturn":5
     }
+
+    # """ INSERT INTO "sl_event_types" ("id","event_name") VALUES 
+    # ( 1,'Outcome.Adoption' ),
+    # ( 2,'Outcome.Foster' ),
+    # ( 3,'Outcome.ReturnToOwner' ),
+    # ( 4,'Intake.AdoptionReturn' ),
+    # ( 5,'Intake.FosterReturn' ) """
+
+
+
 
     # Event record:    [ AssociatedRecords[Type = Person]["Id"]',
     #                    AssociatedRecords[Type = Animal]["Id"]',

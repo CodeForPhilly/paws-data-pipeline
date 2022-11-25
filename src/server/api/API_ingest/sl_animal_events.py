@@ -13,6 +13,7 @@ keep_record_types = [
     "Outcome.Foster",
     "Outcome.ReturnToOwner",
     "Intake.AdoptionReturn",
+    "Intake.FosterReturn"
 ]
 
 # from config import engine
@@ -94,6 +95,7 @@ def get_event_count():
     if decoded["success"]:
         return decoded["total_count"]
     else:
+        logger(decoded['error_message'])
         return -5  # AFAICT, this means URL was bad
 
 
