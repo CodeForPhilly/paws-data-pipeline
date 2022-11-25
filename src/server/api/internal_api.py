@@ -1,4 +1,5 @@
 from api.api import internal_api
+from config import engine
 from flask import jsonify, current_app
 from datetime import datetime
 from api.API_ingest import ingest_sources_from_api
@@ -24,7 +25,8 @@ def user_test2():
 @internal_api.route("/api/ingestRawData", methods=["GET"])
 def ingest_raw_data():
     try:
-        ingest_sources_from_api.start()
+        with engine.begin() as conn:
+            ingest_sources_from_api.start(conn)
     except Exception as e:
         current_app.logger.exception(e)
 

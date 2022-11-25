@@ -1,10 +1,12 @@
-import os
-import requests
 import csv
+import os
 import time
 
-from constants import RAW_DATA_PATH
+import requests
+import pandas as pd
 from api.API_ingest.dropbox_handler import upload_file_to_dropbox
+from constants import RAW_DATA_PATH
+from models import ShelterluvPeople
 
 try:
     from secrets_dict import SHELTERLUV_SECRET_TOKEN
@@ -60,7 +62,7 @@ def write_csv(json_data):
 
 ''' Iterate over all shelterlove people and store in json file in the raw data folder
 We fetch 100 items in each request, since that is the limit based on our research '''
-def store_shelterluv_people_all():
+def store_shelterluv_people_all(conn):
     offset = 0
     LIMIT = 100
     has_more = True
@@ -90,8 +92,9 @@ def store_shelterluv_people_all():
     file_path = write_csv(shelterluv_people)
     print("Finish storing latest shelterluvpeople results to container")
 
-
     print("Start storing " + '/shelterluv/' + "results to dropbox")
     upload_file_to_dropbox(file_path, '/shelterluv/' + file_path.split('/')[-1])
     print("Finish storing " + '/shelterluv/' + "results to dropbox")
 
+    print("Uploading shelterluvpeople csv to database")
+    ShelterluvPeople.insert_from_df(pd.read_csv(file_path, dtype="string"), conn)

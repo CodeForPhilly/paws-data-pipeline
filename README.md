@@ -12,61 +12,33 @@ animal care programs), administration and development efforts are coordinated by
 
 ## [The Data Pipeline](https://codeforphilly.org/projects/paws_data_pipeline)
 
-This project seeks to provide PAWS with an easy-to-use and easy-to-support tool to extract 
-data from multiple source systems, confirm accuracy and appropriateness, 
-clean/validate data where necessary (a data hygiene and wrangling step), 
-and then load relevant data into one or more repositories to facilitate 
-(1) a highly-accurate and rich 360-degree view of PAWS constituents 
-(Salesforce is a likely candidate target system; already in use at PAWS) and 
-(2) flexible ongoing data analysis and insights discovery (e.g. a data lake / data warehouse). 
-
 Through all of its operational and service activities, PAWS accumulates data regarding donations, 
 adoptions, fosters, volunteers, merchandise sales, event attendees (to name a few), 
-each in their own system and/or manual (Google Sheet) tally. This vital data that can 
+each in their own system and/or manual tally. This vital data that can 
 drive insights remains siloed and is usually difficult to extract, manipulate, and analyze. 
-Taking all of this data, making it readily available, and drawing inferences through analysis 
-can drive many benefits:   
 
-- PAWS operations can be better informed and use data-driven decisions to guide programs 
-and maximize effectiveness;  
-- Supporters can be further engaged by suggesting additional opportunities for involvement 
-based upon pattern analysis;  
-- Multi-dimensional supporters can be consistently (and accurately) acknowledged for all 
-the ways they support PAWS (i.e. a volunteer who donates and also fosters kittens), 
-not to mention opportunities to further tap the potential of these enthusiastic supporters.
+This project provides PAWS with an easy-to-use and easy-to-support tool to extract 
+constituent data from multiple source systems, standardize extracted data, match constituents across data sources,  
+load relevant data into Salesforce, and run an automation in Salesforce to produce an RFM score. 
+Through these processes, the PAWS data pipeline has laid the groundwork for facilitating an up-to-date 360-degree view of PAWS constituents, and 
+flexible ongoing data analysis and insights discovery.
+
+## Uses 
+
+- The pipeline can inform the PAWS development team of new constiuents through volunteer or foster engagegement
+- Instead of manually matching constituents from volunteering, donations and foster/adoptions, PAWS staff only need to upload the volunteer dataset into the pipeline, and the pipeline handles the matching
+- Volunteer and Foster data are automatically loaded into the constituent's SalesForce profile
+- An RFM score is calculated for each constituent using the most recent data 
+- Data analyses can use the output of the PDP matching logic to join datasets from different sources; PAWS can benefit from such analyses in the following ways: 
+    - PAWS operations can be better informed and use data-driven decisions to guide programs and maximize effectiveness;  
+    - Supporters can be further engaged by suggesting additional opportunities for involvement based upon pattern analysis;  
+    - Multi-dimensional supporters can be consistently (and accurately) acknowledged for all the ways they support PAWS (i.e. a volunteer who donates and also fosters kittens), not to mention opportunities to further tap the potential of these enthusiastic supporters.
 
 ## [Code of Conduct](https://codeforphilly.org/pages/code_of_conduct)
 
 This is a Code for Philly project operating under their code of conduct. 
 
-## Getting started
-see [Getting Started](GettingStarted.md) to run the app locally
-
-## Project Plan
-
-### Phase 1 (now - Jan 15 2020) 
-
-**Goal**: Create a central storage of data where 
-
-1. Datasets from top 3 relevant sources can be uploaded as csvs to a central system: a) Donors, b) Volunteers, 
-c) Adopters
-2. All datasets in the central system can be linked to each other on an ongoing basis
-3. Notifications can be sent out to relevant parties when inconsistencies need to be handled by a human
-4. Comprehensive report on a person’s interactions with PAWS can be pulled via a simple UI (must include full known history)
-
-### Phase 2 (Jan 15 - May 15 2020)
-
-**Goal**: Expand above features to include all relevant datasets and further automate data uploads
-Datasets from all other relevant sources can be uploaded as csvs to a central system ( a) Adoption and Foster applicants, 
-b) Foster Parents, c) Attendees, d) Clinic Clients e) Champions, f) Friends)
-Where APIs exist, create automated calls to those APIs to pull data
-
-### Phase 3 (May 15 - Sept 15 2020)
-
-**Goal**: Create more customizable analytics reports and features (eg noshow rates in clinicHQ)
-
 ## Links
 
-[Slack Channel](https://codeforphilly.org/chat?channel=paws_data_pipeline)
-
-[Google Drive](https://drive.google.com/open?id=1O8oPWLT5oDL8q_Tm4a0Gt8XCYYxEIcjiPJYHm33lXII) 
+[Slack Channel](https://codeforphilly.org/chat?channel=paws_data_pipeline)  
+[Wiki](https://github.com/CodeForPhilly/paws-data-pipeline/wiki)
