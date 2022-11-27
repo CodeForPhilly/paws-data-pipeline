@@ -3,7 +3,7 @@ from api import user_api
 import sqlalchemy as sa
 import os
 
-
+# This started as the place to create base users but a couple of other setup taks added.
 
 try:   
     from secrets_dict import BASEUSER_PW, BASEEDITOR_PW, BASEADMIN_PW
@@ -136,3 +136,20 @@ def populate_rfm_mapping_table(overwrite=False):
             print("rfm_mapping table already populated; overwrite not True so not changing.")
 
     return
+
+
+def populate_sl_event_types():
+    """If not present, insert values for shelterluv animal event types."""
+    with engine.connect() as connection:
+        result = connection.execute("select id from sl_event_types")
+        type_count = len(result.fetchall())
+        if type_count == 0:
+            print("Inserting SL event types")
+            connection.execute("""INSERT into sl_event_types values 
+                                (1, 'Outcome.Adoption'),
+                                (2, 'Outcome.Foster'),
+                                (3, 'Outcome.ReturnToOwner'),
+                                (4, 'Intake.AdoptionReturn'),
+                                (5, 'Intake.FosterReturn'); """)                                     
+        else:
+            print(type_count, " event types already present in DB, not creating")

@@ -93,7 +93,7 @@ def insert_events(event_list):
     metadata = MetaData()
     sla = Table("sl_animal_events", metadata, autoload=True, autoload_with=engine)
 
-    # TODO: Pull from DB
+    # TODO: Pull from DB - inserted in db_setup/base_users.py/populate_sl_event_types()
     event_map = {
         "Outcome.Adoption": 1,
         "Outcome.Foster": 2,
