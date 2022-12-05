@@ -1,5 +1,8 @@
 import os
 
+import structlog
+logger = structlog.get_logger()
+
 from flask import Flask
 
 from flask_jwt_extended import JWTManager
@@ -8,7 +11,7 @@ try:
     from secrets_dict import JWT_SECRET, APP_SECRET_KEY
 except ImportError:   
     # Not running locally
-    print("Could not get secrets from file, trying environment **********")
+    logger.info("Could not get secrets from file, trying environment **********")
     from os import environ
 
     try:
@@ -17,7 +20,11 @@ except ImportError:
     except KeyError:
         # Nor in environment
         # You're SOL for now
-        print("Couldn't get secrets from file or environment")
+        logger.critical("Couldn't get secrets from file or environment")
+
+
+
+# logger = structlog.get_logger()
 
 
 app = Flask(__name__)
@@ -41,15 +48,20 @@ from api.common_api import common_api
 from api.user_api import user_api
 from api.internal_api import internal_api
 
+
+#  Emit a log entry at each level
 app.register_blueprint(admin_api)
 app.register_blueprint(common_api)
 app.register_blueprint(user_api)
 app.register_blueprint(internal_api)
 
-app.logger.setLevel('INFO')  # By default, Docker appears to set at INFO but VSCode at WARNING 
 
 # init_db_schema.start(connection)
-
+logger.debug("Log sample - debug")        
+logger.info("Log sample - info")    
+logger.warn("Log sample - warn")
+logger.error("Log sample - error")
+logger.critical("Log sample - critical")
 
 if __name__ == "__main__":
     FLASK_PORT = os.getenv("FLASK_PORT", None)

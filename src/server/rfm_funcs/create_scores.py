@@ -8,6 +8,10 @@ from datetime import datetime, date
 from collections import Counter
 import dateutil
 
+
+import structlog
+logger = structlog.get_logger()
+
 def date_difference(my_date, max_date):
     '''
     This function takes in a single date from the donations dataframe (per row) and compares the difference between that date and the date in which matching occurs.
@@ -30,7 +34,7 @@ def create_scores():
     # We calculate query_date below in frequncy
 
     with engine.connect() as connection:
-        current_app.logger.debug("running create_scores()")
+        logger.debug("running create_scores()")
         # read in data from database via pull_donations_for_rfm() func (reads in as a list of tuples)
         df = pd.read_sql(
             """
@@ -74,7 +78,7 @@ def create_scores():
                 donations_past_year['days_since'] = days
 
                 grouped_past_year = donations_past_year.groupby('matching_id').agg({'days_since': ['min']}).reset_index()
-                print(grouped_past_year.head())
+                logger.debug(grouped_past_year.head())
             
                 grouped_past_year[('days_since', 'min')]= grouped_past_year[('days_since', 'min')].dt.days
 
@@ -126,8 +130,8 @@ def create_scores():
                 # Concatenate rfm scores
                     # merge monetary df and frequency df
                 df_semi = df_amount.merge(df_frequency, left_on='matching_id', right_on= 'matching_id', how='left')
-                print(grouped_past_year.head())
-                print(df_semi.head())
+                logger.debug(grouped_past_year.head())
+                logger.debug(df_semi.head())
                 
                 df_semi['frequency_score'] = df_semi['frequency_score'].fillna(1)
 
@@ -144,21 +148,21 @@ def create_scores():
                 score_tuples = merge_series((df_final['matching_id']), df_final['rfm_score'])
 
             except Exception as e:
-                current_app.logger.error(e)
+                logger.error(e)
                 trace_back_string = traceback.format_exc()
-                current_app.logger.error(trace_back_string)
+                logger.error(trace_back_string)
                 return 0
 
             try:
                 insert_rfm_scores(score_tuples)
             except Exception as e:
-                current_app.logger.error(e)
+                logger.error(e)
                 trace_back_string = traceback.format_exc()
-                current_app.logger.error(trace_back_string)
+                logger.error(trace_back_string)
                 return 0
 
             return len(score_tuples)   # Not sure there's anything to do with them at this point
 
         else:   # Didn't get len == 3
-            current_app.logger.error("rfm_edges missing from DB or malformed. Could not perform rfm scoring")
+            logger.error("rfm_edges missing from DB or malformed. Could not perform rfm scoring")
             return 0

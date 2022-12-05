@@ -3,13 +3,15 @@ from api import user_api
 import sqlalchemy as sa
 import os
 
+import structlog
+logger = structlog.get_logger()
 
 
 try:   
     from secrets_dict import BASEUSER_PW, BASEEDITOR_PW, BASEADMIN_PW
 except ImportError:   
     # Not running locally
-    print("Couldn't get BASE user PWs from file, trying environment **********")
+    logger.debug("Couldn't get BASE user PWs from file, trying environment **********")
     from os import environ
 
     try:
@@ -20,7 +22,7 @@ except ImportError:
     except KeyError:
         # Nor in environment
         # You're SOL for now
-        print("Couldn't get secrets from file or environment")
+        logger.error("Couldn't get secrets from file or environment")
 
 
 
@@ -41,7 +43,7 @@ def create_base_roles():
             connection.execute("INSERT into pdp_user_roles  values (9, 'admin') ")
 
         else:
-            print(role_count, "roles already present in DB, not creating")
+            logger.debug("%d roles already present in DB, not creating", role_count)
 
 
 def create_base_users():  # TODO: Just call create_user for each
@@ -53,7 +55,7 @@ def create_base_users():  # TODO: Just call create_user for each
         user_count = len(result.fetchall())
         if user_count == 0:
 
-            print("Creating base users")
+            logger.debug("Creating base users")
 
             pu = sa.Table("pdp_users", metadata, autoload=True, autoload_with=engine)
 
@@ -86,7 +88,7 @@ def create_base_users():  # TODO: Just call create_user for each
             connection.execute(ins_stmt)
 
         else:
-            print(user_count, "users already present in DB, not creating")
+            logger.debug("%d users already present in DB, not creating", user_count)
 
 
 def populate_rfm_mapping_table(overwrite=False):
@@ -101,10 +103,10 @@ def populate_rfm_mapping_table(overwrite=False):
 
 
         if overwrite or table_empty():
-            print("Populating rfm_mapping table")
+            logger.debug("Populating rfm_mapping table")
 
             if not table_empty():
-                print("'overwrite=True', truncating rfm_mapping table")
+                logger.debug("'overwrite=True', truncating rfm_mapping table")
                 connection.execute("TRUNCATE TABLE rfm_mapping;")
 
 
@@ -115,13 +117,12 @@ def populate_rfm_mapping_table(overwrite=False):
                 file_path = os.path.normpath('alembic/populate_rfm_mapping.sql')
 
             else:                 #
-                print("ERROR: Can't find a path to populate script!!!!!!")
-                print('CWD is ' + os.getcwd())
+                logger.error("ERROR: Can't find a path to populate script!!!!!! CWD is %s", os.getcwd())
                 return
 
 
 
-            print("Loading sql script at " + file_path)
+            logger.debug("Loading sql script at " + file_path)
 
             f = open(file_path)
             populate_query = f.read()
@@ -130,9 +131,9 @@ def populate_rfm_mapping_table(overwrite=False):
             result = connection.execute(populate_query)
 
             if table_empty():
-                print("ERROR:        rfm_mapping table WAS NOT POPULATED")
+                logger.error("ERROR:        rfm_mapping table WAS NOT POPULATED")
 
         else:
-            print("rfm_mapping table already populated; overwrite not True so not changing.")
+            logger.debug("rfm_mapping table already populated; overwrite not True so not changing.")
 
     return

@@ -1,5 +1,6 @@
 import pytest, socket, requests, os
-
+import structlog
+logger = structlog.get_logger()
 
 try:
     from secrets_dict import BASEUSER_PW, BASEADMIN_PW
@@ -287,7 +288,7 @@ def test_user_get_person_animal_events(state: State):
     try:
         response = requests.get(url, headers = auth_hdr)
     except Exception as err:
-        print(err)
+        logger.error(err)
     else:
         assert response.status_code == 200
         from api.fake_data import sl_mock_data
@@ -311,7 +312,7 @@ def test_user_get_animals(state: State):
     try:
         response = requests.get(url, headers = auth_hdr)
     except Exception as err:
-        print(err)
+        logger.error(err)
     else:
         assert response.status_code == 200
         from api.fake_data import sl_mock_data
@@ -340,7 +341,7 @@ def test_user_get_animals_sl_token(state: State):
     try:
         response = requests.get(url, headers = auth_hdr)
     except Exception as err:
-        print(err)
+        logger.error(err)
         pytest.fail('test_user_get_animals_sl_token - Request failed', pytrace=False)
     else:
         assert response.status_code == 200
@@ -366,7 +367,7 @@ def test_user_get_person_animal_events_sl_token(state: State):
     try:
         response = requests.get(url, headers = auth_hdr)
     except Exception as err:
-        print(err)
+        logger.error(err)
         pytest.fail('test_user_get_person_animal_events_sl_token - Request failed', pytrace=False)
     else:
         assert response.status_code == 200

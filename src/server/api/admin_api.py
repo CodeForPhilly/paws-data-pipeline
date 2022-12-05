@@ -16,6 +16,10 @@ from sqlalchemy.orm import Session, sessionmaker
 from api import jwt_ops
 from config import RAW_DATA_PATH
 
+import structlog
+logger = structlog.get_logger()
+
+
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
 
 
@@ -32,7 +36,7 @@ def upload_csv():
             try:
                 validate_and_arrange_upload(file)
             except Exception as e:
-                current_app.logger.exception(e)
+                logger.exception(e)
             finally:
                 file.close()
 
@@ -44,7 +48,7 @@ def upload_csv():
 def list_current_files():
     result = None
 
-    current_app.logger.info("Start returning file list")
+    logger.info("Start returning file list")
     file_list_result = os.listdir(RAW_DATA_PATH)
 
     if len(file_list_result) > 0:
@@ -56,9 +60,9 @@ def list_current_files():
 @admin_api.route("/api/execute", methods=["POST"])
 @jwt_ops.admin_required
 def execute():
-    current_app.logger.info("Execute flow")
+    logger.info("Execute flow")
     job_outcome = flow_script.start_flow() # 'busy', 'completed', or 'nothing to do'
-    current_app.logger.info("Job outcome: " + str(job_outcome))
+    logger.info("Job outcome: %s", str(job_outcome))
 
 
     # --------   Skip update if 'busy' or 'nothing to do' as nothing changed ? ------
@@ -87,8 +91,8 @@ def execute():
         try:
             connection.execute(upsert)
         except Exception as e:
-            current_app.logger.error("Insert/Update failed on Last Execution stats")
-            current_app.logger.exception(e)
+            logger.error("Insert/Update failed on Last Execution stats")
+            logger.error(e)
     # -------------------------------------------------------------------------------
     
     if job_outcome == 'busy':
@@ -127,7 +131,7 @@ def get_statistics():
 @jwt_ops.admin_required
 def list_statistics():
     """ Pull Last Execution stats from DB. """
-    current_app.logger.info("list_statistics() request")
+    logger.info("list_statistics() request")
     last_execution_details = '{}'  # Empty but valid JSON
 
     engine.dispose() # we don't want other process's conn pool
@@ -143,7 +147,7 @@ def list_statistics():
                 last_execution_details = result.fetchone()[0]
 
         except Exception as e:
-            current_app.logger.error("Failure reading Last Execution stats from DB - OK on first run")
+            logger.error("Failure reading Last Execution stats from DB - OK on first run")
         # Will happen on first run, shouldn't after 
 
     return last_execution_details
@@ -220,10 +224,10 @@ def start_job():
 
     if running_job :
         # There was a running job already
-        current_app.logger.info("Request to start job, but job_id " + str(running_job) + " already executing")
+        logger.warn("Request to start job, but job_id " + str(running_job) + " already executing")
         return None
     else:
-        current_app.logger.info("Assigned job_id " + job_id )
+        logger.info("Assigned job_id " + job_id )
         return job_id
 
 
@@ -269,7 +273,7 @@ def  import_rfm_csv():
     with open('C:\\Projects\\paws-stuff\\score_tuples.csv', 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         hdr = next(reader)
-        print('Skipping header: ', hdr)
+        logger.debug('Skipping header: %s', hdr)
         for row in reader:
             score_list.append(row)
 
@@ -302,14 +306,14 @@ def write_rfm_edges(rfm_dict : dict) :
             try:
                 connection.execute(upsert)
             except Exception as e:
-                current_app.logger.error("Insert/Update failed on rfm edge ")
-                current_app.logger.exception(e)
+                logger.error("Insert/Update failed on rfm edge ")
+                logger.error(e)
                 return None
 
         return 0
 
     else :   # Malformed dict
-        current_app.logger.error("Received rfm_edge dictionary with " + str(len(rfm_dict)) + " entries - expected 3")
+        logger.error("Received rfm_edge dictionary with " + str(len(rfm_dict)) + " entries - expected 3")
         return None
 
 
@@ -321,14 +325,14 @@ def read_rfm_edges() :
     with engine.begin() as connection:   # BEGIN TRANSACTION
         q_result = connection.execute(q)
         if q_result.rowcount == 0:
-            current_app.logger.error("No rfm_edge entry found in DB")
+            logger.error("No rfm_edge entry found in DB")
             return None
         else:
             edge_string = q_result.fetchone()[0]
             try:
                 edge_dict = json.loads(edge_string)   # Convert stored string to dict
             except json.decoder.JSONDecodeError:
-                current_app.logger.error("rfm_edge entry found in DB was malformed")
+                logger.error("rfm_edge entry found in DB was malformed")
                 return None
                 
             return edge_dict
@@ -380,9 +384,9 @@ def generate_dummy_rfm_scores():
 
     #   return jsonify(sfd_list)  # enable if using endpoint, but it returns a lot of data
 
-    current_app.logger.debug("Inserting dummy scores...")
+    logger.debug("Inserting dummy scores...")
     count = insert_rfm_scores(dummy_scores)
-    current_app.logger.debug("Finished inserting")
+    logger.debug("Finished inserting")
 
 
     return count

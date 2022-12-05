@@ -7,7 +7,8 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc, select
 
 from config import engine
-
+import structlog
+logger = structlog.get_logger()
 
 metadata = MetaData()
 
@@ -47,7 +48,7 @@ def log_exec_status(job_id: str, exec_stage: str, exec_status: str, job_details:
         try:
             connection.execute(upsert)
         except Exception as e:
-            current_app.logger.error("Insert/Update failed Execution status")
-            current_app.logger.exception(e)
+            logger.error("Insert/Update failed,  Execution status")
+            logger.error(e)
 
 

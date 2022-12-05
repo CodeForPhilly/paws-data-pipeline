@@ -6,19 +6,22 @@ import requests
 import time
 from datetime import datetime
 
+import structlog
+logger = structlog.get_logger()
+
+
 from api.fake_data import sl_mock_data
 
 try:
     from secrets_dict import SHELTERLUV_SECRET_TOKEN
 except ImportError:
     # Not running locally
-    print("Couldn't get SHELTERLUV_SECRET_TOKEN from file, trying environment **********")
+    logger.debug("Couldn't get SHELTERLUV_SECRET_TOKEN from file, trying environment **********")
     from os import getenv
 
     SHELTERLUV_SECRET_TOKEN = getenv('SHELTERLUV_SECRET_TOKEN')
     if not SHELTERLUV_SECRET_TOKEN:
-        print("Couldn't get secrets from file or environment",
-            "Defaulting to Fake Data")
+        logger.warn("Couldn't get secrets from file or environment - defaulting to Fake Data")
 
 from api import jwt_ops
 
@@ -262,7 +265,7 @@ def get_support_oview(matching_id):
                 if row['source_id'].isalnum():
                     id_list.append(row['source_id'])
                 else:
-                    current_app.logger.warn("salesforcecontacts source_id " + row['source_id'] + "has non-alphanumeric characters; will not be used")
+                    logger.warn("salesforcecontacts source_id %s has non-alphanumeric characters; will not be used",  str(row['source_id']))
 
             if len(id_list) == 0: # No ids to query
                 oview_fields['number_of_gifts'] = 0    # Marker for no support data
@@ -379,7 +382,7 @@ def get_support_oview(matching_id):
 
 
         else:   # len(rows) == 0
-            current_app.logger.debug('No SF contact IDs found for matching_id ' + str(matching_id))
+            logger.warn('No SF contact IDs found for matching_id ' + str(matching_id))
             oview_fields['number_of_gifts'] = 0  # Marker for no data
             return jsonify(oview_fields)
 
