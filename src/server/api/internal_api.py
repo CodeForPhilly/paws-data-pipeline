@@ -40,5 +40,5 @@ def ingest_raw_data():
 def hit_create_scores():
     logger.info("Hitting create_scores() ")
     tuple_count = create_scores()
-    logger.info("create_scores()  processed " + str(tuple_count) + " scores")
+    logger.info("create_scores()  processed %s scores",  str(tuple_count) )
     return jsonify(200)

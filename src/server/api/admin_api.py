@@ -227,7 +227,7 @@ def start_job():
         logger.warn("Request to start job, but job_id " + str(running_job) + " already executing")
         return None
     else:
-        logger.info("Assigned job_id " + job_id )
+        logger.info("Assigned job_id  %s" + str(job_id ) )
         return job_id
 
 
@@ -313,7 +313,7 @@ def write_rfm_edges(rfm_dict : dict) :
         return 0
 
     else :   # Malformed dict
-        logger.error("Received rfm_edge dictionary with " + str(len(rfm_dict)) + " entries - expected 3")
+        logger.error("Received rfm_edge dictionary with %s  entries - expected 3",  str(len(rfm_dict)))
         return None
 
 

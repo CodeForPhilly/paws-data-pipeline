@@ -13,7 +13,7 @@ SUCCESS_MSG = "Uploaded Successfully!"
 
 
 def validate_and_arrange_upload(file):
-    logger.info("Start uploading file: " + file.filename)
+    logger.info("Start uploading file: %s  ", file.filename)
     filename = secure_filename(file.filename)
     file_extension = filename.rpartition(".")[2]
     with engine.begin() as conn:
