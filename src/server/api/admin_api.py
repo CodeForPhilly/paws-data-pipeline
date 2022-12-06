@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from api import jwt_ops
 from config import RAW_DATA_PATH
+from api.API_ingest.salesforce_api_handler import ingest_data
 
 ALLOWED_EXTENSIONS = {"csv", "xlsx"}
 
@@ -396,6 +397,12 @@ def generate_dummy_rfm_scores():
 def hit_gdrs():
     num_scores = generate_dummy_rfm_scores()
     return jsonify({"scores added" : num_scores})
+
+@admin_api.route("/api/admin/test-salesforce-ingest")
+def ingest_salesforce():
+    current_app.logger.info("Getting latest Salesforce data")
+    ingest_data()
+    return jsonify(200)
 
 
 # def pdfr():
