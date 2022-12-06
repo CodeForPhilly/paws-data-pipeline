@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Architecture](README.md)
+* [Overview](README.md)
   * [Async on the cheap (for MVP)](architecture/async-on-the-cheap-for-mvp.md)
   * [Execution status stages](architecture/execution-status-stages.md)
   * [User management and authorization](architecture/user-management-and-authorization.md)
