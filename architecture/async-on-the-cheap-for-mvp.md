@@ -31,6 +31,3 @@ The client could check status when the page loads to see if there's a running jo
 
 \[1] [https://flask.palletsprojects.com/en/1.1.x/patterns/celery/](https://flask.palletsprojects.com/en/1.1.x/patterns/celery/)\
 \[2] [https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xxii-background-jobs](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xxii-background-jobs)
-
-
-test
