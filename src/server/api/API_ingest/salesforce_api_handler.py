@@ -3,7 +3,7 @@ import os
 from sqlalchemy.orm import  sessionmaker
 from simple_salesforce import Salesforce
 from config import engine
-from models import SalesForceContacts, SalesforceDonations
+from models import SalesForceContacts
 
 def ingest_data():
 
@@ -34,25 +34,5 @@ def ingest_data():
             done = results['done']
             if not done:
                 results = sf.query_more(results['nextRecordsUrl'])
-
-
-
-    session.execute("TRUNCATE TABLE salesforcedonations")
-    results = sf.query("SELECT Opportunity_ID_18__c, npe03__Recurring_Donation__c, Opportunity.Account.Name, Contact_ID_18__c, Amount, CloseDate, Type, Campaign.Name FROM Opportunity")
-    done = False
-    while not done:
-        for row in results['records']:
-            account_name = row['Account']['Name'] if row['Account'] is not None else None
-            donation = SalesforceDonations(opp_id=row['Opportunity_ID_18__c'],
-                                           recurring_donor=False if row['npe03__Recurring_Donation__c'] is None else True,
-                                           primary_contact= account_name,
-                                           contact_id=row['Contact_ID_18__c'],
-                                           amount=row['Amount'],
-                                           close_date=row['CloseDate'],
-                                           donation_type=row['Type'])
-            session.add(donation)
-        done = results['done']
-        if not done:
-            results = sf.query_more(results['nextRecordsUrl'])
 
     session.commit()
