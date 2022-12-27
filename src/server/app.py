@@ -26,6 +26,18 @@ except ImportError:
 
 # logger = structlog.get_logger()
 
+# Send all Flask logs to structlog
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.KeyValueRenderer(
+            key_order=["event", "view", "peer"]
+        ),
+    ],
+    logger_factory=structlog.stdlib.LoggerFactory(),
+)
+
+
 
 app = Flask(__name__)
 
