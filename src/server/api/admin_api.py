@@ -398,13 +398,6 @@ def hit_gdrs():
     num_scores = generate_dummy_rfm_scores()
     return jsonify({"scores added" : num_scores})
 
-@admin_api.route("/api/admin/test-salesforce-ingest")
-def ingest_salesforce():
-    current_app.logger.info("Getting latest Salesforce data")
-    ingest_data()
-    return jsonify(200)
-
-
 # def pdfr():
 #     dlist = pull_donations_for_rfm()
 #     print("Returned " + str(len(dlist)) + " rows")
