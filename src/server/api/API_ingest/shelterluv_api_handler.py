@@ -8,6 +8,9 @@ from api.API_ingest.dropbox_handler import upload_file_to_dropbox
 from constants import RAW_DATA_PATH
 from models import ShelterluvPeople
 
+
+TEST_MODE = os.getenv("TEST_MODE")
+
 try:
     from secrets_dict import SHELTERLUV_SECRET_TOKEN
 except ImportError:
@@ -78,6 +81,13 @@ def store_shelterluv_people_all(conn):
         has_more = response["has_more"]
         offset += 100
 
+        if offset % 1000 == 0:
+            print("Reading offset ", str(offset))
+            if TEST_MODE and offset > 1000:
+                has_more=False  # Break out early 
+
+
+
     print("Finish getting shelterluv contacts from people table")
 
     print("Start storing latest shelterluvpeople results to container")
@@ -98,3 +108,5 @@ def store_shelterluv_people_all(conn):
 
     print("Uploading shelterluvpeople csv to database")
     ShelterluvPeople.insert_from_df(pd.read_csv(file_path, dtype="string"), conn)
+
+    return offset

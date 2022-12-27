@@ -38,6 +38,8 @@ except ImportError:
         print("Couldn't get SHELTERLUV_SECRET_TOKEN from file or environment")
 
 
+TEST_MODE=os.getenv("TEST_MODE")  # if not present, has value None
+
 headers = {"Accept": "application/json", "X-API-Key": SHELTERLUV_SECRET_TOKEN}
 
 logger = print  # print to console for testing
@@ -143,6 +145,8 @@ def get_events_bulk():
             offset += limit
             if offset % 1000 == 0:
                 print("Reading offset ", str(offset))
+                if TEST_MODE and offset > 1000:
+                    more_records=False  # Break out early 
 
         else:
             return -5  # AFAICT, this means URL was bad
@@ -155,7 +159,7 @@ def slae_test():
     print("Total events:", total_count)
 
     b = get_events_bulk()
-    print("Records:", len(b))
+    print("Strored records:", len(b))
 
     # f = filter_events(b)
     # print(f)
