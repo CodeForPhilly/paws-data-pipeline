@@ -1,5 +1,6 @@
 import itertools
-
+import structlog
+logger = structlog.get_logger()
 
 def get_all_combinations(chars):
     yield from itertools.product(*([chars] * 3))
@@ -71,7 +72,7 @@ def start():
             f.write("%s\n" % item)
 
 
-    print('done')
+    logger.debug('Completed generate_rfm_mapping')
 
 
 start()

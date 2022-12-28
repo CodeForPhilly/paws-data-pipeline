@@ -6,6 +6,10 @@ from jellyfish import jaro_similarity
 
 from config import  engine
 
+import structlog
+logger = structlog.get_logger()
+
+
 from sqlalchemy import  insert,  Table,  Column, MetaData, exc
 from sqlalchemy.dialects.postgresql import Insert
 metadata = MetaData()
@@ -34,7 +38,7 @@ def validate_import_vs(filename, conn):
         If so, insert the data into the volgisticsshifts table. 
     """
 
-    current_app.logger.info('---------------------- Loading ' + filename.filename  + '------------------------')
+    logger.info('------ Loading %s ',  filename.filename )
     wb = load_workbook(filename)   #  ,read_only=True should be faster but gets size incorrect 
     ws = wb['Service']   # Needs to be 'Service' sheet
     # ws.reset_dimensions()   # Tells openpyxl to ignore what sheet says and check for itself
@@ -42,8 +46,8 @@ def validate_import_vs(filename, conn):
 
     columns = ws.max_column
     if columns > 26:
-        print("Sorry, I only handle A-Z columns") # TODO: Handle AA, AB, usw...
-        current_app.logger.warning("Column count > 26; columns after Z not processed")
+        # TODO: Handle AA, AB, usw...
+        logger.warn("Column count > 26; columns after Z not processed")
         columns = 26
 
     header = [cell.value for cell in ws[1]]
@@ -58,9 +62,9 @@ def validate_import_vs(filename, conn):
             min_column = expected + ' / ' + got
 
         
-    print("Minimum similarity: {:.2}".format(min_similarity) )
+    logger.debug("Minimum similarity:  %s", "{:.2}".format(min_similarity) )
     if min_column:
-        print("On expected/got: ", min_column)
+        logger.debug("On expected/got: %s", str(min_column))
 
 
     if  min_similarity >= MINIMUM_SIMILARITY :  # Good enough to trust
@@ -80,7 +84,7 @@ def validate_import_vs(filename, conn):
             if seen_header: 
                 row_count += 1
                 if row_count % 1000 == 0:
-                    current_app.logger.info("Row: " + str(row_count) )
+                    logger.debug("Row: %s", str(row_count) )
                 zrow = dict(zip(expected_columns.values(), row))  
                 # zrow is a dict of db_col:value pairs, with at most one key being None (as it overwrote any previous)
                 # We need to remove the None item, if it exists
@@ -110,10 +114,10 @@ def validate_import_vs(filename, conn):
                             pass
                         else:
                             other_integrity += 1
-                            print(e)
+                            logger.error(e)
                     except Exception as e: 
                         other_exceptions += 1
-                        print(e)
+                        logger.error(e)
                  
                 else: # Missing contact_id
                     missing_volgistics_id += 1
@@ -125,8 +129,8 @@ def validate_import_vs(filename, conn):
         # NOTE: we now run this in a engine.begin() context manager, so our
         # parent will commit. Don't commit here!
 
-        current_app.logger.info("---------------------------------   Stats  -------------------------------------------------")
-        current_app.logger.info("Total rows: " + str(row_count) + " Dupes: " + str(dupes) + " Missing volgistics id: " + str(missing_volgistics_id) )
-        current_app.logger.info("Other integrity exceptions: " + str(other_integrity) + " Other exceptions: " + str(other_exceptions) )
+
+        logger.info("Total rows: %s  Dupes: %s Missing volgistics id: ",  str(row_count), str(dupes), str(missing_volgistics_id)  )
+        logger.info("Other integrity exceptions: %s  Other exceptions: %s",  str(other_exceptions),  str(other_integrity) )
         wb.close()
         return { True : "File imported" }

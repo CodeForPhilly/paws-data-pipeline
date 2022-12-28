@@ -1,7 +1,45 @@
 import os
+import sys
 import sqlalchemy as db
 import models
 from constants import IS_LOCAL, BASE_PATH, RAW_DATA_PATH, OUTPUT_PATH, LOGS_PATH, REPORT_PATH, ZIPPED_FILES
+
+import logging
+import structlog
+from structlog.processors import CallsiteParameter
+
+
+# structlog setup for complete app
+
+# Formatters
+shared_processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.add_log_level,
+        structlog.processors.StackInfoRenderer(),
+        structlog.dev.set_exc_info,
+        structlog.processors.TimeStamper(fmt="iso", utc=True ),
+        structlog.processors.CallsiteParameterAdder(
+            [
+                CallsiteParameter.FILENAME,
+                CallsiteParameter.FUNC_NAME,
+                CallsiteParameter.LINENO,
+            ])
+        ]
+
+# Select output processor depending if running locally/interactively or not
+if sys.stderr.isatty():   # Pretty-print
+        processors = shared_processors + [structlog.dev.ConsoleRenderer(), ]
+else:   # Emit structured/JSON
+        processors = shared_processors +  [ structlog.processors.dict_tracebacks, structlog.processors.JSONRenderer(), ]
+
+structlog.configure(
+    processors=processors, 
+    wrapper_class=structlog.make_filtering_bound_logger(logging.NOTSET),
+    context_class=dict,
+    logger_factory=structlog.PrintLoggerFactory(),
+    cache_logger_on_first_use=False
+)
+logger = structlog.get_logger()
 
 
 # Initiate postgres DB
@@ -37,6 +75,8 @@ engine = db.create_engine(DB)
 
 # alembic_cfg = Config("alembic.ini")
 # command.stamp(alembic_cfg, "head")
+
+# logger.warn("Testing")
 
 with engine.connect() as connection:
     import user_mgmt.base_users
