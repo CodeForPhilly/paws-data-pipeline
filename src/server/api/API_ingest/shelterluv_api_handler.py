@@ -7,6 +7,8 @@ import pandas as pd
 from api.API_ingest.dropbox_handler import upload_file_to_dropbox
 from constants import RAW_DATA_PATH
 from models import ShelterluvPeople
+import structlog
+logger = structlog.get_logger()
 
 
 TEST_MODE = os.getenv("TEST_MODE")
@@ -15,7 +17,7 @@ try:
     from secrets_dict import SHELTERLUV_SECRET_TOKEN
 except ImportError:
     # Not running locally
-    print("Couldn't get SHELTERLUV_SECRET_TOKEN from file, trying environment **********")
+    logger.debug("Couldn't get SHELTERLUV_SECRET_TOKEN from file, trying environment **********")
     from os import environ
 
     try:
@@ -23,7 +25,7 @@ except ImportError:
     except KeyError:
         # Not in environment
         # You're SOL for now
-        print("Couldn't get SHELTERLUV_SECRET_TOKEN from file or environment")
+        logger.error("Couldn't get SHELTERLUV_SECRET_TOKEN from file or environment")
 
 
 def write_csv(json_data):
@@ -71,7 +73,7 @@ def store_shelterluv_people_all(conn):
     has_more = True
     shelterluv_people = []
 
-    print("Start getting shelterluv contacts from people table")
+    logger.debug("Start getting shelterluv contacts from people table")
 
     while has_more:
         r = requests.get("http://shelterluv.com/api/v1/people?limit={}&offset={}".format(LIMIT, offset),
@@ -90,7 +92,7 @@ def store_shelterluv_people_all(conn):
 
     print("Finish getting shelterluv contacts from people table")
 
-    print("Start storing latest shelterluvpeople results to container")
+    logger.debug("Start storing latest shelterluvpeople results to container")
     if os.listdir(RAW_DATA_PATH):
         for file_name in os.listdir(RAW_DATA_PATH):
             file_path = os.path.join(RAW_DATA_PATH, file_name)
@@ -100,13 +102,13 @@ def store_shelterluv_people_all(conn):
                 os.remove(file_path)
 
     file_path = write_csv(shelterluv_people)
-    print("Finish storing latest shelterluvpeople results to container")
+    logger.debug("Finish storing latest shelterluvpeople results to container")
 
-    print("Start storing " + '/shelterluv/' + "results to dropbox")
+    logger.debug("Start storing " + '/shelterluv/' + "results to dropbox")
     upload_file_to_dropbox(file_path, '/shelterluv/' + file_path.split('/')[-1])
-    print("Finish storing " + '/shelterluv/' + "results to dropbox")
+    logger.debug("Finish storing " + '/shelterluv/' + "results to dropbox")
 
-    print("Uploading shelterluvpeople csv to database")
+    logger.debug("Uploading shelterluvpeople csv to database")
     ShelterluvPeople.insert_from_df(pd.read_csv(file_path, dtype="string"), conn)
 
     return offset

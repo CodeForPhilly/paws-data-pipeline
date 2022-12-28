@@ -5,6 +5,9 @@ from datetime import datetime
 from api.API_ingest import ingest_sources_from_api
 from rfm_funcs.create_scores import create_scores
 
+import structlog
+logger = structlog.get_logger()
+
 ###   Internal API endpoints can only be accessed from inside the cluster;
 ###   they are blocked by location rule in NGINX config
 
@@ -28,14 +31,14 @@ def ingest_raw_data():
         with engine.begin() as conn:
             ingest_sources_from_api.start(conn)
     except Exception as e:
-        current_app.logger.exception(e)
+        logger.error(e)
 
     return jsonify({'outcome': 'OK'}), 200
 
 
 @internal_api.route("/api/internal/create_scores", methods=["GET"])
 def hit_create_scores():
-    current_app.logger.info("Hitting create_scores() ")
+    logger.info("Hitting create_scores() ")
     tuple_count = create_scores()
-    current_app.logger.info("create_scores()  processed " + str(tuple_count) + " scores")
+    logger.info("create_scores()  processed %s scores",  str(tuple_count) )
     return jsonify(200)

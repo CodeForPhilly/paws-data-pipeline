@@ -12,6 +12,9 @@ from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc
 
 from api import jwt_ops
 
+import structlog
+logger = structlog.get_logger()
+
 
 metadata = MetaData()
 
@@ -31,7 +34,7 @@ def log_user_action(user, event_class, detail):
         try:
             connection.execute(ins_stmt)
         except Exception as e:
-            print(e)
+            logger.error(e)
 
 def password_is_strong(password):
     """ Check plain-text password against strength rules."""
@@ -84,7 +87,22 @@ def check_password(password, salty_hash):
 @user_api.route("/api/user/test", methods=["GET"])
 def user_test():
     """ Liveness test, does not require JWT """
+    logger.debug("/api/user/test")
     return jsonify(("OK from User Test  @ " + str(datetime.now())))
+
+
+@user_api.route("/api/user/test_log", methods=["GET"])
+def user_test_log_error():
+    """Does not require JWT  - see various log levels"""
+
+    logger.debug("debug: /api/user/test_log_error")        
+    logger.info("info: /api/user/test_log_error")    
+    logger.warn("warn: /api/user/test_log_error")
+    logger.error("error: /api/user/test_log_error")
+    logger.critical("critical: /api/user/test_log_error")
+    return jsonify(("Generated log entries as various levals  @ " + str(datetime.now())))
+
+
 
 
 @user_api.route("/api/user/test_fail", methods=["GET"])
@@ -288,7 +306,7 @@ def user_create():
         try:
             role_val = role_dict[user_role]
         except KeyError as e:
-            print("Role not found", e)
+            logger.error("Role not found %s", e)
             log_user_action(
                 requesting_user,
                 "Failure",
