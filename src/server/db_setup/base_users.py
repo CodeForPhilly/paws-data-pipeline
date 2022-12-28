@@ -153,4 +153,4 @@ def populate_sl_event_types():
                                 (4, 'Intake.AdoptionReturn'),
                                 (5, 'Intake.FosterReturn'); """)                                     
         else:
-            print(type_count, " event types already present in DB, not creating")
+            logger.debug("%d event types already present in DB, not creating", type_count)

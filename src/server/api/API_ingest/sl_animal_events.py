@@ -1,6 +1,8 @@
 import os, time, json
 import posixpath as path
 
+import structlog
+logger = structlog.get_logger()
 
 import requests
 
@@ -35,15 +37,12 @@ except ImportError:
     except KeyError:
         # Not in environment
         # You're SOL for now
-        print("Couldn't get SHELTERLUV_SECRET_TOKEN from file or environment")
+        logger.error("Couldn't get SHELTERLUV_SECRET_TOKEN from file or environment")
 
 
 TEST_MODE=os.getenv("TEST_MODE")  # if not present, has value None
 
 headers = {"Accept": "application/json", "X-API-Key": SHELTERLUV_SECRET_TOKEN}
-
-logger = print  # print to console for testing
-
 
 # Sample response from events request:
 
@@ -81,23 +80,23 @@ def get_event_count():
     try:
         response = requests.request("GET", URL, headers=headers)
     except Exception as e:
-        logger("get_event_count failed with ", e)
+        logger.error("get_event_count failed with ", e)
         return -2
 
     if response.status_code != 200:
-        logger("get_event_count ", response.status_code, "code")
+        logger.error("get_event_count ", response.status_code, "code")
         return -3
 
     try:
         decoded = json.loads(response.text)
     except json.decoder.JSONDecodeError as e:
-        logger("get_event_count JSON decode failed with", e)
+        logger.error("get_event_count JSON decode failed with", e)
         return -4
 
     if decoded["success"]:
         return decoded["total_count"]
     else:
-        logger(decoded['error_message'])
+        logger.error(decoded['error_message'])
         return -5  # AFAICT, this means URL was bad
 
 
@@ -123,17 +122,17 @@ def get_events_bulk():
         try:
             response = requests.request("GET", url, headers=headers)
         except Exception as e:
-            logger("get_events failed with ", e)
+            logger.error("get_events failed with ", e)
             return -2
 
         if response.status_code != 200:
-            logger("get_event_count ", response.status_code, "code")
+            logger.error("get_event_count ", response.status_code, "code")
             return -3
 
         try:
             decoded = json.loads(response.text)
         except json.decoder.JSONDecodeError as e:
-            logger("get_event_count JSON decode failed with", e)
+            logger.error("get_event_count JSON decode failed with", e)
             return -4
 
         if decoded["success"]:
@@ -144,7 +143,7 @@ def get_events_bulk():
             more_records = decoded["has_more"]  # if so, we'll make another pass
             offset += limit
             if offset % 1000 == 0:
-                print("Reading offset ", str(offset))
+                logger.debug("Reading offset ", str(offset))
                 if TEST_MODE and offset > 1000:
                     more_records=False  # Break out early 
 
@@ -156,10 +155,10 @@ def get_events_bulk():
 
 def slae_test():
     total_count = get_event_count()
-    print("Total events:", total_count)
+    logger.debug("Total events:", total_count)
 
     b = get_events_bulk()
-    print("Strored records:", len(b))
+    logger.debug("Strored records:", len(b))
 
     # f = filter_events(b)
     # print(f)
