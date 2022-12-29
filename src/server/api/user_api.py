@@ -12,6 +12,9 @@ from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, exc
 
 from api import jwt_ops
 
+import structlog
+logger = structlog.get_logger()
+
 
 metadata = MetaData()
 
@@ -31,7 +34,7 @@ def log_user_action(user, event_class, detail):
         try:
             connection.execute(ins_stmt)
         except Exception as e:
-            print(e)
+            logger.error(e)
 
 def password_is_strong(password):
     """ Check plain-text password against strength rules."""
@@ -84,7 +87,22 @@ def check_password(password, salty_hash):
 @user_api.route("/api/user/test", methods=["GET"])
 def user_test():
     """ Liveness test, does not require JWT """
+    logger.debug("/api/user/test")
     return jsonify(("OK from User Test  @ " + str(datetime.now())))
+
+
+@user_api.route("/api/user/test_log", methods=["GET"])
+def user_test_log_error():
+    """Does not require JWT  - see various log levels"""
+
+    logger.debug("debug: /api/user/test_log_error")        
+    logger.info("info: /api/user/test_log_error")    
+    logger.warn("warn: /api/user/test_log_error")
+    logger.error("error: /api/user/test_log_error")
+    logger.critical("critical: /api/user/test_log_error")
+    return jsonify(("Generated log entries as various levals  @ " + str(datetime.now())))
+
+
 
 
 @user_api.route("/api/user/test_fail", methods=["GET"])
@@ -288,7 +306,7 @@ def user_create():
         try:
             role_val = role_dict[user_role]
         except KeyError as e:
-            print("Role not found", e)
+            logger.error("Role not found %s", e)
             log_user_action(
                 requesting_user,
                 "Failure",
@@ -378,6 +396,7 @@ def user_update():
 
     
     if not update_dict:
+        logger.debug("Update called with nothing to update")
         return jsonify("No changed items specified")  # If nothing to do, declare victory
 
     if "password" in update_dict.keys():
@@ -386,7 +405,6 @@ def user_update():
             update_dict['password'] = hash_password(update_dict['password'])
         else:
             return jsonify("Password too weak") 
-
 
 
     #  We have a variable number of columns to update.
@@ -401,10 +419,29 @@ def user_update():
     session =  Session()   
    # #TODO: Figure out why context manager doesn't work or do try/finally
 
-    PU = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
-    #  pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
+    pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
 
-    #TODO: Check tendered role or join roles table for update
+    if ("role" in update_dict.keys()):  # We are changing the role
+
+        # Build dict of roles {name: id}
+        role_dict = {}
+        r = select((pr.c.role, pr.c._id))
+        rr = session.execute(r)
+        fa = rr.fetchall()
+        for row in fa:
+            role_dict[row[0]] = row[1] 
+
+        logger.debug("Found %d roles", len(role_dict))
+        # Replace the role name with the corresponding id for update
+        try:
+            # We could verify that the role is actually different - doesn't seem worth the effort
+            update_dict["role"] = role_dict[update_dict["role"]]
+        except KeyError:
+            logger.error("Attempted to change user '%s' to invalid role '%s'", username, update_dict["role"])
+            session.close()
+            return jsonify("Invalid role specified"), 400
+
+    PU = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
 
     stmt = update(PU).where(PU.columns.username == username).values(update_dict).\
         execution_options(synchronize_session="fetch")
@@ -432,14 +469,9 @@ def user_get_list():
         )
         result = connection.execute(s)
 
-        user_list = ""
+        query_result_json = [dict(row) for row in result]
 
-        for row in result:
-            user_list += str(row.values()) + ","
-
-        ul = str(row.keys()) + "," + user_list
-
-    return jsonify(ul), 200
+    return jsonify(query_result_json), 200
 
 @user_api.route("/api/admin/user/get_info/<string:username>", methods=["GET"])
 @jwt_ops.admin_required  

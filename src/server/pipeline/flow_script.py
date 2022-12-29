@@ -28,7 +28,8 @@ from sqlalchemy import (
 )
 
 from pipeline import log_db
-
+import structlog
+logger = structlog.get_logger()
 
 def start_flow():
     start = time.time()
@@ -37,7 +38,7 @@ def start_flow():
     trace_back_string = None
 
     if not job_id:
-        current_app.logger.info("Failed to get job_id")
+        logger.info("Failed to get job_id")
         return "busy"
 
     try:
@@ -66,10 +67,10 @@ def start_flow():
             # 6. Update each row in pdp_contacts to give it a match id
             #    corresponding to its connected componenet.
 
-            current_app.logger.info("Clearing pdp_contacts to prepare for match")
+            logger.info("Clearing pdp_contacts to prepare for match")
             reset_pdp_contacts_with_unmatched(conn)
 
-            current_app.logger.info("Computing matches")
+            logger.info("Computing matches")
             automatic_matches = get_automatic_matches(conn)
             manual_matches = get_manual_matches(conn)
 
@@ -78,30 +79,30 @@ def start_flow():
             match_graph.add_edges_from(manual_matches)
             match_groups = connected_components(match_graph)
 
-            current_app.logger.info("Updating pdp_contacts with match ids")
+            logger.info("Updating pdp_contacts with match ids")
             update_matching_ids(match_groups, conn)
 
-            current_app.logger.info("Finished flow script run")
+            logger.info("Finished flow script run")
             job_outcome = "completed"
             log_db.log_exec_status(job_id, "flow", "complete", "")
 
     except Exception as e:
-        current_app.logger.error(e)
+        logger.error(e)
         trace_back_string = traceback.format_exc()
-        current_app.logger.error(trace_back_string)
+        logger.error(trace_back_string)
 
     finally:
         if job_outcome != "completed":
 
             log_db.log_exec_status(job_id, "flow", "error", trace_back_string)
-            current_app.logger.error(
+            logger.error(
                 "Uncaught error status, setting job status to 'error' "
             )
             job_outcome = "error"
             return "error"
 
-    current_app.logger.info(
-        "Pipeline execution took {} seconds ".format(time.time() - start)
+    logger.info(
+        "Pipeline execution took %s seconds ", format(time.time() - start)
     )
     return job_outcome
 
