@@ -4,6 +4,7 @@ from flask import jsonify, current_app
 from datetime import datetime
 from api.API_ingest import ingest_sources_from_api
 from rfm_funcs.create_scores import create_scores
+from sqlalchemy.orm import  sessionmaker
 
 import structlog
 logger = structlog.get_logger()
@@ -28,8 +29,10 @@ def user_test2():
 @internal_api.route("/api/ingestRawData", methods=["GET"])
 def ingest_raw_data():
     try:
-        with engine.begin() as conn:
-            ingest_sources_from_api.start(conn)
+        Session = sessionmaker(engine)
+        with Session() as session:
+            ingest_sources_from_api.start(session)
+            session.commit()
     except Exception as e:
         logger.error(e)
 

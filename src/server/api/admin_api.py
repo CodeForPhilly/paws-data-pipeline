@@ -9,13 +9,12 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import Table, MetaData
 from pipeline import flow_script
 from config import engine
-from flask import request, redirect, jsonify, current_app
+from flask import request, redirect, jsonify
 from api.file_uploader import validate_and_arrange_upload
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import sessionmaker
 
 from api import jwt_ops
 from config import RAW_DATA_PATH
-from api.API_ingest.salesforce_api_handler import ingest_data
 
 import structlog
 logger = structlog.get_logger()

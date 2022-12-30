@@ -1,11 +1,4 @@
-import csv
-import os
-import time
-
-import requests
-import pandas as pd
-from api.API_ingest.dropbox_handler import upload_file_to_dropbox
-from constants import RAW_DATA_PATH
+import requests, os
 from models import ShelterluvPeople
 import structlog
 logger = structlog.get_logger()
@@ -25,31 +18,8 @@ except ImportError:
         logger.error("Couldn't get SHELTERLUV_SECRET_TOKEN from file or environment")
 
 
-def write_csv(json_data):
-    now = time.localtime()
-    now_date = time.strftime("%Y-%m-%d--%H-%M-%S", now)
 
-    path = RAW_DATA_PATH + "shelterluvpeople-" + now_date + ".csv"  # store file name to use for dropbox
-
-    file_handle = open(path, "w")
-
-    csv_writer = csv.writer(file_handle)
-
-    count = 0
-    for item in json_data:
-        if count == 0:
-            # Writing headers of CSV file
-            header = item.keys()
-            csv_writer.writerow(header)
-            count += 1
-
-        # Writing data of CSV file
-        csv_writer.writerow(item.values())
-
-    file_handle.close()
-
-    return path
-
+TEST_MODE=os.getenv("TEST_MODE")  # if not present, has value None
 #################################
 # This script is used to fetch data from shelterluv API.
 # Please be mindful of your usage.
@@ -64,11 +34,12 @@ def write_csv(json_data):
 
 ''' Iterate over all shelterlove people and store in json file in the raw data folder
 We fetch 100 items in each request, since that is the limit based on our research '''
-def store_shelterluv_people_all(conn):
+def store_shelterluv_people_all(session):
     offset = 0
     LIMIT = 100
     has_more = True
-    shelterluv_people = []
+
+    session.execute("TRUNCATE TABLE shelterluvpeople")
 
     logger.debug("Start getting shelterluv contacts from people table")
 
@@ -76,27 +47,24 @@ def store_shelterluv_people_all(conn):
         r = requests.get("http://shelterluv.com/api/v1/people?limit={}&offset={}".format(LIMIT, offset),
                          headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
         response = r.json()
-        shelterluv_people += response["people"]
-        has_more = response["has_more"]
-        offset += 100
+        for person in response["people"]:
+            #todo: Does this need more "null checks"?
+            session.add(ShelterluvPeople(firstname=person["Firstname"],
+                                  lastname=person["Lastname"],
+                                  id=person["ID"] if "ID" in person else None,
+                                  internal_id=person["Internal-ID"],
+                                  associated=person["Associated"],
+                                  street=person["Street"],
+                                  apartment=person["Apartment"],
+                                  city=person["City"],
+                                  state=person["State"],
+                                  zip=person["Zip"],
+                                  email=person["Email"],
+                                  phone=person["Phone"],
+                                  animal_ids=person["Animal_ids"]))
+        offset += LIMIT
+        has_more = response["has_more"] if not TEST_MODE else response["has_more"] and offset < 1000
+
 
     logger.debug("Finish getting shelterluv contacts from people table")
 
-    logger.debug("Start storing latest shelterluvpeople results to container")
-    if os.listdir(RAW_DATA_PATH):
-        for file_name in os.listdir(RAW_DATA_PATH):
-            file_path = os.path.join(RAW_DATA_PATH, file_name)
-            file_name_striped = file_path.split('-')[0].split('/')[-1]
-
-            if file_name_striped == "shelterluvpeople":
-                os.remove(file_path)
-
-    file_path = write_csv(shelterluv_people)
-    logger.debug("Finish storing latest shelterluvpeople results to container")
-
-    logger.debug("Start storing " + '/shelterluv/' + "results to dropbox")
-    upload_file_to_dropbox(file_path, '/shelterluv/' + file_path.split('/')[-1])
-    logger.debug("Finish storing " + '/shelterluv/' + "results to dropbox")
-
-    logger.debug("Uploading shelterluvpeople csv to database")
-    ShelterluvPeople.insert_from_df(pd.read_csv(file_path, dtype="string"), conn)

@@ -5,11 +5,8 @@ from simple_salesforce import Salesforce
 from config import engine
 from models import SalesForceContacts
 
-def ingest_data():
+def store_contacts_all(session):
 
-    Session = sessionmaker(engine)
-
-    session = Session()
     session.execute("TRUNCATE TABLE salesforcecontacts")
 
     sf = Salesforce(domain=os.getenv('SALESFORCE_DOMAIN'), password=os.getenv('SALESFORCE_PW'), username=os.getenv('SALESFORCE_USERNAME'), organizationId=os.getenv('SALESFORCE_ORGANIZATION_ID'), security_token=os.getenv('SALESFORCE_SECURITY_TOKEN'))
@@ -34,5 +31,3 @@ def ingest_data():
             done = results['done']
             if not done:
                 results = sf.query_more(results['nextRecordsUrl'])
-
-    session.commit()
