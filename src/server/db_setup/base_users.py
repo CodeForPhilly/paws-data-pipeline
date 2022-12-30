@@ -137,3 +137,20 @@ def populate_rfm_mapping_table(overwrite=False):
             logger.debug("rfm_mapping table already populated; overwrite not True so not changing.")
 
     return
+
+
+def populate_sl_event_types():
+    """If not present, insert values for shelterluv animal event types."""
+    with engine.connect() as connection:
+        result = connection.execute("select id from sl_event_types")
+        type_count = len(result.fetchall())
+        if type_count == 0:
+            print("Inserting SL event types")
+            connection.execute("""INSERT into sl_event_types values 
+                                (1, 'Outcome.Adoption'),
+                                (2, 'Outcome.Foster'),
+                                (3, 'Outcome.ReturnToOwner'),
+                                (4, 'Intake.AdoptionReturn'),
+                                (5, 'Intake.FosterReturn'); """)                                     
+        else:
+            logger.debug("%d event types already present in DB, not creating", type_count)
