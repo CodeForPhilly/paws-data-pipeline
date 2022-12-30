@@ -26,7 +26,7 @@ def user_test2():
     return jsonify(("OK from INTERNAL test/test  @ " + str(datetime.now())))
 
 
-@internal_api.route("/api/ingestRawData", methods=["GET"])
+@internal_api.route("/api/internal/ingestRawData", methods=["GET"])
 def ingest_raw_data():
     try:
         Session = sessionmaker(engine)
