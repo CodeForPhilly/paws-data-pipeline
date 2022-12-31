@@ -45,11 +45,9 @@ def truncate_animals():
 
     Session = sessionmaker(engine)
     session = Session()
-    metadata = MetaData()
-    sla = Table("shelterluv_animals", metadata, autoload=True, autoload_with=engine)
 
     truncate = "TRUNCATE table shelterluv_animals;"
-    result = session.execute(truncate)
+    session.execute(truncate)
 
     session.commit()  # Commit all inserted rows
     session.close()
@@ -62,20 +60,14 @@ def truncate_events():
 
     Session = sessionmaker(engine)
     with Session() as session:
-        metadata = MetaData()
-        sla = Table("sl_animal_events", metadata, autoload=True, autoload_with=engine)
-
         truncate = "TRUNCATE table sl_animal_events;"
-        result = session.execute(truncate)
+        session.execute(truncate)
         session.commit()
 
     return 0
 
 def insert_events(event_list):
     """Insert event records into sl_animal_events table and return row count. """
-
-    offset = 0
-    has_more = True
 
     # Always a clean insert
     truncate_events()
