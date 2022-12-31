@@ -1,18 +1,7 @@
-from api.api import common_api
-from config import engine
-from flask import jsonify, current_app
-from sqlalchemy.sql import text
-import requests
-import time
-from datetime import datetime
-
-from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import Table, MetaData
-from pipeline import flow_script
+from sqlalchemy.orm import sessionmaker
+
 from config import engine
-from flask import request, redirect, jsonify, current_app
-from api.file_uploader import validate_and_arrange_upload
-from sqlalchemy.orm import Session, sessionmaker
 
 import structlog
 logger = structlog.get_logger()
@@ -68,80 +57,84 @@ def truncate_animals():
     return 0
 
 
-def truncate_events(session):
+def truncate_events():
     """Truncate the shelterluv_events table"""
 
-    metadata = MetaData()
-    sla = Table("sl_animal_events", metadata, autoload=True, autoload_with=engine)
+    Session = sessionmaker(engine)
+    with Session() as session:
+        metadata = MetaData()
+        sla = Table("sl_animal_events", metadata, autoload=True, autoload_with=engine)
 
-    truncate = "TRUNCATE table sl_animal_events;"
-    result = session.execute(truncate)
+        truncate = "TRUNCATE table sl_animal_events;"
+        result = session.execute(truncate)
+        session.commit()
 
     return 0
 
 def insert_events(event_list):
-    Session = sessionmaker(engine)
-    session = Session()
-    insert_events(session,event_list)
-
-def insert_events(session, event_list):
     """Insert event records into sl_animal_events table and return row count. """
 
+    offset = 0
+    has_more = True
+
     # Always a clean insert
-    truncate_events(session)
+    truncate_events()
 
-    metadata = MetaData()
-    sla = Table("sl_animal_events", metadata, autoload=True, autoload_with=engine)
+    Session = sessionmaker(engine)
+    with Session() as session:
+        metadata = MetaData()
+        sla = Table("sl_animal_events", metadata, autoload=True, autoload_with=engine)
 
-    # TODO: Pull from DB - inserted in db_setup/base_users.py/populate_sl_event_types()
-    event_map = {
-        "Outcome.Adoption": 1,
-        "Outcome.Foster": 2,
-        "Outcome.ReturnToOwner": 3,
-        "Intake.AdoptionReturn": 4,
-        "Intake.FosterReturn":5
-    }
+        # TODO: Pull from DB - inserted in db_setup/base_users.py/populate_sl_event_types()
+        event_map = {
+            "Outcome.Adoption": 1,
+            "Outcome.Foster": 2,
+            "Outcome.ReturnToOwner": 3,
+            "Intake.AdoptionReturn": 4,
+            "Intake.FosterReturn":5
+        }
 
-    # """ INSERT INTO "sl_event_types" ("id","event_name") VALUES 
-    # ( 1,'Outcome.Adoption' ),
-    # ( 2,'Outcome.Foster' ),
-    # ( 3,'Outcome.ReturnToOwner' ),
-    # ( 4,'Intake.AdoptionReturn' ),
-    # ( 5,'Intake.FosterReturn' ) """
-
-
+        # """ INSERT INTO "sl_event_types" ("id","event_name") VALUES
+        # ( 1,'Outcome.Adoption' ),
+        # ( 2,'Outcome.Foster' ),
+        # ( 3,'Outcome.ReturnToOwner' ),
+        # ( 4,'Intake.AdoptionReturn' ),
+        # ( 5,'Intake.FosterReturn' ) """
 
 
-    # Event record:    [ AssociatedRecords[Type = Person]["Id"]',
-    #                    AssociatedRecords[Type = Animal]["Id"]',
-    #                     "Type",
-    #                     "Time"
-    #                     ]
-    #
-    #  In db:           ['id',
-    #                     'person_id',
-    #                     'animal_id',
-    #                     'event_type',
-    #                     'time']
 
-    ins_list = []  # Create a list of per-row dicts
-    for rec in event_list:
-        ins_list.append(
-            {
-                "person_id": next(
-                    filter(lambda x: x["Type"] == "Person", rec["AssociatedRecords"])
-                )["Id"],
-                "animal_id": next(
-                    filter(lambda x: x["Type"] == "Animal", rec["AssociatedRecords"])
-                )["Id"],
-                "event_type": event_map[rec["Type"]],
-                "time": rec["Time"],
-            }
-        )
 
-    # TODO: Wrap with try/catch
-    ret = session.execute(sla.insert(ins_list))
-    logger.debug("finished inserting events")
+        # Event record:    [ AssociatedRecords[Type = Person]["Id"]',
+        #                    AssociatedRecords[Type = Animal]["Id"]',
+        #                     "Type",
+        #                     "Time"
+        #                     ]
+        #
+        #  In db:           ['id',
+        #                     'person_id',
+        #                     'animal_id',
+        #                     'event_type',
+        #                     'time']
+
+        ins_list = []  # Create a list of per-row dicts
+        for rec in event_list:
+            ins_list.append(
+                {
+                    "person_id": next(
+                        filter(lambda x: x["Type"] == "Person", rec["AssociatedRecords"])
+                    )["Id"],
+                    "animal_id": next(
+                        filter(lambda x: x["Type"] == "Animal", rec["AssociatedRecords"])
+                    )["Id"],
+                    "event_type": event_map[rec["Type"]],
+                    "time": rec["Time"],
+                }
+            )
+
+        # TODO: Wrap with try/catch
+        ret = session.execute(sla.insert(ins_list))
+        session.commit()
+        logger.debug("finished inserting events")
 
     return ret.rowcount
 

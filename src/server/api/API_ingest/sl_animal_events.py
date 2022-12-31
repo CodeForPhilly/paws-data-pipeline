@@ -1,7 +1,9 @@
-import os, time, json
+import json
+import os
 import posixpath as path
 
 import structlog
+
 logger = structlog.get_logger()
 
 import requests
@@ -165,7 +167,7 @@ def slae_test():
     count = shelterluv_db.insert_events(b)
     return count
 
-def store_all_animals_and_events(session):
+def store_all_animals_and_events():
     total_count = get_event_count()
     logger.debug("Total events: %d", total_count)
 
@@ -175,7 +177,7 @@ def store_all_animals_and_events(session):
     # f = filter_events(b)
     # print(f)
 
-    count = shelterluv_db.insert_events(session, b)
+    count = shelterluv_db.insert_events(b)
     return count
 
 

@@ -1,12 +1,12 @@
-from api.api import internal_api
-from config import engine
-from flask import jsonify, current_app
 from datetime import datetime
-from api.API_ingest import ingest_sources_from_api
-from rfm_funcs.create_scores import create_scores
-from sqlalchemy.orm import  sessionmaker
 
 import structlog
+from flask import jsonify
+
+from api.API_ingest import ingest_sources_from_api
+from api.api import internal_api
+from rfm_funcs.create_scores import create_scores
+
 logger = structlog.get_logger()
 
 ###   Internal API endpoints can only be accessed from inside the cluster;
@@ -29,10 +29,7 @@ def user_test2():
 @internal_api.route("/api/internal/ingestRawData", methods=["GET"])
 def ingest_raw_data():
     try:
-        Session = sessionmaker(engine)
-        with Session() as session:
-            ingest_sources_from_api.start(session)
-            session.commit()
+        ingest_sources_from_api.start()
     except Exception as e:
         logger.error(e)
 

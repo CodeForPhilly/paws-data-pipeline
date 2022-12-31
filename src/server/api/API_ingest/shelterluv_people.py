@@ -1,5 +1,7 @@
 import requests, os
 from models import ShelterluvPeople
+from config import engine
+from sqlalchemy.orm import  sessionmaker
 import structlog
 logger = structlog.get_logger()
 
@@ -20,6 +22,7 @@ except ImportError:
 
 
 TEST_MODE=os.getenv("TEST_MODE")  # if not present, has value None
+LIMIT = 100
 #################################
 # This script is used to fetch data from shelterluv API.
 # Please be mindful of your usage.
@@ -34,37 +37,40 @@ TEST_MODE=os.getenv("TEST_MODE")  # if not present, has value None
 
 ''' Iterate over all shelterlove people and store in json file in the raw data folder
 We fetch 100 items in each request, since that is the limit based on our research '''
-def store_shelterluv_people_all(session):
+def store_shelterluv_people_all():
     offset = 0
-    LIMIT = 100
     has_more = True
+    Session = sessionmaker(engine)
 
-    session.execute("TRUNCATE TABLE shelterluvpeople")
+    with Session() as session:
+        logger.debug("Truncating table shelterluvpeople")
 
-    logger.debug("Start getting shelterluv contacts from people table")
+        session.execute("TRUNCATE TABLE shelterluvpeople")
 
-    while has_more:
-        r = requests.get("http://shelterluv.com/api/v1/people?limit={}&offset={}".format(LIMIT, offset),
-                         headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
-        response = r.json()
-        for person in response["people"]:
-            #todo: Does this need more "null checks"?
-            session.add(ShelterluvPeople(firstname=person["Firstname"],
-                                  lastname=person["Lastname"],
-                                  id=person["ID"] if "ID" in person else None,
-                                  internal_id=person["Internal-ID"],
-                                  associated=person["Associated"],
-                                  street=person["Street"],
-                                  apartment=person["Apartment"],
-                                  city=person["City"],
-                                  state=person["State"],
-                                  zip=person["Zip"],
-                                  email=person["Email"],
-                                  phone=person["Phone"],
-                                  animal_ids=person["Animal_ids"]))
-        offset += LIMIT
-        has_more = response["has_more"] if not TEST_MODE else response["has_more"] and offset < 1000
+        logger.debug("Start getting shelterluv contacts from people table")
 
+        while has_more:
+            r = requests.get("http://shelterluv.com/api/v1/people?limit={}&offset={}".format(LIMIT, offset),
+                             headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
+            response = r.json()
+            for person in response["people"]:
+                #todo: Does this need more "null checks"?
+                session.add(ShelterluvPeople(firstname=person["Firstname"],
+                                      lastname=person["Lastname"],
+                                      id=person["ID"] if "ID" in person else None,
+                                      internal_id=person["Internal-ID"],
+                                      associated=person["Associated"],
+                                      street=person["Street"],
+                                      apartment=person["Apartment"],
+                                      city=person["City"],
+                                      state=person["State"],
+                                      zip=person["Zip"],
+                                      email=person["Email"],
+                                      phone=person["Phone"],
+                                      animal_ids=person["Animal_ids"]))
+            offset += LIMIT
+            has_more = response["has_more"] if not TEST_MODE else response["has_more"] and offset < 1000
+        session.commit()
 
     logger.debug("Finish getting shelterluv contacts from people table")
 
