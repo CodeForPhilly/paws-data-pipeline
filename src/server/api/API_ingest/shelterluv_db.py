@@ -14,6 +14,9 @@ from flask import request, redirect, jsonify, current_app
 from api.file_uploader import validate_and_arrange_upload
 from sqlalchemy.orm import Session, sessionmaker
 
+import structlog
+logger = structlog.get_logger()
+
 
 def insert_animals(animal_list):
     """Insert animal records into shelterluv_animals table and return row count. """
@@ -65,31 +68,28 @@ def truncate_animals():
     return 0
 
 
-def truncate_events():
+def truncate_events(session):
     """Truncate the shelterluv_events table"""
 
-    Session = sessionmaker(engine)
-    session = Session()
     metadata = MetaData()
     sla = Table("sl_animal_events", metadata, autoload=True, autoload_with=engine)
 
     truncate = "TRUNCATE table sl_animal_events;"
     result = session.execute(truncate)
 
-    session.commit()  # Commit all inserted rows
-    session.close()
-
     return 0
 
-
 def insert_events(event_list):
+    Session = sessionmaker(engine)
+    session = Session()
+    insert_events(session,event_list)
+
+def insert_events(session, event_list):
     """Insert event records into sl_animal_events table and return row count. """
 
     # Always a clean insert
-    truncate_events()
+    truncate_events(session)
 
-    Session = sessionmaker(engine)
-    session = Session()
     metadata = MetaData()
     sla = Table("sl_animal_events", metadata, autoload=True, autoload_with=engine)
 
@@ -141,9 +141,7 @@ def insert_events(event_list):
 
     # TODO: Wrap with try/catch
     ret = session.execute(sla.insert(ins_list))
-
-    session.commit()  # Commit all inserted rows
-    session.close()
+    logger.debug("finished inserting events")
 
     return ret.rowcount
 
