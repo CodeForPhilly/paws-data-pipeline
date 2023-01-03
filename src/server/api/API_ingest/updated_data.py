@@ -46,8 +46,8 @@ def get_updated_contact_data():
             (to_timestamp(foster_return ) at time zone 'America/New_York')::date  as "updatedFosterEndDate",
 
             min(vs.from_date) as "updatedFirstVolunteerDate",
-            max(vs.from_date) as "updatedLastVolunteerDate"
-        -- ,    slc.source_id as sl_id, slc.matching_id,  vc.source_id as vc_id
+            max(vs.from_date) as "updatedLastVolunteerDate",
+            vc.source_id as   "volgisticsId"     
 
             
         from 
@@ -64,6 +64,7 @@ def get_updated_contact_data():
         group by
             slsf.source_id,
             slp.id,
+            vc.source_id,
             foster_out ,
             foster_return
         
