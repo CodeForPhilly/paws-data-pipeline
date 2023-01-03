@@ -396,6 +396,7 @@ def user_update():
 
     
     if not update_dict:
+        logger.debug("Update called with nothing to update")
         return jsonify("No changed items specified")  # If nothing to do, declare victory
 
     if "password" in update_dict.keys():
@@ -404,7 +405,6 @@ def user_update():
             update_dict['password'] = hash_password(update_dict['password'])
         else:
             return jsonify("Password too weak") 
-
 
 
     #  We have a variable number of columns to update.
@@ -419,10 +419,29 @@ def user_update():
     session =  Session()   
    # #TODO: Figure out why context manager doesn't work or do try/finally
 
-    PU = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
-    #  pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
+    pr = Table("pdp_user_roles", metadata, autoload=True, autoload_with=engine)
 
-    #TODO: Check tendered role or join roles table for update
+    if ("role" in update_dict.keys()):  # We are changing the role
+
+        # Build dict of roles {name: id}
+        role_dict = {}
+        r = select((pr.c.role, pr.c._id))
+        rr = session.execute(r)
+        fa = rr.fetchall()
+        for row in fa:
+            role_dict[row[0]] = row[1] 
+
+        logger.debug("Found %d roles", len(role_dict))
+        # Replace the role name with the corresponding id for update
+        try:
+            # We could verify that the role is actually different - doesn't seem worth the effort
+            update_dict["role"] = role_dict[update_dict["role"]]
+        except KeyError:
+            logger.error("Attempted to change user '%s' to invalid role '%s'", username, update_dict["role"])
+            session.close()
+            return jsonify("Invalid role specified"), 400
+
+    PU = Table("pdp_users", metadata, autoload=True, autoload_with=engine)
 
     stmt = update(PU).where(PU.columns.username == username).values(update_dict).\
         execution_options(synchronize_session="fetch")

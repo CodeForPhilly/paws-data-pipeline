@@ -10,6 +10,9 @@ from models import ShelterluvPeople
 import structlog
 logger = structlog.get_logger()
 
+
+TEST_MODE = os.getenv("TEST_MODE")
+
 try:
     from secrets_dict import SHELTERLUV_SECRET_TOKEN
 except ImportError:
@@ -80,7 +83,14 @@ def store_shelterluv_people_all(conn):
         has_more = response["has_more"]
         offset += 100
 
-    logger.debug("Finish getting shelterluv contacts from people table")
+        if offset % 1000 == 0:
+            print("Reading offset ", str(offset))
+            if TEST_MODE and offset > 1000:
+                has_more=False  # Break out early 
+
+
+
+    print("Finish getting shelterluv contacts from people table")
 
     logger.debug("Start storing latest shelterluvpeople results to container")
     if os.listdir(RAW_DATA_PATH):
@@ -100,3 +110,5 @@ def store_shelterluv_people_all(conn):
 
     logger.debug("Uploading shelterluvpeople csv to database")
     ShelterluvPeople.insert_from_df(pd.read_csv(file_path, dtype="string"), conn)
+
+    return offset
