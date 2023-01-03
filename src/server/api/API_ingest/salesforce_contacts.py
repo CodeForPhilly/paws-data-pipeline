@@ -18,6 +18,8 @@ def store_contacts_all():
         logger.debug("retrieving the latest salesforce contacts data")
         sf = Salesforce(domain=os.getenv('SALESFORCE_DOMAIN'), password=os.getenv('SALESFORCE_PW'), username=os.getenv('SALESFORCE_USERNAME'), security_token=os.getenv('SALESFORCE_SECURITY_TOKEN'))
         results = sf.query("SELECT Contact_ID_18__c, FirstName, LastName, Contact.Account.Name, MailingCountry, MailingStreet, MailingCity, MailingState, MailingPostalCode, Phone, MobilePhone, Email FROM Contact")
+        logger.debug("Query returned %d Salesforce contact records", len(results['records']) )
+        
         done = False
         while not done:
             for row in results['records']:

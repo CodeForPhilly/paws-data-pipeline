@@ -224,10 +224,10 @@ def start_job():
 
     if running_job :
         # There was a running job already
-        logger.warn("Request to start job, but job_id " + str(running_job) + " already executing")
+        logger.warn("Request to start job, but job_id %s already executing", str(running_job))
         return None
     else:
-        logger.info("Assigned job_id  %s" + str(job_id ) )
+        logger.info("Assigned job_id  %s" ,  str(job_id ) )
         return job_id
 
 

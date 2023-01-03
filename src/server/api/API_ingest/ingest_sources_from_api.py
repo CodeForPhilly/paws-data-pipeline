@@ -10,8 +10,8 @@ def start():
     logger.debug("   Finished fetching Salesforce contacts")
 
     logger.debug("   Fetching Shelterluv people")
-    shelterluv_people.store_shelterluv_people_all()
-    logger.debug("   Finished fetching Shelterluv people")
+    slp_count = shelterluv_people.store_shelterluv_people_all()
+    logger.debug("   Finished fetching Shelterluv people - %d records" , slp_count)
 
     logger.debug("   Fetching Shelterluv events")
     sle_count = sl_animal_events.store_all_animals_and_events()
