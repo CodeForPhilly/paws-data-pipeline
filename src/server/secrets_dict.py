@@ -1,5 +1,4 @@
 SD_COMMENT="This is for local development"
-SHELTERLUV_SECRET_TOKEN=""
 APP_SECRET_KEY="ASKASK"
 JWT_SECRET="JWTSECRET"
 POSTGRES_PASSWORD="thispasswordisverysecure"
