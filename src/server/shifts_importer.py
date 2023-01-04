@@ -130,7 +130,7 @@ def validate_import_vs(filename, conn):
         # parent will commit. Don't commit here!
 
 
-        logger.info("Total rows: %s  Dupes: %s Missing volgistics id: ",  str(row_count), str(dupes), str(missing_volgistics_id)  )
+        logger.info("Total rows: %s  Dupes: %s Missing volgistics id: %s",  str(row_count), str(dupes), str(missing_volgistics_id)  )
         logger.info("Other integrity exceptions: %s  Other exceptions: %s",  str(other_exceptions),  str(other_integrity) )
         wb.close()
         return { True : "File imported" }

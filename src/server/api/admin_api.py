@@ -9,9 +9,9 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import Table, MetaData
 from pipeline import flow_script
 from config import engine
-from flask import request, redirect, jsonify, current_app
+from flask import request, redirect, jsonify
 from api.file_uploader import validate_and_arrange_upload
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import sessionmaker
 
 from api import jwt_ops
 from config import RAW_DATA_PATH
@@ -224,10 +224,10 @@ def start_job():
 
     if running_job :
         # There was a running job already
-        logger.warn("Request to start job, but job_id " + str(running_job) + " already executing")
+        logger.warn("Request to start job, but job_id %s already executing", str(running_job))
         return None
     else:
-        logger.info("Assigned job_id  %s" + str(job_id ) )
+        logger.info("Assigned job_id  %s" ,  str(job_id ) )
         return job_id
 
 
@@ -392,7 +392,7 @@ def generate_dummy_rfm_scores():
     return count
 
 
-# ########### Test API endpoints   
+# ########### Test API endpoints
 # TODO: Remove for production
 
 # trigger rfm scoring process

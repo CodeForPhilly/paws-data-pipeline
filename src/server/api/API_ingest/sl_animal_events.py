@@ -1,13 +1,14 @@
-import os, time, json
+import json
+import os
 import posixpath as path
 
 import structlog
+
 logger = structlog.get_logger()
 
 import requests
 
 from api.API_ingest import shelterluv_db
-from server.api.API_ingest.shelterluv_db import insert_animals
 
 # There are a number of different record types. These are the ones we care about.
 keep_record_types = [
@@ -143,7 +144,7 @@ def get_events_bulk():
             more_records = decoded["has_more"]  # if so, we'll make another pass
             offset += limit
             if offset % 1000 == 0:
-                logger.debug("Reading offset ", str(offset))
+                logger.debug("Reading offset %s", str(offset))
                 if TEST_MODE and offset > 1000:
                     more_records=False  # Break out early 
 
@@ -155,10 +156,23 @@ def get_events_bulk():
 
 def slae_test():
     total_count = get_event_count()
-    logger.debug("Total events:", total_count)
+    logger.debug("Total events: %d", total_count)
 
     b = get_events_bulk()
-    logger.debug("Strored records:", len(b))
+    logger.debug("Stored records: %d", len(b))
+
+    # f = filter_events(b)
+    # print(f)
+
+    count = shelterluv_db.insert_events(b)
+    return count
+
+def store_all_animals_and_events():
+    total_count = get_event_count()
+    logger.debug("Total events: %d", total_count)
+
+    b = get_events_bulk()
+    logger.debug("Stored records: %d", len(b))
 
     # f = filter_events(b)
     # print(f)
