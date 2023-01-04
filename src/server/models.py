@@ -379,3 +379,17 @@ class ManualMatches(Base):
                 )
 
         conn.execute(insert(cls).values(matched_pairs).on_conflict_do_nothing())
+
+class SalesforceDonations(Base):
+    __tablename__ = "salesforcedonations"
+
+    _id = sa.Column(sa.Integer, primary_key=True)
+    opp_id = sa.Column(sa.String)
+    recurring_donor = sa.Column(sa.Boolean)
+    primary_contact = sa.Column(sa.String)
+    contact_id = sa.Column(sa.String)
+    amount = sa.Column(sa.Numeric)
+    close_date = sa.Column(sa.Date)
+    donation_type = sa.Column(sa.String)
+    primary_campaign_source = sa.Column(sa.String)
+
