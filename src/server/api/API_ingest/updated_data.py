@@ -40,7 +40,7 @@ def get_updated_contact_data():
                     or (extract(epoch from now())::bigint - foster_return < 365*86400) -- foster return 
                 then 'Active'
                 else 'Inactive'
-            end  as "updatedVolunteerStatus" ,
+            end  as "updatedFosterStatus" ,
         
             (to_timestamp(foster_out ) at time zone  'America/New_York')::date   as "updatedFosterStartDate",
             (to_timestamp(foster_return ) at time zone 'America/New_York')::date  as "updatedFosterEndDate",
