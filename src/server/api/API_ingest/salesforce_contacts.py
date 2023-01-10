@@ -29,7 +29,7 @@ def store_contacts_all():
             return
 
         sf = Salesforce(username=os.getenv('SALESFORCE_USERNAME'), consumer_key=os.getenv('SALESFORCE_CONSUMER_KEY'),
-                        privatekey_file='server/bin/connected-app-secrets.pem')
+                        privatekey_file=pem_file)
         results = sf.query("SELECT Contact_ID_18__c, FirstName, LastName, Contact.Account.Name, MailingCountry, MailingStreet, MailingCity, MailingState, MailingPostalCode, Phone, MobilePhone, Email FROM Contact")
         logger.debug("%d total Salesforce contact records", results['totalSize'])
         if TEST_MODE:
@@ -59,5 +59,6 @@ def store_contacts_all():
             done = results['done'] if not TEST_MODE else True
             if not done:
                 results = sf.query_more(results['nextRecordsUrl'], True)
+        logger.debug("Committing downloaded contact records")
         session.commit()
     logger.debug("finished downloading latest salesforce contacts data")
