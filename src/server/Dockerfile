@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.10.9-bullseye
 
 RUN apt-get update && apt-get install -y vim
 
@@ -16,10 +16,10 @@ COPY requirements.txt /
 
 RUN pip install --no-cache-dir -r /requirements.txt
 
-RUN export PYTHON=python3.8
-RUN uwsgi --build-plugin "/usr/src/uwsgi/plugins/python python38"
-RUN mv python38_plugin.so /usr/lib/uwsgi/plugins/python38_plugin.so
-RUN chmod 666 /usr/lib/uwsgi/plugins/python38_plugin.so
+RUN export PYTHON=python3.10
+RUN uwsgi --build-plugin "/usr/src/uwsgi/plugins/python python310"
+RUN mv python310_plugin.so /usr/lib/uwsgi/plugins/python310_plugin.so
+RUN chmod 666 /usr/lib/uwsgi/plugins/python310_plugin.so
 
 COPY . .
 
