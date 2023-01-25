@@ -2,7 +2,6 @@ import datetime
 import re
 from itertools import combinations
 
-import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy import (
     Boolean,
@@ -298,7 +297,9 @@ class Volgistics(Base):
 
     @classmethod
     def insert_from_file(cls, xl_file, conn):
-        df = pd.read_excel(xl_file, sheet_name="Master")
+        # TODO: read excel without pandas
+        # df = pd.read_excel(xl_file, sheet_name="Master")
+        df = {}
 
         column_translation = get_source_column_translation(cls)
         df = df[column_translation.keys()]
@@ -367,7 +368,7 @@ class ManualMatches(Base):
 
         matched_pairs = []
         for match in match_dicts:
-            non_nulls = {k: v for (k, v) in match.items() if not pd.isna(v)}
+            non_nulls = {k: v for (k, v) in match.items() if v is not None}
             for ((st1, sid1), (st2, sid2)) in combinations(non_nulls.items(), 2):
                 matched_pairs.append(
                     {

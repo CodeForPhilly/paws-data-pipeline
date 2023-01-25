@@ -1,4 +1,3 @@
-import pandas as pd
 from config import engine
 from donations_importer import validate_import_sfd
 from flask import current_app
@@ -27,7 +26,8 @@ def determine_upload_type(file, file_extension, conn):
     # what kind of data we had.
     if file_extension == "csv":
         logger.debug("File extension is CSV")
-        df = pd.read_csv(file, dtype="string")
+        # df = pd.read_csv(file, dtype="string")
+        df = {}
 
         if {"salesforcecontacts", "volgistics", "shelterluvpeople"}.issubset(df.columns):
             logger.debug("File appears to be salesforcecontacts, volgistics, or shelterluvpeople (manual)")
@@ -39,7 +39,10 @@ def determine_upload_type(file, file_extension, conn):
             return
 
     if file_extension == "xlsx":
-        excel_file = pd.ExcelFile(file)
+        # excel_file = pd.ExcelFile(file)
+        # TODO: read excel file without pandas
+        excel_file = ""
+        
         if {"Master", "Service"}.issubset(excel_file.sheet_names):
             logger.debug("File appears to be Volgistics")
             # Volgistics
@@ -47,7 +50,9 @@ def determine_upload_type(file, file_extension, conn):
             Volgistics.insert_from_file(excel_file, conn)
             return
 
-        df = pd.read_excel(excel_file)
+        # TODO: read excel file without pandas
+        # df = pd.read_excel(excel_file)
+        df = {}
         if "Contact ID 18" in df.columns:
             # Salesforce something-or-other
             if "Amount" in df.columns:
