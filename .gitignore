@@ -23,3 +23,5 @@ start_env.sh
 *secrets*
 *kustomization*
 src/.venv/
+src/server/secrets_dict.py
+

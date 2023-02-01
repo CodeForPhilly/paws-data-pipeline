@@ -70,7 +70,10 @@ def store_shelterluv_people_all():
                                       animal_ids=person["Animal_ids"]))
             offset += LIMIT
             has_more = response["has_more"] if not TEST_MODE else response["has_more"] and offset < 1000
+            if offset % 1000 == 0:
+                logger.debug("Reading offset %s", str(offset))
         session.commit()
 
-    logger.debug("Finish getting shelterluv contacts from people table")
+    logger.debug("Finished getting shelterluv contacts from people table")
+    return offset
 

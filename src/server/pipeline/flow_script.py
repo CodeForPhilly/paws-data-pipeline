@@ -67,22 +67,26 @@ def start_flow():
             # 6. Update each row in pdp_contacts to give it a match id
             #    corresponding to its connected componenet.
 
-            logger.info("Clearing pdp_contacts to prepare for match")
+            logger.debug("Clearing pdp_contacts to prepare for match")
             reset_pdp_contacts_with_unmatched(conn)
 
-            logger.info("Computing matches")
+            logger.debug("Computing automatic matches")
             automatic_matches = get_automatic_matches(conn)
+            logger.debug("Computing manual matches")
             manual_matches = get_manual_matches(conn)
 
             match_graph = Graph()
+            logger.debug("Adding automatic matches to graph")
             match_graph.add_edges_from(automatic_matches)
+            logger.debug("Adding manual matches to graph")
             match_graph.add_edges_from(manual_matches)
+            logger.debug("Processing graph")
             match_groups = connected_components(match_graph)
 
-            logger.info("Updating pdp_contacts with match ids")
+            logger.debug("Updating pdp_contacts with match ids")
             update_matching_ids(match_groups, conn)
 
-            logger.info("Finished flow script run")
+            logger.debug("Finished flow script run")
             job_outcome = "completed"
             log_db.log_exec_status(job_id, "flow", "complete", "")
 
