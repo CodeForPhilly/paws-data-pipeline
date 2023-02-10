@@ -21,9 +21,11 @@ services:
       - db
     volumes:
       - src_archive:/app/static/raw_data
-
+      - ./server:/app
     environment:
       - FLASK_ENV=development
+    command:
+      - bin/startServer.sh
 
   client:
     build: ./client

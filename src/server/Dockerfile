@@ -21,9 +21,7 @@ RUN uwsgi --build-plugin "/usr/src/uwsgi/plugins/python python38"
 RUN mv python38_plugin.so /usr/lib/uwsgi/plugins/python38_plugin.so
 RUN chmod 666 /usr/lib/uwsgi/plugins/python38_plugin.so
 
-COPY . .
-
-RUN mkdir /app/static \
+RUN mkdir -p /app/static \
     /app/static/raw_data \
     /app/static/logs \
     /app/static/zipped
@@ -32,7 +30,6 @@ RUN [ ! -f /app/static/logs/last_execution.json ] && printf {} > /app/static/log
 
 RUN chmod -R 777 /app/static
 
-RUN chmod +x  bin/startServer.sh
 # RUN ufw allow 5000
 WORKDIR /app
 
@@ -41,5 +38,4 @@ RUN mkdir -p  /app/.pytest_cache/v/cache
 RUN chown -R pawsapp:pawsapp /app/.pytest_cache/v/cache
 USER pawsapp
 
-CMD bin/startServer.sh
 #>> start.log 2>&1
