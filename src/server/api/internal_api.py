@@ -6,7 +6,7 @@ from flask import jsonify
 from api.API_ingest import ingest_sources_from_api, salesforce_contacts
 from api.api import internal_api
 from rfm_funcs.create_scores import create_scores
-from server.api.API_ingest import updated_data
+from api.API_ingest import updated_data
 
 logger = structlog.get_logger()
 
