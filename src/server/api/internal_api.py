@@ -3,9 +3,10 @@ from datetime import datetime
 import structlog
 from flask import jsonify
 
-from api.API_ingest import ingest_sources_from_api
+from api.API_ingest import ingest_sources_from_api, salesforce_contacts
 from api.api import internal_api
 from rfm_funcs.create_scores import create_scores
+from server.api.API_ingest import updated_data
 
 logger = structlog.get_logger()
 
@@ -42,3 +43,11 @@ def hit_create_scores():
     tuple_count = create_scores()
     logger.info("create_scores()  processed %s scores",  str(tuple_count) )
     return jsonify(200)
+
+
+@internal_api.route("/api/internal/get_updated_data", methods=["GET"])
+def get_contact_data():
+    logger.debug("Calling  get_updated_contact_data()")
+    contact_json =  updated_data.get_updated_contact_data()
+    logger.debug("Returning %d contact records",  len(contact_json) )
+    return jsonify(contact_json), 200
