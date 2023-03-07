@@ -3,7 +3,7 @@ from config import engine
 from donations_importer import validate_import_sfd
 from flask import current_app
 from models import ManualMatches, SalesForceContacts, ShelterluvPeople, Volgistics
-from shifts_importer import validate_import_vs
+from shifts_importer import open_volgistics, validate_import_vs, volgistics_people_import
 from werkzeug.utils import secure_filename
 
 import structlog
@@ -26,39 +26,43 @@ def determine_upload_type(file, file_extension, conn):
     # automatically pulling from vendor APIs directly, in which case we'd know
     # what kind of data we had.
     if file_extension == "csv":
-        logger.debug("File extension is CSV")
-        df = pd.read_csv(file, dtype="string")
+        logger.warn("%s: We no longer support CSV files", file.filename)
+        # df = pd.read_csv(file, dtype="string")
 
-        if {"salesforcecontacts", "volgistics", "shelterluvpeople"}.issubset(df.columns):
-            logger.debug("File appears to be salesforcecontacts, volgistics, or shelterluvpeople (manual)")
-            ManualMatches.insert_from_df(df, conn)
-            return
-        elif {"Animal_ids", "Internal-ID"}.issubset(df.columns):
-            logger.debug("File appears to be shelterluvpeople")
-            ShelterluvPeople.insert_from_df(df, conn)
-            return
+        # if {"salesforcecontacts", "volgistics", "shelterluvpeople"}.issubset(df.columns):
+        #     logger.debug("File appears to be salesforcecontacts, volgistics, or shelterluvpeople (manual)")
+        #     ManualMatches.insert_from_df(df, conn)
+        #     return
+        # elif {"Animal_ids", "Internal-ID"}.issubset(df.columns):
+        #     logger.debug("File appears to be shelterluvpeople")
+        #     ShelterluvPeople.insert_from_df(df, conn)
+        return
 
     if file_extension == "xlsx":
-        excel_file = pd.ExcelFile(file)
-        if {"Master", "Service"}.issubset(excel_file.sheet_names):
+        # excel_file = pd.ExcelFile(file)
+        # if {"Master", "Service"}.issubset(excel_file.sheet_names):
             logger.debug("File appears to be Volgistics")
             # Volgistics
-            validate_import_vs(file, conn)
-            Volgistics.insert_from_file(excel_file, conn)
+            workbook = open_volgistics(file)
+            validate_import_vs(workbook, conn)
+            # Volgistics.insert_from_file(excel_file, conn)
+            # Insert Volg people
+            volgistics_people_import(workbook,conn)
+            workbook.close()
             return
 
-        df = pd.read_excel(excel_file)
-        if "Contact ID 18" in df.columns:
-            # Salesforce something-or-other
-            if "Amount" in df.columns:
-                # Salesforce donations
-                logger.debug("File appears to be Salesforce donations")
-                validate_import_sfd(file, conn)
-                return
-            else:
-                # Salesforce contacts
-                logger.debug("File appears to be Salesforce contacts")
-                SalesForceContacts.insert_from_file_df(df, conn)
-                return
+        # df = pd.read_excel(excel_file)
+        # if "Contact ID 18" in df.columns:
+        #     # Salesforce something-or-other
+        #     if "Amount" in df.columns:
+        #         # Salesforce donations
+        #         logger.debug("File appears to be Salesforce donations")
+        #         validate_import_sfd(file, conn)
+        #         return
+        #     else:
+        #         # Salesforce contacts
+        #         logger.debug("File appears to be Salesforce contacts")
+        #         SalesForceContacts.insert_from_file_df(df, conn)
+        #         return
 
     logger.error("Don't know how to process file: %s",  file.filename)

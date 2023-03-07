@@ -1,6 +1,6 @@
 import re
 from flask.globals import current_app
-
+from datetime import datetime, timedelta 
 from openpyxl import load_workbook
 from jellyfish import jaro_similarity
 
@@ -12,12 +12,16 @@ logger = structlog.get_logger()
 
 from sqlalchemy import  insert,  Table,  Column, MetaData, exc
 from sqlalchemy.dialects.postgresql import Insert
+
+from sqlalchemy.orm import sessionmaker
+
+
 metadata = MetaData()
 
 
 MINIMUM_SIMILARITY = 0.85  # How good does the table match need to be?
 
-expected_columns =  {
+expected_shifts_columns =  {
             'Number' : 'volg_id',
             'Site' : 'site',
             'Place' : None,
@@ -33,21 +37,30 @@ expected_columns =  {
             'Volunteers' : None
             }
 
-def validate_import_vs(filename, conn):
+
+def open_volgistics(filename):
+    logger.info("Loading '%s' - this is slow",  filename.filename )
+    start = datetime.now()
+    wb = load_workbook(filename)   #  ,read_only=True should be faster but gets size incorrect 
+    end = datetime.now()
+    logger.info("Loaded '%s' complete in %d seconds",  filename.filename, (end-start).seconds )
+    return wb
+
+def validate_import_vs(workbook, conn):
     """ Validate that the XLSX column names int the file are close enough to expectations that we can trust the data.
         If so, insert the data into the volgisticsshifts table. 
     """
 
-    logger.info('------ Loading %s ',  filename.filename )
-    wb = load_workbook(filename)   #  ,read_only=True should be faster but gets size incorrect 
-    ws = wb['Service']   # Needs to be 'Service' sheet
+    # logger.info('------ Loading %s ',  filename.filename )
+    # wb = load_workbook(filename)   #  ,read_only=True should be faster but gets size incorrect 
+    ws = workbook['Service']   # Needs to be 'Service' sheet
     # ws.reset_dimensions()   # Tells openpyxl to ignore what sheet says and check for itself
     ws.calculate_dimension()
 
     columns = ws.max_column
     if columns > 26:
-        # TODO: Handle AA, AB, usw...
-        logger.warn("Column count > 26; columns after Z not processed")
+        # Only 13 actually populated 
+        logger.info("Column count > 26; columns after Z not processed")
         columns = 26
 
     header = [cell.value for cell in ws[1]]
@@ -55,7 +68,7 @@ def validate_import_vs(filename, conn):
     min_similarity = 1.0
     min_column = None
 
-    for expected, got in zip(expected_columns.keys(), header):
+    for expected, got in zip(expected_shifts_columns.keys(), header):
         jsim = jaro_similarity(expected, got) 
         if jsim < min_similarity :
             min_similarity = jsim
@@ -83,9 +96,11 @@ def validate_import_vs(filename, conn):
         for row in ws.values:        
             if seen_header: 
                 row_count += 1
-                if row_count % 1000 == 0:
+                if (row_count % 1000 == 0) and (row_count % 5000 != 0):
                     logger.debug("Row: %s", str(row_count) )
-                zrow = dict(zip(expected_columns.values(), row))  
+                if row_count % 5000 == 0:
+                    logger.info("Row: %s", str(row_count) )
+                zrow = dict(zip(expected_shifts_columns.values(), row))  
                 # zrow is a dict of db_col:value pairs, with at most one key being None (as it overwrote any previous)
                 # We need to remove the None item, if it exists
                 try:
@@ -132,5 +147,59 @@ def validate_import_vs(filename, conn):
 
         logger.info("Total rows: %s  Dupes: %s Missing volgistics id: %s",  str(row_count), str(dupes), str(missing_volgistics_id)  )
         logger.info("Other integrity exceptions: %s  Other exceptions: %s",  str(other_exceptions),  str(other_integrity) )
-        wb.close()
+        # workbook.close()
         return { True : "File imported" }
+    
+
+def volgistics_people_import(workbook,conn):
+
+    ws = workbook['Master']   # Needs to be 'Service' sheet
+    # ws.reset_dimensions()   # Tells openpyxl to ignore what sheet says and check for itself
+    ws.calculate_dimension()
+
+    columns = ws.max_column
+
+    #TODO: Validate header row to ensure source cols haven't changed
+
+    Session = sessionmaker(engine)
+    session = Session()
+    metadata = MetaData()
+    volg_table = Table("volgistics", metadata, autoload=True, autoload_with=engine)
+
+
+    # Cells are addressed as ws[row][col] with row being 1-based and col being 0-based
+
+    insert_list = []
+
+    #TODO: Create a dict from header row so can reference r["number"] instead of r[15]
+
+
+    for r in ws.iter_rows(min_row=2, max_col=42,values_only=True):
+        insert_list.append(
+            {
+                "number": r[15],
+                "last_name": r[3],
+                "first_name": r[4],
+                "middle_name": r[5],
+                "complete_address": r[16],
+                "street_1": r[17],
+                "street_2": r[18],
+                "street_3": r[19],
+                "city": r[20],
+                "state": r[21],
+                "zip": r[22],
+                "all_phone_numbers": r[27],
+                "home": r[28],
+                "work": r[30],
+                "cell": r[32],
+                "email": r[41]
+            }
+        )
+
+
+    ret = session.execute(volg_table.insert(insert_list))
+
+    session.commit()  # Commit all inserted rows
+    session.close()
+
+    logger.debug('%d rows inserted', ret.rowcount)
