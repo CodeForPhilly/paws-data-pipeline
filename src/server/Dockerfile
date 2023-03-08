@@ -23,7 +23,7 @@ RUN chmod 666 /usr/lib/uwsgi/plugins/python38_plugin.so
 
 COPY . .
 
-RUN mkdir /app/static \
+RUN mkdir -p /app/static \
     /app/static/raw_data \
     /app/static/logs \
     /app/static/zipped
