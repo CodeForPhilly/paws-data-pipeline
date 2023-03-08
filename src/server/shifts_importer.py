@@ -7,6 +7,8 @@ from jellyfish import jaro_similarity
 from config import  engine
 
 import structlog
+
+from api.API_ingest.volgistics import insert_volgistics_people
 logger = structlog.get_logger()
 
 
@@ -93,6 +95,10 @@ def validate_import_vs(workbook, conn):
         row_count = 0
         missing_volgistics_id = 0
 
+
+        #TODO: Perform bulk insert as for people_insert
+
+
         for row in ws.values:        
             if seen_header: 
                 row_count += 1
@@ -166,40 +172,52 @@ def volgistics_people_import(workbook,conn):
     metadata = MetaData()
     volg_table = Table("volgistics", metadata, autoload=True, autoload_with=engine)
 
-
-    # Cells are addressed as ws[row][col] with row being 1-based and col being 0-based
+    # Worksheet cells are addressed as ws[row][col] with row being 1-based and col being 0-based
 
     insert_list = []
 
-    #TODO: Create a dict from header row so can reference r["number"] instead of r[15]
+    # Create a dict from header row so can reference columns by name
+    # e.g., r[col['Number']] instead of r[15]
+    header = ws[1]
+    col = {};
+    idx = 0
+    for cell in header:
+        col[cell.value] = idx
+        idx += 1
 
 
-    for r in ws.iter_rows(min_row=2, max_col=42,values_only=True):
-        insert_list.append(
-            {
-                "number": r[15],
-                "last_name": r[3],
-                "first_name": r[4],
-                "middle_name": r[5],
-                "complete_address": r[16],
-                "street_1": r[17],
-                "street_2": r[18],
-                "street_3": r[19],
-                "city": r[20],
-                "state": r[21],
-                "zip": r[22],
-                "all_phone_numbers": r[27],
-                "home": r[28],
-                "work": r[30],
-                "cell": r[32],
-                "email": r[41]
-            }
-        )
+
+    time_stamp = datetime.utcnow()
+
+    try:
+        for r in ws.iter_rows(min_row=2, max_col=42,values_only=True):
+            insert_list.append(
+                {
+                    "number": r[col['Number']],
+                    "last_name": r[col['Last name']],
+                    "first_name": r[col['First name']],
+                    "middle_name": r[col['Middle name']],
+                    "complete_address": r[col['Complete address']],
+                    "street_1": r[col['Street 1']],
+                    "street_2": r[col['Street 2']],
+                    "street_3": r[col['Street 3']],
+                    "city": r[col['City']],
+                    "state": r[col['State']],
+                    "zip": r[col['Zip']],
+                    "all_phone_numbers": r[col['All phone numbers']],
+                    "home": r[col['Home']],
+                    "work": r[col['Work']],
+                    "cell": r[col['Cell']],
+                    "email": r[col['Email']],
+                    "created_date" : time_stamp
+                }
+            )
+    except KeyError as e:
+        logger.error("Volgistics source XLSX file 'Master' tab missing expected column (see following)  - cannot import")
+        logger.exception(e)
 
 
-    ret = session.execute(volg_table.insert(insert_list))
 
-    session.commit()  # Commit all inserted rows
-    session.close()
+    rows = insert_volgistics_people(insert_list)
 
-    logger.debug('%d rows inserted', ret.rowcount)
+    logger.debug('Inserted %d Volgistics people rows', rows)
