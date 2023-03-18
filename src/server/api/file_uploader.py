@@ -1,4 +1,3 @@
-# import pandas as pd
 from config import engine
 from donations_importer import validate_import_sfd
 from flask import current_app
