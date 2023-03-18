@@ -8,12 +8,11 @@ from config import  engine
 
 import structlog
 
-from api.API_ingest.volgistics import insert_volgistics_people
+from api.API_ingest.volgistics_db import insert_volgistics_people, insert_volgistics_shifts
 logger = structlog.get_logger()
 
 
-from sqlalchemy import  insert,  Table,  Column, MetaData, exc
-from sqlalchemy.dialects.postgresql import Insert
+from sqlalchemy import Table, MetaData
 
 from sqlalchemy.orm import sessionmaker
 
@@ -41,20 +40,30 @@ expected_shifts_columns =  {
 
 
 def open_volgistics(filename):
-    logger.info("Loading '%s' - this is slow",  filename.filename )
+    logger.info("Loading '%s' ",  filename.filename )
     start = datetime.now()
-    wb = load_workbook(filename)   #  ,read_only=True should be faster but gets size incorrect 
+    wb = load_workbook(filename, read_only=True)   # read_only=True caused problems (got size wrong) in an earlier version   
+                                                   # works fine now and is much faster 
+    
     end = datetime.now()
     logger.info("Loaded '%s' complete in %d seconds",  filename.filename, (end-start).seconds )
+
+    try:
+        ws = wb['Service']
+        wp = wb['Master']
+
+    except Exception as e:
+        logger.error("Could not open expected tab in '%s' - not a Volgistics xlsx file?: %s", filename.filename, e )
+        return None
+
     return wb
 
-def validate_import_vs(workbook, conn):
+def validate_import_vs(workbook):
     """ Validate that the XLSX column names int the file are close enough to expectations that we can trust the data.
         If so, insert the data into the volgisticsshifts table. 
     """
 
-    # logger.info('------ Loading %s ',  filename.filename )
-    # wb = load_workbook(filename)   #  ,read_only=True should be faster but gets size incorrect 
+
     ws = workbook['Service']   # Needs to be 'Service' sheet
     # ws.reset_dimensions()   # Tells openpyxl to ignore what sheet says and check for itself
     ws.calculate_dimension()
@@ -84,26 +93,19 @@ def validate_import_vs(workbook, conn):
 
     if  min_similarity >= MINIMUM_SIMILARITY :  # Good enough to trust
         
-        vs  = Table("volgisticsshifts", metadata, autoload=True, autoload_with=engine)
-
         seen_header = False  # Used to skip header row
 
         # Stats for import
-        dupes = 0
-        other_integrity = 0
-        other_exceptions = 0
         row_count = 0
         missing_volgistics_id = 0
 
-
-        #TODO: Perform bulk insert as for people_insert
-
+        shifts_rows = [];
 
         for row in ws.values:        
             if seen_header: 
                 row_count += 1
-                if (row_count % 1000 == 0) and (row_count % 5000 != 0):
-                    logger.debug("Row: %s", str(row_count) )
+                # if (row_count % 1000 == 0) and (row_count % 5000 != 0):
+                #     logger.debug("Row: %s", str(row_count) )
                 if row_count % 5000 == 0:
                     logger.info("Row: %s", str(row_count) )
                 zrow = dict(zip(expected_shifts_columns.values(), row))  
@@ -114,52 +116,23 @@ def validate_import_vs(workbook, conn):
                 except KeyError:
                     pass 
 
-                #  Cleanup time!  Many older imports have... peculiarities 
-
-                #  End cleanup 
-
                 if zrow['volg_id'] :  # No point in importing if there's nothing to match
-                    # Finally ready to insert row into the table
-                    # 
-
-                    stmt = Insert(vs).values(zrow)
-
-                    skip_dupes = stmt.on_conflict_do_nothing(
-                        constraint='uq_shift'
-                       )
-                    try:
-                        result = conn.execute(skip_dupes)
-                    except exc.IntegrityError as e:  # Catch-all for several more specific exceptions
-                        if  re.match('duplicate key value', str(e.orig) ):
-                            dupes += 1
-                            pass
-                        else:
-                            other_integrity += 1
-                            logger.error(e)
-                    except Exception as e: 
-                        other_exceptions += 1
-                        logger.error(e)
-                 
+                    shifts_rows.append(zrow)
                 else: # Missing contact_id
                     missing_volgistics_id += 1
-
 
             else:  # Haven't seen header, so this was first row.
                 seen_header = True
 
-        # NOTE: we now run this in a engine.begin() context manager, so our
-        # parent will commit. Don't commit here!
+        rows = insert_volgistics_shifts(shifts_rows)
 
-
-        logger.info("Total rows: %s  Dupes: %s Missing volgistics id: %s",  str(row_count), str(dupes), str(missing_volgistics_id)  )
-        logger.info("Other integrity exceptions: %s  Other exceptions: %s",  str(other_exceptions),  str(other_integrity) )
-        # workbook.close()
+        logger.info("Total rows: %d  Missing volgistics id: %d",  rows, missing_volgistics_id  )
         return { True : "File imported" }
     
 
-def volgistics_people_import(workbook,conn):
+def volgistics_people_import(workbook):
 
-    ws = workbook['Master']   # Needs to be 'Service' sheet
+    ws = workbook['Master']   # Needs to be 'Master' sheet
     # ws.reset_dimensions()   # Tells openpyxl to ignore what sheet says and check for itself
     ws.calculate_dimension()
 
@@ -185,30 +158,46 @@ def volgistics_people_import(workbook,conn):
         col[cell.value] = idx
         idx += 1
 
-
-
+    # This table has something like 115 columns - not interested in handling each even if empty
+    # Get the column numbers of the ones we care about
+    col_number = col['Number']
+    col_lastname = col['Last name']
+    col_firstname =  col['First name']
+    col_middlename = col['Middle name']
+    col_complete_address = col['Complete address']
+    col_street1 = col['Street 1']
+    col_street2 = col['Street 2']
+    col_street3 = col['Street 3']
+    col_city = col['City']
+    col_state = col['State']
+    col_zip = col['Zip']
+    col_all_phones = col['All phone numbers']
+    col_home = col['Home']
+    col_work = col['Work']
+    col_cell = col['Cell']
+    col_email = col['Email']
     time_stamp = datetime.utcnow()
 
     try:
         for r in ws.iter_rows(min_row=2, max_col=42,values_only=True):
             insert_list.append(
                 {
-                    "number": r[col['Number']],
-                    "last_name": r[col['Last name']],
-                    "first_name": r[col['First name']],
-                    "middle_name": r[col['Middle name']],
-                    "complete_address": r[col['Complete address']],
-                    "street_1": r[col['Street 1']],
-                    "street_2": r[col['Street 2']],
-                    "street_3": r[col['Street 3']],
-                    "city": r[col['City']],
-                    "state": r[col['State']],
-                    "zip": r[col['Zip']],
-                    "all_phone_numbers": r[col['All phone numbers']],
-                    "home": r[col['Home']],
-                    "work": r[col['Work']],
-                    "cell": r[col['Cell']],
-                    "email": r[col['Email']],
+                    "number": r[col_number],
+                    "last_name": r[col_lastname],
+                    "first_name": r[col_firstname],
+                    "middle_name": r[col_middlename],
+                    "complete_address": r[col_complete_address],
+                    "street_1": r[col_street1],
+                    "street_2": r[col_street2],
+                    "street_3": r[col_street3],
+                    "city": r[col_city],
+                    "state": r[col_state],
+                    "zip": r[col_zip],
+                    "all_phone_numbers": r[col_all_phones],
+                    "home": r[col_home],
+                    "work": r[col_work],
+                    "cell": r[col_cell],
+                    "email": r[col_email],
                     "created_date" : time_stamp
                 }
             )
@@ -216,7 +205,9 @@ def volgistics_people_import(workbook,conn):
         logger.error("Volgistics source XLSX file 'Master' tab missing expected column (see following)  - cannot import")
         logger.exception(e)
 
-
+    except Exception as e:
+        logger.error("Unhandled exception preparing Volgistics people records for import")
+        logger.exception(e)
 
     rows = insert_volgistics_people(insert_list)
 
