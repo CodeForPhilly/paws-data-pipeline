@@ -2,9 +2,9 @@ from config import engine
 from donations_importer import validate_import_sfd
 from flask import current_app
 from models import ManualMatches, SalesForceContacts, ShelterluvPeople, Volgistics
+from pipeline.log_db import log_volgistics_update
 from volgistics_importer import open_volgistics, validate_import_vs, volgistics_people_import
 from werkzeug.utils import secure_filename
-
 import structlog
 logger = structlog.get_logger()
 
@@ -35,6 +35,7 @@ def determine_upload_type(file, file_extension, conn):
             validate_import_vs(workbook)
             volgistics_people_import(workbook)
             workbook.close()
+            log_volgistics_update()
         return
 
     logger.error("Don't know how to process file: %s",  file.filename)
