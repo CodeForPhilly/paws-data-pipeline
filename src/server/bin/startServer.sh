@@ -11,7 +11,4 @@ echo "SLEEPING.. WAITING FOR DB"; sleep 5; echo "WAKING"; alembic upgrade head; 
 
 # --no-reload prevents Flask restart, which usually happens in middle of create_base_users()
 #TODO: SECURITY - ensure we are not running in debug mode in production
-UWSGI_LOG_CONFIG="bin/uwsgi_log_config.json"
-# Remove newlines and extra whitespace from log formatting
-LOG_FORMAT=$(cat $UWSGI_LOG_CONFIG | tr -d \\n | tr -s ' ')
-uwsgi --logformat "$LOG_FORMAT" --http-socket :5000 --plugin python38 --module wsgi:app --chdir /app --pythonpath . --processes 2 --threads 4 --master
+uwsgi bin/uwsgi.ini
