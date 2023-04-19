@@ -159,7 +159,7 @@ function AuthenticatedApp() {
                         </Route>
 
                         <Route path="/users">
-                            <UserManagement/>
+                            <UserManagement access_token={access_token}/>
                         </Route>
 
 
