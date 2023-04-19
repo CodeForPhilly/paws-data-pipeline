@@ -18,6 +18,7 @@ import Refresh from './components/Refresh';
 import useToken from './pages/Login/useToken';
 import Box from "@material-ui/core/Box";
 import {RFM} from "./pages/RFM/RFM";
+import UserManagement from './pages/UserManagement/UserManagement';
 
 let jwt = require('jsonwebtoken');
 
@@ -156,6 +157,11 @@ function AuthenticatedApp() {
                         <Route path="/ref">
                             <Refresh/>
                         </Route>
+
+                        <Route path="/users">
+                            <UserManagement/>
+                        </Route>
+
 
                     </Switch>
             }
