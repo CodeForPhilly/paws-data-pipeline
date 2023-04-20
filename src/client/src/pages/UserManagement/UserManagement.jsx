@@ -44,7 +44,7 @@ export default function UserManagement(props) {
                 <Grid item>
                     <Typography variant={"h2"} >User Management</Typography>
                 </Grid >
-                <Grid alignItems="center" item>
+                <Grid item>
                     <Button color="primary" variant="contained" onClick={() => openDialog({ type: DialogTypes.NewUser })}>
                         New
                     </Button>
@@ -56,12 +56,12 @@ export default function UserManagement(props) {
                 </Backdrop>
             }
             {!isLoading && users &&
-                <Paper elevation={1} style={{ "padding": "2em" }}>
+                <Paper elevation={1} style={{ padding: "2em" }}>
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>Username</TableCell>
                                 <TableCell>Full Name</TableCell>
+                                <TableCell>Username</TableCell>
                                 <TableCell>Role</TableCell>
                                 <TableCell>Active</TableCell>
                                 <TableCell></TableCell>
