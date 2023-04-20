@@ -1,4 +1,5 @@
 import {
+    Button,
     TableCell,
     TableRow
 } from "@material-ui/core";
@@ -13,6 +14,11 @@ export default function UserRow(props) {
             <TableCell>{fullName}</TableCell>
             <TableCell>{role}</TableCell>
             <TableCell>{active === 'Y' ? 'Yes' : 'No'}</TableCell>
+            <TableCell>
+                <Button>
+                    Update
+                </Button>
+            </TableCell>
         </TableRow>
     )
 }

@@ -1,8 +1,9 @@
 import {
     Backdrop,
-    Box,
+    Button,
     CircularProgress,
     Container,
+    Grid,
     Paper,
     Table,
     TableBody,
@@ -31,10 +32,24 @@ export default function UserManagement(props) {
     }, [token]);
 
     return (
-        <Container>1
-            <Box display="flex" justifyContent="center" pb={3}>
-                <Typography variant={"h2"} >User Management</Typography>
-            </Box>
+        <Container>
+            {
+                /*
+                    The following Grid is pretty gross. I spent an inordinate amount of time trying
+                    to align the button correctly with MUI stuff. Could definitely use improvement.
+                */
+            }
+            <Grid display="flex" direction="row" justify="space-around" style={{ paddingBottom: '24px' }} container>
+                <Grid item />
+                <Grid item>
+                    <Typography variant={"h2"} >User Management</Typography>
+                </Grid >
+                <Grid alignItems="center" item>
+                    <Button color="primary" variant="contained" onClick={() => openDialog({ type: DialogTypes.NewUser })}>
+                        New
+                    </Button>
+                </Grid>
+            </Grid >
             {isLoading &&
                 <Backdrop open={true}>
                     <CircularProgress size={60} />
@@ -49,6 +64,7 @@ export default function UserManagement(props) {
                                 <TableCell>Full Name</TableCell>
                                 <TableCell>Role</TableCell>
                                 <TableCell>Active</TableCell>
+                                <TableCell></TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
