@@ -91,6 +91,7 @@ export default function UserManagement(props) {
             {dialogOpen &&
                 <UserDialog
                     onClose={closeDialog}
+                    token={token}
                     type={dialogType}
                 />
             }

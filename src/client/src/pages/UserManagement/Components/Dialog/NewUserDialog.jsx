@@ -3,11 +3,12 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, T
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
+import { createUser } from "../../../../utils/api";
 import { buildNameValidation, buildPasswordValidation, buildRoleValidation, buildUsernameValidation } from '../../Validations';
 
 
 export default function NewUserDialog(props) {
-    const { onClose } = props;
+    const { onClose, token } = props;
 
     const validationSchema = Yup.object().shape({
         name: buildNameValidation(),
@@ -17,13 +18,19 @@ export default function NewUserDialog(props) {
         confirmPassword: Yup.string().oneOf([Yup.ref("password")], "Passwords must match"),
     });
 
-    const { register, handleSubmit, formState: { errors }, reset, getValues } = useForm({
+    const { register, handleSubmit, formState: { errors }, reset } = useForm({
         resolver: yupResolver(validationSchema),
     });
 
     const onSubmitHandler = (data) => {
-        console.log({ data });
-        reset();
+        const { username, name: full_name, role, password } = data;
+
+        createUser({
+            username,
+            full_name,
+            role,
+            password
+        }, token)
     }
 
     return (

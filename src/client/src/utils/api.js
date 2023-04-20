@@ -13,5 +13,22 @@ export const fetchUsers = async ({ token }) => {
             console.warn(e)
             throw new Error(e);
         })
-            
+}
+
+export const createUser = async (userData, token) => {
+    const api = "/api/admin/user/create"
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(userData)
+    };
+
+    return fetch(api, requestOptions)
+        .then((res) => res.json())
+        .catch((e) => {
+            console.warn(e)
+            throw new Error(e);
+        })
 }

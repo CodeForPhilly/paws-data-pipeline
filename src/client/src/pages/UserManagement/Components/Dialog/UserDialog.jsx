@@ -6,13 +6,14 @@ export const DialogTypes = {
 }
 
 export default function UserDialog(props) {
-    const { onClose, type } = props;
+    const { onClose, type, token } = props;
 
     switch (type) {
         case DialogTypes.NewUser:
             return (
                 <NewUserDialog
                     onClose={onClose}
+                    token={token}
                     open
                 >
                     "Hello"
