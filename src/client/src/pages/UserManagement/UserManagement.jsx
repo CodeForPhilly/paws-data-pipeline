@@ -15,11 +15,14 @@ import {
 import _ from 'lodash';
 import React from 'react';
 import { fetchUsers } from '../../utils/api';
+import UserDialog, { DialogTypes } from './Components/Dialog/UserDialog';
 import UserRow from './Components/UserRow';
 
 export default function UserManagement(props) {
     const [users, setUsers] = React.useState(undefined);
     const [isLoading, setIsLoading] = React.useState(undefined);
+    const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [dialogType, setDialogType] = React.useState(undefined)
     const { access_token: token } = props;
 
     React.useEffect(() => {
@@ -30,6 +33,16 @@ export default function UserManagement(props) {
             })
         setIsLoading(false);
     }, [token]);
+
+    const openDialog = (opts) => {
+        setDialogType(opts.type);
+        setDialogOpen(true);
+    }
+
+    const closeDialog = () => {
+        setDialogOpen(false);
+        setDialogType(null);
+    }
 
     return (
         <Container>
@@ -75,6 +88,13 @@ export default function UserManagement(props) {
                     </Table>
                 </Paper>
             }
-        </Container>
+            {dialogOpen &&
+                <UserDialog
+                    onClose={closeDialog}
+                    type={dialogType}
+                />
+            }
+        </Container >
+
     )
 }
