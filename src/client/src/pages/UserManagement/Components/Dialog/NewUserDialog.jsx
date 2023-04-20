@@ -47,6 +47,7 @@ export default function NewUserDialog(props) {
                         margin="dense"
                         id="name-input"
                         label="Name"
+                        onBlur={() => trigger("name")}
                         variant="standard"
                         autoFocus
                         fullWidth
@@ -59,6 +60,7 @@ export default function NewUserDialog(props) {
                         margin="dense"
                         id="username-input"
                         label="Username"
+                        onBlur={() => trigger("username")}
                         variant="standard"
                         fullWidth
                     />
@@ -70,6 +72,7 @@ export default function NewUserDialog(props) {
                         margin="dense"
                         id="role-input"
                         label="Role - user/editor/admin"
+                        onBlur={() => trigger("role")}
                         variant="standard"
                         fullWidth
                     />
@@ -81,6 +84,7 @@ export default function NewUserDialog(props) {
                         margin="dense"
                         id="password-input"
                         label="Password"
+                        onBlur={() => trigger("password")}
                         type="password"
                         fullWidth
                     />
@@ -92,6 +96,7 @@ export default function NewUserDialog(props) {
                         margin="dense"
                         id="confirm-password-input"
                         label="Confirm Password"
+                        onBlur={() => trigger("confirmPassword")}
                         type="password"
                         fullWidth
                     />
