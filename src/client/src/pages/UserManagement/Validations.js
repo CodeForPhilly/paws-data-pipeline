@@ -34,6 +34,10 @@ export const buildPasswordValidation = () => {
             "no-disallowed-words",
             "Password cannot include 'dog', 'cat', 'password', or your username",
             (value, context) => {
+                if (!value) {
+                    return true;
+                }
+
                 const lowercasePassword = value.toLowerCase();
                 const lowercaseUsername = context.parent.username.toLowerCase()
                 return [...DISALLOWED_WORDS, lowercaseUsername].every((word) => !lowercasePassword.includes(word))

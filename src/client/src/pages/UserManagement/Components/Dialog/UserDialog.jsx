@@ -6,12 +6,13 @@ export const DialogTypes = {
 }
 
 export default function UserDialog(props) {
-    const { onClose, type, token } = props;
+    const { onClose, type, notifyResult, token } = props;
 
     switch (type) {
         case DialogTypes.NewUser:
             return (
                 <NewUserDialog
+                    notifyResult={notifyResult}
                     onClose={onClose}
                     token={token}
                     open

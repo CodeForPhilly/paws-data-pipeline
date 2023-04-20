@@ -8,7 +8,8 @@ import { buildNameValidation, buildPasswordValidation, buildRoleValidation, buil
 
 
 export default function NewUserDialog(props) {
-    const { onClose, token } = props;
+    const [responseError, setResponseError] = React.useState(undefined);
+    const { onClose, notifyResult, token } = props;
 
     const validationSchema = Yup.object().shape({
         name: buildNameValidation(),
@@ -18,11 +19,13 @@ export default function NewUserDialog(props) {
         confirmPassword: Yup.string().oneOf([Yup.ref("password")], "Passwords must match"),
     });
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm({
+    const { register, handleSubmit, formState: { errors }, reset, trigger } = useForm({
         resolver: yupResolver(validationSchema),
     });
 
     const onSubmitHandler = (data) => {
+        setResponseError(null);
+
         const { username, name: full_name, role, password } = data;
 
         createUser({
@@ -31,6 +34,15 @@ export default function NewUserDialog(props) {
             role,
             password
         }, token)
+            .then((res) => {
+                if (res.indexOf("duplicate key") > -1) {
+                    setResponseError(`User with username ${username} already exists`)
+                } else {
+                    notifyResult({ success: true, message: `New user ${res} created successfully` });
+                    onClose();
+                }
+            })
+            .catch(e => console.warn(e))
     }
 
     return (
@@ -64,8 +76,8 @@ export default function NewUserDialog(props) {
                         variant="standard"
                         fullWidth
                     />
-                    {errors.username &&
-                        <Typography color="error">{errors.username.message}</Typography>
+                    {(responseError || errors.username) && // This is a little janky... Could be improved upon.
+                        <Typography color="error">{responseError || errors.username.message}</Typography>
                     }
                     <TextField
                         {...register("role")}

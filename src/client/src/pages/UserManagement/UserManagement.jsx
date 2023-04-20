@@ -12,6 +12,7 @@ import {
     TableRow,
     Typography
 } from '@material-ui/core';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import _ from 'lodash';
 import React from 'react';
 import { fetchUsers } from '../../utils/api';
@@ -21,6 +22,7 @@ import UserRow from './Components/UserRow';
 export default function UserManagement(props) {
     const [users, setUsers] = React.useState(undefined);
     const [isLoading, setIsLoading] = React.useState(undefined);
+    const [resultBanner, setResultBanner] = React.useState(undefined);
     const [dialogOpen, setDialogOpen] = React.useState(false);
     const [dialogType, setDialogType] = React.useState(undefined)
     const { access_token: token } = props;
@@ -33,6 +35,16 @@ export default function UserManagement(props) {
             })
         setIsLoading(false);
     }, [token]);
+
+    const notifyResult = ({ success, message }) => {
+        setResultBanner({ success, message });
+
+        if (success) {
+            setTimeout(() => {
+                setResultBanner(null);
+            }, 5000)
+        }
+    }
 
     const openDialog = (opts) => {
         setDialogType(opts.type);
@@ -63,6 +75,12 @@ export default function UserManagement(props) {
                     </Button>
                 </Grid>
             </Grid >
+            {resultBanner &&
+                <Alert onClose={() => setResultBanner(null)} severity={resultBanner.success ? "success" : "error"} spacing={2}>
+                    <AlertTitle><Typography variant='h6'>{resultBanner.success ? "Success" : "Error"}</Typography></AlertTitle>
+                    <Typography>{resultBanner.message}</Typography>
+                </Alert>
+            }
             {isLoading &&
                 <Backdrop open={true}>
                     <CircularProgress size={60} />
@@ -90,6 +108,7 @@ export default function UserManagement(props) {
             }
             {dialogOpen &&
                 <UserDialog
+                    notifyResult={notifyResult}
                     onClose={closeDialog}
                     token={token}
                     type={dialogType}
