@@ -1,5 +1,15 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, TextField, Typography } from '@material-ui/core';
+import {
+    Button,
+    Checkbox,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControlLabel,
+    TextField,
+    Typography
+} from '@material-ui/core';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
@@ -8,8 +18,19 @@ import { buildNameValidation, buildRoleValidation } from '../../Validations';
 
 
 export default function UpdateUserDialog(props) {
-    const { onClose, notifyResult, token, updateUsers, user } = props;
-    const { username, full_name: name, role, active } = user;
+    const {
+        onClose,
+        notifyResult,
+        token,
+        updateUsers,
+        user
+    } = props;
+    const {
+        username,
+        full_name: name,
+        role,
+        active
+    } = user;
 
     const validationSchema = Yup.object().shape({
         name: buildNameValidation(),

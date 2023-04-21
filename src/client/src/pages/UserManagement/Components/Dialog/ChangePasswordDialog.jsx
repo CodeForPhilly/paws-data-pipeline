@@ -1,5 +1,13 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@material-ui/core';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    Typography
+} from '@material-ui/core';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
@@ -8,7 +16,12 @@ import { buildPasswordValidation } from '../../Validations';
 
 
 export default function ChangePasswordDialog(props) {
-    const { onClose, notifyResult, token, user } = props;
+    const {
+        onClose,
+        notifyResult,
+        token,
+        user
+    } = props;
     const { username } = user;
 
     const validationSchema = Yup.object().shape({

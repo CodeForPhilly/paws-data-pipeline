@@ -1,15 +1,33 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@material-ui/core';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    Typography
+} from '@material-ui/core';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { createUser } from "../../../../utils/api";
-import { buildNameValidation, buildPasswordValidation, buildRoleValidation, buildUsernameValidation } from '../../Validations';
+import {
+    buildNameValidation,
+    buildPasswordValidation,
+    buildRoleValidation,
+    buildUsernameValidation
+} from '../../Validations';
 
 
 export default function NewUserDialog(props) {
     const [responseError, setResponseError] = React.useState(undefined);
-    const { onClose, notifyResult, token, updateUsers } = props;
+    const {
+        onClose,
+        notifyResult,
+        token,
+        updateUsers
+    } = props;
 
     const validationSchema = Yup.object().shape({
         name: buildNameValidation(),
