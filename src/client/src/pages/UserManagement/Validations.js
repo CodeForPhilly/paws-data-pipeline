@@ -4,7 +4,7 @@ export const DISALLOWED_WORDS = [
     'cat',
     'dog',
     'password',
-
+    'paws',
 ]
 
 export const buildNameValidation = () => {
@@ -33,12 +33,10 @@ export const buildRoleValidation = () => {
 
 export const buildPasswordValidation = (username) => {
     return Yup.string()
-        .trim()
-
-
+        .required("Password is required")
         .test(
             "no-disallowed-words",
-            "Password cannot include 'dog', 'cat', 'password', or your username",
+            "Password cannot include 'dog', 'cat', 'password', 'paws', or your username",
             (value, context) => {
                 if (!value) {
                     return true;
@@ -48,6 +46,7 @@ export const buildPasswordValidation = (username) => {
                 const lowercaseUsername = username || context.parent.username.toLowerCase()
                 return [...DISALLOWED_WORDS, lowercaseUsername].every((word) => !lowercasePassword.includes(word))
             })
+        .matches(/^[a-zA-Z0-9!@#$%^*]+$/, "Password can only contain numbers, letters, and the following symbols: !@#$%^*")
         .min(12, "Password must contain at least 12 letters")
         .max(36, "Password must be 36 characters or less")
 }
