@@ -25,6 +25,7 @@ export default function UserManagement(props) {
     const [resultBanner, setResultBanner] = React.useState(undefined);
     const [dialogOpen, setDialogOpen] = React.useState(false);
     const [dialogType, setDialogType] = React.useState(undefined)
+    const [selectedUser, setSelectedUser] = React.useState(undefined);
     const { access_token: token } = props;
 
     React.useEffect(() => {
@@ -63,6 +64,7 @@ export default function UserManagement(props) {
     }
 
     const openDialog = (opts) => {
+        setSelectedUser(opts.user);
         setDialogType(opts.type);
         setDialogOpen(true);
     }
@@ -70,6 +72,7 @@ export default function UserManagement(props) {
     const closeDialog = () => {
         setDialogOpen(false);
         setDialogType(null);
+        setSelectedUser(null);
     }
 
     return (
@@ -112,11 +115,12 @@ export default function UserManagement(props) {
                                 <TableCell>Role</TableCell>
                                 <TableCell>Active</TableCell>
                                 <TableCell></TableCell>
+                                <TableCell></TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {_.map(users, user => {
-                                return <UserRow user={user} key={user.username} />
+                                return <UserRow user={user} openDialog={openDialog} key={user.username} />
                             })}
                         </TableBody>
                     </Table>
@@ -126,6 +130,7 @@ export default function UserManagement(props) {
                 <UserDialog
                     notifyResult={notifyResult}
                     onClose={closeDialog}
+                    selectedUser={selectedUser}
                     token={token}
                     type={dialogType}
                     updateUsers={updateUsers}

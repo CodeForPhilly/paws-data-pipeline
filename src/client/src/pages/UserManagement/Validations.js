@@ -28,7 +28,7 @@ export const buildRoleValidation = () => {
         .required("Role is required")
 }
 
-export const buildPasswordValidation = () => {
+export const buildPasswordValidation = (username) => {
     return Yup.string()
         .test(
             "no-disallowed-words",
@@ -39,7 +39,7 @@ export const buildPasswordValidation = () => {
                 }
 
                 const lowercasePassword = value.toLowerCase();
-                const lowercaseUsername = context.parent.username.toLowerCase()
+                const lowercaseUsername = username || context.parent.username.toLowerCase()
                 return [...DISALLOWED_WORDS, lowercaseUsername].every((word) => !lowercasePassword.includes(word))
             })
         .min(12, "Password must contain at least 12 letters")

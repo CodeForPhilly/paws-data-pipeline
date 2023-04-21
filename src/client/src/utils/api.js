@@ -16,7 +16,7 @@ export const fetchUsers = async ({ token }) => {
 }
 
 export const createUser = async (userData, token) => {
-    const api = "/api/admin/user/create"
+    const api = "/api/admin/user/create";
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -24,6 +24,24 @@ export const createUser = async (userData, token) => {
         },
         body: JSON.stringify(userData)
     };
+
+    return fetch(api, requestOptions)
+        .then((res) => res.json())
+        .catch((e) => {
+            console.warn(e)
+            throw new Error(e);
+        })
+}
+
+export const updateUser = async (userData, token) => {
+    const api = "/api/admin/user/update";
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(userData)
+    }
 
     return fetch(api, requestOptions)
         .then((res) => res.json())

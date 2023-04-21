@@ -19,7 +19,7 @@ export default function NewUserDialog(props) {
         confirmPassword: Yup.string().oneOf([Yup.ref("password")], "Passwords must match"),
     });
 
-    const { register, handleSubmit, formState: { errors }, reset, trigger } = useForm({
+    const { register, handleSubmit, formState: { errors }, trigger } = useForm({
         resolver: yupResolver(validationSchema),
     });
 
