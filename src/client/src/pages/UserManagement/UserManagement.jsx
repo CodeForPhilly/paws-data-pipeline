@@ -75,6 +75,20 @@ export default function UserManagement(props) {
         setSelectedUser(null);
     }
 
+    React.useEffect(() => {
+        const handleEscape = (event) => {
+            if (event.keyCode === 27) {
+                closeDialog();
+            }
+        }
+
+        document.addEventListener('keydown', handleEscape);
+
+        return () => {
+            document.removeEventListener('keydown', handleEscape);
+        };
+    }, [closeDialog])
+
     return (
         <Container>
             {
