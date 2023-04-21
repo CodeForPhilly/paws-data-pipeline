@@ -1,22 +1,20 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from '@material-ui/core';
+import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, TextField, Typography } from '@material-ui/core';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import { createUser } from "../../../../utils/api";
-import { buildNameValidation, buildPasswordValidation, buildRoleValidation, buildUsernameValidation } from '../../Validations';
+import { updateUser } from "../../../../utils/api";
+import { buildNameValidation, buildRoleValidation } from '../../Validations';
 
 
-export default function NewUserDialog(props) {
-    const [responseError, setResponseError] = React.useState(undefined);
-    const { onClose, notifyResult, token, updateUsers } = props;
+export default function UpdateUserDialog(props) {
+    const { onClose, notifyResult, token, updateUsers, user } = props;
+    const { username, full_name: name, role, active } = user;
 
     const validationSchema = Yup.object().shape({
         name: buildNameValidation(),
-        username: buildUsernameValidation(),
         role: buildRoleValidation(),
-        password: buildPasswordValidation(),
-        confirmPassword: Yup.string().oneOf([Yup.ref("password")], "Passwords must match"),
+        active: Yup.boolean(),
     });
 
     const { register, handleSubmit, formState: { errors }, trigger } = useForm({
@@ -24,26 +22,27 @@ export default function NewUserDialog(props) {
     });
 
     const onSubmitHandler = (data) => {
-        setResponseError(null);
-
         const newUser = {
-            username: data.username,
+            username,
             full_name: data.name,
             role: data.role,
-            password: data.password
+            active: data.active ? "Y" : "N"
         };
 
-        createUser(newUser, token)
+        updateUser(newUser, token)
             .then((res) => {
-                if (res.indexOf("duplicate key") > -1) {
-                    setResponseError(`User with username ${data.username} already exists`)
-                } else {
-                    notifyResult({ success: true, message: `New user ${res} created successfully` });
+                if (res === "Updated") {
+                    notifyResult({ success: true, message: `User ${username} updated successfully` });
                     updateUsers(newUser);
                     onClose();
+                } else {
+                    notifyResult({ success: false, message: res })
                 }
             })
-            .catch(e => console.warn(e))
+            .catch(e => {
+                console.warn(e)
+                notifyResult({ success: false, message: e })
+            })
     }
 
     return (
@@ -52,11 +51,12 @@ export default function NewUserDialog(props) {
             fullWidth
             open
         >
-            <DialogTitle style={{ fontSize: "20px" }}>Create New User</DialogTitle>
+            <DialogTitle style={{ fontSize: "20px" }}>Update user</DialogTitle>
             <form onSubmit={handleSubmit(onSubmitHandler)}>
                 <DialogContent>
                     <TextField
                         {...register("name")}
+                        defaultValue={name}
                         margin="dense"
                         id="name-input"
                         label="Name"
@@ -69,19 +69,21 @@ export default function NewUserDialog(props) {
                         <Typography color="error">{errors.name.message}</Typography>
                     }
                     <TextField
-                        {...register("username")}
+                        defaultValue={username}
                         margin="dense"
                         id="username-input"
                         label="Username"
                         onBlur={() => trigger("username")}
                         variant="standard"
+                        disabled
                         fullWidth
                     />
-                    {(responseError || errors.username) && // This is a little janky... Could be improved upon.
-                        <Typography color="error">{responseError || errors.username.message}</Typography>
+                    {(errors.username) &&
+                        <Typography color="error">{errors.username.message}</Typography>
                     }
                     <TextField
                         {...register("role")}
+                        defaultValue={role}
                         margin="dense"
                         id="role-input"
                         label="Role - user/editor/admin"
@@ -92,30 +94,15 @@ export default function NewUserDialog(props) {
                     {errors.role &&
                         <Typography color="error">{errors.role.message}</Typography>
                     }
-                    <TextField
-                        {...register("password")}
-                        margin="dense"
-                        id="password-input"
-                        label="Password"
-                        onBlur={() => trigger("password")}
-                        type="password"
-                        fullWidth
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                {...register("active")}
+                                defaultChecked={active === "Y" ? true : false}
+                            />
+                        }
+                        label="Active"
                     />
-                    {errors.password &&
-                        <Typography color="error">{errors.password.message}</Typography>
-                    }
-                    <TextField
-                        {...register("confirmPassword")}
-                        margin="dense"
-                        id="confirm-password-input"
-                        label="Confirm Password"
-                        onBlur={() => trigger("confirmPassword")}
-                        type="password"
-                        fullWidth
-                    />
-                    {errors.confirmPassword &&
-                        <Typography color="error">{errors.confirmPassword.message}</Typography>
-                    }
                     <DialogActions>
                         <Button
                             onClick={onClose}

@@ -17,7 +17,7 @@ export default function UserRow(props) {
             <TableCell>{role}</TableCell>
             <TableCell>{active === 'Y' ? 'Yes' : 'No'}</TableCell>
             <TableCell>
-                <Button>
+                <Button onClick={() => openDialog({ type: DialogTypes.UpdateUser, user: props.user })}>
                     Update User
                 </Button>
             </TableCell>
