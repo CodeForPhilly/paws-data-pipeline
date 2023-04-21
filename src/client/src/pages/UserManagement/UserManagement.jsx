@@ -46,6 +46,22 @@ export default function UserManagement(props) {
         }
     }
 
+    const updateUsers = (newOrUpdatedUser) => {
+        setUsers(prevUsers => {
+            const existingUserIndex = _.findIndex(users, existingUser => {
+                return existingUser.username === newOrUpdatedUser.username;
+            })
+
+            if (existingUserIndex >= 0) {
+                const updatedUsers = [...prevUsers];
+                updatedUsers[existingUserIndex] = newOrUpdatedUser;
+                return updatedUsers;
+            } else {
+                return [...users, newOrUpdatedUser];
+            }
+        })
+    }
+
     const openDialog = (opts) => {
         setDialogType(opts.type);
         setDialogOpen(true);
@@ -112,6 +128,7 @@ export default function UserManagement(props) {
                     onClose={closeDialog}
                     token={token}
                     type={dialogType}
+                    updateUsers={updateUsers}
                 />
             }
         </Container >

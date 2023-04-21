@@ -9,7 +9,7 @@ import { buildNameValidation, buildPasswordValidation, buildRoleValidation, buil
 
 export default function NewUserDialog(props) {
     const [responseError, setResponseError] = React.useState(undefined);
-    const { onClose, notifyResult, token } = props;
+    const { onClose, notifyResult, token, updateUsers } = props;
 
     const validationSchema = Yup.object().shape({
         name: buildNameValidation(),
@@ -26,19 +26,20 @@ export default function NewUserDialog(props) {
     const onSubmitHandler = (data) => {
         setResponseError(null);
 
-        const { username, name: full_name, role, password } = data;
+        const newUser = {
+            username: data.username,
+            full_name: data.name,
+            role: data.role,
+            password: data.password
+        };
 
-        createUser({
-            username,
-            full_name,
-            role,
-            password
-        }, token)
+        createUser(newUser, token)
             .then((res) => {
                 if (res.indexOf("duplicate key") > -1) {
-                    setResponseError(`User with username ${username} already exists`)
+                    setResponseError(`User with username ${data.username} already exists`)
                 } else {
                     notifyResult({ success: true, message: `New user ${res} created successfully` });
+                    updateUsers(newUser);
                     onClose();
                 }
             })
