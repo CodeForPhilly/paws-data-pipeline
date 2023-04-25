@@ -103,5 +103,4 @@ export default function ChangePasswordDialog(props) {
             </form>
         </Dialog>
     )
-
 }
