@@ -1,11 +1,13 @@
-from api.api import internal_api
-from config import engine
-from flask import jsonify, current_app
 from datetime import datetime
-from api.API_ingest import ingest_sources_from_api
-from rfm_funcs.create_scores import create_scores
 
 import structlog
+from flask import jsonify
+
+from api.API_ingest import ingest_sources_from_api, salesforce_contacts
+from api.api import internal_api
+from rfm_funcs.create_scores import create_scores
+from api.API_ingest import updated_data
+
 logger = structlog.get_logger()
 
 ###   Internal API endpoints can only be accessed from inside the cluster;
@@ -25,11 +27,10 @@ def user_test2():
     return jsonify(("OK from INTERNAL test/test  @ " + str(datetime.now())))
 
 
-@internal_api.route("/api/ingestRawData", methods=["GET"])
+@internal_api.route("/api/internal/ingestRawData", methods=["GET"])
 def ingest_raw_data():
     try:
-        with engine.begin() as conn:
-            ingest_sources_from_api.start(conn)
+        ingest_sources_from_api.start()
     except Exception as e:
         logger.error(e)
 
@@ -42,3 +43,11 @@ def hit_create_scores():
     tuple_count = create_scores()
     logger.info("create_scores()  processed %s scores",  str(tuple_count) )
     return jsonify(200)
+
+
+@internal_api.route("/api/internal/get_updated_data", methods=["GET"])
+def get_contact_data():
+    logger.debug("Calling  get_updated_contact_data()")
+    contact_json =  updated_data.get_updated_contact_data()
+    logger.debug("Returning %d contact records",  len(contact_json) )
+    return jsonify(contact_json), 200

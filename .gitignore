@@ -15,7 +15,6 @@ src/server/api/__pycache__
 /.idea
 start_env.sh
 *.DS_Store
-
 /src/server/venv/
 /src/local_files/
 /src/server/secrets_dict.py
@@ -23,3 +22,6 @@ start_env.sh
 .mypy_cache/
 *secrets*
 *kustomization*
+src/.venv/
+src/server/secrets_dict.py
+
