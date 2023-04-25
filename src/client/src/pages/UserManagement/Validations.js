@@ -11,6 +11,7 @@ export const buildNameValidation = () => {
     return Yup.string()
         .trim()
         .min(2, "Name must be at least 2 characters")
+        .max(50, "Name cannot be more than 50 characters")
         .matches(/^(?!.*  )[a-zA-Z ]+$/, "Name must only contain letters and non-consecutive internal spaces")
         .required("Name is required")
 }
@@ -19,6 +20,7 @@ export const buildUsernameValidation = () => {
     return Yup.string()
         .trim()
         .min(2, "Username must be at least 2 characters")
+        .max(50, "Username cannot be more than 50 characters")
         .matches(/^[a-zA-Z0-9].*$/, "Username must begin with a letter or number")
         .matches(/^.*[a-zA-Z0-9]$/, "Username must end with a letter or number")
         .matches(/^(?!.*?__)[a-zA-Z0-9_]+$/, "Username must contain only alphanumeric characters and non-consecutive underscores")
