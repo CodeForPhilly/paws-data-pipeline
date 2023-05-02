@@ -26,6 +26,9 @@ class Header extends Component {
                             {this.props.headerType === 'Admin' &&
                             <Button size="large" component={RouterLink} to="/admin">Admin</Button>}
 
+                            {this.props.headerType === 'Admin' &&
+                            <Button size="large" component={RouterLink} to="/users">Users</Button>}
+
                             {this.props.headerType !== 'Login' && <Button size="large" component={RouterLink} to="/360view/search">360
                                 DataView</Button>
                             }
