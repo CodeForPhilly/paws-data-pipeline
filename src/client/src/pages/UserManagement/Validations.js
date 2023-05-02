@@ -4,6 +4,7 @@ export const DISALLOWED_WORDS = [
     'cat',
     'dog',
     'password',
+    'philly',
     'paws',
 ]
 
@@ -38,7 +39,7 @@ export const buildPasswordValidation = (username) => {
         .required("Password is required")
         .test(
             "no-disallowed-words",
-            "Password cannot include 'dog', 'cat', 'password', 'paws', or your username",
+            "Password cannot include 'dog', 'cat', 'password', 'philly', 'paws', or your username",
             (value, context) => {
                 if (!value) {
                     return true;
