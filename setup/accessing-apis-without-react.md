@@ -1,5 +1,5 @@
 # Accessing APIs without React
-test
+
 As of [c863c77](https://github.com/CodeForPhilly/paws-data-pipeline/commit/c863c77cfb79901f65936a851834ec298aec5ec1) , a valid JWT is needed to access API endpoints. If you don't want to use the normal route (React) there are a few options:
 
 * Programmatically through JS: See examples in Login.js, Admin.js, Search.js
