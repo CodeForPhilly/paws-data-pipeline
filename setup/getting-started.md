@@ -16,7 +16,7 @@ Windows users, see our [wiki](https://github.com/CodeForPhilly/paws-data-pipelin
 - Navigate to local destination directory.
 - Clone the repo - `$ git clone https://github.com/CodeForPhilly/paws-data-pipeline`
 ​
-### Run the Docker container
+### Run the Docker containers
 - Run the Docker Desktop client locally (_review 4) (Mac) [Linux directions will be provided by Cris]
 - Navigate to `../paws-data-pipeline/src`
 - Build the container (do this every time you make a change to the code): `$ docker-compose build` 
