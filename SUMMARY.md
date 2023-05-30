@@ -20,7 +20,7 @@
   * [Common Errors](troubleshooting/common-errors.md)
   * [Dups Problem](troubleshooting/dups-problem.md)
 * [Code of Conduct](https://codeforphilly.org/pages/code_of_conduct)
-* [Maintainers](https://test.pawsdp.org/about)
+* [Contributors](https://test.pawsdp.org/about)
 * Glossary
 * Archives
   * [RFM](architecture/rfm.md)
