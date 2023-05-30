@@ -7,6 +7,7 @@
   * [Deployment](deployment/README.md)
   * [Using GitHub actions](deployment/using-github-actions.md)
   * [Deploying PDP within the Code for Philly cluster](deployment/deploying-pdp-within-the-code-for-philly-cluster.md)
+  * [Kubernetes Setup](setup/kubernetes-setup.md)
   * [Kubernetes logs](deployment/kubernetes-logs.md)
   * [Troubleshooting](troubleshooting/README.md)
   * [Dups Problem](troubleshooting/dups-problem.md)
@@ -23,6 +24,5 @@
   * [Setup](setup/README.md)
   * [Getting Started](setup/getting-started.md)
   * [Local Setup](setup/local-setup.md)
-  * [Kubernetes Setup](setup/kubernetes-setup.md)
   * [Accessing APIs without React](setup/accessing-apis-without-react.md)
 
