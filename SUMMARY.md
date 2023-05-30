@@ -1,13 +1,12 @@
 # Table of contents
 
 * [Overview](README.md)
-* [Getting started](https://github.com/CodeForPhilly/paws-data-pipeline/blob/documentation-dev/setup/getting-started.md)
-* Contributing
+* Installation
   * [Getting Started](setup/getting-started.md)
   * [Local Setup](setup/local-setup.md)
   * [Accessing APIs without React](setup/accessing-apis-without-react.md)
   * [User management and authorization](architecture/user-management-and-authorization.md)
-* Operations
+* [Operations](deployment/README.md)
   * [Using GitHub actions](deployment/using-github-actions.md)
   * [Deploying PDP within the Code for Philly cluster](deployment/deploying-pdp-within-the-code-for-philly-cluster.md)
   * [Kubernetes Setup](setup/kubernetes-setup.md)
