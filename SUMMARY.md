@@ -3,6 +3,10 @@
 * [Overview](README.md)
 * [Getting started](https://github.com/CodeForPhilly/paws-data-pipeline/blob/documentation-dev/setup/getting-started.md)
 * Contributing
+  * [Setup](setup/README.md)
+  * [Getting Started](setup/getting-started.md)
+  * [Local Setup](setup/local-setup.md)
+  * [Accessing APIs without React](setup/accessing-apis-without-react.md)
 * Operations
   * [Deployment](deployment/README.md)
   * [Using GitHub actions](deployment/using-github-actions.md)
@@ -21,8 +25,4 @@
   * [RFM](architecture/rfm.md)
   * [Data Flow](architecture/data-flow.md)
   * [Database Schema](architecture/database-schema.md)
-  * [Setup](setup/README.md)
-  * [Getting Started](setup/getting-started.md)
-  * [Local Setup](setup/local-setup.md)
-  * [Accessing APIs without React](setup/accessing-apis-without-react.md)
 
