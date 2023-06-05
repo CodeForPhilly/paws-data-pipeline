@@ -158,8 +158,7 @@ export default function Admin(props) {
                                 <Paper>
                                     <CardContent>
                                         <Typography variant="h5">Upload Files</Typography>
-                                        <Typography variant="body1">Please select one or more files to upload</Typography>
-                                        <Typography variant="caption">Note: The only files that must be manually uploaded are Volgistics files. Other file types will not work.</Typography>
+                                        <Typography variant="caption">Note: This upload feature now only accepts Volgistics data files. Other data is uploaded automatically.</Typography>
                                         <form onSubmit={handleUpload}>
                                             <input type="file" id="fileItemsID"
                                                    value={filesInput}
