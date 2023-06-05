@@ -175,6 +175,19 @@ export default function Admin(props) {
                         </Grid>
                         <Grid container item direction="column" spacing={3} sm={6}>
                             <Grid item>
+                                <Paper style={{ padding: 5 }}>
+                                    <CardContent>
+                                        <Typography variant="h5" styles={{paddingBottom: 5}}>Run New Analysis</Typography>
+                                        <form onSubmit={handleExecute}>
+                                            <Button type="submit" variant="contained" color="primary"
+                                                    disabled={statistics === 'Running'}>
+                                                Run Data Analysis
+                                            </Button>
+                                        </form>
+                                    </CardContent>
+                                </Paper>
+                            </Grid>
+                            <Grid item>
                                 <Typography variant="h5">Last Match Analysis</Typography>
                             </Grid>
                             <Grid item>
@@ -205,19 +218,6 @@ export default function Admin(props) {
                                         </Table>
                                     </TableContainer>
                                 }
-                            </Grid>
-                            <Grid item>
-                                <Paper style={{padding: 5, marginTop: 10}}>
-                                    <CardContent>
-                                        <Typography variant="h5" styles={{paddingBottom: 5}}>Run New Analysis</Typography>
-                                        <form onSubmit={handleExecute}>
-                                            <Button type="submit" variant="contained" color="primary"
-                                                    disabled={statistics === 'Running'}>
-                                                Run Data Analysis
-                                            </Button>
-                                        </form>
-                                    </CardContent>
-                                </Paper>
                             </Grid>
 
                         </Grid>
