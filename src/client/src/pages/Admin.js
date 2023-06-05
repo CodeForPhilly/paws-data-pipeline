@@ -155,38 +155,6 @@ export default function Admin(props) {
                     <Grid container item spacing={5} direction="row" style={{padding: 20}}>
                         <Grid container item direction="column" spacing={3} sm={6}>
                             <Grid item>
-                                <Typography variant="h5">Latest Files</Typography>
-                            </Grid>
-                            <Grid item>
-                                {_.isEmpty(fileListHtml) !== true &&
-                                    <TableContainer component={Paper}>
-                                        <Table aria-label="simple table">
-                                            <TableHead>
-                                                <TableRow>
-                                                    <TableCell><b>File Type</b></TableCell>
-                                                    <TableCell><b>Last Updated</b></TableCell>
-                                                </TableRow>
-                                            </TableHead>
-                                            <TableBody>
-                                                {_.map(fileListHtml, (file, index) => {
-                                                    const fileName = file.split("-")[0];
-                                                    let fileDate = file.split("-").slice(1).join().split(".")[0];
-                                                    let fileDateOnlyNumbers = fileDate.replaceAll(",", "");
-                                                    let fileDateFormatted = moment(fileDateOnlyNumbers, "YYYYMMDDhmmss").local().format("MMMM Do YYYY, h:mm:ss a");
-
-                                                    return (
-                                                        <TableRow key={index}>
-                                                            <TableCell>{fileName}</TableCell>
-                                                            <TableCell>{fileDateFormatted}</TableCell>
-                                                        </TableRow>
-                                                    )
-                                                })
-                                                }
-                                            </TableBody>
-                                        </Table>
-                                    </TableContainer>}
-                            </Grid>
-                            <Grid item>
                                 <Paper>
                                     <CardContent>
                                         <Typography variant="h5">Upload Files</Typography>
