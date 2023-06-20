@@ -26,9 +26,7 @@ export default function Admin(props) {
     const [isLoading, setIsLoading] = React.useState(undefined);
     const [statistics, setStatistics] = React.useState(undefined);
     const [filesInput, setFilesInput] = React.useState(undefined);
-    const [fileListHtml, setFileListHtml] = React.useState(undefined);
     const [lastExecution, setLastExecution] = React.useState(undefined);
-    const [isNewFileExist, setIsNewFileExist] = React.useState(false);
 
 
     React.useEffect(() => {
@@ -40,17 +38,6 @@ export default function Admin(props) {
     const refreshPage = async () => {
         setIsLoading(true);
 
-        const filesData = await fetch("/api/listCurrentFiles",
-            {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + props.access_token
-                }
-            });
-        const filesResponse = await filesData.json();
-
-        setFileListHtml(filesResponse);
-
         const statsData = await fetch("/api/statistics",
             {
                 method: 'GET',
@@ -61,31 +48,8 @@ export default function Admin(props) {
         const statsResponse = await statsData.json()
 
         handleGetStatistics(statsResponse);
-        determineNewFileExist(statsResponse, filesResponse);
 
         setIsLoading(false);
-    }
-
-    // sets newFileExists to true if one of the files was uploaded after last execution
-    const determineNewFileExist = (statsResponse, filesResponse) => {
-        let lastExecutionTime = statsResponse.executionTime;
-
-        let filesUploadedAfterExecution =_.filter(filesResponse, fileName => {
-            let fileTimestampAndType = fileName.substring(fileName.indexOf('-') + 1)
-            let fileTimestamp = fileTimestampAndType.split('.')[0]
-            let fileTimestampMoment = moment(fileTimestamp, "YYYY-MM-DD--HH-mm-ss");
-
-            let result = moment(fileTimestampMoment).isAfter(lastExecutionTime);
-
-            return result;
-        });
-
-        if (_.isEmpty(filesUploadedAfterExecution) === false) {
-            setIsNewFileExist(true);
-        }
-        else {
-            setIsNewFileExist(false);
-        }
     }
 
     const handleUpload = async (event) => {
