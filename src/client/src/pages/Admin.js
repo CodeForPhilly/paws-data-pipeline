@@ -118,41 +118,6 @@ export default function Admin(props) {
 
                     <Grid container item spacing={5} direction="row" style={{padding: 20}}>
                         <Grid container item direction="column" spacing={3} sm={6}>
-                            {_.isEmpty(fileListHtml) !== true &&
-                                <>
-                                    <Grid item>
-                                        <Typography variant="h5">Latest Files</Typography>
-                                    </Grid>
-                                    <Grid item>
-                                            <TableContainer component={Paper}>
-                                                <Table aria-label="simple table">
-                                                    <TableHead>
-                                                        <TableRow>
-                                                            <TableCell><b>File Type</b></TableCell>
-                                                            <TableCell><b>Last Updated</b></TableCell>
-                                                        </TableRow>
-                                                    </TableHead>
-                                                    <TableBody>
-                                                        {_.map(fileListHtml, (file, index) => {
-                                                            const fileName = file.split("-")[0];
-                                                            let fileDate = file.split("-").slice(1).join().split(".")[0];
-                                                            let fileDateOnlyNumbers = fileDate.replaceAll(",", "");
-                                                            let fileDateFormatted = moment(fileDateOnlyNumbers, "YYYYMMDDhmmss").local().format("MMMM Do YYYY, h:mm:ss a");
-
-                                                            return (
-                                                                <TableRow key={index}>
-                                                                    <TableCell>{fileName}</TableCell>
-                                                                    <TableCell>{fileDateFormatted}</TableCell>
-                                                                </TableRow>
-                                                            )
-                                                        })
-                                                        }
-                                                    </TableBody>
-                                                </Table>
-                                            </TableContainer>
-                                    </Grid>
-                                </>
-                            }
                             <Grid item>
                                 <Paper>
                                     <CardContent>
@@ -186,39 +151,39 @@ export default function Admin(props) {
                                     </CardContent>
                                 </Paper>
                             </Grid>
-                            <Grid item>
-                                <Typography variant="h5">Last Match Analysis</Typography>
-                            </Grid>
-                            <Grid item>
-                                {_.isEmpty(statistics) !== true &&
-                                    statistics !== 'Running' &&
-                                    <TableContainer component={Paper}>
-                                        <Table aria-label="simple table">
-                                            <TableBody>
-                                                <TableRow key='time'>
-                                                    <TableCell align="left" component="th" scope="row">
-                                                        <b>Last Analysis</b>
-                                                    </TableCell>
-                                                    <TableCell align="left">
-                                                        <b>
-                                                            {moment(lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
-                                                        </b>
-                                                    </TableCell>
-                                                </TableRow>
-                                                {statistics.map((row, index) => (
-                                                    <TableRow key={index}>
+                            {!_.isEmpty(statistics) && statistics !== 'Running' && 
+                                <>
+                                    <Grid item>
+                                        <Typography variant="h5">Last Match Analysis</Typography>
+                                    </Grid>
+                                    <Grid item>
+                                        <TableContainer component={Paper}>
+                                            <Table aria-label="simple table">
+                                                <TableBody>
+                                                    <TableRow key='time'>
                                                         <TableCell align="left" component="th" scope="row">
-                                                            {row[0]}
+                                                            <b>Last Analysis</b>
                                                         </TableCell>
-                                                        <TableCell align="left">{row[1]}</TableCell>
+                                                        <TableCell align="left">
+                                                            <b>
+                                                                {moment(lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
+                                                            </b>
+                                                        </TableCell>
                                                     </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </TableContainer>
-                                }
-                            </Grid>
-
+                                                    {statistics.map((row, index) => (
+                                                        <TableRow key={index}>
+                                                            <TableCell align="left" component="th" scope="row">
+                                                                {row[0]}
+                                                            </TableCell>
+                                                            <TableCell align="left">{row[1]}</TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                    </Grid>
+                                </>
+                            }
                         </Grid>
                     </Grid>
                 </Paper>
