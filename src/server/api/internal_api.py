@@ -8,7 +8,7 @@ from api.api import internal_api
 from rfm_funcs.create_scores import create_scores
 from api.API_ingest import updated_data
 from pub_sub import salesforce_message_publisher
-import json
+from pipeline import flow_script
 
 logger = structlog.get_logger()
 
@@ -50,17 +50,28 @@ def hit_create_scores():
 @internal_api.route("/api/internal/get_updated_data", methods=["GET"])
 def get_contact_data():
     logger.debug("Calling  get_updated_contact_data()")
-    contact_json =  updated_data.get_updated_contact_data()
-    logger.debug("Returning %d contact records",  len(contact_json) )
+    contact_json = updated_data.get_updated_contact_data()
+    logger.debug("Returning %d contact records", len(contact_json))
     return jsonify(contact_json), 200
 
 
-@internal_api.route("/api/internal/salesforce_platform_message", methods=["POST"])
-def hit_salesforce_platform_message():
-    try:
-        post_dict = json.loads(request.data)
-        salesforce_message_publisher.pipeline_update_message(post_dict)
-    except Exception as e:
-        logger.error(e)
+@internal_api.route("/api/internal/send_salesforce_platform_message", methods=["GET"])
+def send_salesforce_platform_message():
+    contact_list = updated_data.get_updated_contact_data()
+    logger.debug("Returning %d contact records", len(contact_list))
+    salesforce_message_publisher.send_pipeline_update_messages(contact_list)
+
+    return jsonify({'outcome': 'OK'}), 200
+
+@internal_api.route("/api/internal/full_flow", methods=["GET"])
+def start_flow():
+    logger.info("Downloading data from APIs")
+    ingest_sources_from_api.start()
+    logger.info("Starting pipeline matching")
+    flow_script.start_flow()
+    logger.info("Building updated data payload")
+    updated_contacts_list = updated_data.get_updated_contact_data()
+    logger.info("Sending Salesforce platform messages")
+    salesforce_message_publisher.send_pipeline_update_messages(updated_contacts_list)
 
     return jsonify({'outcome': 'OK'}), 200

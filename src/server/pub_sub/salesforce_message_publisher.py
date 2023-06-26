@@ -9,21 +9,21 @@ import pub_sub.stubs.pubsub_api_pb2 as pb2
 import avro.io
 import io
 import structlog
+from datetime import datetime
 
 logger = structlog.get_logger()
 
-# todo: also read these from dict module
 ISSUER = os.getenv("SALESFORCE_CONSUMER_KEY")
 DOMAIN = os.getenv("SALESFORCE_DOMAIN")
 SUBJECT = os.getenv("SALESFORCE_USERNAME")
 INSTANCE_URL = os.getenv("INSTANCE_URL")
 TENANT_ID = os.getenv("TENANT_ID")
+PLATFORM_MESSAGE_AUTHOR = os.getenv("PLATFORM_MESSAGE_AUTHOR_RECORD_ID")
 
 UPDATE_TOPIC = "/event/Updated_Contacts_From_Pipeline__e"
 
 
-def pipeline_update_message(message_dict):
-    # todo: look for certificate using both local and container pathing
+def send_pipeline_update_messages(contacts_list):
     pem_file = 'bin/connected-app-secrets.pem'
     with open(pem_file) as fd:
         private_key = fd.read()
@@ -42,7 +42,6 @@ def pipeline_update_message(message_dict):
         'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         'assertion': assertion,
     })
-    logger.info(r.json())
     access_token = r.json()['access_token']
     logger.info('Made OAuth call to get access token')
 
@@ -52,16 +51,25 @@ def pipeline_update_message(message_dict):
         auth_meta_data = (('accesstoken', access_token),
                           ('instanceurl', INSTANCE_URL),
                           ('tenantid', TENANT_ID))
+
+
         stub = pb2_grpc.PubSubStub(channel)
         schema_id = stub.GetTopic(pb2.TopicRequest(topic_name=UPDATE_TOPIC), metadata=auth_meta_data).schema_id
         schema = stub.GetSchema(pb2.SchemaRequest(schema_id=schema_id), metadata=auth_meta_data).schema_json
-        buf = io.BytesIO()
-        encoder = avro.io.BinaryEncoder(buf)
-        writer = avro.io.DatumWriter(avro.schema.parse(schema))
-        writer.write(message_dict, encoder)
-        payload = {
-            "schema_id": schema_id,
-            "payload": buf.getvalue()
-        }
-        stub.Publish(pb2.PublishRequest(topic_name=UPDATE_TOPIC, events=[payload]), metadata=auth_meta_data)
-        logger.info('Pipeline update message sent')
+
+        for contact_dict in contacts_list:
+            contact_dict['CreatedDate'] = int(datetime.now().timestamp())
+            contact_dict['CreatedById'] = PLATFORM_MESSAGE_AUTHOR
+
+            buf = io.BytesIO()
+            encoder = avro.io.BinaryEncoder(buf)
+            writer = avro.io.DatumWriter(avro.schema.parse(schema))
+            writer.write(contact_dict, encoder)
+            payload = {
+                "schema_id": schema_id,
+                "payload": buf.getvalue()
+            }
+            stub.Publish(pb2.PublishRequest(topic_name=UPDATE_TOPIC, events=[payload]), metadata=auth_meta_data)
+            logger.info('Pipeline update message sent')
+
+    logger.info("%s total pipeline update messages sent", len(contacts_list))
