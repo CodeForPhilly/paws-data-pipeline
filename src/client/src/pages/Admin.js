@@ -114,8 +114,6 @@ export default function Admin(props) {
                     <CircularProgress size={60}/>
                 </Backdrop> :
                 <Paper elevation={1} style={{"padding": "2em"}}>
-                    {statistics === 'Running' && <Alert severity="info">Execution is in Progress...</Alert>}
-
                     <Grid container item spacing={5} direction="row" style={{padding: 20}}>
                         <Grid container item direction="column" spacing={3} sm={6}>
                             <Grid item>
@@ -128,8 +126,11 @@ export default function Admin(props) {
                                                    value={filesInput}
                                                    multiple
                                             />
-                                            <Button type="submit" variant="contained" color="primary"
-                                                    disabled={statistics === 'Running'}>
+                                            <Button 
+                                                type="submit" 
+                                                variant="contained" 
+                                                color="primary"
+                                            >
                                                 Upload
                                             </Button>
                                         </form>
@@ -143,15 +144,18 @@ export default function Admin(props) {
                                     <CardContent>
                                         <Typography variant="h5" styles={{paddingBottom: 5}}>Run New Analysis</Typography>
                                         <form onSubmit={handleExecute}>
-                                            <Button type="submit" variant="contained" color="primary"
-                                                    disabled={statistics === 'Running'}>
+                                            <Button 
+                                                type="submit" 
+                                                variant="contained" 
+                                                color="primary"
+                                            >
                                                 Run Data Analysis
                                             </Button>
                                         </form>
                                     </CardContent>
                                 </Paper>
                             </Grid>
-                            {!_.isEmpty(statistics) && statistics !== 'Running' && 
+                            {!_.isEmpty(statistics) && 
                                 <>
                                     <Grid item>
                                         <Typography variant="h5">Last Match Analysis</Typography>
