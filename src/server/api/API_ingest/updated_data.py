@@ -1,9 +1,9 @@
 
-from sqlalchemy.orm import  sessionmaker
-from simple_salesforce import Salesforce
+import structlog
+from sqlalchemy.orm import sessionmaker
+
 from config import engine
 
-import structlog
 logger = structlog.get_logger()
 
 

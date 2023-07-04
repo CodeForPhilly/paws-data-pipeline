@@ -1,14 +1,14 @@
 from datetime import datetime
 
 import structlog
-from flask import jsonify, request
+from flask import jsonify
 
-from api.API_ingest import ingest_sources_from_api, salesforce_contacts
-from api.api import internal_api
-from rfm_funcs.create_scores import create_scores
+from api.API_ingest import ingest_sources_from_api
 from api.API_ingest import updated_data
-from pub_sub import salesforce_message_publisher
+from api.api import internal_api
 from pipeline import flow_script
+from pub_sub import salesforce_message_publisher
+from rfm_funcs.create_scores import create_scores
 
 logger = structlog.get_logger()
 
