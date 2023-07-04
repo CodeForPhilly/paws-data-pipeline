@@ -14,10 +14,10 @@ def get_updated_contact_data():
         with ev_dates as 
         (select 
             person_id, 
-            max(case when event_type=1 then time else null end) adopt,
-            max(case when event_type=2 then time else null end) foster_out,
+            max(case when event_type=1 then time else null end) * 1000 adopt,
+            max(case when event_type=2 then time else null end) * 1000 foster_out,
            --  max(case when event_type=3 then time else null end) rto,
-            max(case when event_type=5 then time else null end) foster_return
+            max(case when event_type=5 then time else null end) * 1000 foster_return
            
         from 
             sl_animal_events sla
@@ -32,7 +32,7 @@ def get_updated_contact_data():
     select json_agg (upd)  as "cd" from (
             select
             slsf.source_id as "Contact_Record_Id__c" ,  -- long salesforce string
-            slp.id   as  "Person_Id__c" ,           -- short PAWS-local shelterluv id
+            slp.internal_id   as  "Person_Id__c" ,           -- short PAWS-local shelterluv id
         
             --case
             --    when 
@@ -45,8 +45,8 @@ def get_updated_contact_data():
             foster_out as "Updated_Foster_Start_Date__c",
             foster_return as "Updated_Foster_End_Date__c",
 
-            extract(epoch from min(vs.from_date)) as "Updated_First_Volunteer_Date__c",
-            extract(epoch from max(vs.from_date)) as "Updated_Last_Volunteer_Date__c",
+            extract(epoch from min(vs.from_date)) * 1000 as "Updated_First_Volunteer_Date__c",
+            extract(epoch from max(vs.from_date)) * 1000 as "Updated_Last_Volunteer_Date__c",
             sum(vs.hours) as "Updated_Total_Volunteer_Hours__c",
             vc.source_id::integer as   "Volgistics_Id__c" 
             
@@ -63,7 +63,7 @@ def get_updated_contact_data():
 
         group by
             slsf.source_id,
-            slp.id,
+            slp.internal_id,
             vc.source_id,
             foster_out ,
             foster_return
