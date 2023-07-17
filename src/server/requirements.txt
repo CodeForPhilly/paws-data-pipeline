@@ -15,3 +15,8 @@ itsdangerous==2.0.1 # TODO: upgrade flask so we don't have to do this
 simple-salesforce
 werkzeug==2.0.3
 structlog
+pyjwt
+cryptography
+grpcio
+google-api-python-client
+avro
