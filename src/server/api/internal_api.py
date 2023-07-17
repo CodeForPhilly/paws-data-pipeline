@@ -5,7 +5,7 @@ from flask import jsonify
 
 from api.API_ingest import ingest_sources_from_api, salesforce_contacts
 from api.api import internal_api
-from rfm_funcs.create_scores import create_scores
+# from rfm_funcs.create_scores import create_scores
 from api.API_ingest import updated_data
 
 logger = structlog.get_logger()
@@ -37,12 +37,12 @@ def ingest_raw_data():
     return jsonify({'outcome': 'OK'}), 200
 
 
-@internal_api.route("/api/internal/create_scores", methods=["GET"])
-def hit_create_scores():
-    logger.info("Hitting create_scores() ")
-    tuple_count = create_scores()
-    logger.info("create_scores()  processed %s scores",  str(tuple_count) )
-    return jsonify(200)
+# @internal_api.route("/api/internal/create_scores", methods=["GET"])
+# def hit_create_scores():
+#     logger.info("Hitting create_scores() ")
+#     tuple_count = create_scores()
+#     logger.info("create_scores()  processed %s scores",  str(tuple_count) )
+#     return jsonify(200)
 
 
 @internal_api.route("/api/internal/get_updated_data", methods=["GET"])
