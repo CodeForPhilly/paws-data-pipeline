@@ -1,10 +1,6 @@
-numpy==1.22.0
 Flask==1.1.2
-pandas==1.3.2
-
 sqlalchemy==1.4.15 
 psycopg2-binary==2.9.1
-xlrd==1.2.0  # currently used for xlsx, but we should consider adjusting code to openpyxl for xlsx
 openpyxl
 requests
 pytest
