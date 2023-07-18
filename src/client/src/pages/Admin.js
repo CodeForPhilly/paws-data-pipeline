@@ -109,85 +109,86 @@ export default function Admin(props) {
             <Box display="flex" justifyContent="center" pb={3}>
                 <Typography variant={"h2"}>Admin Portal</Typography>
             </Box>
-            {isLoading === true ?
-                <Backdrop open={true}>
-                    <CircularProgress size={60}/>
-                </Backdrop> :
-                <Paper elevation={1} style={{"padding": "2em"}}>
-                    <Grid container item spacing={5} direction="row" style={{padding: 20}}>
-                        <Grid container item direction="column" spacing={3} sm={6}>
-                            <Grid item>
-                                <Paper>
-                                    <CardContent>
-                                        <Typography variant="h5">Upload Files</Typography>
-                                        <Typography variant="caption">Note: This upload feature now only accepts Volgistics data files. Other data is uploaded automatically.</Typography>
-                                        <form onSubmit={handleUpload}>
-                                            <input type="file" id="fileItemsID"
-                                                   value={filesInput}
-                                                   multiple
-                                            />
-                                            <Button 
-                                                type="submit" 
-                                                variant="contained" 
-                                                color="primary"
-                                            >
-                                                Upload
-                                            </Button>
-                                        </form>
-                                    </CardContent>
-                                </Paper>
-                            </Grid>
-                        </Grid>
-                        <Grid container item direction="column" spacing={3} sm={6}>
-                            <Grid item>
-                                <Paper style={{ padding: 5 }}>
-                                    <CardContent>
-                                        <Typography variant="h5" styles={{paddingBottom: 5}}>Run New Analysis</Typography>
-                                        <form onSubmit={handleExecute}>
-                                            <Button 
-                                                type="submit" 
-                                                variant="contained" 
-                                                color="primary"
-                                            >
-                                                Run Data Analysis
-                                            </Button>
-                                        </form>
-                                    </CardContent>
-                                </Paper>
-                            </Grid>
-                            {!_.isEmpty(statistics) && 
-                                <Grid item>
-                                    <TableContainer component={Paper} >
-                                        <Table aria-label="simple table">
-                                            <TableBody>
-                                                <TableRow key='time'>
-                                                    <TableCell align="left" component="th" scope="row">
-                                                        <b>Last Analysis</b>
-                                                    </TableCell>
-                                                    <TableCell align="left">
-                                                        <b>
-                                                            {moment(lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
-                                                        </b>
-                                                    </TableCell>
-                                                </TableRow>
-                                                {statistics.map((row, index) => (
-                                                    <TableRow key={index}>
-                                                        <TableCell align="left" component="th" scope="row">
-                                                            {row[0]}
-                                                        </TableCell>
-                                                        <TableCell align="left">{row[1]}</TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </TableContainer>
-                                </Grid>
-                            }
-                        </Grid>
-                    </Grid>
-                </Paper>
-            }
+            {isLoading === true
+                ?   <Backdrop open={true}>
+                        <CircularProgress size={60}/>
+                    </Backdrop> 
+                :   <Paper elevation={1} style={{"padding": "2em"}}>
+                        {statistics === 'Running' && <Alert severity="info">Execution is in Progress...</Alert>}
 
+                        <Grid container item spacing={5} direction="row" style={{padding: 20}}>
+                            <Grid container item direction="column" spacing={3} sm={6}>
+                                <Grid item>
+                                    <Paper>
+                                        <CardContent>
+                                            <Typography variant="h5">Upload Files</Typography>
+                                            <Typography variant="caption">Note: This upload feature now only accepts Volgistics data files. Other data is uploaded automatically.</Typography>
+                                            <form onSubmit={handleUpload}>
+                                                <input type="file" id="fileItemsID"
+                                                    value={filesInput}
+                                                    multiple
+                                                />
+                                                <Button 
+                                                    type="submit" 
+                                                    variant="contained" 
+                                                    color="primary"
+                                                >
+                                                    Upload
+                                                </Button>
+                                            </form>
+                                        </CardContent>
+                                    </Paper>
+                                </Grid>
+                            </Grid>
+                            <Grid container item direction="column" spacing={3} sm={6}>
+                                <Grid item>
+                                    <Paper style={{ padding: 5 }}>
+                                        <CardContent>
+                                            <Typography variant="h5" style={{ paddingBottom: 5 }}>Run New Analysis</Typography>
+                                            <form onSubmit={handleExecute}>
+                                                <Button 
+                                                    type="submit" 
+                                                    variant="contained" 
+                                                    color="primary"
+                                                >
+                                                    Run Data Analysis
+                                                </Button>
+                                            </form>
+                                        </CardContent>
+                                    </Paper>
+                                </Grid>
+                                {!_.isEmpty(statistics) && 
+                                    <Grid item>
+                                        <TableContainer component={Paper} >
+                                            <Table aria-label="simple table">
+                                                <TableBody>
+                                                    <TableRow key='time'>
+                                                        <TableCell align="left" component="th" scope="row">
+                                                            <b>Last Analysis</b>
+                                                        </TableCell>
+                                                        <TableCell align="left">
+                                                            <b>
+                                                                {moment(lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
+                                                            </b>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                    {statistics.map((row, index) => (
+                                                        <TableRow key={index}>
+                                                            <TableCell align="left" component="th" scope="row">
+                                                                {row[0]}
+                                                            </TableCell>
+                                                            <TableCell align="left">{row[1]}</TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                    </Grid>
+                                }
+                            </Grid>
+                        </Grid>
+                    </Paper>
+            }
         </Container>
     );
 }
