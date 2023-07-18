@@ -9,7 +9,6 @@ from api.api import internal_api
 
 from pipeline import flow_script
 from pub_sub import salesforce_message_publisher
-from rfm_funcs.create_scores import create_scores
 
 
 logger = structlog.get_logger()
@@ -39,14 +38,6 @@ def ingest_raw_data():
         logger.error(e)
 
     return jsonify({'outcome': 'OK'}), 200
-
-
-# @internal_api.route("/api/internal/create_scores", methods=["GET"])
-# def hit_create_scores():
-#     logger.info("Hitting create_scores() ")
-#     tuple_count = create_scores()
-#     logger.info("create_scores()  processed %s scores",  str(tuple_count) )
-#     return jsonify(200)
 
 
 @internal_api.route("/api/internal/get_updated_data", methods=["GET"])
