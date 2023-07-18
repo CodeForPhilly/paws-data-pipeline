@@ -2,7 +2,6 @@ import datetime
 import re
 from itertools import combinations
 
-import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy import (
     Boolean,
@@ -296,35 +295,35 @@ class Volgistics(Base):
     json = Column(JSONB)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
 
-    @classmethod
-    def insert_from_file(cls, xl_file, conn):
-        df = pd.read_excel(xl_file, sheet_name="Master")
+    # @classmethod
+    # def insert_from_file(cls, xl_file, conn):
+    #     df = pd.read_excel(xl_file, sheet_name="Master")
 
-        column_translation = get_source_column_translation(cls)
-        df = df[column_translation.keys()]
-        df = df.rename(columns=column_translation)
+    #     column_translation = get_source_column_translation(cls)
+    #     df = df[column_translation.keys()]
+    #     df = df.rename(columns=column_translation)
 
-        df["home"] = df["home"].apply(normalize_phone_number)
-        df["work"] = df["work"].apply(normalize_phone_number)
-        df["cell"] = df["cell"].apply(normalize_phone_number)
+    #     df["home"] = df["home"].apply(normalize_phone_number)
+    #     df["work"] = df["work"].apply(normalize_phone_number)
+    #     df["cell"] = df["cell"].apply(normalize_phone_number)
 
-        dedup_on = [col for col in cls.__table__.columns if col.name in df.columns]
-        df["created_date"] = datetime.datetime.utcnow()
-        df.to_sql(
-            cls.__tablename__,
-            conn,
-            if_exists="append",
-            index=False,
-        )
-        conn.execute(
-            dedup_consecutive(
-                cls.__table__,
-                unique_id=cls._id,
-                id=cls.number,
-                order_by=cls.created_date,
-                dedup_on=tuple_(*dedup_on),
-            )
-        )
+    #     dedup_on = [col for col in cls.__table__.columns if col.name in df.columns]
+    #     df["created_date"] = datetime.datetime.utcnow()
+    #     df.to_sql(
+    #         cls.__tablename__,
+    #         conn,
+    #         if_exists="append",
+    #         index=False,
+    #     )
+    #     conn.execute(
+    #         dedup_consecutive(
+    #             cls.__table__,
+    #             unique_id=cls._id,
+    #             id=cls.number,
+    #             order_by=cls.created_date,
+    #             dedup_on=tuple_(*dedup_on),
+    #         )
+    #     )
 
     @classmethod
     def insert_into_pdp_contacts(cls):
@@ -356,29 +355,29 @@ class ManualMatches(Base):
     source_type_2 = Column(String, primary_key=True)
     source_id_2 = Column(String, primary_key=True)
 
-    @classmethod
-    def insert_from_df(cls, df, conn):
-        # Our input csv has columns like "salesforcecontacts," "volgistics," and
-        # "shelterluvpeople," where two columns are non-null if there is an
-        # association between those two ids. We massage this table into one that
-        # is easier to join on.
+    # @classmethod
+    # def insert_from_df(cls, df, conn):
+    #     # Our input csv has columns like "salesforcecontacts," "volgistics," and
+    #     # "shelterluvpeople," where two columns are non-null if there is an
+    #     # association between those two ids. We massage this table into one that
+    #     # is easier to join on.
         
-        match_dicts = df.to_dict(orient="records")
+    #     match_dicts = df.to_dict(orient="records")
 
-        matched_pairs = []
-        for match in match_dicts:
-            non_nulls = {k: v for (k, v) in match.items() if not pd.isna(v)}
-            for ((st1, sid1), (st2, sid2)) in combinations(non_nulls.items(), 2):
-                matched_pairs.append(
-                    {
-                        "source_type_1": st1,
-                        "source_id_1": sid1,
-                        "source_type_2": st2,
-                        "source_id_2": sid2,
-                    }
-                )
+    #     matched_pairs = []
+    #     for match in match_dicts:
+    #         non_nulls = {k: v for (k, v) in match.items() if not pd.isna(v)}
+    #         for ((st1, sid1), (st2, sid2)) in combinations(non_nulls.items(), 2):
+    #             matched_pairs.append(
+    #                 {
+    #                     "source_type_1": st1,
+    #                     "source_id_1": sid1,
+    #                     "source_type_2": st2,
+    #                     "source_id_2": sid2,
+    #                 }
+    #             )
 
-        conn.execute(insert(cls).values(matched_pairs).on_conflict_do_nothing())
+    #     conn.execute(insert(cls).values(matched_pairs).on_conflict_do_nothing())
 
 class SalesforceDonations(Base):
     __tablename__ = "salesforcedonations"
