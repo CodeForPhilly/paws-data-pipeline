@@ -40,14 +40,6 @@ def ingest_raw_data():
     return jsonify({'outcome': 'OK'}), 200
 
 
-# @internal_api.route("/api/internal/create_scores", methods=["GET"])
-# def hit_create_scores():
-#     logger.info("Hitting create_scores() ")
-#     tuple_count = create_scores()
-#     logger.info("create_scores()  processed %s scores",  str(tuple_count) )
-#     return jsonify(200)
-
-
 @internal_api.route("/api/internal/get_updated_data", methods=["GET"])
 def get_contact_data():
     logger.debug("Calling  get_updated_contact_data()")
