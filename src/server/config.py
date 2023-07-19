@@ -17,7 +17,7 @@ shared_processors=[
         structlog.processors.add_log_level,
         structlog.processors.StackInfoRenderer(),
         structlog.dev.set_exc_info,
-        structlog.processors.TimeStamper(fmt="iso", utc=True ),
+        structlog.processors.TimeStamper(fmt=None, utc=True ),
         structlog.processors.CallsiteParameterAdder(
             [
                 CallsiteParameter.FILENAME,
