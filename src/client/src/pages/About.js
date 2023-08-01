@@ -18,6 +18,13 @@ const DEVELOPERS = [
     "Andrew Bishop",
     "Akshat Vas",
     "Dan Kelley",
+    "Osman Sabahat",
+    "Stephen Carroll",
+    "Diego Delgado",
+    "Carlos Dominguez",
+    "Benjamin Deck",
+    "Sam Lufi",
+    "Ruthie Fields",
 ]
 
 const PROJECT_MANAGERS = [
@@ -37,7 +44,8 @@ const EXTERNAL_COLLABORATORS = [
     "Tan Tan Chen",
     "Faith Benamy",
     "Jesse",
-    "Chris Alfano"
+    "Chris Alfano",
+    "Josephine Dru",
 ]
 
 const SUPPORTERS = [
@@ -89,7 +97,7 @@ export default function About() {
                 </Grid>
                 <Grid item>
                     <Typography>{_.size(DEVELOPERS) + _.size(PROJECT_MANAGERS) + _.size(PROJECT_LEADS) + _.size(EXTERNAL_COLLABORATORS)} individuals and {_.size(SUPPORTERS)} organisations supported and contributed to the PDP between
-                        2019/11/24 and 2021/05/01:</Typography>
+                        2019/11/24 and 2023/06/13:</Typography>
                 </Grid>
                 <Grid item>
                     <Typography variant={"h3"}>Developers</Typography>

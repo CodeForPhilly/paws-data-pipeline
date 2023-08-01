@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update
 
-RUN apt-get install -y python3-dev uwsgi uwsgi-src libcap-dev uwsgi-plugin-python3
+RUN apt-get install -y python3-dev uwsgi uwsgi-src libcap-dev uwsgi-plugin-python3 libpcre3-dev
 RUN pip install --upgrade pip
 
 COPY requirements.txt /
@@ -23,7 +23,7 @@ RUN chmod 666 /usr/lib/uwsgi/plugins/python310_plugin.so
 
 COPY . .
 
-RUN mkdir /app/static \
+RUN mkdir -p /app/static \
     /app/static/raw_data \
     /app/static/logs \
     /app/static/zipped

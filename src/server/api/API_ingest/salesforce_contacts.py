@@ -11,6 +11,10 @@ logger = structlog.get_logger()
 
 TEST_MODE = os.getenv("TEST_MODE")  # if not present, has value None
 
+DOMAIN = os.getenv("SALESFORCE_DOMAIN")
+CONSUMER_KEY = os.getenv('SALESFORCE_CONSUMER_KEY')
+USERNAME = os.getenv('SALESFORCE_USERNAME')
+
 def store_contacts_all():
     Session = sessionmaker(engine)
     with Session() as session:
@@ -28,8 +32,8 @@ def store_contacts_all():
             logger.error("Missing salesforce jwt private key pem file, skipping data pull")
             return
 
-        sf = Salesforce(username=os.getenv('SALESFORCE_USERNAME'), consumer_key=os.getenv('SALESFORCE_CONSUMER_KEY'),
-                        privatekey_file=pem_file)
+        sf = Salesforce(username=USERNAME, consumer_key=CONSUMER_KEY,
+                        privatekey_file=pem_file, domain=DOMAIN)
         results = sf.query("SELECT Contact_ID_18__c, FirstName, LastName, Contact.Account.Name, MailingCountry, MailingStreet, MailingCity, MailingState, MailingPostalCode, Phone, MobilePhone, Email FROM Contact")
         logger.debug("%d total Salesforce contact records", results['totalSize'])
         if TEST_MODE:
@@ -61,4 +65,4 @@ def store_contacts_all():
                 results = sf.query_more(results['nextRecordsUrl'], True)
         logger.debug("Committing downloaded contact records")
         session.commit()
-    logger.debug("finished downloading latest salesforce contacts data")
+    logger.info("finished downloading latest salesforce contacts data")

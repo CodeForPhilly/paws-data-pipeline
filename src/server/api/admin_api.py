@@ -231,6 +231,26 @@ def start_job():
         return job_id
 
 
+@admin_api.route("/api/get_last_runs", methods=["GET"])
+#@jwt_ops.admin_required
+def get_run_logs():
+    """ Get the timestamps of the last update runs"""
+
+    with engine.connect() as connection:
+        q = text("""select keycol,valcol from kv_unique where keycol like '%_update'; """)
+        result = connection.execute(q)
+
+        if result.rowcount > 0:
+           rows = result.fetchall()
+
+        row_list = []
+
+        for row in rows:
+            row_dict = row._mapping 
+            row_list.append({row_dict['keycol'] : row_dict['valcol']})
+
+        return jsonify(row_list)
+
 
 def insert_rfm_scores(score_list):
     """Take a list of (matching_id, score) and insert into the
