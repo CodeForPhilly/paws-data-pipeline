@@ -104,3 +104,16 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+jobs:
+  - name: minute-cron
+    concurrencyPolicy: Forbid
+    schedule: "*/1 * * * *"
+    image: curlimages/curl
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/bash"]
+
+    args:
+    - "-c"
+    - "curl http://paws-compose-server:5000/api/internal/test"
+    restartPolicy: OnFailure
