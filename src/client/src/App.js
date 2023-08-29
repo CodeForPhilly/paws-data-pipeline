@@ -7,7 +7,7 @@ import Header from "./components/Header";
 import Login from './pages/Login/Login';
 import Logout from './pages/Login/Logout';
 import HomePage from './pages/Home';
-import Admin from './pages/Admin';
+import Admin from './pages/Admin/Admin';
 import {Search360} from './pages/DataView360/Search/Search';
 import View360 from './pages/DataView360/View/View360';
 import About from './pages/About';

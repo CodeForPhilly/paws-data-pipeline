@@ -21,7 +21,7 @@ import moment from "moment-timezone";
 import {Alert} from "@material-ui/lab";
 import Box from "@material-ui/core/Box";
 import {makeStyles} from "@material-ui/styles";
-import { formatTimestamp, formatUploadType } from '../utils/utils';
+import { formatTimestamp, formatUploadType } from '../../utils/utils';
 
 const useStyles = makeStyles({});
 
