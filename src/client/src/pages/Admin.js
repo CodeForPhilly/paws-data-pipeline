@@ -149,13 +149,25 @@ export default function Admin(props) {
                                                 </Button>
                                             </form>
                                         </CardContent>
-                                        {_.isEmpty(lastUploads) === false &&
+                                        {!_.isEmpty(lastUploads) &&
                                             <Grid item>
                                                 <Divider />
                                                 <Grid item>
                                                     <TableContainer>
                                                         <Table aria-label="simple table">
                                                             <TableBody>
+                                                                <TableRow key="upload-header">
+                                                                    <TableCell align="left" component="th" scope="row">
+                                                                        <b>
+                                                                            Upload Type
+                                                                        </b>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <b>
+                                                                            Last Execution
+                                                                        </b>
+                                                                    </TableCell>
+                                                                </TableRow>
                                                                 {_.map(lastUploads, (row, index) => (
                                                                     <TableRow key={`last_run_${index}`}>
                                                                         <TableCell align="left" component="th" scope="row">

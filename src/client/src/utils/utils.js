@@ -32,11 +32,11 @@ export function formatTimestamp(timestamp) {
 export function formatUploadType(data) {
     switch (data) {
         case 'last_volgistics_update':
-            return 'Last Volgistics update:';
+            return 'Volgistics';
         case 'last_shelterluv_update':
-            return 'Last Shelterluv update:';
+            return 'Shelterluv';
         case 'last_salesforce_update':
-            return 'Last Salesforce update:';
+            return 'Salesforce';
         default:
             break;
     }
