@@ -2,21 +2,18 @@ import React from 'react';
 import {
     Grid,
     Paper,
-    Button,
     Backdrop,
     CircularProgress,
-    CardContent,
     Container,
     Typography,
 } from "@material-ui/core";
 
 import _ from 'lodash';
-import moment from "moment-timezone";
 import {Alert} from "@material-ui/lab";
 import Box from "@material-ui/core/Box";
 import {makeStyles} from "@material-ui/styles";
-import UploadsTable from './Components/UploadsTable';
-import AnalysisTable from './Components/AnalysisTable';
+import UploadBox from './Components/UploadBox';
+import AnalysisBox from './Components/AnalysisBox';
 
 const useStyles = makeStyles({});
 
@@ -124,53 +121,8 @@ export default function Admin(props) {
                     {statistics === 'Running' && <Alert severity="info">Execution is in Progress...</Alert>}
 
                         <Grid container item spacing={5} direction="row" style={{padding: 20}}>
-                            <Grid container item direction="column" spacing={3} sm={6}>
-                                <Grid item>
-                                    <Paper>
-                                        <CardContent>
-                                            <Typography variant="h5">Upload Files</Typography>
-                                            <Typography variant="caption">Note: This upload feature now only accepts Volgistics data files. Other data is uploaded automatically.</Typography>
-                                            <form onSubmit={handleUpload}>
-                                                <input type="file" id="fileItemsID"
-                                                    value={filesInput}
-                                                    multiple
-                                                />
-                                                <Button 
-                                                    type="submit" 
-                                                    variant="contained" 
-                                                    color="primary"
-                                                >
-                                                    Upload
-                                                </Button>
-                                            </form>
-                                        </CardContent>
-                                        {!_.isEmpty(lastUploads) &&
-                                            <UploadsTable tableData={lastUploads} />
-                                        }
-                                    </Paper>
-                                </Grid>
-                            </Grid>
-                            <Grid container item direction="column" spacing={3} sm={6}>
-                                <Grid item>
-                                    <Paper>
-                                        <CardContent>
-                                            <Typography variant="h5" style={{ paddingBottom: 5 }}>Run New Analysis</Typography>
-                                            <form onSubmit={handleExecute}>
-                                                <Button 
-                                                    type="submit" 
-                                                    variant="contained" 
-                                                    color="primary"
-                                                >
-                                                    Run Data Analysis
-                                                </Button>
-                                            </form>
-                                        </CardContent>
-                                        {!_.isEmpty(statistics) && 
-                                            <AnalysisTable lastExecution={lastExecution} tableData={statistics} />
-                                        }
-                                    </Paper>
-                                </Grid>
-                            </Grid>
+                            <UploadBox filesInput={filesInput} handleUpload={handleUpload} lastUploads={lastUploads} />
+                            <AnalysisBox handleExecute={handleExecute} lastExecution={lastExecution} statistics={statistics} />
                         </Grid>
                     </Paper>
             }
