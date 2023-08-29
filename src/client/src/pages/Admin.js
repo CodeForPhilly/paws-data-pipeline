@@ -149,7 +149,7 @@ export default function Admin(props) {
                                                 </Button>
                                             </form>
                                         </CardContent>
-                                        {_.isEmpty(lastUploads) === false && 
+                                        {_.isEmpty(lastUploads) === false &&
                                             <Grid>
                                                 <Grid item>
                                                     <Divider />
@@ -179,7 +179,7 @@ export default function Admin(props) {
                             </Grid>
                             <Grid container item direction="column" spacing={3} sm={6}>
                                 <Grid item>
-                                    <Paper style={{ padding: 5 }}>
+                                    <Paper>
                                         <CardContent>
                                             <Typography variant="h5" style={{ paddingBottom: 5 }}>Run New Analysis</Typography>
                                             <form onSubmit={handleExecute}>
@@ -192,36 +192,35 @@ export default function Admin(props) {
                                                 </Button>
                                             </form>
                                         </CardContent>
+                                        {!_.isEmpty(statistics) && 
+                                            <Grid item>
+                                                <Divider />
+                                                <Table aria-label="simple table">
+                                                    <TableBody>
+                                                        <TableRow key='time'>
+                                                            <TableCell align="left" component="th" scope="row">
+                                                                <b>Last Analysis</b>
+                                                            </TableCell>
+                                                            <TableCell align="left">
+                                                                <b>
+                                                                    {moment(lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
+                                                                </b>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                        {statistics.map((row, index) => (
+                                                            <TableRow key={index}>
+                                                                <TableCell align="left" component="th" scope="row">
+                                                                    {row[0]}
+                                                                </TableCell>
+                                                                <TableCell align="left">{row[1]}</TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </TableBody>
+                                                </Table>
+                                            </Grid>
+                                        }
                                     </Paper>
                                 </Grid>
-                                {!_.isEmpty(statistics) && 
-                                    <Grid item>
-                                        <TableContainer component={Paper} >
-                                            <Table aria-label="simple table">
-                                                <TableBody>
-                                                    <TableRow key='time'>
-                                                        <TableCell align="left" component="th" scope="row">
-                                                            <b>Last Analysis</b>
-                                                        </TableCell>
-                                                        <TableCell align="left">
-                                                            <b>
-                                                                {moment(lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
-                                                            </b>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                    {statistics.map((row, index) => (
-                                                        <TableRow key={index}>
-                                                            <TableCell align="left" component="th" scope="row">
-                                                                {row[0]}
-                                                            </TableCell>
-                                                            <TableCell align="left">{row[1]}</TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </TableContainer>
-                                    </Grid>
-                                }
                             </Grid>
                         </Grid>
                     </Paper>
