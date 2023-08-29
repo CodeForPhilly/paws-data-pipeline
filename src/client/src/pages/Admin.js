@@ -27,7 +27,7 @@ export default function Admin(props) {
     const [statistics, setStatistics] = React.useState(undefined);
     const [filesInput, setFilesInput] = React.useState(undefined);
     const [lastExecution, setLastExecution] = React.useState(undefined);
-
+    const [lastUploads, setLastUploads] = React.useState(undefined);
 
     React.useEffect(() => {
         (async () => {
@@ -45,12 +45,21 @@ export default function Admin(props) {
                     'Authorization': 'Bearer ' + props.access_token
                 }
             });
-        const statsResponse = await statsData.json()
-
+        const statsResponse = await statsData.json();
         handleGetStatistics(statsResponse);
 
+        const lastUploads = await fetch("/api/get_last_runs",
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + props.access_token,
+                },
+            });
+        const lastUploadsResponse = await lastUploads.json();
+        setLastUploads(lastUploadsResponse);
+
         setIsLoading(false);
-    }
+    };
 
     const handleUpload = async (event) => {
         event.preventDefault();
@@ -92,7 +101,7 @@ export default function Admin(props) {
             });
 
         await refreshPage();
-    }
+    };
 
     const handleGetStatistics = (statsResponse) => {
         if (statsResponse !== 'executing') {
@@ -102,7 +111,7 @@ export default function Admin(props) {
         } else {
             setStatistics(statsResponse);
         }
-    }
+    };
 
     return (
         <Container>
