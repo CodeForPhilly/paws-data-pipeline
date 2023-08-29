@@ -9,6 +9,7 @@ import {
 } from "@material-ui/core";
 import moment from "moment-timezone";
 import _ from "lodash";
+import { formatTimestamp } from "../../../utils/utils";
 
 export default function AnalysisTable(props) {
     const { tableData, lastExecution } = props;
@@ -24,12 +25,7 @@ export default function AnalysisTable(props) {
                         </TableCell>
                         <TableCell align="left">
                             <b>
-                                {moment(
-                                    lastExecution,
-                                    "dddd MMMM Do h:mm:ss YYYY"
-                                )
-                                    .local()
-                                    .format("MMMM Do YYYY, h:mm:ss a")}
+                                {formatTimestamp(lastExecution)}
                             </b>
                         </TableCell>
                     </TableRow>
