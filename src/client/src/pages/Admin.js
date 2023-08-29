@@ -19,6 +19,7 @@ import moment from "moment-timezone";
 import {Alert} from "@material-ui/lab";
 import Box from "@material-ui/core/Box";
 import {makeStyles} from "@material-ui/styles";
+import { formatTimestamp, formatUploadType } from '../utils/utils';
 
 const useStyles = makeStyles({});
 
@@ -147,6 +148,24 @@ export default function Admin(props) {
                                             </form>
                                         </CardContent>
                                     </Paper>
+                                    <Grid item>
+                                        <TableContainer>
+                                            <Table aria-label="simple table">
+                                                <TableBody>
+                                                    {_.map(lastUploads, (row, index) => (
+                                                        <TableRow key={`last_run_${index}`}>
+                                                            <TableCell align="left" component="th" scope="row">
+                                                                {formatUploadType(Object.keys(row)[0])}
+                                                            </TableCell>
+                                                            <TableCell align="left" component="th" scope="row">
+                                                                {formatTimestamp(Object.values(row)[0])}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
+                                    </Grid>
                                 </Grid>
                             </Grid>
                             <Grid container item direction="column" spacing={3} sm={6}>
