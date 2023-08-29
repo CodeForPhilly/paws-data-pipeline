@@ -6,14 +6,8 @@ import {
     Backdrop,
     CircularProgress,
     CardContent,
-    TableRow,
-    TableContainer,
-    TableCell,
-    TableBody,
-    Table,
     Container,
     Typography,
-    Divider
 } from "@material-ui/core";
 
 import _ from 'lodash';
@@ -21,7 +15,8 @@ import moment from "moment-timezone";
 import {Alert} from "@material-ui/lab";
 import Box from "@material-ui/core/Box";
 import {makeStyles} from "@material-ui/styles";
-import { formatTimestamp, formatUploadType } from '../../utils/utils';
+import UploadsTable from './Components/UploadsTable';
+import AnalysisTable from './Components/AnalysisTable';
 
 const useStyles = makeStyles({});
 
@@ -150,39 +145,7 @@ export default function Admin(props) {
                                             </form>
                                         </CardContent>
                                         {!_.isEmpty(lastUploads) &&
-                                            <Grid item>
-                                                <Divider />
-                                                <Grid item>
-                                                    <TableContainer>
-                                                        <Table aria-label="simple table">
-                                                            <TableBody>
-                                                                <TableRow key="upload-header">
-                                                                    <TableCell align="left" component="th" scope="row">
-                                                                        <b>
-                                                                            Upload Type
-                                                                        </b>
-                                                                    </TableCell>
-                                                                    <TableCell>
-                                                                        <b>
-                                                                            Last Execution
-                                                                        </b>
-                                                                    </TableCell>
-                                                                </TableRow>
-                                                                {_.map(lastUploads, (row, index) => (
-                                                                    <TableRow key={`last_run_${index}`}>
-                                                                        <TableCell align="left" component="th" scope="row">
-                                                                            {formatUploadType(Object.keys(row)[0])}
-                                                                        </TableCell>
-                                                                        <TableCell align="left" component="th" scope="row">
-                                                                            {formatTimestamp(Object.values(row)[0])}
-                                                                        </TableCell>
-                                                                    </TableRow>
-                                                                ))}
-                                                            </TableBody>
-                                                        </Table>
-                                                    </TableContainer>
-                                                </Grid>
-                                            </Grid>
+                                            <UploadsTable tableData={lastUploads} />
                                         }
                                     </Paper>
                                 </Grid>
@@ -203,31 +166,7 @@ export default function Admin(props) {
                                             </form>
                                         </CardContent>
                                         {!_.isEmpty(statistics) && 
-                                            <Grid item>
-                                                <Divider />
-                                                <Table aria-label="simple table">
-                                                    <TableBody>
-                                                        <TableRow key='time'>
-                                                            <TableCell align="left" component="th" scope="row">
-                                                                <b>Last Analysis</b>
-                                                            </TableCell>
-                                                            <TableCell align="left">
-                                                                <b>
-                                                                    {moment(lastExecution, "dddd MMMM Do h:mm:ss YYYY").local().format("MMMM Do YYYY, h:mm:ss a")}
-                                                                </b>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                        {statistics.map((row, index) => (
-                                                            <TableRow key={index}>
-                                                                <TableCell align="left" component="th" scope="row">
-                                                                    {row[0]}
-                                                                </TableCell>
-                                                                <TableCell align="left">{row[1]}</TableCell>
-                                                            </TableRow>
-                                                        ))}
-                                                    </TableBody>
-                                                </Table>
-                                            </Grid>
+                                            <AnalysisTable lastExecution={lastExecution} tableData={statistics} />
                                         }
                                     </Paper>
                                 </Grid>
