@@ -150,10 +150,8 @@ export default function Admin(props) {
                                             </form>
                                         </CardContent>
                                         {_.isEmpty(lastUploads) === false &&
-                                            <Grid>
-                                                <Grid item>
-                                                    <Divider />
-                                                </Grid>
+                                            <Grid item>
+                                                <Divider />
                                                 <Grid item>
                                                     <TableContainer>
                                                         <Table aria-label="simple table">
