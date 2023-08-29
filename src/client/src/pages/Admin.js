@@ -15,7 +15,7 @@ import {
 } from "@material-ui/core";
 
 import _ from 'lodash';
-import moment from "moment";
+import moment from "moment-timezone";
 import {Alert} from "@material-ui/lab";
 import Box from "@material-ui/core/Box";
 import {makeStyles} from "@material-ui/styles";

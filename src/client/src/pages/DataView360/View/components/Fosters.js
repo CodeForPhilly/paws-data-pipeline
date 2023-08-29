@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 import LinkIcon from '@material-ui/icons/Link';
 import _ from 'lodash';
-import moment from "moment";
+import moment from "moment-timezone";
 import Grid from "@material-ui/core/Grid";
 import PetsIcon from "@material-ui/icons/Pets";
 

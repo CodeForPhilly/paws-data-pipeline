@@ -13,7 +13,6 @@ import {
 } from '@material-ui/core';
 
 import _ from 'lodash';
-import moment from 'moment';
 import Adoptions from './components/Adoptions';
 import ContactInfo from './components/ContactInfo';
 import Donations from './components/Donations';
