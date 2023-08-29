@@ -3,7 +3,6 @@ import {
     Grid,
     Paper,
     Button,
-    TableHead,
     Backdrop,
     CircularProgress,
     CardContent,
@@ -11,7 +10,10 @@ import {
     TableContainer,
     TableCell,
     TableBody,
-    Table, Container, Typography
+    Table,
+    Container,
+    Typography,
+    Divider
 } from "@material-ui/core";
 
 import _ from 'lodash';
@@ -147,25 +149,32 @@ export default function Admin(props) {
                                                 </Button>
                                             </form>
                                         </CardContent>
+                                        {_.isEmpty(lastUploads) === false && 
+                                            <Grid>
+                                                <Grid item>
+                                                    <Divider />
+                                                </Grid>
+                                                <Grid item>
+                                                    <TableContainer>
+                                                        <Table aria-label="simple table">
+                                                            <TableBody>
+                                                                {_.map(lastUploads, (row, index) => (
+                                                                    <TableRow key={`last_run_${index}`}>
+                                                                        <TableCell align="left" component="th" scope="row">
+                                                                            {formatUploadType(Object.keys(row)[0])}
+                                                                        </TableCell>
+                                                                        <TableCell align="left" component="th" scope="row">
+                                                                            {formatTimestamp(Object.values(row)[0])}
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                ))}
+                                                            </TableBody>
+                                                        </Table>
+                                                    </TableContainer>
+                                                </Grid>
+                                            </Grid>
+                                        }
                                     </Paper>
-                                    <Grid item>
-                                        <TableContainer>
-                                            <Table aria-label="simple table">
-                                                <TableBody>
-                                                    {_.map(lastUploads, (row, index) => (
-                                                        <TableRow key={`last_run_${index}`}>
-                                                            <TableCell align="left" component="th" scope="row">
-                                                                {formatUploadType(Object.keys(row)[0])}
-                                                            </TableCell>
-                                                            <TableCell align="left" component="th" scope="row">
-                                                                {formatTimestamp(Object.values(row)[0])}
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </TableContainer>
-                                    </Grid>
                                 </Grid>
                             </Grid>
                             <Grid container item direction="column" spacing={3} sm={6}>
