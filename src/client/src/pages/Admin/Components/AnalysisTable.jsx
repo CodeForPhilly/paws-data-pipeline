@@ -7,7 +7,6 @@ import {
     Table,
     Divider,
 } from "@material-ui/core";
-import moment from "moment-timezone";
 import _ from "lodash";
 import { formatTimestamp } from "../../../utils/utils";
 
