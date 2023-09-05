@@ -54,6 +54,7 @@ def get_updated_contact_data():
             from volgisticsshifts
             group by volg_id
         ) vol on vol.volg_id::text = vc.source_id
+        where sl.matching_id is not null or vc.matching_id is not null
     ) upd;
     """
 
