@@ -119,11 +119,15 @@ export default function Admin(props) {
                     </Backdrop> 
                 :   <Paper elevation={1} style={{"padding": "2em"}}>
                     {statistics === 'Running' && <Alert severity="info">Execution is in Progress...</Alert>}
-
-                        <Grid container item spacing={5} direction="row" style={{padding: 20}}>
+                        <Box
+                            display="flex"
+                            justifyContent="space-between"
+                            flexDirection="row"
+                            style={{ padding: 20 }}
+                        >
                             <UploadBox filesInput={filesInput} handleUpload={handleUpload} lastUploads={lastUploads} />
                             <AnalysisBox handleExecute={handleExecute} lastExecution={lastExecution} statistics={statistics} />
-                        </Grid>
+                        </Box>
                     </Paper>
             }
         </Container>
