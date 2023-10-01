@@ -16,18 +16,18 @@ def get_updated_contact_data():
         select
         sf.source_id as "Id" ,  -- long salesforce string
         sle.person_id   as  "Person_Id__c",           -- short PAWS-local shelterluv id
-        --case
-        --    when
-        --        (extract(epoch from now())::bigint - foster_out < 365*86400)  -- foster out in last year
-        --        or (extract(epoch from now())::bigint - foster_return < 365*86400) -- foster return
-        --    then 'Active'
-        --    else 'Inactive'
-        --end  as "Updated_Recent_Foster_Activity__c",
-        foster_out as "Updated_Foster_Start_Date__c",
-        foster_return as "Updated_Foster_End_Date__c",
-        vol.first_date "Updated_First_Volunteer_Date__c",
-        vol.last_date "Updated_Last_Volunteer_Date__c",
-        vol.hours as "Updated_Total_Volunteer_Hours__c",
+        case
+            when
+                (extract(epoch from now())::bigint - foster_out < 365*86400)  -- foster out in last year
+                or (extract(epoch from now())::bigint - foster_return < 365*86400) -- foster return
+            then 'Active'
+            else 'Inactive'
+        end  as "Foster_Activity__c",
+        foster_out as "Foster_Start_Date__c",
+        foster_return as "Foster_End_Date__c",
+        vol.first_date "First_volunteer_date__c",
+        vol.last_date "Last_volunteer_date__c",
+        vol.hours as "Total_volunteer_hours__c",
         vc.source_id::integer as   "Volgistics_Id__c"
         from (
             select source_id, matching_id from pdp_contacts sf
