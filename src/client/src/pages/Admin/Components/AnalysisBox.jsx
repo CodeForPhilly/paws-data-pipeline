@@ -13,7 +13,7 @@ export default function AnalysisBox(props) {
     const { handleExecute, lastExecution, statistics } = props;
 
     return (
-        <Grid container item direction="column" spacing={3} sm={6}>
+        <Grid item direction="column" spacing={3} sm={6}>
             <Paper>
                 <CardContent>
                     <Typography variant="h5" style={{ paddingBottom: 5 }}>

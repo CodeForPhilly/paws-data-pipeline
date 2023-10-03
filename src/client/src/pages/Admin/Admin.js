@@ -118,16 +118,11 @@ export default function Admin(props) {
                         <CircularProgress size={60}/>
                     </Backdrop> 
                 :   <Paper elevation={1} style={{"padding": "2em"}}>
-                    {statistics === 'Running' && <Alert severity="info">Execution is in Progress...</Alert>}
-                        <Box
-                            display="flex"
-                            justifyContent="space-between"
-                            flexDirection="row"
-                            style={{ padding: 20 }}
-                        >
+                        {statistics === 'Running' && <Alert severity="info">Execution is in Progress...</Alert>}
+                        <Grid container spacing={5} direction="row">
                             <UploadBox filesInput={filesInput} handleUpload={handleUpload} lastUploads={lastUploads} />
                             <AnalysisBox handleExecute={handleExecute} lastExecution={lastExecution} statistics={statistics} />
-                        </Box>
+                        </Grid>
                     </Paper>
             }
         </Container>
