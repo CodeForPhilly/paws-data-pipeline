@@ -17,13 +17,12 @@ logger = structlog.get_logger()
 ISSUER = os.getenv("SALESFORCE_CONSUMER_KEY")
 DOMAIN = os.getenv("SALESFORCE_DOMAIN")
 SUBJECT = os.getenv("SALESFORCE_USERNAME")
+CREATOR_CONTACT_ID = os.getenv("CREATOR_CONTACT_ID")
 INSTANCE_URL = os.getenv("INSTANCE_URL")
 TENANT_ID = os.getenv("TENANT_ID")
-PLATFORM_MESSAGE_AUTHOR = os.getenv("PLATFORM_MESSAGE_AUTHOR_RECORD_ID")
+BATCH_SIZE = os.getenv("BATCH_SIZE", 400)
 
 UPDATE_TOPIC = "/event/updated_contacts_batched__e"
-BATCH_SIZE = 200
-
 
 def send_pipeline_update_messages(contacts_list):
     pem_file = 'bin/connected-app-secrets.pem'
@@ -71,9 +70,8 @@ def send_pipeline_update_messages(contacts_list):
             root_object = {
                 "updatedContactsJson" : current_batch
             }
-
             message = {
-                "CreatedById": "0052g000003G926AAC",
+                "CreatedById": CREATOR_CONTACT_ID,
                 "CreatedDate": int(datetime.now().timestamp()),
                 "updated_contacts_json__c": json.dumps(root_object)
             }
