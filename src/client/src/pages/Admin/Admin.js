@@ -1,19 +1,18 @@
 import React from 'react';
 import {
+    Box,
     Grid,
     Paper,
-    Backdrop,
-    CircularProgress,
     Container,
     Typography,
 } from "@material-ui/core";
 
 import _ from 'lodash';
 import {Alert} from "@material-ui/lab";
-import Box from "@material-ui/core/Box";
 import {makeStyles} from "@material-ui/styles";
 import UploadBox from './Components/UploadBox';
 import AnalysisBox from './Components/AnalysisBox';
+import Loading from './Components/Loading';
 
 const useStyles = makeStyles({});
 
@@ -23,6 +22,7 @@ export default function Admin(props) {
     const [filesInput, setFilesInput] = React.useState(undefined);
     const [lastExecution, setLastExecution] = React.useState(undefined);
     const [lastUploads, setLastUploads] = React.useState(undefined);
+    const [loadingText, setLoadingText] = React.useState("");
 
     React.useEffect(() => {
         (async () => {
@@ -53,6 +53,7 @@ export default function Admin(props) {
         const lastUploadsResponse = await lastUploads.json();
         setLastUploads(lastUploadsResponse);
 
+        setLoadingText("");
         setIsLoading(false);
     };
 
@@ -84,7 +85,7 @@ export default function Admin(props) {
 
     const handleExecute = async (event) => {
         event.preventDefault();
-
+        setLoadingText("This may take a few minutes")
         setIsLoading(true);
 
         await fetch('/api/execute',
@@ -114,9 +115,7 @@ export default function Admin(props) {
                 <Typography variant={"h2"}>Admin Portal</Typography>
             </Box>
             {isLoading === true
-                ?   <Backdrop open={true}>
-                        <CircularProgress size={60}/>
-                    </Backdrop> 
+                ?   <Loading text={loadingText} />
                 :   <Paper elevation={1} style={{"padding": "2em"}}>
                         {statistics === 'Running' && <Alert severity="info">Execution is in Progress...</Alert>}
                         <Grid container spacing={5} direction="row" style={{ padding: 16 }}>
