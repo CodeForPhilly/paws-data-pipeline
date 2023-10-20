@@ -9,13 +9,10 @@ import {
 
 import _ from 'lodash';
 import {Alert} from "@material-ui/lab";
-import {makeStyles} from "@material-ui/styles";
 import UploadBox from './Components/UploadBox';
 import AnalysisBox from './Components/AnalysisBox';
 import Loading from './Components/Loading';
 import useAlert from '../../hooks/useAlert';
-
-const useStyles = makeStyles({});
 
 export default function Admin(props) {
     const [isLoading, setIsLoading] = React.useState(undefined);
@@ -82,7 +79,7 @@ export default function Admin(props) {
 
             setAlert({
                 type: "success",
-                text: `${files.length == 1 ? "1 file" : files.length + " files"} uploaded successfully`,
+                text: `${files.length === 1 ? "1 file" : files.length + " files"} uploaded successfully`,
             });
         } catch (error) {
             console.warn(error);

@@ -56,11 +56,11 @@ export default function UserManagement(props) {
         setDialogOpen(true);
     }
 
-    const closeDialog = () => {
+    const closeDialog = React.useCallback(() => {
         setDialogOpen(false);
         setDialogType(null);
         setSelectedUser(null);
-    }
+    }, [setDialogOpen, setDialogType, setSelectedUser])
 
     React.useEffect(() => {
         const handleEscape = (event) => {

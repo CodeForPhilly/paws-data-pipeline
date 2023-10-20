@@ -7,7 +7,6 @@ import {
     Table,
     Divider,
 } from "@material-ui/core";
-import _ from "lodash";
 import { formatTimestamp } from "../../../utils/utils";
 
 export default function AnalysisTable(props) {

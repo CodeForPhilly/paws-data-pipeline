@@ -13,7 +13,7 @@ export default function UploadBox(props) {
     const { filesInput, handleUpload, lastUploads } = props;
 
     return (
-        <Grid item direction="column" spacing={3} sm={6}>
+        <Grid item sm={6}>
             <Paper>
                 <CardContent>
                     <Typography variant="h5">Upload Files</Typography>

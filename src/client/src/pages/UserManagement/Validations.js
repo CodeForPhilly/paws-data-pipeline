@@ -13,7 +13,7 @@ export const buildNameValidation = () => {
         .trim()
         .min(2, "Name must be at least 2 characters")
         .max(50, "Name cannot be more than 50 characters")
-        .matches(/^(?!.*  )[a-zA-Z ]+$/, "Name must only contain letters and non-consecutive internal spaces")
+        .matches(/^(?!.* )[a-zA-Z ]+$/, "Name must only contain letters and non-consecutive internal spaces")
         .required("Name is required")
 }
 
