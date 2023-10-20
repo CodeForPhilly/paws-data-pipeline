@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ALERT_TIME = 5000;
+const ALERT_TIME = 6000;
 const initialState = {
     text: "",
     type: "",
