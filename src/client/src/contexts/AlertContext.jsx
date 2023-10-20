@@ -14,13 +14,18 @@ const AlertContext = React.createContext({
 export const AlertProvider = ({ children }) => {
     const [text, setText] = React.useState("");
     const [type, setType] = React.useState("");
+    const timerRef = React.useRef(null);
 
     const setAlert = ({ type, text }) => {
         setType(type);
         setText(text);
 
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+        }
+
         if (type !== "error") {
-            setTimeout(() => {
+            timerRef.current = setTimeout(() => {
                 setText("");
                 setType("");
             }, ALERT_TIME);
@@ -28,6 +33,10 @@ export const AlertProvider = ({ children }) => {
     };
 
     const clearAlert = () => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+        }
+
         setType("");
         setText("");
     }
