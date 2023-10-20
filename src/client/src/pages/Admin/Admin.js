@@ -84,8 +84,6 @@ export default function Admin(props) {
         } catch (error) {
             console.warn(error);
             setAlert({ type: "error", text: error });
-        } finally {
-            setIsLoading(false);
         }
 
         setFilesInput(undefined);
