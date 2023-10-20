@@ -96,10 +96,10 @@ function AuthenticatedApp() {
         <Router>
 
             <Box>
-                <AlertBanner />
-            </Box>
-            <Box pb={4}>
                 {!jwtExpired ? <Header headerType={headerType}/> : <Header headerType={'Login'}/>}
+            </Box>
+            <Box minHeight="84px">
+                <AlertBanner />
             </Box>
             {popRefreshAlert &&
             <RefreshDlg shouldOpen={true} setToken={setToken}/>} {/* Pop up the refresh dialog */}
