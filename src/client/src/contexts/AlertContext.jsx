@@ -15,9 +15,9 @@ export const AlertProvider = ({ children }) => {
     const [text, setText] = React.useState("");
     const [type, setType] = React.useState("");
 
-    const setAlert = (text, type) => {
-        setText(text);
+    const setAlert = ({ type, text }) => {
         setType(type);
+        setText(text);
 
         if (type !== "error") {
             setTimeout(() => {
@@ -27,12 +27,18 @@ export const AlertProvider = ({ children }) => {
         }
     };
 
+    const clearAlert = () => {
+        setType("");
+        setText("");
+    }
+
     return (
         <AlertContext.Provider
             value={{
                 text,
                 type,
                 setAlert,
+                clearAlert,
             }}
         >
             {children}
