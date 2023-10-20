@@ -13,6 +13,7 @@ import {makeStyles} from "@material-ui/styles";
 import UploadBox from './Components/UploadBox';
 import AnalysisBox from './Components/AnalysisBox';
 import Loading from './Components/Loading';
+import useAlert from '../../hooks/useAlert';
 
 const useStyles = makeStyles({});
 
@@ -23,6 +24,7 @@ export default function Admin(props) {
     const [lastExecution, setLastExecution] = React.useState(undefined);
     const [lastUploads, setLastUploads] = React.useState(undefined);
     const [loadingText, setLoadingText] = React.useState("");
+    const { setAlert } = useAlert();
 
     React.useEffect(() => {
         (async () => {
@@ -69,15 +71,26 @@ export default function Admin(props) {
             formData.append('file', element, element.name)
         })
 
-        await fetch("/api/file", {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Authorization': 'Bearer ' + props.access_token
-            }
-        })
+        try {
+            await fetch("/api/file", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    Authorization: "Bearer " + props.access_token,
+                },
+            });
 
-        setIsLoading(false);
+            setAlert({
+                type: "success",
+                text: `${files.length == 1 ? "1 file" : files.length + " files"} uploaded successfully`,
+            });
+        } catch (error) {
+            console.warn(error);
+            setAlert({ type: "error", text: error });
+        } finally {
+            setIsLoading(false);
+        }
+
         setFilesInput(undefined);
 
         await refreshPage();
