@@ -19,6 +19,7 @@ import useToken from './pages/Login/useToken';
 import Box from "@material-ui/core/Box";
 import {RFM} from "./pages/RFM/RFM";
 import UserManagement from './pages/UserManagement/UserManagement';
+import AlertBanner from './components/AlertBanner';
 
 let jwt = require('jsonwebtoken');
 
@@ -94,6 +95,9 @@ function AuthenticatedApp() {
     return (
         <Router>
 
+            <Box>
+                <AlertBanner />
+            </Box>
             <Box pb={4}>
                 {!jwtExpired ? <Header headerType={headerType}/> : <Header headerType={'Login'}/>}
             </Box>
