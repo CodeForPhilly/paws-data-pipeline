@@ -13,16 +13,17 @@ import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { updateUser } from "../../../../utils/api";
 import { buildPasswordValidation } from '../../Validations';
+import useAlert from "../../../../hooks/useAlert";
 
 
 export default function ChangePasswordDialog(props) {
     const {
         onClose,
-        notifyResult,
         token,
         user
     } = props;
     const { username } = user;
+    const { setAlert } = useAlert();
 
     const validationSchema = Yup.object().shape({
         password: buildPasswordValidation(username),
@@ -39,14 +40,14 @@ export default function ChangePasswordDialog(props) {
         updateUser({ username, password }, token)
             .then((res) => {
                 if (res === "Updated") {
-                    notifyResult({ success: true, message: `Password for user ${username} successfully changed!` });
+                    setAlert({ type: "success", text: `Password for user ${username} successfully changed!` });
                 } else {
-                    notifyResult({ success: false, message: res });
+                    setAlert({ type: "error", text: res });
                 }
             })
             .catch(e => {
                 console.warn(e)
-                notifyResult({ success: false, message: e })
+                setAlert({ type: "error", text: e })
             });
         onClose();
     }
