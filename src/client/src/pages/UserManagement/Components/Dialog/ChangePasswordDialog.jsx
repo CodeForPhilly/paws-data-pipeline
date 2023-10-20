@@ -71,6 +71,7 @@ export default function ChangePasswordDialog(props) {
                         label="Password"
                         onBlur={() => trigger("password")}
                         type="password"
+                        autoFocus
                         fullWidth
                     />
                     {errors.password &&
