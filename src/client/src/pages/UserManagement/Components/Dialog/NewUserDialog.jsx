@@ -18,13 +18,14 @@ import {
     buildRoleValidation,
     buildUsernameValidation
 } from '../../Validations';
+import useAlert from "../../../../hooks/useAlert";
 
 
 export default function NewUserDialog(props) {
     const [responseError, setResponseError] = React.useState(undefined);
+    const { setAlert } = useAlert();
     const {
         onClose,
-        notifyResult,
         token,
         updateUsers
     } = props;
@@ -56,7 +57,7 @@ export default function NewUserDialog(props) {
                 if (res.indexOf("duplicate key") > -1) {
                     setResponseError(`User with username ${data.username} already exists`)
                 } else {
-                    notifyResult({ success: true, message: `New user ${res} created successfully` });
+                    setAlert({ type: "success", text: `New user ${res} created successfully` });
                     updateUsers(newUser);
                     onClose();
                 }

@@ -62,7 +62,7 @@ export const Search360 = (props) => {
                 await setParticipantList(stateData.participantList)
             }
         })();
-    }, []);
+    }, [history]);
 
     const onRowClick = (matching_id) => {
         const match = matchPath(`/360view/view/${matching_id}`, {

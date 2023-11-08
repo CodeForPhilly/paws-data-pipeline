@@ -10,7 +10,7 @@ import {
     Container,
 } from '@material-ui/core';
 import _ from 'lodash';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import DataTableHeader from './DataTableHeader';
 
