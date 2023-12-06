@@ -382,7 +382,7 @@ def get_support_oview(matching_id):
 
 
         else:   # len(rows) == 0
-            logger.warn('No SF contact IDs found for matching_id %', str(matching_id))
+            logger.warn('No SF contact IDs found for matching_id %s', str(matching_id))
             oview_fields['number_of_gifts'] = 0  # Marker for no data
             return jsonify(oview_fields)
 

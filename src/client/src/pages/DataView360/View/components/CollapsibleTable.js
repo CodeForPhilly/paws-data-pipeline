@@ -15,7 +15,7 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
 import _ from 'lodash';
-import moment from "moment";
+import moment from "moment-timezone";
 import {showAnimalAge} from "../../../../utils/utils";
 
 const useRowStyles = makeStyles({

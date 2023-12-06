@@ -15,12 +15,12 @@ import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { updateUser } from "../../../../utils/api";
 import { buildNameValidation, buildRoleValidation } from '../../Validations';
+import useAlert from "../../../../hooks/useAlert";
 
 
 export default function UpdateUserDialog(props) {
     const {
         onClose,
-        notifyResult,
         token,
         updateUsers,
         user
@@ -31,6 +31,8 @@ export default function UpdateUserDialog(props) {
         role,
         active
     } = user;
+
+    const { setAlert } = useAlert();
 
     const validationSchema = Yup.object().shape({
         name: buildNameValidation(),
@@ -53,16 +55,16 @@ export default function UpdateUserDialog(props) {
         updateUser(newUser, token)
             .then((res) => {
                 if (res === "Updated") {
-                    notifyResult({ success: true, message: `User ${username} updated successfully` });
+                    setAlert({ type: "success", text: `User ${username} updated successfully` });
                     updateUsers(newUser);
                     onClose();
                 } else {
-                    notifyResult({ success: false, message: res })
+                    setAlert({ type: "error", text: res })
                 }
             })
             .catch(e => {
                 console.warn(e)
-                notifyResult({ success: false, message: e })
+                setAlert({ type: "error", text: e })
             })
     }
 

@@ -239,15 +239,15 @@ def get_run_logs():
     with engine.connect() as connection:
         q = text("""select keycol,valcol from kv_unique where keycol like '%_update'; """)
         result = connection.execute(q)
-
-        if result.rowcount > 0:
-           rows = result.fetchall()
-
         row_list = []
 
-        for row in rows:
-            row_dict = row._mapping 
-            row_list.append({row_dict['keycol'] : row_dict['valcol']})
+
+        if result.rowcount > 0:
+            rows = result.fetchall()
+
+            for row in rows:
+                row_dict = row._mapping 
+                row_list.append({row_dict['keycol'] : row_dict['valcol']})
 
         return jsonify(row_list)
 

@@ -7,7 +7,7 @@ import Header from "./components/Header";
 import Login from './pages/Login/Login';
 import Logout from './pages/Login/Logout';
 import HomePage from './pages/Home';
-import Admin from './pages/Admin';
+import Admin from './pages/Admin/Admin';
 import {Search360} from './pages/DataView360/Search/Search';
 import View360 from './pages/DataView360/View/View360';
 import About from './pages/About';
@@ -19,6 +19,7 @@ import useToken from './pages/Login/useToken';
 import Box from "@material-ui/core/Box";
 import {RFM} from "./pages/RFM/RFM";
 import UserManagement from './pages/UserManagement/UserManagement';
+import AlertBanner from './components/AlertBanner';
 
 let jwt = require('jsonwebtoken');
 
@@ -94,8 +95,11 @@ function AuthenticatedApp() {
     return (
         <Router>
 
-            <Box pb={4}>
+            <Box>
                 {!jwtExpired ? <Header headerType={headerType}/> : <Header headerType={'Login'}/>}
+            </Box>
+            <Box minHeight="84px">
+                <AlertBanner />
             </Box>
             {popRefreshAlert &&
             <RefreshDlg shouldOpen={true} setToken={setToken}/>} {/* Pop up the refresh dialog */}
