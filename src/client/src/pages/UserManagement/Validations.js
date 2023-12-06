@@ -30,7 +30,7 @@ export const buildUsernameValidation = () => {
 export const buildRoleValidation = () => {
     return Yup.string()
         .trim()
-        .oneOf(["user", "editor", "admin"], "Role must be one of the following: user/editor/admin")
+        .oneOf(["user", "admin"], "Role must be one of the following: user/admin")
         .required("Role is required")
 }
 

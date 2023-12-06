@@ -103,7 +103,7 @@ export default function NewUserDialog(props) {
                         {...register("role")}
                         margin="dense"
                         id="role-input"
-                        label="Role - user/editor/admin"
+                        label="Role - user/admin"
                         onBlur={() => trigger("role")}
                         variant="standard"
                         fullWidth

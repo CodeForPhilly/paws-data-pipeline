@@ -8,7 +8,7 @@ logger = structlog.get_logger()
 
 
 try:   
-    from secrets_dict import BASEUSER_PW, BASEEDITOR_PW, BASEADMIN_PW
+    from secrets_dict import BASEUSER_PW, BASEADMIN_PW
 except ImportError:   
     # Not running locally
     logger.debug("Couldn't get BASE user PWs from file, trying environment **********")
@@ -16,7 +16,6 @@ except ImportError:
 
     try:
         BASEUSER_PW = environ['BASEUSER_PW']
-        BASEEDITOR_PW = environ['BASEEDITOR_PW']
         BASEADMIN_PW = environ['BASEADMIN_PW']
 
     except KeyError:
@@ -39,7 +38,6 @@ def create_base_roles():
         role_count = len(result.fetchall())
         if role_count == 0:
             connection.execute("INSERT into pdp_user_roles  values (1, 'user') ")
-            connection.execute("INSERT into pdp_user_roles  values (2, 'editor') ")
             connection.execute("INSERT into pdp_user_roles  values (9, 'admin') ")
 
         else:
@@ -47,7 +45,7 @@ def create_base_roles():
 
 
 def create_base_users():  # TODO: Just call create_user for each
-    """ Creates three users (user, editor, admin) for testing
+    """ Creates two users (user, admin) for testing
         Password for each is user name with 'pw' appended """
     with engine.connect() as connection:
 
@@ -70,13 +68,6 @@ def create_base_users():  # TODO: Just call create_user for each
             # Reuse pw hash
             ins_stmt = pu.insert().values(
                 username="base_user_inact", full_name="Inactive User", password=pw_hash, active="N", role=1,
-            )
-            connection.execute(ins_stmt)
-
-            # editor
-            pw_hash = user_api.hash_password(BASEEDITOR_PW)
-            ins_stmt = pu.insert().values(
-                username="base_editor", full_name="Base Editor", password=pw_hash, active="Y", role=2,
             )
             connection.execute(ins_stmt)
 
