@@ -5,11 +5,7 @@
 The pipeline matches constituent records from SalesForce, ShelterLuv and Volgistics to create a comprehensive list of all of PAWS’ constituents. Once matched, the pipeline 
 
 1. sends constituent records back to SalesForce with updated information, 
-2. provides the data needed to execute the RFME score in SalesForce, and 
-3. creates 2 exports: 
-
-    a. Possible duplicates for PAWS staff to review  
-    b. New constituents to be added to SalesForce
+2. provides the data needed to execute the RFME score in SalesForce
 
 ### What data is used?
 
@@ -40,10 +36,10 @@ The matching algorithm runs on a schedule, and does not have the option for manu
 
 ### 1. Log into the Pipeline 
 
-Log in to the pipeline here: https://test.pawsdp.org/ using your PAWS PDP account. 
+Log in to the pipeline here: https://test.pawsdp.org/ using your PAWS PDP account.  
 
-**What if I don’t have an account?** New users can be created by a PAWS admin user (contact PAWS staff to help with this). 
-**What if I forgot my password?** A PAWS admin user can also reset passwords for other users. Contact PAWS staff for assistance.
+**What if I don’t have an account?** New users can be created by a PAWS admin user (contact PAWS staff to help with this).  
+**What if I forgot my password?** A PAWS admin user can also reset passwords for other users. Contact PAWS staff for assistance.  
 
 ### 2. Download data from Volgistics to your computer
 
@@ -70,17 +66,8 @@ After the data is uploaded, the pipeline will run at its next scheduled time and
 - Foster Status
 - RFME score 
 
-## How do I see the exports? 
-To help with deduplication and ensure SalesForce remains the source of truth for PAWS, the pipeline provides (after each run), two exports for PAWS staff:
+## Out of scope for MVP:
 
-### Duplicates
-
-If the pipeline identifies duplicate constituents (ie, individuals who have multiple SalesForce contact IDs), a list will be generated for PAWS staff to review. This list can be found at https://test.pawsdp.org/. 
-
-- If, upon review, PAWS staff decide that these records are true duplicates, PAWS staff will need to use SalesForce tools to de-dupe and merge contacts. Once the duplicate record disappears from SalesForce, the data pipeline will no longer identify it as a duplicate. 
-- If the duplicated individuals were incorrectly identified as duplicates by the automated process, PAWS staff should seek to add identifying information to the SalesForce record (e.g. email address, phone number) or correct any spelling, where applicable. If the duplication persists in future runs despite these changes, it can be ignored. 
-
-### New SalesForce contacts
-
-If the pipeline identifies contacts that are volunteers, fosters or adopters, but who are not in SalesForce, it will produce a list of those contacts, which can also be found at https://test.pawsdp.org/. These records will need to be manually evaluated by PAWS staff, and a contact will need to be manually created in SalesForce for them. Once in SalesForce, the pipeline will match them to their Volgistics and ShelterLuv information at the next run. 
-
+Creates 2 exports: 
+    a. Possible duplicates for PAWS staff to review  
+    b. New constituents to be added to SalesForce
