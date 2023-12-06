@@ -5,12 +5,15 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import * as serviceWorker from './serviceWorker';
 import "./assets/font/font.css";
 import defaultTheme from './theme/defaultTheme';
+import { AlertProvider } from './contexts/AlertContext';
 
 
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={defaultTheme}>
-      <App/>
+      <AlertProvider>
+        <App/>
+      </AlertProvider>
     </ThemeProvider>
   </React.StrictMode>,
   document.getElementById('root')

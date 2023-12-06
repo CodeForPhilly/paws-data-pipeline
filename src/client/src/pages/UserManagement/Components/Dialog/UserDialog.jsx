@@ -11,7 +11,6 @@ export const DialogTypes = {
 
 export default function UserDialog(props) {
     const {
-        notifyResult,
         onClose,
         selectedUser,
         type,
@@ -23,7 +22,6 @@ export default function UserDialog(props) {
         case DialogTypes.NewUser:
             return (
                 <NewUserDialog
-                    notifyResult={notifyResult}
                     onClose={onClose}
                     token={token}
                     updateUsers={updateUsers}
@@ -32,7 +30,6 @@ export default function UserDialog(props) {
         case DialogTypes.UpdateUser:
             return (
                 <UpdateUserDialog
-                    notifyResult={notifyResult}
                     onClose={onClose}
                     token={token}
                     updateUsers={updateUsers}
@@ -42,7 +39,6 @@ export default function UserDialog(props) {
         case DialogTypes.ChangePassword:
             return (
                 <ChangePasswordDialog
-                    notifyResult={notifyResult}
                     onClose={onClose}
                     token={token}
                     user={selectedUser}

@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from 'moment-timezone';
 
 export function formatPhoneNumber(phoneNumberString) {
     let retVal;
@@ -22,4 +22,22 @@ export function getAnimalAge(epochTime) {
 export function showAnimalAge(epochTime) {
     const age = getAnimalAge(epochTime)
     return (age === 1) ? `${age} year` : `${age} years`
+}
+
+export function formatTimestamp(timestamp) {
+    const momentObj = moment.utc(timestamp);
+    return momentObj.tz("America/New_York").format("MMMM Do YYYY, h:mm:ss a");
+}
+
+export function formatUploadType(data) {
+    switch (data) {
+        case 'last_volgistics_update':
+            return 'Volgistics';
+        case 'last_shelterluv_update':
+            return 'Shelterluv';
+        case 'last_salesforce_update':
+            return 'Salesforce';
+        default:
+            break;
+    }
 }
