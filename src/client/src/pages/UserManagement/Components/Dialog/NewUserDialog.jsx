@@ -19,6 +19,7 @@ import {
     buildUsernameValidation
 } from '../../Validations';
 import useAlert from "../../../../hooks/useAlert";
+import RolesRadioGroup from "../RolesRadioGroup";
 
 
 export default function NewUserDialog(props) {
@@ -100,18 +101,6 @@ export default function NewUserDialog(props) {
                         <Typography color="error">{responseError || errors.username.message}</Typography>
                     }
                     <TextField
-                        {...register("role")}
-                        margin="dense"
-                        id="role-input"
-                        label="Role - user/admin"
-                        onBlur={() => trigger("role")}
-                        variant="standard"
-                        fullWidth
-                    />
-                    {errors.role &&
-                        <Typography color="error">{errors.role.message}</Typography>
-                    }
-                    <TextField
                         {...register("password")}
                         margin="dense"
                         id="password-input"
@@ -134,6 +123,10 @@ export default function NewUserDialog(props) {
                     />
                     {errors.confirmPassword &&
                         <Typography color="error">{errors.confirmPassword.message}</Typography>
+                    }
+                    <RolesRadioGroup id="roles-radio-group" register={register} />
+                    {errors.role &&
+                        <Typography color="error">{errors.role.message}</Typography>
                     }
                     <DialogActions>
                         <Button
