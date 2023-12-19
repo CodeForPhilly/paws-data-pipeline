@@ -50,7 +50,8 @@ export default function NewUserDialog(props) {
             username: data.username,
             full_name: data.name,
             role: data.role,
-            password: data.password
+            password: data.password,
+            active: "Y",
         };
 
         createUser(newUser, token)
