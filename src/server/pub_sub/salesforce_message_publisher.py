@@ -12,6 +12,8 @@ import io
 import structlog
 from datetime import datetime
 
+from api import pem
+
 logger = structlog.get_logger()
 
 ISSUER = os.getenv("SALESFORCE_CONSUMER_KEY")
@@ -25,7 +27,7 @@ BATCH_SIZE = os.getenv("BATCH_SIZE", 400)
 UPDATE_TOPIC = "/event/updated_contacts_batched__e"
 
 def send_pipeline_update_messages(contacts_list):
-    pem_file = 'bin/connected-app-secrets.pem'
+    pem_file = pem.find_pem_file()  #TODO: Could we get here (and get errors) if we didn't have a pem file?
     with open(pem_file) as fd:
         private_key = fd.read()
     logger.info('Loaded PEM certificate')
