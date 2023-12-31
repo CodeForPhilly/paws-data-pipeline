@@ -7,6 +7,8 @@ from sqlalchemy.orm import sessionmaker
 from config import engine
 from models import SalesForceContacts
 
+from api import pem
+
 logger = structlog.get_logger()
 
 TEST_MODE = os.getenv("TEST_MODE")  # if not present, has value None
@@ -24,13 +26,12 @@ def store_contacts_all():
 
         logger.debug("retrieving the latest salesforce contacts data")
 
-        if os.path.exists('server/bin/connected-app-secrets.pem'):
-            pem_file = 'server/bin/connected-app-secrets.pem'
-        elif os.path.exists('bin/connected-app-secrets.pem'):
-            pem_file = 'bin/connected-app-secrets.pem'
-        else:
+        pem_file = pem.find_pem_file()
+
+        if pem_file == '':
             logger.error("Missing salesforce jwt private key pem file, skipping data pull")
             return
+
 
         sf = Salesforce(username=USERNAME, consumer_key=CONSUMER_KEY,
                         privatekey_file=pem_file, domain=DOMAIN)
