@@ -23,6 +23,7 @@ RUN npm run build
 FROM nginx:latest AS host
 
 # COPY nginx-client.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY default.conf.template /etc/nginx/templates/
 
 COPY --from=builder /app/build/ /usr/share/nginx/html
