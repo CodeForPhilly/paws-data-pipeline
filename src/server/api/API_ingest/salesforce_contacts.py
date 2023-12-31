@@ -28,6 +28,8 @@ def store_contacts_all():
             pem_file = 'server/bin/connected-app-secrets.pem'
         elif os.path.exists('bin/connected-app-secrets.pem'):
             pem_file = 'bin/connected-app-secrets.pem'
+        elif os.path.exists('pem/connected-app-secrets.pem'):
+            pem_file = 'pem/connected-app-secrets.pem'            
         else:
             logger.error("Missing salesforce jwt private key pem file, skipping data pull")
             return
