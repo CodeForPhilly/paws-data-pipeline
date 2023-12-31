@@ -30,7 +30,7 @@ export const buildUsernameValidation = () => {
 export const buildRoleValidation = () => {
     return Yup.string()
         .trim()
-        .oneOf(["user", "editor", "admin"], "Role must be one of the following: user/editor/admin")
+        .oneOf(["user", "admin"], "Role must be one of the following: user/admin")
         .required("Role is required")
 }
 
@@ -50,6 +50,6 @@ export const buildPasswordValidation = (username) => {
                 return [...DISALLOWED_WORDS, lowercaseUsername].every((word) => !lowercasePassword.includes(word))
             })
         .matches(/^[a-zA-Z0-9!@#$%^*]+$/, "Password can only contain numbers, letters, and the following symbols: !@#$%^*")
-        .min(12, "Password must contain at least 12 letters")
+        .min(12, "Password must contain at least 12 characters")
         .max(36, "Password must be 36 characters or less")
 }

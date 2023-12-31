@@ -19,6 +19,7 @@ import {
     buildUsernameValidation
 } from '../../Validations';
 import useAlert from "../../../../hooks/useAlert";
+import RolesRadioGroup from "../RolesRadioGroup";
 
 
 export default function NewUserDialog(props) {
@@ -49,7 +50,8 @@ export default function NewUserDialog(props) {
             username: data.username,
             full_name: data.name,
             role: data.role,
-            password: data.password
+            password: data.password,
+            active: "Y",
         };
 
         createUser(newUser, token)
@@ -100,18 +102,6 @@ export default function NewUserDialog(props) {
                         <Typography color="error">{responseError || errors.username.message}</Typography>
                     }
                     <TextField
-                        {...register("role")}
-                        margin="dense"
-                        id="role-input"
-                        label="Role - user/editor/admin"
-                        onBlur={() => trigger("role")}
-                        variant="standard"
-                        fullWidth
-                    />
-                    {errors.role &&
-                        <Typography color="error">{errors.role.message}</Typography>
-                    }
-                    <TextField
                         {...register("password")}
                         margin="dense"
                         id="password-input"
@@ -134,6 +124,10 @@ export default function NewUserDialog(props) {
                     />
                     {errors.confirmPassword &&
                         <Typography color="error">{errors.confirmPassword.message}</Typography>
+                    }
+                    <RolesRadioGroup id="roles-radio-group" register={register} />
+                    {errors.role &&
+                        <Typography color="error">{errors.role.message}</Typography>
                     }
                     <DialogActions>
                         <Button

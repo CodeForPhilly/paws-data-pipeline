@@ -16,6 +16,7 @@ import * as Yup from 'yup';
 import { updateUser } from "../../../../utils/api";
 import { buildNameValidation, buildRoleValidation } from '../../Validations';
 import useAlert from "../../../../hooks/useAlert";
+import RolesRadioGroup from "../RolesRadioGroup";
 
 
 export default function UpdateUserDialog(props) {
@@ -28,7 +29,6 @@ export default function UpdateUserDialog(props) {
     const {
         username,
         full_name: name,
-        role,
         active
     } = user;
 
@@ -104,16 +104,7 @@ export default function UpdateUserDialog(props) {
                     {(errors.username) &&
                         <Typography color="error">{errors.username.message}</Typography>
                     }
-                    <TextField
-                        {...register("role")}
-                        defaultValue={role}
-                        margin="dense"
-                        id="role-input"
-                        label="Role - user/editor/admin"
-                        onBlur={() => trigger("role")}
-                        variant="standard"
-                        fullWidth
-                    />
+                    <RolesRadioGroup id="roles-radio-group" user={user} register={register} />
                     {errors.role &&
                         <Typography color="error">{errors.role.message}</Typography>
                     }

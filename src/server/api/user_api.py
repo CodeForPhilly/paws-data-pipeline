@@ -266,7 +266,7 @@ def user_create():
     username : str  
     full_name : str  
     password : str  
-    role : str, one of `user`, `editor`, `admin`  
+    role : str, one of `user`, `admin`  
 
     Returns    
     ----------
