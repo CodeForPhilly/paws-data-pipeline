@@ -21,6 +21,7 @@ logger = structlog.get_logger()
 @internal_api.route("/api/internal/test", methods=["GET"])
 def user_test():
     """ Liveness test, does not require JWT """
+    logger.debug("Liveness test")
     return jsonify(("OK from INTERNAL Test  @ " + str(datetime.now())))
 
 
@@ -46,6 +47,14 @@ def get_contact_data():
     contact_json = updated_data.get_updated_contact_data()
     logger.debug("Returning %d contact records", len(contact_json))
     return jsonify(contact_json), 200
+
+
+@internal_api.route("/api/internal/start_flow", methods=["GET"])
+def run_flow():
+    logger.debug("Calling    flow_script.start_flow()")
+    flow_script.start_flow()
+    logger.debug("Flow processing complete")
+    return jsonify(''), 200
 
 
 @internal_api.route("/api/internal/send_salesforce_platform_message", methods=["GET"])

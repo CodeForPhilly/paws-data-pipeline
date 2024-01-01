@@ -11,7 +11,7 @@ def find_pem_file():
     returning filename if found or empty string if not.
     """
 
-    locations = ['server/bin', 'bin', 'server/pem']
+    locations = ['server/bin', 'bin', 'pem', '/app/pem','server/pem']
     file_name = 'connected-app-secrets.pem'
 
     pem_file = ''
