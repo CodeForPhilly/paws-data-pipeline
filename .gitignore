@@ -24,4 +24,4 @@ start_env.sh
 *kustomization*
 src/.venv/
 src/server/secrets_dict.py
-
+*.pem
