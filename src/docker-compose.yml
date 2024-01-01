@@ -5,7 +5,7 @@ services:
     container_name: paws-compose-db
     ports:
       - "5432:5432"
-    image: postgres:13.2-alpine
+    image: postgres:15.4-alpine
     volumes:
       - postgres:/var/lib/postgresql/data
     environment:
