@@ -106,10 +106,9 @@ export const Search360 = (props) => {
                         <Box pt={2} pb={4}>
                             <Typography>You searched for <b>{searchParticipant}</b></Typography>
                         </Box>
-
                     </Grid>
                 </Grid>
-                <Grid container direction={"row"}>
+                <Grid container direction="row" style={{ width: "100%", alignItems: "center", justifyContent: "center", }}>
                     <Paper>
                         <TableContainer className={classes.container}>
                             <Table className={classes.table} size="small" stickyHeader aria-label="sticky table">
