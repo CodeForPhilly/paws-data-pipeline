@@ -27,7 +27,6 @@ class SupportOverview extends Component {
             { "title": "Total # of Gifts", "value": data.number_of_gifts},
             { "title": "Largest Gift", "value": `$${data.largest_gift.toFixed(2)}`},
             { "title": "Recurring Donor?", "value": data.is_recurring ? "Yes" : "No"},
-            { "title": "RFM Score", "value": data.rfm_score }
             // { "title": "PAWS Legacy Society?", "value": "test" }
         ]
         return rows;
@@ -42,13 +41,9 @@ class SupportOverview extends Component {
                     </Typography>
                 </Grid>
                 <Grid item>
-                    {(row.rfm_color) 
-                    ? <Typography variant={'body2'} align={"right"} style={{ "background": row.rfm_color, "color": row.rfm_text_color }}>
+                    <Typography variant={'body2'} align={"right"}>
                         {row.value}
                     </Typography>
-                    : <Typography variant={'body2'} align={"right"}>
-                        {row.value}
-                    </Typography>}
                 </Grid>
             </Grid>
         ));
@@ -63,10 +58,9 @@ class SupportOverview extends Component {
                 <Container className={classes.containerInfo}>
                     <Grid container direction={'column'}>
                         <Grid container className={classes.spacingRows} direction={'row'} justify='center'>
-                            <Grid item style={{ "background": data.rfm_color, "borderRadius": "5px", "color": data.rfm_text_color, "paddingLeft": "1rem", "paddingRight": "1rem" }}>
+                            <Grid item style={{ "borderRadius": "5px", "paddingLeft": "1rem", "paddingRight": "1rem" }}>
                                 <Typography variant={'subtitle1'}>
                                     <b>Support Overview</b>
-                                    <p style={{"fontSize": "0.875rem", "textAlign": "center" }}>{data.rfm_label}</p>
                                 </Typography>
                             </Grid>
                         </Grid>
