@@ -83,8 +83,6 @@ with engine.connect() as connection:
     db_setup.base_users.create_base_roles()  # IFF there are no roles already
     db_setup.base_users.create_base_users()  # IFF there are no users already
     db_setup.base_users.populate_sl_event_types()  # IFF there are no event types already
-    db_setup.base_users.populate_rfm_mapping_table()   # Set to True to force loading latest version of populate script
-                                                                       # found in the server/alembic directory
 
 # Create these directories only one time - when initializing
 if not os.path.isdir(BASE_PATH):
