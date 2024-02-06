@@ -302,31 +302,6 @@ def get_support_oview(matching_id):
                 oview_fields['is_recurring'] = False
 
 
-            rfm = text("""SELECT
-                            rfm_score, rfm_color, rfm_label, rfm_text_color
-                        FROM 
-                            rfm_scores
-                            left join rfm_mapping on rfm_mapping.rfm_value = rfm_score
-                        WHERE
-                            matching_id = :match_id; """)
-
-            rfm = rfm.bindparams(match_id = matching_id)
-            rfm_result = connection.execute(rfm)
-
-            if rfm_result.rowcount:
-                row = rfm_result.fetchone()
-                oview_fields['rfm_score'] = row[0]
-                oview_fields['rfm_color'] = row[1]
-                oview_fields['rfm_label'] = row[2]                
-                oview_fields['rfm_text_color'] = row[3]                
-
-            else:
-                oview_fields['rfm_score'] = ''
-                oview_fields['rfm_color'] = ''
-                oview_fields['rfm_label'] = ''      
-                oview_fields['rfm_text_color'] = ''
-
-
             return jsonify(oview_fields)
 
 
