@@ -69,10 +69,8 @@ def get_360(matching_id):
     result = {}
 
     with engine.connect() as connection:
-        query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
+        query = text("""select *
                         from pdp_contacts 
-                        left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
-                        left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
                         where pdp_contacts.matching_id = :matching_id and archived_date is null""")
         query_result = connection.execute(query, matching_id=matching_id)
 
