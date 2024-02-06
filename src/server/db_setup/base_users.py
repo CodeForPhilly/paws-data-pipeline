@@ -82,54 +82,6 @@ def create_base_users():  # TODO: Just call create_user for each
             logger.debug("%d users already present in DB, not creating", user_count)
 
 
-def populate_rfm_mapping_table(overwrite=False):
-    """Populate the rfm_mapping table if empty or overwrite is True."""
-
-    with engine.connect() as connection:
-
-        def table_empty():
-            result = connection.execute("select count(*) from rfm_mapping;")
-            row_count = result.fetchone()[0]
-            return row_count == 0
-
-
-        if overwrite or table_empty():
-            logger.debug("Populating rfm_mapping table")
-
-            if not table_empty():
-                logger.debug("'overwrite=True', truncating rfm_mapping table")
-                connection.execute("TRUNCATE TABLE rfm_mapping;")
-
-
-            if os.path.exists('server'):    # running locally
-                file_path = os.path.normpath('server/alembic/populate_rfm_mapping.sql')
-
-            elif os.path.exists('alembic'):  # running on Docker
-                file_path = os.path.normpath('alembic/populate_rfm_mapping.sql')
-
-            else:                 #
-                logger.error("ERROR: Can't find a path to populate script!!!!!! CWD is %s", os.getcwd())
-                return
-
-
-
-            logger.debug("Loading sql script at " + file_path)
-
-            f = open(file_path)
-            populate_query = f.read()
-            f.close()
-
-            result = connection.execute(populate_query)
-
-            if table_empty():
-                logger.error("ERROR:        rfm_mapping table WAS NOT POPULATED")
-
-        else:
-            logger.debug("rfm_mapping table already populated; overwrite not True so not changing.")
-
-    return
-
-
 def populate_sl_event_types():
     """If not present, insert values for shelterluv animal event types."""
     with engine.connect() as connection:
