@@ -43,18 +43,18 @@ def get_contacts(search_text):
 
         names = search_text.split(" ")
         if len(names) == 2:
-            query = text("""SELECT *
-                            FROM pdp_contacts
-                            WHERE archived_date is null AND ( (lower(first_name) LIKE lower(:name1) AND lower(last_name) LIKE lower(:name2))
-                                OR (lower(first_name) LIKE lower(:name2) AND lower(last_name) LIKE lower(:name1)) )
-                            ORDER BY lower(last_name), lower(first_name)""")
+            query = text("""select *
+                            from pdp_contacts
+                            where archived_date is null and ( (lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2))
+                                or (lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)) )
+                            order by lower(last_name), lower(first_name)""")
             query_result = connection.execute(query, name1='{}%'.format(names[0]), name2='{}%'.format(names[1]))
         elif len(names) == 1:
-            query = text("""SELECT *
-                            FROM pdp_contacts
-                            WHERE archived_date IS NULL AND ( lower(first_name) LIKE lower(:search_text)
-                                OR lower(last_name) LIKE lower(:search_text) )
-                            ORDER BY lower(last_name), lower(first_name)""")
+            query = text("""select *
+                            from pdp_contacts
+                            where archived_date is null and ( lower(first_name) like lower(:search_text)
+                                or lower(last_name) like lower(:search_text) )
+                            order by lower(last_name), lower(first_name)""")
             query_result = connection.execute(query, search_text='{}%'.format(search_text))
 
         query_result_json = [dict(row) for row in query_result]
