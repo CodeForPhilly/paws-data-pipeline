@@ -61,6 +61,7 @@ def get_updated_contact_data():
     with Session() as session:
         result = session.execute(qry)
         sfdata = result.fetchone()[0]
-        logger.debug(sfdata)
-        logger.debug("Query for Salesforce update returned %d records", len(sfdata))
-        return sfdata
+        if sfdata:
+            logger.debug(sfdata)
+            logger.debug("Query for Salesforce update returned %d records", len(sfdata))
+            return sfdata

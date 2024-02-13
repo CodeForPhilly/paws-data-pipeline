@@ -1,19 +1,19 @@
-Flask==1.1.2
+Flask==3.0.1
 sqlalchemy==1.4.15 
 psycopg2-binary==2.9.1
 openpyxl
 requests
 pytest
-flask-jwt-extended==4.0.2
+flask-jwt-extended==4.6.0
 alembic
 flask-cors
 dropbox
 jellyfish
 networkx
-jinja2<3.1.0
-itsdangerous==2.0.1 # TODO: upgrade flask so we don't have to do this
+Jinja2>=3.1.2
+itsdangerous>=2.1.2
 simple-salesforce
-werkzeug==2.0.3
+werkzeug==3.0.1
 structlog
 pyjwt
 cryptography
