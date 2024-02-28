@@ -45,8 +45,11 @@ def ingest_raw_data():
 def get_contact_data():
     logger.debug("Calling  get_updated_contact_data()")
     contact_json = updated_data.get_updated_contact_data()
-    logger.debug("Returning %d contact records", len(contact_json))
-    return jsonify(contact_json), 200
+    if contact_json:
+        logger.debug("Returning %d contact records", len(contact_json))
+    else:
+        logger.debug("No contact records found")
+    return jsonify({'outcome': 'OK'}), 200
 
 
 @internal_api.route("/api/internal/start_flow", methods=["GET"])
@@ -54,15 +57,17 @@ def run_flow():
     logger.debug("Calling    flow_script.start_flow()")
     flow_script.start_flow()
     logger.debug("Flow processing complete")
-    return jsonify(''), 200
+    return jsonify({'outcome': 'OK'}), 200
 
 
 @internal_api.route("/api/internal/send_salesforce_platform_message", methods=["GET"])
 def send_salesforce_platform_message():
     contact_list = updated_data.get_updated_contact_data()
-    logger.debug("Returning %d contact records", len(contact_list))
-    salesforce_message_publisher.send_pipeline_update_messages(contact_list)
-
+    if contact_list:
+        logger.debug("Returning %d contact records", len(contact_list))
+        salesforce_message_publisher.send_pipeline_update_messages(contact_list)
+    else:
+        logger.debug("No contact records found")
     return jsonify({'outcome': 'OK'}), 200
 
 @internal_api.route("/api/internal/full_flow", methods=["GET"])
@@ -73,7 +78,10 @@ def start_flow():
     flow_script.start_flow()
     logger.info("Building updated data payload")
     updated_contacts_list = updated_data.get_updated_contact_data()
-    logger.info("Sending Salesforce platform messages")
-    salesforce_message_publisher.send_pipeline_update_messages(updated_contacts_list)
+    if updated_contacts_list:
+        logger.info("Sending Salesforce platform messages")
+        salesforce_message_publisher.send_pipeline_update_messages(updated_contacts_list)
+    else:
+        logger.info("No contacts to update")
 
     return jsonify({'outcome': 'OK'}), 200
