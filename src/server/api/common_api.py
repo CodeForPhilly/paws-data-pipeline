@@ -43,21 +43,17 @@ def get_contacts(search_text):
 
         names = search_text.split(" ")
         if len(names) == 2:
-            query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
-                            from pdp_contacts 
-                            left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
-                            left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
-                            where archived_date is null AND ( (lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2)) 
-                                OR (lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)) )
+            query = text("""select *
+                            from pdp_contacts
+                            where archived_date is null and ( (lower(first_name) like lower(:name1) and lower(last_name) like lower(:name2))
+                                or (lower(first_name) like lower(:name2) and lower(last_name) like lower(:name1)) )
                             order by lower(last_name), lower(first_name)""")
             query_result = connection.execute(query, name1='{}%'.format(names[0]), name2='{}%'.format(names[1]))
         elif len(names) == 1:
-            query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
-                            from pdp_contacts 
-                            left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
-                            left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
-                            where archived_date is null AND ( lower(first_name) like lower(:search_text) 
-                                OR lower(last_name) like lower(:search_text) )
+            query = text("""select *
+                            from pdp_contacts
+                            where archived_date is null and ( lower(first_name) like lower(:search_text)
+                                or lower(last_name) like lower(:search_text) )
                             order by lower(last_name), lower(first_name)""")
             query_result = connection.execute(query, search_text='{}%'.format(search_text))
 
@@ -67,61 +63,14 @@ def get_contacts(search_text):
 
         return results
 
-
-@common_api.route('/api/rfm/<label>/<limit>', methods=['GET'])
-@common_api.route('/api/rfm/<label>', methods=['GET'])
-@jwt_ops.jwt_required()
-def get_rfm(label, limit=None):
-    with engine.connect() as connection:
-        query_string = """select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
-                                    from pdp_contacts 
-                                    left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
-                                    left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
-                                    where archived_date is null AND rfm_label like :label
-                                    and source_type = 'salesforcecontacts'
-                                    order by lower(last_name), lower(first_name)"""
-
-        if limit:
-            query = text(query_string + " limit :limit")
-            query_result = connection.execute(query, label='{}%'.format(label), limit=limit)
-
-        else:
-            query = text(query_string)
-            query_result = connection.execute(query, label='{}%'.format(label))
-
-        query_result_json = [dict(row) for row in query_result]
-
-        results = jsonify({'result': query_result_json})
-
-        return results
-
-
-@common_api.route('/api/rfm/labels', methods=['GET'])
-@jwt_ops.jwt_required()
-def get_rfm_labels():
-    with engine.connect() as connection:
-        query = text("""select rfm_label, rfm_text_color, rfm_color, count(rfm_value) from rfm_scores left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score 
-group by rfm_label, rfm_text_color, rfm_color;""")
-
-        query_result = connection.execute(query)
-
-        query_result_json = [dict(row) for row in query_result]
-
-        results = jsonify({'result': query_result_json})
-
-        return results
-
-
 @common_api.route('/api/360/<matching_id>', methods=['GET'])
 @jwt_ops.jwt_required()
 def get_360(matching_id):
     result = {}
 
     with engine.connect() as connection:
-        query = text("""select pdp_contacts.*, rfm_scores.rfm_score, rfm_label, rfm_color, rfm_text_color
+        query = text("""select *
                         from pdp_contacts 
-                        left join rfm_scores on rfm_scores.matching_id = pdp_contacts.matching_id
-                        left join rfm_mapping on rfm_mapping.rfm_value = rfm_scores.rfm_score
                         where pdp_contacts.matching_id = :matching_id and archived_date is null""")
         query_result = connection.execute(query, matching_id=matching_id)
 
@@ -351,31 +300,6 @@ def get_support_oview(matching_id):
                 oview_fields['is_recurring'] = sov3_result.fetchone()[0]
             else:
                 oview_fields['is_recurring'] = False
-
-
-            rfm = text("""SELECT
-                            rfm_score, rfm_color, rfm_label, rfm_text_color
-                        FROM 
-                            rfm_scores
-                            left join rfm_mapping on rfm_mapping.rfm_value = rfm_score
-                        WHERE
-                            matching_id = :match_id; """)
-
-            rfm = rfm.bindparams(match_id = matching_id)
-            rfm_result = connection.execute(rfm)
-
-            if rfm_result.rowcount:
-                row = rfm_result.fetchone()
-                oview_fields['rfm_score'] = row[0]
-                oview_fields['rfm_color'] = row[1]
-                oview_fields['rfm_label'] = row[2]                
-                oview_fields['rfm_text_color'] = row[3]                
-
-            else:
-                oview_fields['rfm_score'] = ''
-                oview_fields['rfm_color'] = ''
-                oview_fields['rfm_label'] = ''      
-                oview_fields['rfm_text_color'] = ''
 
 
             return jsonify(oview_fields)
