@@ -106,10 +106,9 @@ export const Search360 = (props) => {
                         <Box pt={2} pb={4}>
                             <Typography>You searched for <b>{searchParticipant}</b></Typography>
                         </Box>
-
                     </Grid>
                 </Grid>
-                <Grid container direction={"row"}>
+                <Grid container direction="row" style={{ width: "100%", alignItems: "center", justifyContent: "center", }}>
                     <Paper>
                         <TableContainer className={classes.container}>
                             <Table className={classes.table} size="small" stickyHeader aria-label="sticky table">
@@ -120,7 +119,6 @@ export const Search360 = (props) => {
                                         <TableCell width="5%">Last Name</TableCell>
                                         <TableCell width="5%">Email</TableCell>
                                         <TableCell width="10%">Mobile</TableCell>
-                                        <TableCell width="10%">RFM Score</TableCell>
                                         <TableCell width="10%">Source</TableCell>
                                         <TableCell width="10%">ID in Source</TableCell>
                                     </TableRow>
@@ -137,13 +135,6 @@ export const Search360 = (props) => {
                                                     <TableCell>{row.last_name}</TableCell>
                                                     <TableCell>{row.email}</TableCell>
                                                     <TableCell>{formatPhoneNumber(row.mobile)}</TableCell>
-                                                    <TableCell
-                                                               style={{
-                                                                   backgroundColor: row.rfm_color,
-                                                                   color: row.rfm_text_color
-                                                               }}>
-                                                        {row.rfm_score} ({row.rfm_label})
-                                                    </TableCell>
                                                     <TableCell>{row.source_type}</TableCell>
                                                     <TableCell>{row.source_id}</TableCell>
                                                 </TableRow>
