@@ -11,6 +11,8 @@ import {
 } from '@material-ui/core';
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
 import DataTableHeader from './DataTableHeader';
+import _ from 'lodash';
+import NoRecords from './NoRecords';
 
 
 class VolunteerActivity extends Component {
@@ -23,24 +25,29 @@ class VolunteerActivity extends Component {
                         emojiIcon={<EmojiPeopleIcon color='primary' fontSize='inherit'/>}
                     />
                     <TableContainer component={Paper} style={{"marginBottom": "1em"}} variant='outlined'>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Volunteer activity start</TableCell>
-                                    <TableCell>Life hours</TableCell>
-                                    <TableCell>YTD hours</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                { this.props.volunteer && (
-                                <TableRow>
-                                    <TableCell>{(this.props.volunteer.start_date) ? this.props.volunteer.start_date : "N/A"}</TableCell>
-                                    <TableCell>{(this.props.volunteer.life_hours) ? this.props.volunteer.life_hours.toFixed(2) : 0}</TableCell>
-                                    <TableCell>{(this.props.volunteer.ytd_hours) ? this.props.volunteer.ytd_hours.toFixed(2) : 0}</TableCell>
-                                </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+                        {!_.isEmpty(this.props.volunteer) ? (
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Volunteer activity start</TableCell>
+                                        <TableCell>Life hours</TableCell>
+                                        <TableCell>YTD hours</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    { this.props.volunteer && (
+                                    <TableRow>
+                                        <TableCell>{(this.props.volunteer.start_date) ? this.props.volunteer.start_date : "N/A"}</TableCell>
+                                        <TableCell>{(this.props.volunteer.life_hours) ? this.props.volunteer.life_hours.toFixed(2) : 0}</TableCell>
+                                        <TableCell>{(this.props.volunteer.ytd_hours) ? this.props.volunteer.ytd_hours.toFixed(2) : 0}</TableCell>
+                                    </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        )
+                        : (
+                            <NoRecords recordType="volunteer" />
+                        )}
                     </TableContainer>
                 </Container>
             </React.Fragment>
