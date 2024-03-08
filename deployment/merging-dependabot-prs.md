@@ -34,4 +34,4 @@ docker-compose up
 If the package patch notes look non-breaking and you encounter no errors in this process, the Dependabot PR should be safe to merge.
 
 ## Backend Dependabot PRs
-Caution should be exercised when updating backend libraries.
+Documentation needed.
