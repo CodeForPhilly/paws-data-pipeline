@@ -16,6 +16,7 @@
   * [Deploying PDP within the Code for Philly cluster](deployment/deploying-pdp-within-the-code-for-philly-cluster.md)
   * [Kubernetes Setup](setup/kubernetes-setup.md)
   * [Kubernetes logs](deployment/kubernetes-logs.md)
+  * [Merging Dependabot PRs](deployment/merging-dependabot-prs.md)
 * [Troubleshooting](troubleshooting/README.md)
   * [Common Errors](troubleshooting/common-errors.md)
   * [Dups Problem](troubleshooting/dups-problem.md)
