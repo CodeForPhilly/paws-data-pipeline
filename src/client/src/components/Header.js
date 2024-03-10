@@ -32,9 +32,6 @@ class Header extends Component {
                             {this.props.headerType !== 'Login' && <Button size="large" component={RouterLink} to="/360view/search">360
                                 DataView</Button>
                             }
-                            {this.props.headerType !== 'Login' && <Button size="large" component={RouterLink} to="/rfm">RFM
-                                </Button>
-                            }
                             <Button size="large" component={RouterLink} to="/about">About us</Button>
                             {this.props.headerType !== 'Login' &&
                             <Button size="large" component={RouterLink} to="/logout">Log Out</Button>}
