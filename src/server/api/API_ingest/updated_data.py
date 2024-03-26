@@ -11,24 +11,24 @@ def get_updated_contact_data():
     Session = sessionmaker(engine)
 
     qry = """ -- Collect latest foster/volunteer dates
-    select json_agg (upd)  as "cd" 
+    select json_agg (upd)  as "cd"
     from (
         select
         sf.source_id as "Id" ,  -- long salesforce string
-        sle.person_id   as  "Person_Id__c",           -- short PAWS-local shelterluv id
+        array_agg(sl.source_id) filter (where sl.source_id is not null)   as  "Person_Id__c",           -- short PAWS-local shelterluv id
         case
             when
-                (extract(epoch from now())::bigint - foster_out < 365*86400)  -- foster out in last year
-                or (extract(epoch from now())::bigint - foster_return < 365*86400) -- foster return
+                (extract(epoch from now())::bigint - max(foster_out) < 365*86400)  -- foster out in last year
+                or (extract(epoch from now())::bigint - max(foster_return) < 365*86400) -- foster return
             then 'Active'
             else 'Inactive'
         end  as "Foster_Activity__c",
-        foster_out as "Foster_Start_Date__c",
-        foster_return as "Foster_End_Date__c",
-        vol.first_date "First_volunteer_date__c",
-        vol.last_date "Last_volunteer_date__c",
-        vol.hours as "Total_volunteer_hours__c",
-        vc.source_id::integer as   "Volgistics_Id__c"
+        max(foster_out) as "Foster_Start_Date__c",
+        max(foster_return) as "Foster_End_Date__c",
+        min(vol.first_date) "First_volunteer_date__c",
+        max(vol.last_date) "Last_volunteer_date__c",
+        sum(vol.hours) as "Total_volunteer_hours__c",
+        array_agg(vc.source_id::integer) filter(where vc.source_id is not null) as "Volgistics_Id__c"
         from (
             select source_id, matching_id from pdp_contacts sf
             where sf.source_type = 'salesforcecontacts'
@@ -55,6 +55,7 @@ def get_updated_contact_data():
             group by volg_id
         ) vol on vol.volg_id::text = vc.source_id
         where sl.matching_id is not null or vc.matching_id is not null
+        group by sf.source_id
     ) upd;
     """
 
