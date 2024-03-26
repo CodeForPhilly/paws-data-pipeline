@@ -142,25 +142,17 @@ def filter_invalid_pdp_data(conn):
         lower_last_name.ilike("%unknown%")
     )
 
-    # It would be preferable to use sqlalchemy statements, but that proved difficult
-    digits_only = and_(
-        text("""LOWER(first_name) ~ '^\d+$'"""),
-        text("""LOWER(last_name) ~ '^\d+$'""")
-    )
-
     question_mark = and_(
         lower_first_name == '?',
         lower_last_name == '?'
     )
 
-    john_doe = and_(
-        lower_first_name == "john",
+    john_or_jane_doe = and_(
+        or_(
+            lower_first_name == "john",
+            lower_first_name == "jane"
+        ),
         lower_last_name == "doe"
-    )
-
-    no_name_no_name = and_(
-        lower_first_name == "no name",
-        lower_last_name == "no name"
     )
 
     no_name = and_(
@@ -173,14 +165,31 @@ def filter_invalid_pdp_data(conn):
         lower_last_name == "friends"
     )
 
+    red_flag = or_(
+        lower_first_name == "(red flag)",
+        lower_last_name == "(red flag)"
+    )
+
+    # It would be preferable for the following two conditions to use sqlalchemy statements,
+    # but it proved surprisingly difficult to convert sqlalchemy regexp results into booleans
+    digits_only = and_(
+        text("""LOWER(first_name) ~ '^\d+$'"""),
+        text("""LOWER(last_name) ~ '^\d+$'""")
+    )
+    no_name_no_name = and_(
+        text("""LOWER(first_name) ~ 'no\s?name'"""),
+        text("""LOWER(last_name) ~ 'no\s?name'""")
+    )
+
     composite_condition = or_(
         unknown,
-        digits_only,
         question_mark,
-        john_doe,
-        no_name_no_name,
+        john_or_jane_doe,
         no_name,
         none_friends,
+        red_flag,
+        digits_only,
+        no_name_no_name,
     )
 
     delete_stmt = delete(pc).where(composite_condition)
