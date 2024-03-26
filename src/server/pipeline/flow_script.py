@@ -70,6 +70,9 @@ def start_flow():
             logger.debug("Clearing pdp_contacts to prepare for match")
             reset_pdp_contacts_with_unmatched(conn)
 
+            logger.debug("Removing invalid entries from pdp_contacts")
+            filter_invalid_pdp_data(conn)
+
             logger.debug("Computing automatic matches")
             automatic_matches = get_automatic_matches(conn)
             logger.debug("Computing manual matches")
@@ -127,6 +130,71 @@ def name_to_array(n):
 
 def compare_names(n1, n2):
     return name_to_array(n1).bool_op("&&")(name_to_array(n2))
+
+
+def filter_invalid_pdp_data(conn):
+    pc = PdpContacts.__table__.alias()
+    lower_first_name = func.lower(pc.c.first_name)
+    lower_last_name = func.lower(pc.c.last_name)
+
+    unknown = and_(
+        lower_first_name.ilike("%unknown%"),
+        lower_last_name.ilike("%unknown%")
+    )
+
+    question_mark = and_(
+        lower_first_name == '?',
+        lower_last_name == '?'
+    )
+
+    john_or_jane_doe = and_(
+        or_(
+            lower_first_name == "john",
+            lower_first_name == "jane"
+        ),
+        lower_last_name == "doe"
+    )
+
+    no_name = and_(
+        lower_first_name == "no",
+        lower_last_name == "name"
+    )
+
+    none_friends = and_(
+        lower_first_name.is_(None),
+        lower_last_name == "friends"
+    )
+
+    red_flag = or_(
+        lower_first_name == "(red flag)",
+        lower_last_name == "(red flag)"
+    )
+
+    # It would be preferable for the following two conditions to use sqlalchemy statements,
+    # but it proved surprisingly difficult to convert sqlalchemy regexp results into booleans
+    digits_only = and_(
+        text("""LOWER(first_name) ~ '^\d+$'"""),
+        text("""LOWER(last_name) ~ '^\d+$'""")
+    )
+    no_name_no_name = and_(
+        text("""LOWER(first_name) ~ 'no\s?name'"""),
+        text("""LOWER(last_name) ~ 'no\s?name'""")
+    )
+
+    composite_condition = or_(
+        unknown,
+        question_mark,
+        john_or_jane_doe,
+        no_name,
+        none_friends,
+        red_flag,
+        digits_only,
+        no_name_no_name,
+    )
+
+    delete_stmt = delete(pc).where(composite_condition)
+
+    return conn.execute(delete_stmt)
 
 
 def get_automatic_matches(conn):
