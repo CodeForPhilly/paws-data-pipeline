@@ -44,7 +44,7 @@ def send_pipeline_update_messages(contacts_list):
     r = requests.post('https://{}.salesforce.com/services/oauth2/token'.format(DOMAIN), data={
         'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         'assertion': assertion,
-    })
+    }, timeout=60)
     access_token = r.json()['access_token']
     logger.info('Made OAuth call to get access token')
 

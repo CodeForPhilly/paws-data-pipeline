@@ -42,7 +42,7 @@ def get_animal_count():
     URL = path.join(BASE_URL,animals)
 
     try:
-        response = requests.request("GET",URL, headers=headers)
+        response = requests.request("GET",URL, headers=headers, timeout=60)
     except Exception as e:
         logger('get_animal_count failed with ', e)
         return -2
@@ -69,7 +69,7 @@ def get_updated_animal_count(last_update):
     URL = path.join(BASE_URL,animals)
 
     try:
-        response = requests.request("GET",URL, headers=headers)
+        response = requests.request("GET",URL, headers=headers, timeout=60)
     except Exception as e:
         logger('get_updated_animal_count failed with ', e)
         return -2
@@ -136,7 +136,7 @@ def get_animals_bulk(total_count):
         url = raw_url.format(offset,limit)
 
         try:
-            response = requests.request("GET",url, headers=headers)
+            response = requests.request("GET",url, headers=headers, timeout=60)
         except Exception as e:
             logger('get_animals failed with ', e)
             return -2
