@@ -10,6 +10,7 @@ ENV PATH /app/node_modules/.bin:$PATH
 # install app dependencies
 COPY package.json ./
 COPY package-lock.json ./
+COPY config-overrides.js ./
 
 RUN npm install --silent
 

@@ -6,7 +6,7 @@ import * as serviceWorker from './serviceWorker';
 import "./assets/font/font.css";
 import defaultTheme from './theme/defaultTheme';
 import { AlertProvider } from './contexts/AlertContext';
-
+import "process/browser";
 
 ReactDOM.render(
   <React.StrictMode>
