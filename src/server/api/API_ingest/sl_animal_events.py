@@ -79,7 +79,7 @@ def get_event_count():
     URL = path.join(BASE_URL, events)
 
     try:
-        response = requests.request("GET", URL, headers=headers)
+        response = requests.request("GET", URL, headers=headers, timeout=60)
     except Exception as e:
         logger.error("get_event_count failed with ", e)
         return -2
@@ -121,7 +121,7 @@ def get_events_bulk():
         url = raw_url.format(offset, limit)
 
         try:
-            response = requests.request("GET", url, headers=headers)
+            response = requests.request("GET", url, headers=headers, timeout=60)
         except Exception as e:
             logger.error("get_events failed with ", e)
             return -2

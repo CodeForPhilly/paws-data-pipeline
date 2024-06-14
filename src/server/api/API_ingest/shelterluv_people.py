@@ -51,7 +51,7 @@ def store_shelterluv_people_all():
 
         while has_more:
             r = requests.get("http://shelterluv.com/api/v1/people?limit={}&offset={}".format(LIMIT, offset),
-                             headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
+                             headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}, timeout=60)
             response = r.json()
             for person in response["people"]:
                 #todo: Does this need more "null checks"?

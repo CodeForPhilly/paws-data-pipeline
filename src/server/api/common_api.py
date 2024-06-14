@@ -197,13 +197,13 @@ def get_animals(matching_id):
             for row in rows:               
                 shelterluv_id = row["source_id"]
                 person_url = f"http://shelterluv.com/api/v1/people/{shelterluv_id}"
-                person_details = requests.get(person_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+                person_details = requests.get(person_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}, timeout=60).json()
                 if "ID" in person_details:
                     result["person_details"]["shelterluv_short_id"] = person_details["ID"]
                     animal_ids = person_details["Animal_ids"]
                     for animal_id in animal_ids:
                         animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}"
-                        animal_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+                        animal_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}, timeout=60).json()
                         result["animal_details"][animal_id] = animal_details
 
     return result
@@ -226,7 +226,7 @@ def get_person_animal_events(matching_id, animal_id):
             row = rows[0]
             shelterluv_id = row["source_id"]
             animal_url = f"http://shelterluv.com/api/v1/animals/{animal_id}/events"
-            event_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}).json()
+            event_details = requests.get(animal_url, headers={"x-api-key": SHELTERLUV_SECRET_TOKEN}, timeout=60).json()
             for event in event_details["events"]:
                 for record in event["AssociatedRecords"]:
                     if record["Type"] == "Person" and record["Id"] == shelterluv_id:
