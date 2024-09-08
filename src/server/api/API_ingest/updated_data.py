@@ -18,8 +18,7 @@ def get_updated_contact_data():
         array_agg(sl.source_id) filter (where sl.source_id is not null)   as  "personIds",           -- short PAWS-local shelterluv id
         case
             when
-                (extract(epoch from now())::bigint - max(foster_out) < 365*86400)  -- foster out in last year
-                or (extract(epoch from now())::bigint - max(foster_return) < 365*86400) -- foster return
+                (extract(epoch from now())::bigint - (max(vol.last_date)/1000) < 365*86400)  -- volunteered in last year
             then 'Active'
             else 'Inactive'
         end  as "volunteerStatus",
