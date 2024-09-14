@@ -15,7 +15,12 @@ def get_updated_contact_data():
     from (
         select
         sf.source_id as "contactId" ,  -- long salesforce string
-        array_agg(sl.source_id) filter (where sl.source_id is not null)   as  "personIds",           -- short PAWS-local shelterluv id
+        case 
+        	when 
+        		array_agg(sl.source_id) filter (where sl.source_id is not null) is null 
+        	then '{}'::varchar[]
+        	else array_agg(sl.source_id) filter (where sl.source_id is not null)   	
+        end as "personIds",          -- short PAWS-local shelterluv id
         case
             when
                 (extract(epoch from now())::bigint - (max(vol.last_date)/1000) < 365*86400)  -- volunteered in last year
@@ -27,7 +32,12 @@ def get_updated_contact_data():
         to_timestamp(min(vol.first_date) / 1000)::date "firstVolunteerDate",
         to_timestamp(max(vol.last_date) / 1000)::date "lastVolunteerDate",
         sum(vol.hours) as "totalVolunteerHours",
-        array_agg(vc.source_id::integer) filter(where vc.source_id is not null) as "volgisticIds"
+        case 
+	        when 
+	        	(array_agg(vc.source_id::integer) filter(where vc.source_id is not null)) is null 
+	        then '{}'::int[] 
+	        else array_agg(vc.source_id::integer) filter(where vc.source_id is not null) 
+        end as "volgisticIds"
         from (
             select source_id, matching_id from pdp_contacts sf
             where sf.source_type = 'salesforcecontacts'
