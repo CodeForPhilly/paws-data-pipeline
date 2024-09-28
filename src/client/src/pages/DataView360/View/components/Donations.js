@@ -13,6 +13,7 @@ import _ from 'lodash';
 import moment from 'moment-timezone';
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 import DataTableHeader from "./DataTableHeader";
+import NoRecords from './NoRecords';
 
 const ROWS_TO_SHOW = 3
 
@@ -52,19 +53,25 @@ class Donations extends Component {
                 />
 
                 <TableContainer component={Paper} variant='outlined' style={{"marginBottom": "1em"}}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Date of Donation</TableCell>
-                                <TableCell>Amount</TableCell>
-                                <TableCell>Donation Type</TableCell>
-                                <TableCell>Primary Campaign Source</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {this.props.donations && this.createRows(this.props.donations)}
-                        </TableBody>
-                    </Table>
+                    {this.props.donations?.length > 0 ? (
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Date of Donation</TableCell>
+                                    <TableCell>Amount</TableCell>
+                                    <TableCell>Donation Type</TableCell>
+                                    <TableCell>Primary Campaign Source</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {this.props.donations && this.createRows(this.props.donations)}
+                            </TableBody>
+                        </Table>
+                    )
+                    : (
+                        <NoRecords recordType={"donation"} />
+                    )
+                }
                 </TableContainer>
             </Container>
         );

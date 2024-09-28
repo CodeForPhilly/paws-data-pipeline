@@ -43,6 +43,16 @@ class ContactInfo extends Component {
     render() {
         let participantArray = _.get(this.props, "participant");
         let participantData = this.populate_participant_data(participantArray);
+        let {
+            first_name: firstName,
+            last_name: lastName,
+            mobile,
+            email,
+            city,
+            state,
+            zip,
+            street_and_number: streetAndNumber,
+        } = participantData
 
         return (
             <Paper elevation={2} style={{padding: '2em'}}>
@@ -50,51 +60,63 @@ class ContactInfo extends Component {
                     <Grid item>
                         <Box display="flex" justifyContent="center">
                             <Typography
-                                variant={'h6'}>{participantData.first_name + ' ' + participantData.last_name}
+                                variant={'h6'}>{firstName + ' ' + lastName}
                             </Typography>
                         </Box>
                         <Box pb={2}>
                             <Divider/>
                         </Box>
                     </Grid>
-                    <Grid container item direction={'row'} spacing={1} alignItems="center">
-                        <Grid item>
-                            <PhoneIcon color='primary' fontSize='small'/>
-                        </Grid>
-                        <Grid item>
-                            <Typography variant={'body2'}>{formatPhoneNumber(participantData.mobile)}
-                            </Typography>
-                        </Grid>
-                    </Grid>
-                    <Grid container item direction={'row'} spacing={1} alignItems="center">
-                        <Grid item>
-                            <MailOutlineIcon color='primary' fontSize='small'/>
-                        </Grid>
-                        <Grid item>
-                            <Typography variant={'body2'}>
-                                {participantData.email}
-                            </Typography>
-                        </Grid>
-                    </Grid>
-                    <Grid container item direction={'column'} alignItems="flex-start">
-                        <Grid container item direction="row" alignItems="center" spacing={1}>
+                    {mobile && (
+                        <Grid container item direction={'row'} spacing={1} alignItems="center">
                             <Grid item>
-                                <HomeIcon color='primary' fontSize='small'/>
+                                <PhoneIcon color='primary' fontSize='small'/>
                             </Grid>
                             <Grid item>
-                                <Typography variant={'body2'}>
-                                    {participantData.street_and_number}
+                                <Typography variant={'body2'}>{formatPhoneNumber(mobile)}
                                 </Typography>
                             </Grid>
                         </Grid>
-                        <Grid container item direction="row" spacing={1} style={{paddingLeft: 37}}>
+                    )}
+                    {email && (
+                        <Grid container item direction={'row'} spacing={1} alignItems="center">
+                            <Grid item>
+                                <MailOutlineIcon color='primary' fontSize='small'/>
+                            </Grid>
                             <Grid item>
                                 <Typography variant={'body2'}>
-                                    {participantData.city + ', ' + participantData.state + ' ' + participantData.zip}
+                                    {email}
                                 </Typography>
                             </Grid>
                         </Grid>
-                    </Grid>
+                    )}
+                    {(city || state || zip || streetAndNumber) && (
+                        <Grid container item direction={'column'} alignItems="flex-start">
+                            {streetAndNumber && (
+                                <Grid container item direction="row" alignItems="center" spacing={1}>
+                                    <Grid item>
+                                        <HomeIcon color='primary' fontSize='small'/>
+                                    </Grid>
+                                    <Grid item>
+                                        <Typography variant={'body2'}>
+                                            {streetAndNumber}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                            )}
+                            <Grid container item direction="row" spacing={1} style={{paddingLeft: 37}}>
+                                <Grid item>
+                                    <Typography variant={'body2'}>
+                                        {`
+                                            ${city ? city + ", " : ""}
+                                            ${state ? state + " " : ""}
+                                            ${zip ? zip : ""}
+                                        `}
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    )}
                 </Grid>
 
             </Paper>
