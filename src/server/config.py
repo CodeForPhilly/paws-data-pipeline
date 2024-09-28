@@ -67,7 +67,7 @@ else:
         + POSTGRES_DATABASE
     )
 
-engine = db.create_engine(DB)
+engine = db.create_engine(DB, pool_pre_ping=True)
 
 # Run Alembic to create managed tables
 # from alembic.config import Config
