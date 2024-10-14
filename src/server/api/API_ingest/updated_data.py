@@ -14,21 +14,30 @@ def get_updated_contact_data():
     select json_agg (upd)  as "cd"
     from (
         select
-        sf.source_id as "Id" ,  -- long salesforce string
-        array_agg(sl.source_id) filter (where sl.source_id is not null)   as  "Person_Id__c",           -- short PAWS-local shelterluv id
+        sf.source_id as "contactId" ,  -- long salesforce string
+        case 
+        	when 
+        		array_agg(sp.id) filter (where sp.id is not null) is null 
+        	then '{}'::varchar[]
+        	else array_agg(sp.id) filter (where sp.id is not null)   	   	
+        end as "personIds",          -- short PAWS-local shelterluv id
         case
             when
-                (extract(epoch from now())::bigint - max(foster_out) < 365*86400)  -- foster out in last year
-                or (extract(epoch from now())::bigint - max(foster_return) < 365*86400) -- foster return
+                (extract(epoch from now())::bigint - (max(vol.last_date)/1000) < 365*86400)  -- volunteered in last year
             then 'Active'
             else 'Inactive'
-        end  as "Foster_Activity__c",
-        max(foster_out) as "Foster_Start_Date__c",
-        max(foster_return) as "Foster_End_Date__c",
-        min(vol.first_date) "First_volunteer_date__c",
-        max(vol.last_date) "Last_volunteer_date__c",
-        sum(vol.hours) as "Total_volunteer_hours__c",
-        array_agg(vc.source_id::integer) filter(where vc.source_id is not null) as "Volgistics_Id__c"
+        end  as "volunteerStatus",
+        to_timestamp(max(foster_out) / 1000)::date  as "fosterStartDate",
+        to_timestamp(max(foster_return) / 1000)::date  as "fosterEndDate",
+        to_timestamp(min(vol.first_date) / 1000)::date "firstVolunteerDate",
+        to_timestamp(max(vol.last_date) / 1000)::date "lastShiftDate",
+        sum(vol.hours) as "totalVolunteerHours",
+        case 
+	        when 
+	        	(array_agg(vc.source_id::integer) filter(where vc.source_id is not null)) is null 
+	        then '{}'::int[] 
+	        else array_agg(vc.source_id::integer) filter(where vc.source_id is not null) 
+        end as "volgisticIds"
         from (
             select source_id, matching_id from pdp_contacts sf
             where sf.source_type = 'salesforcecontacts'
@@ -54,6 +63,7 @@ def get_updated_contact_data():
             from volgisticsshifts
             group by volg_id
         ) vol on vol.volg_id::text = vc.source_id
+        left join shelterluvpeople sp on sp.internal_id = sl.source_id
         where sl.matching_id is not null or vc.matching_id is not null
         group by sf.source_id
     ) upd;
@@ -63,6 +73,5 @@ def get_updated_contact_data():
         result = session.execute(qry)
         sfdata = result.fetchone()[0]
         if sfdata:
-            logger.debug(sfdata)
             logger.debug("Query for Salesforce update returned %d records", len(sfdata))
             return sfdata

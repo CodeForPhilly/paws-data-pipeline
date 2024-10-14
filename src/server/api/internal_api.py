@@ -49,7 +49,11 @@ def get_contact_data():
         logger.debug("Returning %d contact records", len(contact_json))
     else:
         logger.debug("No contact records found")
-    return jsonify({'outcome': 'OK'}), 200
+    return jsonify({
+        'outcome': 'OK',
+        'data': contact_json,
+        'length': len(contact_json) if contact_json else 0
+    }), 200
 
 
 @internal_api.route("/api/internal/start_flow", methods=["GET"])
