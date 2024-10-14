@@ -17,9 +17,9 @@ def get_updated_contact_data():
         sf.source_id as "contactId" ,  -- long salesforce string
         case 
         	when 
-        		array_agg(sl.source_id) filter (where sl.source_id is not null) is null 
+        		array_agg(sp.id) filter (where sp.id is not null) is null 
         	then '{}'::varchar[]
-        	else array_agg(sl.source_id) filter (where sl.source_id is not null)   	
+        	else array_agg(sp.id) filter (where sp.id is not null)   	   	
         end as "personIds",          -- short PAWS-local shelterluv id
         case
             when
@@ -63,6 +63,7 @@ def get_updated_contact_data():
             from volgisticsshifts
             group by volg_id
         ) vol on vol.volg_id::text = vc.source_id
+        left join shelterluvpeople sp on sp.internal_id = sl.source_id
         where sl.matching_id is not null or vc.matching_id is not null
         group by sf.source_id
     ) upd;
