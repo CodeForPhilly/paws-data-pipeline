@@ -30,7 +30,7 @@ def get_updated_contact_data():
         to_timestamp(max(foster_out) / 1000)::date  as "fosterStartDate",
         to_timestamp(max(foster_return) / 1000)::date  as "fosterEndDate",
         to_timestamp(min(vol.first_date) / 1000)::date "firstVolunteerDate",
-        to_timestamp(max(vol.last_date) / 1000)::date "lastVolunteerDate",
+        to_timestamp(max(vol.last_date) / 1000)::date "lastShiftDate",
         sum(vol.hours) as "totalVolunteerHours",
         case 
 	        when 

@@ -91,5 +91,6 @@ def send_pipeline_update_messages(contacts_list):
             logger.info('Sent %s contacts in message', len(current_batch))
             batches = batches + 1
 
+
     logger.info('completed sending platform messages, %s messages sent', batches)
 
