@@ -13,59 +13,41 @@ def get_updated_contact_data():
     qry = """ -- Collect latest foster/volunteer dates
     select json_agg (upd)  as "cd"
     from (
-        select
-        sf.source_id as "contactId" ,  -- long salesforce string
-        case 
-        	when 
-        		array_agg(sp.id) filter (where sp.id is not null) is null 
-        	then '{}'::varchar[]
-        	else array_agg(sp.id) filter (where sp.id is not null)   	   	
-        end as "personIds",          -- short PAWS-local shelterluv id
+        select 
+        salesforce.source_id as "contactId",
+        shelterluv.person_ids as "personIds",
         case
-            when
-                (extract(epoch from now())::bigint - (max(vol.last_date)/1000) < 365*86400)  -- volunteered in last year
-            then 'Active'
-            else 'Inactive'
-        end  as "volunteerStatus",
-        to_timestamp(max(foster_out) / 1000)::date  as "fosterStartDate",
-        to_timestamp(max(foster_return) / 1000)::date  as "fosterEndDate",
-        to_timestamp(min(vol.first_date) / 1000)::date "firstVolunteerDate",
-        to_timestamp(max(vol.last_date) / 1000)::date "lastShiftDate",
-        sum(vol.hours) as "totalVolunteerHours",
-        case 
-	        when 
-	        	(array_agg(vc.source_id::integer) filter(where vc.source_id is not null)) is null 
-	        then '{}'::int[] 
-	        else array_agg(vc.source_id::integer) filter(where vc.source_id is not null) 
-        end as "volgisticIds"
+            when volgistics.last_shift_date > now() - interval '1 year' then 'Active' else 'InActive'
+        end as "volunteerStatus",
+        shelterluv.foster_start as "fosterStartDate",
+        shelterluv.foster_end as "fosterEndDate",
+        volgistics.first_volunteer_date as "firstVolunteerDate",
+        volgistics.last_shift_date as "lastShiftDate",
+        volgistics.total_hours as "totalVolunteerHours",
+        volgistics.volg_ids as "volgisticIds"
         from (
-            select source_id, matching_id from pdp_contacts sf
-            where sf.source_type = 'salesforcecontacts'
-        ) sf
-        left join pdp_contacts sl on sl.matching_id = sf.matching_id and sl.source_type = 'shelterluvpeople'
+            select * from pdp_contacts pc where source_type = 'salesforcecontacts'
+        ) salesforce
+        left join (
+            select matching_id, array_agg(distinct v."number"::int) volg_ids, sum(hours) total_hours, 
+            min(from_date) first_volunteer_date, max(from_date) last_shift_date 
+            from volgistics v
+            left join volgisticsshifts v2 on v2.volg_id::varchar = v.number
+            inner join pdp_contacts pc on pc.source_id = v2.volg_id::varchar and pc.source_type = 'volgistics'
+            group by matching_id
+        ) volgistics on volgistics.matching_id = salesforce.matching_id
         left join (
             select
-            person_id,
-            max(case when event_type=1 then time else null end) * 1000 adopt,
-            max(case when event_type=2 then time else null end) * 1000 foster_out,
-            --  max(case when event_type=3 then time else null end) rto,
-            max(case when event_type=5 then time else null end) * 1000 foster_return
-            from sl_animal_events
-            group by person_id
-        ) sle on sle.person_id::text = sl.source_id
-        left join pdp_contacts vc on vc.matching_id = sf.matching_id and vc.source_type = 'volgistics'
-        left join (
-            select
-            volg_id,
-            sum(hours) as hours,
-            extract(epoch from min(from_date)) * 1000 as first_date,
-            extract(epoch from max(from_date)) * 1000 as last_date
-            from volgisticsshifts
-            group by volg_id
-        ) vol on vol.volg_id::text = vc.source_id
-        left join shelterluvpeople sp on sp.internal_id = sl.source_id
-        where sl.matching_id is not null or vc.matching_id is not null
-        group by sf.source_id
+            matching_id, array_agg(distinct p.internal_id) as person_ids,
+            max(case when event_type=1 then to_timestamp(time) else null end) adopt,
+            min(case when event_type=2 then to_timestamp(time) else null end) foster_start,
+            max(case when event_type=5 then to_timestamp(time) else null end) foster_end
+            from shelterluvpeople p
+            left join sl_animal_events sae on sae.person_id::varchar = p.internal_id
+            inner join pdp_contacts pc on pc.source_id = p.internal_id
+            group by matching_id
+        ) shelterluv on shelterluv.matching_id = salesforce.matching_id
+        where volgistics.matching_id is not null or shelterluv.matching_id is not null
     ) upd;
     """
 
