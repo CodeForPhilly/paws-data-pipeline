@@ -1,13 +1,12 @@
+import logging
 import os
 import sys
-import sqlalchemy as db
-import models
-from constants import IS_LOCAL, BASE_PATH, RAW_DATA_PATH, OUTPUT_PATH, LOGS_PATH, REPORT_PATH, ZIPPED_FILES
 
-import logging
+import sqlalchemy as db
 import structlog
 from structlog.processors import CallsiteParameter
 
+from constants import IS_LOCAL, BASE_PATH, RAW_DATA_PATH, OUTPUT_PATH, LOGS_PATH, REPORT_PATH, ZIPPED_FILES
 
 # structlog setup for complete app
 
@@ -17,7 +16,7 @@ shared_processors=[
         structlog.processors.add_log_level,
         structlog.processors.StackInfoRenderer(),
         structlog.dev.set_exc_info,
-        structlog.processors.TimeStamper(fmt=None, utc=True ),
+        structlog.processors.TimeStamper(fmt="iso", utc=True),
         structlog.processors.CallsiteParameterAdder(
             [
                 CallsiteParameter.FILENAME,

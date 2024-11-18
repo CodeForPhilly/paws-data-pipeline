@@ -1,8 +1,11 @@
-import requests, os
-from models import ShelterluvPeople
-from config import engine
-from sqlalchemy.orm import  sessionmaker
+import os
+import requests
 import structlog
+from sqlalchemy.orm import sessionmaker
+
+from config import engine
+from models import ShelterluvPeople
+
 logger = structlog.get_logger()
 
 try:
@@ -44,17 +47,18 @@ def store_shelterluv_people_all():
 
     with Session() as session:
         logger.debug("Truncating table shelterluvpeople")
-
         session.execute("TRUNCATE TABLE shelterluvpeople")
-
         logger.debug("Start getting shelterluv contacts from people table")
 
         while has_more:
             r = requests.get("http://shelterluv.com/api/v1/people?limit={}&offset={}".format(LIMIT, offset),
-                             headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
+                         headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
+            if r.status_code != 200:
+                logger.error("HTTP status code: %s Error detail: %s", r.status_code, r.text)
+                raise Exception("Error pulling Shelterluv people")
+
             response = r.json()
             for person in response["people"]:
-                #todo: Does this need more "null checks"?
                 session.add(ShelterluvPeople(firstname=person["Firstname"],
                                       lastname=person["Lastname"],
                                       id=person["ID"] if "ID" in person else None,
