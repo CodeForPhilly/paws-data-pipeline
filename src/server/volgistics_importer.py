@@ -1,10 +1,10 @@
-import re
 from flask.globals import current_app
 from datetime import datetime, timedelta 
 from openpyxl import load_workbook
 from jellyfish import jaro_similarity
 
 from config import  engine
+from utils import standardize_phone_number
 
 import structlog
 
@@ -178,6 +178,10 @@ def volgistics_people_import(workbook):
     col_email = col['Email']
     time_stamp = datetime.utcnow()
 
+    home_phone = standardize_phone_number(r[col_home])
+    work_phone = standardize_phone_number(r[col_work])
+    cell_phone = standardize_phone_number(r[col_cell])
+
     try:
         for r in ws.iter_rows(min_row=2, max_col=42,values_only=True):
             insert_list.append(
@@ -194,9 +198,9 @@ def volgistics_people_import(workbook):
                     "state": r[col_state],
                     "zip": r[col_zip],
                     "all_phone_numbers": r[col_all_phones],
-                    "home": r[col_home],
-                    "work": r[col_work],
-                    "cell": r[col_cell],
+                    "home": home_phone,
+                    "work": work_phone,
+                    "cell": cell_phone,
                     "email": r[col_email],
                     "created_date" : time_stamp
                 }
