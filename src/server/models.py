@@ -20,6 +20,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, insert
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.functions import coalesce
+from utils import standardize_phone_number
 
 Base = declarative_base()
 
@@ -92,21 +93,6 @@ def dedup_consecutive(table, unique_id, id, order_by, dedup_on):
     return delete(table).where(unique_id == to_delete.c[0])
 
 
-def normalize_phone_number(number):
-    result = None
-
-    if number and str(number) != "nan":
-        number = re.sub("[() -.+]", "", str(number))
-
-        if number and number[0] == "1":
-            number = number[1:]
-
-        if number.isdigit() and len(number) == 10:
-            result = number
-
-    return result
-
-
 class PdpContacts(Base):
     __tablename__ = "pdp_contacts"
     __table_args__ = (
@@ -173,8 +159,10 @@ class SalesForceContacts(Base):
         df = df[column_translation.keys()]
         df = df.rename(columns=column_translation)
 
-        df["phone"] = df["phone"].apply(normalize_phone_number)
-        df["mobile"] = df["mobile"].apply(normalize_phone_number)
+        phone_numbers = [standardize_phone_number(phone) for phone in df["phone"]]
+        mobile_numbers = [standardize_phone_number(phone) for phone in df["mobile"]]
+        df["phone"] = phone_numbers
+        df["mobile"] = mobile_numbers
 
         dedup_on = [col for col in cls.__table__.columns if col.name in df.columns]
         df["created_date"] = datetime.datetime.utcnow()
@@ -237,7 +225,8 @@ class ShelterluvPeople(Base):
         df = df[column_translation.keys()]
         df = df.rename(columns=column_translation)
 
-        df["phone"] = df["phone"].apply(normalize_phone_number)
+        phone_numbers = [standardize_phone_number(phone) for phone in df["phone"]]
+        df["phone"] = phone_numbers
 
         dedup_on = [col for col in cls.__table__.columns if col.name in df.columns]
         df["created_date"] = datetime.datetime.utcnow()
