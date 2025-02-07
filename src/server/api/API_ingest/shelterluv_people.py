@@ -1,6 +1,7 @@
 import os
 import requests
 import structlog
+import time
 from sqlalchemy.orm import sessionmaker
 
 from config import engine
@@ -26,6 +27,7 @@ except ImportError:
 
 TEST_MODE=os.getenv("TEST_MODE")  # if not present, has value None
 LIMIT = 100
+MAX_RETRIES = 10
 #################################
 # This script is used to fetch data from shelterluv API.
 # Please be mindful of your usage.
@@ -44,6 +46,7 @@ def store_shelterluv_people_all():
     offset = 0
     has_more = True
     Session = sessionmaker(engine)
+    retries = 0
 
     with Session() as session:
         logger.debug("Truncating table shelterluvpeople")
@@ -51,13 +54,29 @@ def store_shelterluv_people_all():
         logger.debug("Start getting shelterluv contacts from people table")
 
         while has_more:
-            r = requests.get("http://shelterluv.com/api/v1/people?limit={}&offset={}".format(LIMIT, offset),
-                         headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
-            if r.status_code != 200:
-                logger.error("HTTP status code: %s Error detail: %s", r.status_code, r.text)
-                raise Exception("Error pulling Shelterluv people")
+            if retries > MAX_RETRIES:
+                raise Exception("reached max retries for get store_shelterluv_people_all")
 
-            response = r.json()
+            try:
+                r = requests.get("http://shelterluv.com/api/v1/people?limit={}&offset={}".format(LIMIT, offset),
+                         headers={"x-api-key": SHELTERLUV_SECRET_TOKEN})
+            except Exception as e:
+                logger.error("store_shelterluv_people_all failed with %s, retrying...", e)
+                retries += 1
+                continue
+
+            if r.status_code != 200:
+                logger.error("store_shelterluv_people_all %s code, retrying...", r.status_code)
+                retries += 1
+                continue
+
+            try:
+                response = r.json()
+            except Exception as e:
+                logger.error("store_shelterluv_people_all JSON decode failed with %s", e)
+                retries += 1
+                continue
+
             for person in response["people"]:
                 session.add(ShelterluvPeople(firstname=person["Firstname"],
                                       lastname=person["Lastname"],
@@ -73,9 +92,11 @@ def store_shelterluv_people_all():
                                       phone=person["Phone"],
                                       animal_ids=person["Animal_ids"]))
             offset += LIMIT
+            retries = 0
             has_more = response["has_more"] if not TEST_MODE else response["has_more"] and offset < 1000
             if offset % 1000 == 0:
                 logger.debug("Reading offset %s", str(offset))
+            time.sleep(0.2)
         session.commit()
 
     logger.debug("Finished getting shelterluv contacts from people table")
