@@ -1,4 +1,7 @@
+import hashlib
+import hmac
 from api.api import admin_api
+from api.internal_api import start_flow
 import os
 import time
 from datetime import datetime
@@ -9,7 +12,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import Table, MetaData
 from pipeline import flow_script
 from config import engine
-from flask import request, redirect, jsonify
+from flask import request, redirect, jsonify, abort
 from api.file_uploader import validate_and_arrange_upload
 from sqlalchemy.orm import sessionmaker
 
@@ -451,18 +454,96 @@ def trigger_slae_pull():
 
 
 
+@admin_api.route('/api/admin/trigger', methods=['GET'])
+def trigger_data_pull():
+    """ Trigger the data pull and matching process if: 
+        - token matches
+        - it's more than an hour since last trigger event
+    """
+
+    try:
+        token = os.environ['trigger_token']
+    except Exception:
+        token = None
+        pass
+
+    if token:
+        request_token = request.args.get('token')
+
+        if request_token:
+
+            # compare hashes to prevent timing attacks
+            rt_hash = hashlib.sha256(request_token.encode(encoding='utf-8')).hexdigest().encode('utf-8')
+            t_hash = hashlib.sha256(token.encode(encoding='utf-8')).hexdigest().encode('utf-8')
+
+            if hmac.compare_digest(t_hash, rt_hash):
+                # The request token is correct 
+                logger.info("Request token is correct")
+
+                # check db for latest_run_time
+                # if missing or > 60 mins, write now() and call the run endpoint
+
+                metadata = MetaData()
+                kvt = Table("kv_unique", metadata, autoload=True, autoload_with=engine)
+
+                # Write Last Execution stats to DB
+                # See Alembic Revision ID: 05e0693f8cbb for table definition
+                with engine.connect() as connection:
+
+                    ok_to_run = False
+
+                    last_trigger_result = connection.execute(text("select valcol from kv_unique where keycol = 'last_trigger_time'"))
+                    
+                    if last_trigger_result.rowcount == 0:
+                        logger.debug("No previous trigger record")
+                        ok_to_run = True
+
+                    elif last_trigger_result.rowcount == 1:
+                        last_trigger = last_trigger_result.fetchone()[0]
+                        logger.debug("Last run was: %s", last_trigger)
+                        now = int(time.time())
+                        if (now - int(last_trigger)) < 1*3600:
+                            logger.warn("Too soon to run again")
+                        else:
+                            logger.info("Long enough - we can run")
+                            ok_to_run = True
+                    
+                    else:
+                        logger.error("Multiple 'last_trigger_time' results from kv_unique")  # Not so unique...
+
+                    if ok_to_run:
+                        logger.info("Triggering run")
+
+                        # Write current time as last_trigger_time
+                        ins_stmt = insert(kvt).values(               # Postgres-specific insert() supporting ON CONFLICT
+                            keycol='last_trigger_time',
+                            valcol=str(int(time.time()))
+                            )
+                        # If key already present in DB, do update instead
+                        upsert = ins_stmt.on_conflict_do_update(
+                                constraint='kv_unique_keycol_key',
+                                set_=dict(valcol=str(int(time.time())))
+                                )
+                        try:
+                            connection.execute(upsert)
+                        except Exception as e:
+                            logger.error("Insert/Update failed on Last Trigger time")
+                            logger.error(e)
+
+                        # Actually start the process
+                        start_flow()
+
+            else:
+                logger.warn("Incorrect token in request")
+
+        else: # No token supplied -  probably someone scanning endpoints
+            logger.warn("No token supplied in request")
+            abort(404)
+
+    else:
+        logger.warn("Trigger token not found in environment")
+
+    return jsonify({'outcome': 'OK'}), 200     # Always return success to prevent guessing - check the logs 
 
 
-# def pdfr():
-#     dlist = pull_donations_for_rfm()
-#     print("Returned " + str(len(dlist)) + " rows")
-#     return jsonify( {'rows':len(dlist), 'row[0]': dlist[0]} )  # returns length and a sammple row
 
-
-# def validate_rfm_edges():
-#     d = read_rfm_edges()         # read out of DB
-#     print("d is: \n" + str(d) )
-#     write_rfm_edges(d)          # Write it back
-#     d = read_rfm_edges()        # read it again     
-#     print("round-trip d is : \n " + str(d) )
-#     return "OK"
