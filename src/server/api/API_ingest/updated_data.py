@@ -20,7 +20,8 @@ def get_updated_contact_data():
             when volgistics.last_shift_date > now() - interval '1 year' then 'Active' else 'InActive'
         end as "volunteerStatus",
         shelterluv.foster_start as "fosterStartDate",
-        shelterluv.foster_end as "fosterEndDate",
+        null as "fosterEndDate",
+        shelterluv.latest_foster_event as "latestFosterEvent",
         volgistics.first_volunteer_date as "firstVolunteerDate",
         volgistics.last_shift_date as "lastShiftDate",
         volgistics.total_hours as "totalVolunteerHours",
@@ -39,9 +40,8 @@ def get_updated_contact_data():
         left join (
             select
             matching_id, array_agg(distinct p.internal_id) as person_ids,
-            max(case when event_type=1 then to_timestamp(time) else null end) adopt,
-            min(case when event_type=2 then to_timestamp(time) else null end) foster_start,
-            max(case when event_type=5 then to_timestamp(time) else null end) foster_end
+            min(case when event_type in (2,5) then to_timestamp(time) else null end) foster_start,
+            max(case when event_type in (2,5) then to_timestamp(time) else null end) latest_foster_event
             from shelterluvpeople p
             left join sl_animal_events sae on sae.person_id::varchar = p.internal_id
             inner join pdp_contacts pc on pc.source_id = p.internal_id
