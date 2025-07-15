@@ -34,7 +34,7 @@ def get_updated_contact_data():
             min(from_date) first_volunteer_date, max(from_date) last_shift_date 
             from volgistics v
             left join volgisticsshifts v2 on v2.volg_id::varchar = v.number
-            inner join pdp_contacts pc on pc.source_id = v2.volg_id::varchar and pc.source_type = 'volgistics'
+            inner join pdp_contacts pc on pc.source_id = v.number::varchar and pc.source_type = 'volgistics'
             group by matching_id
         ) volgistics on volgistics.matching_id = salesforce.matching_id
         left join (
