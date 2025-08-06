@@ -33,13 +33,8 @@ def user_test2():
 
 @internal_api.route("/api/internal/ingestRawData", methods=["GET"])
 def ingest_raw_data():
-    try:
-        ingest_sources_from_api.start()
-    except Exception as e:
-        logger.error(e)
-
+    ingest_sources_from_api.start()
     return jsonify({'outcome': 'OK'}), 200
-
 
 @internal_api.route("/api/internal/get_updated_data", methods=["GET"])
 def get_contact_data():
@@ -49,7 +44,11 @@ def get_contact_data():
         logger.debug("Returning %d contact records", len(contact_json))
     else:
         logger.debug("No contact records found")
-    return jsonify({'outcome': 'OK'}), 200
+    return jsonify({
+        'outcome': 'OK',
+        'data': contact_json,
+        'length': len(contact_json) if contact_json else 0
+    }), 200
 
 
 @internal_api.route("/api/internal/start_flow", methods=["GET"])

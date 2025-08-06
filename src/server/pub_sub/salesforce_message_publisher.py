@@ -60,7 +60,8 @@ def send_pipeline_update_messages(contacts_list):
         schema_id = stub.GetTopic(pb2.TopicRequest(topic_name=UPDATE_TOPIC), metadata=auth_meta_data).schema_id
         schema = stub.GetSchema(pb2.SchemaRequest(schema_id=schema_id), metadata=auth_meta_data).schema_json
 
-        payloads = []
+
+        batches = 0
         while len(contacts_list) > 0:
             if len(contacts_list) > BATCH_SIZE:
                 current_batch = contacts_list[:BATCH_SIZE]
@@ -85,9 +86,11 @@ def send_pipeline_update_messages(contacts_list):
                 "schema_id": schema_id,
                 "payload": buf.getvalue()
             }
-            payloads.append(payload)
 
-        stub.Publish(pb2.PublishRequest(topic_name=UPDATE_TOPIC, events=payloads), metadata=auth_meta_data)
+            stub.Publish(pb2.PublishRequest(topic_name=UPDATE_TOPIC, events=[payload]), metadata=auth_meta_data)
+            logger.info('Sent %s contacts in message', len(current_batch))
+            batches = batches + 1
 
-    logger.info("%s total pipeline update messages sent", len(payloads))
+
+    logger.info('completed sending platform messages, %s messages sent', batches)
 

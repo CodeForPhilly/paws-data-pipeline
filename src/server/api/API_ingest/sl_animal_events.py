@@ -1,6 +1,7 @@
 import json
 import os
 import posixpath as path
+import time
 
 import structlog
 
@@ -25,6 +26,7 @@ keep_record_types = [
 
 BASE_URL = "http://shelterluv.com/api/"
 MAX_COUNT = 100  # Max records the API will return for one call
+MAX_RETRY = 10
 
 # Get the API key
 try:
@@ -75,8 +77,9 @@ headers = {"Accept": "application/json", "X-API-Key": SHELTERLUV_SECRET_TOKEN}
 
 def get_event_count():
     """Test that server is operational and get total event count."""
-    events = "v1/events&offset=0&limit=1"
+    events = "v1/events?offset=0&limit=1"
     URL = path.join(BASE_URL, events)
+    logger.info("making call: %s", URL)
 
     try:
         response = requests.request("GET", URL, headers=headers)
@@ -85,7 +88,7 @@ def get_event_count():
         return -2
 
     if response.status_code != 200:
-        logger.error("get_event_count ", response.status_code, "code")
+        logger.error("get_event_count status code: %s", response.status_code)
         return -3
 
     try:
@@ -111,30 +114,36 @@ def get_events_bulk():
 
     event_records = []
 
-    raw_url = path.join(BASE_URL, "v1/events&offset={0}&limit={1}")
+    raw_url = path.join(BASE_URL, "v1/events?offset={0}&limit={1}")
     offset = 0
     limit = MAX_COUNT
     more_records = True
+    retries = 0
 
     while more_records:
 
+        if retries > MAX_RETRY:
+            raise Exception("get_events_bulk failed, max retries reached")
         url = raw_url.format(offset, limit)
 
         try:
             response = requests.request("GET", url, headers=headers)
         except Exception as e:
-            logger.error("get_events failed with ", e)
-            return -2
+            logger.error("get_events_buk failed with %s, retrying...", e)
+            retries += 1
+            continue
 
         if response.status_code != 200:
-            logger.error("get_event_count ", response.status_code, "code")
-            return -3
+            logger.error("get_events_bulk %s code, retrying...", response.status_code)
+            retries += 1
+            continue
 
         try:
             decoded = json.loads(response.text)
         except json.decoder.JSONDecodeError as e:
-            logger.error("get_event_count JSON decode failed with", e)
-            return -4
+            logger.error("get_events_bulk JSON decode failed with %s", e)
+            retries += 1
+            continue
 
         if decoded["success"]:
             for evrec in decoded["events"]:
@@ -143,13 +152,14 @@ def get_events_bulk():
 
             more_records = decoded["has_more"]  # if so, we'll make another pass
             offset += limit
+            retries = 0
             if offset % 1000 == 0:
                 logger.debug("Reading offset %s", str(offset))
                 if TEST_MODE and offset > 1000:
-                    more_records=False  # Break out early 
-
+                    more_records=False  # Break out early
         else:
             return -5  # AFAICT, this means URL was bad
+        time.sleep(0.2)
 
     return event_records
 
