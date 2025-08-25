@@ -8,7 +8,7 @@ import {
     TableBody,
     TableRow,
     TableCell,
-    Container
+    Container,
 } from '@material-ui/core';
 import LinkIcon from '@material-ui/icons/Link';
 import { withStyles } from '@material-ui/core/styles';
@@ -18,6 +18,7 @@ import Grid from "@material-ui/core/Grid";
 import PetsIcon from "@material-ui/icons/Pets";
 import DataTableHeader from './DataTableHeader';
 import { showAnimalAge } from '../../../../utils/utils'
+import NoRecords from './NoRecords';
 
 
 const customStyles = theme => ({
@@ -89,27 +90,34 @@ class Adoptions extends Component {
                     headerText={headerText + headerAddition}
                     emojiIcon={<PetsIcon color='primary' fontSize='inherit' />}
                 >
-                    <Grid item>
-                        <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" href={shelterLuvPersonURL} target="_blank">
-                            <LinkIcon />
-                        </IconButton>
-                    </Grid>
+                    {shelterluvShortId &&
+                        <Grid item>
+                            <IconButton style={{ 'padding': 0, 'paddingLeft': 5 }} color="primary" aria-label="link" href={shelterLuvPersonURL} target="_blank">
+                                <LinkIcon />
+                            </IconButton>
+                        </Grid>
+                    }
                 </DataTableHeader>
                 <TableContainer component={Paper} variant='outlined' style={{ "marginBottom": "1em" }}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="center">Name</TableCell>
-                                <TableCell align="center">Animal Type</TableCell>
-                                <TableCell align="center">Adoption Date</TableCell>
-                                <TableCell align="center">Age</TableCell>
-                                <TableCell align="center">Photo</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {latestPets && this.createRows(latestPets)}
-                        </TableBody>
-                    </Table>
+                    {latestPets?.length > 0 ? (
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell align="center">Name</TableCell>
+                                        <TableCell align="center">Animal Type</TableCell>
+                                        <TableCell align="center">Adoption Date</TableCell>
+                                        <TableCell align="center">Age</TableCell>
+                                        <TableCell align="center">Photo</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {latestPets && this.createRows(latestPets)}
+                                </TableBody>
+                            </Table>
+                    )
+                    : (
+                        <NoRecords recordType="adoption" />
+                    )}
                 </TableContainer>
             </Container>
         );
