@@ -48,7 +48,7 @@ spec:
               value: paws
           envFrom:
             - secretRef:
-                name: db-pass
+                name: paws-secrets
           ports:
             - name: postgresql
               containerPort: 5432
@@ -64,9 +64,9 @@ spec:
           imagePullPolicy: {{ .image.pullPolicy }}
           envFrom:
             - secretRef:
-                name: api-server-pws
+                name: paws-salesforce
             - secretRef:
-                name: db-pass
+                name: paws-secrets
           ports:
             - containerPort: 5000
               protocol: TCP
