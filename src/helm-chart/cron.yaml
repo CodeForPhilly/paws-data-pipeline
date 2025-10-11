@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: onemin
+spec:
+  concurrencyPolicy: Forbid
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: curlimage
+            image: curlimages/curl
+            imagePullPolicy: IfNotPresent
+            command:
+            - "curl"
+            args:
+            - "http://localhost:5000/api/internal/test"
+          restartPolicy: OnFailure
