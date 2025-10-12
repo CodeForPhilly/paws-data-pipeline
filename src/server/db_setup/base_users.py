@@ -76,6 +76,7 @@ def create_base_users():  # TODO: Just call create_user for each
             ins_stmt = pu.insert().values(
                 username="base_admin", full_name="Base Admin", password=pw_hash, active="Y", role=9,
             )
+            logger.info("base_admin password: %s", BASEADMIN_PW) #TODO: Remove this
             connection.execute(ins_stmt)
 
         else:

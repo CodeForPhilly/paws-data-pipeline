@@ -9,14 +9,14 @@ server:
     repository: ghcr.io/codeforphilly/paws-data-pipeline/server
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.60"
+    tag: "2.61"
 
 client:
   image:
     repository: ghcr.io/codeforphilly/paws-data-pipeline/client
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.60"
+    tag: "2.61"
 
 db:
   image:
