@@ -135,15 +135,18 @@ def user_login():
         check_password('password', pw_bytes)
 
     try:
+        logger.debug(request.data)  #TODO: Remove
         post_dict = json.loads(request.data)
         username = post_dict["username"]
         presentedpw = post_dict["password"]
-    except:
+    except Exception as err:
         dummy_check()    # Take the same time as with well-formed requests 
+        logger.info("Exception parsing or getting username/pw : %s", str(err))
         return jsonify("Bad credentials"), 401
 
     if not (isinstance(username, str) and isinstance(presentedpw, str) ):
         dummy_check()  # Take the same time as with well-formed requests 
+        logger.info("Not string")
         return jsonify("Bad credentials"), 401   # Don't give us ints, arrays, etc.
 
 
@@ -163,6 +166,7 @@ def user_login():
             pwhash, role, is_active = result.fetchone()
         else:
             log_user_action(username, "Failure", "Invalid username")
+            logger.info("Unknown username")
             dummy_check()
             return jsonify("Bad credentials"), 401
 
@@ -175,6 +179,7 @@ def user_login():
         else:
             log_user_action(username, "Failure", "Bad password or inactive")
             # No dummy_check needed as we ran a real one to get here
+            logger.info("Bad password or inactive user")
             return jsonify("Bad credentials"), 401
 
 
