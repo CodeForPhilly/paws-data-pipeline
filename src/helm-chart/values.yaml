@@ -9,14 +9,14 @@ server:
     repository: ghcr.io/codeforphilly/paws-data-pipeline/server
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.61"
+    tag: "2.62"
 
 client:
   image:
     repository: ghcr.io/codeforphilly/paws-data-pipeline/client
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.61"
+    tag: "2.62"
 
 db:
   image:
@@ -105,15 +105,3 @@ tolerations: []
 
 affinity: {}
 
-jobs:
-  - name: minute-cron
-    concurrencyPolicy: Forbid
-    schedule: "*/1 * * * *"
-    image: curlimages/curl
-    imagePullPolicy: IfNotPresent
-    command: ["/bin/bash"]
-
-    args:
-    - "-c"
-    - "curl http://paws-compose-server:5000/api/internal/test"
-    restartPolicy: OnFailure
