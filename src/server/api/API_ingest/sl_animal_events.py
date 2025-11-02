@@ -28,6 +28,10 @@ BASE_URL = "http://shelterluv.com/api/"
 MAX_COUNT = 100  # Max records the API will return for one call
 MAX_RETRY = 10
 
+MAX_LOOKBACK_YEARS = 5   # We'll request event records newer than this
+OFFSET_SECONDS = MAX_LOOKBACK_YEARS * 365 * 86400
+
+
 # Get the API key
 try:
     from secrets_dict import SHELTERLUV_SECRET_TOKEN
@@ -43,7 +47,7 @@ except ImportError:
         logger.error("Couldn't get SHELTERLUV_SECRET_TOKEN from file or environment")
 
 
-TEST_MODE=os.getenv("TEST_MODE")  # if not present, has value None
+TEST_MODE = os.getenv("TEST_MODE")  # if not present, has value None
 
 headers = {"Accept": "application/json", "X-API-Key": SHELTERLUV_SECRET_TOKEN}
 
@@ -75,9 +79,11 @@ headers = {"Accept": "application/json", "X-API-Key": SHELTERLUV_SECRET_TOKEN}
 # }
 
 
-def get_event_count():
+def get_event_count(query_from):
     """Test that server is operational and get total event count."""
-    events = "v1/events?offset=0&limit=1"
+
+    logger.debug("Querying for events from last %d years, since %d", MAX_LOOKBACK_YEARS, query_from)
+    events = "v1/events?offset=0&limit=1&since=" + str(query_from)
     URL = path.join(BASE_URL, events)
     logger.info("making call: %s", URL)
 
@@ -104,7 +110,7 @@ def get_event_count():
         return -5  # AFAICT, this means URL was bad
 
 
-def get_events_bulk():
+def get_events_bulk(query_from):
     """Pull all event records from SL """
 
     # Interesting API design - event record 0 is the newest. But since we pull all records each time it doesn't
@@ -114,7 +120,7 @@ def get_events_bulk():
 
     event_records = []
 
-    raw_url = path.join(BASE_URL, "v1/events?offset={0}&limit={1}")
+    raw_url = path.join(BASE_URL, "v1/events?offset={0}&limit={1}&since={2}")
     offset = 0
     limit = MAX_COUNT
     more_records = True
@@ -124,12 +130,12 @@ def get_events_bulk():
 
         if retries > MAX_RETRY:
             raise Exception("get_events_bulk failed, max retries reached")
-        url = raw_url.format(offset, limit)
+        url = raw_url.format(offset, limit, query_from)
 
         try:
             response = requests.request("GET", url, headers=headers)
         except Exception as e:
-            logger.error("get_events_buk failed with %s, retrying...", e)
+            logger.error("get_events_bulk failed with %s, retrying...", e)
             retries += 1
             continue
 
@@ -165,10 +171,12 @@ def get_events_bulk():
 
 
 def slae_test():
-    total_count = get_event_count()
+
+    query_from = int(time.mktime(time.localtime()) - OFFSET_SECONDS)
+    total_count = get_event_count(query_from)
     logger.debug("Total events: %d", total_count)
 
-    b = get_events_bulk()
+    b = get_events_bulk(query_from)
     logger.debug("Stored records: %d", len(b))
 
     # f = filter_events(b)
@@ -177,11 +185,15 @@ def slae_test():
     count = shelterluv_db.insert_events(b)
     return count
 
+
 def store_all_animals_and_events():
-    total_count = get_event_count()
+
+    query_from = int(time.mktime(time.localtime()) - OFFSET_SECONDS)
+
+    total_count = get_event_count(query_from)
     logger.debug("Total events: %d", total_count)
 
-    b = get_events_bulk()
+    b = get_events_bulk(query_from)
     logger.debug("Stored records: %d", len(b))
 
     # f = filter_events(b)
