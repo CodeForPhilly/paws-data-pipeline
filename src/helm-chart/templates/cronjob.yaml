@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+    name: {{ include "my-cronjob-chart.fullname" . }}
+    labels:
+    {{- include "my-cronjob-chart.labels" . | nindent 4 }}
+spec:
+    schedule: "{{ .Values.cronJob.schedule }}"
+    jobTemplate:
+    spec:
+        template:
+        spec:
+            containers:
+            - name: {{ .Chart.Name }}
+                image: "{{ .Values.cronJob.image.repository }}:{{ .Values.cronJob.image.tag | default .Chart.AppVersion }}"
+                imagePullPolicy: {{ .Values.cronJob.image.pullPolicy }}
+                command: {{ toYaml .Values.cronJob.command | nindent 18 }}
+            restartPolicy: OnFailure
