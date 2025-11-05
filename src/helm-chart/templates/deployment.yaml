@@ -35,6 +35,12 @@ spec:
         - name: {{ .Release.Name }}-server-data
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-server-data
+        - name: {{ .Release.Name }}-pem
+          secret:
+            secretName: paws-salesforce 
+            items:
+              - key: PEM_FILE
+                path: connected-app-secrets.pem
       serviceAccountName: {{ include "helm-chart.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
@@ -74,6 +80,8 @@ spec:
             - name: {{ $.Release.Name }}-server-data
               mountPath: /var/lib/server/data
               subPath: server-data
+            - name: {{ $.Release.Name }}-pem
+              mountPath: /app/pem/
           livenessProbe:
             httpGet:
               path: /api/user/test

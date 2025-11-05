@@ -178,12 +178,14 @@ def volgistics_people_import(workbook):
     col_email = col['Email']
     time_stamp = datetime.utcnow()
 
-    home_phone = standardize_phone_number(r[col_home])
-    work_phone = standardize_phone_number(r[col_work])
-    cell_phone = standardize_phone_number(r[col_cell])
 
     try:
         for r in ws.iter_rows(min_row=2, max_col=42,values_only=True):
+
+            home_phone = standardize_phone_number(r[col_home])
+            work_phone = standardize_phone_number(r[col_work])
+            cell_phone = standardize_phone_number(r[col_cell])
+
             insert_list.append(
                 {
                     "number": r[col_number],
