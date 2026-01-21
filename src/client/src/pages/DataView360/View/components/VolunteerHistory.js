@@ -13,6 +13,7 @@ import _ from 'lodash';
 import moment from 'moment-timezone';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import DataTableHeader from './DataTableHeader';
+import NoRecords from './NoRecords';
 
 
 const SHIFTS_TO_SHOW = 3;
@@ -47,19 +48,24 @@ class VolunteerHistory extends Component {
                     <DataTableHeader headerText={`Volunteer History (Most Recent ${SHIFTS_TO_SHOW})`} 
                         emojiIcon={<TimelineIcon color='primary' fontSize='inherit'/>}
                     />
-                    <TableContainer component={Paper} style={{"marginBottom":"1em"}} variant='outlined'>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Date</TableCell>
-                                    <TableCell>Assignment</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                { this.props.volunteerShifts &&  this.createShiftRows(this.props.volunteerShifts) }
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                    {!_.isEmpty(this.props.volunteerShifts) ? (
+                        <TableContainer component={Paper} style={{"marginBottom":"1em"}} variant='outlined'>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Date</TableCell>
+                                        <TableCell>Assignment</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    { this.props.volunteerShifts &&  this.createShiftRows(this.props.volunteerShifts) }
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )
+                    : (
+                        <NoRecords recordType="volunteer" />
+                    )}
                 </Container>
             </React.Fragment>
         );
