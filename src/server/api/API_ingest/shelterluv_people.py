@@ -7,6 +7,8 @@ from sqlalchemy.orm import sessionmaker
 from config import engine
 from models import ShelterluvPeople
 
+from utils import standardize_phone_number
+
 logger = structlog.get_logger()
 
 try:
@@ -89,7 +91,7 @@ def store_shelterluv_people_all():
                                       state=person["State"],
                                       zip=person["Zip"],
                                       email=person["Email"],
-                                      phone=person["Phone"],
+                                      phone=standardize_phone_number(person["Phone"] or ""),
                                       animal_ids=person["Animal_ids"]))
             offset += LIMIT
             retries = 0
