@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 from config import engine
 from models import SalesForceContacts
+from utils import standardize_phone_number
 
 from api import pem
 
@@ -56,8 +57,8 @@ def store_contacts_all():
                                              mailing_city=row['MailingCity'],
                                              mailing_state_province=row['MailingState'],
                                              mailing_zip_postal_code=row['MailingPostalCode'],
-                                             phone=row['Phone'],
-                                             mobile=row['MobilePhone'],
+                                             phone=standardize_phone_number(row['Phone'] or ""),
+                                             mobile=standardize_phone_number(row['MobilePhone'] or ""),
                                              email=row['Email'])
                 session.add(contact)
             # if in test mode only return first page of results
