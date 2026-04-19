@@ -1,4 +1,3 @@
-version: '3.7'
 
 services:
 
@@ -43,11 +42,9 @@ services:
   scheduler:
     build: ./scheduler
     container_name: paws-scheduler
-    ports:
-      - "6000:6000"
     depends_on:
       - server
-    profiles: ["production-only"]
+    # profiles: ["production-only"]
 
 
 
