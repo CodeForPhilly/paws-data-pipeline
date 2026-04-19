@@ -5,7 +5,7 @@ openpyxl
 requests
 pytest
 flask-jwt-extended==4.6.0
-alembic
+alembic==1.18.1
 flask-cors
 dropbox
 jellyfish
