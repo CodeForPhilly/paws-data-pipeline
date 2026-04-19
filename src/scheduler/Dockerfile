@@ -1,8 +1,6 @@
-FROM alpine:3.6
+FROM alpine:latest
+RUN apk add --no-cache curl bash jq
 
-# copy crontabs for root user
-COPY cronfile /etc/crontabs/root
-RUN apk --no-cache add curl
+COPY  --chmod=755 trigger.sh /usr/src/trigger.sh
 
-# start crond with log level 8 in foreground, output to stderr
-CMD ["crond", "-f", "-d", "8"]
+CMD ["/usr/src/trigger.sh"]
