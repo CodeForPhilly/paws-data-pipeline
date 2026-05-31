@@ -16,7 +16,7 @@ except ImportError:
 
     try:
         JWT_SECRET = environ['JWT_SECRET']
-        APP_SECRET_KEY = 'DO_WE_USE_THIS_FOR_ANYTHING?'                       # environ['APP_SECRET_KEY']
+        APP_SECRET_KEY = environ['APP_SECRET_KEY']   # not sure we use this any more, but just in case
     except KeyError:
         # Nor in environment
         # You're SOL for now

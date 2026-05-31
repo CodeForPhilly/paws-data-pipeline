@@ -9,14 +9,23 @@ server:
     repository: ghcr.io/codeforphilly/paws-data-pipeline/server
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.64"
+    tag: "2.71"
 
 client:
   image:
     repository: ghcr.io/codeforphilly/paws-data-pipeline/client
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "2.64"
+    tag: "2.71"
+
+scheduler:
+  image:
+    repository: ghcr.io/codeforphilly/paws-data-pipeline/scheduler
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "2.71"
+
+
 
 db:
   image:
@@ -30,8 +39,8 @@ storage:
   pgdb: 1Gi
   server: 1Gi
 
-imagePullSecrets: 
-  - name: regcred
+# imagePullSecrets: 
+#   - name: regcred
 nameOverride: "paws-datapipeline"
 fullnameOverride: "paws-dp-chart"
 

@@ -44,7 +44,7 @@ logger = structlog.get_logger()
 # Initiate postgres DB
 # best practices is to have only one engine per application process
 # https://docs.sqlalchemy.org/en/13/core/connections.html
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "thispasswordisverysecure")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_DATABASE = os.getenv("POSTGRES_DATABASE", "paws")
 POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
 
