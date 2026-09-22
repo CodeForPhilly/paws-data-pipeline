@@ -4,12 +4,27 @@ import {CardContent, Paper, TextField, Typography} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 
-function checkLoginResponse(response) {
-    let gotError = !response.ok;
-    if (gotError) {
-        throw new Error("Unable to log in - check username and password");
+const TOO_MANY_REQUESTS = 429;
+
+async function rateLimitMessage(response) {
+    try {
+        const {message} = await response.json();
+        if (message) {
+            return message;
+        }
+    } catch (err) {
     }
-    return response
+    return "Too many login attempts. Please try again later.";
+}
+
+async function checkLoginResponse(response) {
+    if (response.ok) {
+        return response
+    }
+    if (response.status === TOO_MANY_REQUESTS) {
+        throw new Error(await rateLimitMessage(response));
+    }
+    throw new Error("Unable to log in - check username and password");
 }
 
 
@@ -23,7 +38,7 @@ async function loginUser(credentials) {
     })
         .then(checkLoginResponse)
         .then(data => data.json())
-        .catch(error => document.getElementById('loginErrorMsg').innerHTML = error)
+        .catch(error => document.getElementById('loginErrorMsg').textContent = error.message)
 
 }
 
