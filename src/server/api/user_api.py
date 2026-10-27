@@ -3,7 +3,7 @@ from os import urandom, environ
 import pytest, codecs, random
 from datetime import datetime
 
-from api.api import user_api
+from api.api import user_api, limiter
 from sqlalchemy.sql import text
 from config import engine
 from flask import request, redirect, jsonify, current_app, abort, json
@@ -124,6 +124,7 @@ def user_override_timeout(new_timeout):
 
 
 @user_api.route("/api/user/login", methods=["POST"])
+@limiter.limit("5 per 15 minutes")
 def user_login():
     """ Validate user in db, return JWT if legit and active.
         Expects json-encoded form data {"username" :, "password": }
@@ -226,6 +227,7 @@ def user_logout():
 # Generate a new access token 
 
 @user_api.route("/api/user/refresh", methods=["GET"])
+@limiter.limit("10 per minute")
 @jwt_ops.jwt_required()
 def user_refresh():
     """ If user still active, send back an access_token with a new expiration stamp """
@@ -260,6 +262,7 @@ def user_refresh():
 
 
 @user_api.route("/api/admin/user/create", methods=["POST"])
+@limiter.limit("20 per hour")
 @jwt_ops.admin_required
 def user_create():
     """Create user record 

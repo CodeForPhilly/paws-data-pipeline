@@ -1,9 +1,11 @@
+import math
 import os
+import time
 
 import structlog
 logger = structlog.get_logger()
 
-from flask import Flask
+from flask import Flask, jsonify
 
 from flask_jwt_extended import JWTManager
 
@@ -52,13 +54,57 @@ jwt = JWTManager(app)
 
 
 app.secret_key = APP_SECRET_KEY
-app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024  # 500 Megs
+app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024  # 500Mb
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 
 from api.admin_api import admin_api
 from api.common_api import common_api
 from api.user_api import user_api
 from api.internal_api import internal_api
+from api.api import limiter
+
+limiter.init_app(app)
+
+
+def _too_many_attempts_message(retry_after):
+    """Tell the caller their attempts ran out and roughly how long to wait."""
+    if not retry_after:
+        return "Too many attempts. Please try again later."
+
+    if retry_after < 60:
+        amount, unit = retry_after, "second"
+    else:
+        amount, unit = math.ceil(retry_after / 60), "minute"  # round up (no 0 min)
+
+    plural = "" if amount == 1 else "s"
+    return f"Too many attempts. Please try again in about {amount} {unit}{plural}."
+
+
+@app.errorhandler(429)
+def rate_limit_exceeded(err):
+    """Rate-limited callers get JSON like the rest of the API, not Flask's HTML page.
+
+    Flask-Limiter already answers with 429 Too Many Requests, which is the right
+    status; this only replaces the body so clients can tell "rate limited" apart
+    from "bad credentials" instead of guessing from a non-200.
+    """
+    current_limit = limiter.current_limit
+    retry_after = None
+    if current_limit is not None:
+        retry_after = max(1, int(current_limit.reset_at - time.time()))
+
+    logger.info("Rate limit exceeded: %s, retry after %ss", err.description, retry_after)
+
+    return (
+        jsonify(
+            {
+                "error": "rate_limit_exceeded",
+                "message": _too_many_attempts_message(retry_after),
+                "retry_after": retry_after,
+            }
+        ),
+        429,
+    )
 
 
 #  Emit a log entry at each level
